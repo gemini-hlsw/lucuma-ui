@@ -2,7 +2,7 @@ addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.32")
 
 addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler-sjs06" % "0.17.0")
 
-addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.2")
+addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.3")
 
 addSbtPlugin("edu.gemini" % "sbt-gsp" % "0.1.14")
 
