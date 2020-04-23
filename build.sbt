@@ -33,7 +33,7 @@ lazy val root: Project =
         "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
         "edu.gemini" %%% "gsp-core-model" % "0.1.7",
         "io.github.cquiroz.react" %%% "common" % "0.7.1",
-        "io.github.cquiroz.react" %%% "react-semantic-ui" % "0.4.10",
+        "io.github.cquiroz.react" %%% "react-semantic-ui" % "0.4.11",
         "com.github.julien-truffaut" %%% "monocle-core" % "2.0.4"
       )
     )
