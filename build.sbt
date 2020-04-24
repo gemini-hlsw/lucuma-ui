@@ -9,6 +9,8 @@ ThisBuild / turbo := true
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.2.1"
+
 inThisBuild(
   Seq(
     homepage := Some(url("https://github.com/gemini-hlsw/gpp-ui")),
@@ -35,5 +37,7 @@ lazy val root: Project =
         "io.github.cquiroz.react" %%% "common" % "0.7.1",
         "io.github.cquiroz.react" %%% "react-semantic-ui" % "0.4.11",
         "com.github.julien-truffaut" %%% "monocle-core" % "2.0.4"
-      )
+      ),
+      semanticdbEnabled := true, // enable SemanticDB
+      semanticdbVersion := scalafixSemanticdb.revision // use Scalafix compatible version
     )
