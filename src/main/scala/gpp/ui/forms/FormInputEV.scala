@@ -14,8 +14,6 @@ import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
-import monocle.Iso
-import monocle.Prism
 import react.common._
 import react.semanticui._
 import react.semanticui.collections.form.FormInput
@@ -24,7 +22,7 @@ import react.semanticui.elements.input._
 import react.semanticui.elements.label._
 
 /**
-  * FormInput component that uses a EVar to share the content of the field
+  * FormInput component that uses a StateSnapshot to share the content of the field
   */
 final case class FormInputEV[A](
   name:           String,
@@ -55,36 +53,38 @@ final case class FormInputEV[A](
   transparent:    js.UndefOr[Boolean] = js.undefined,
   width:          js.UndefOr[SemanticWidth] = js.undefined,
   snapshot:       StateSnapshot[A],
-  prism:          Prism[String, A] = Iso.id[String].asPrism,
-  onChange:       FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty, // callback for parents of this component
+  optic:          InputOptics[A] = InputOptics.id,
+  onChange:       FormInputEV.ChangeCallback[A] =
+    (_: A) => Callback.empty, // callback for parents of this component
   onBlur:         FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty
 ) extends ReactProps {
   @inline def render: VdomElement = FormInputEV.component(this)
-  def valGet: String              = prism.reverseGet(snapshot.value)
-  def valSet(s: String): Callback = prism.getOption(s).map(snapshot.setState).getOrEmpty
-  val onBlurC: InputEV.ChangeCallback[String] =
-    (s: String) => prism.getOption(s).map(onBlur).getOrEmpty
+  def valGet: String              = optic.reverseGet(snapshot.value)
+  def valSet(s: String): Callback = optic.getOption(s).map(snapshot.setState).getOrEmpty
+  val onBlurC: InputEV.ChangeCallback[String]   =
+    (s: String) => optic.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
-    (s: String) => prism.getOption(s).map(onChange).getOrEmpty
+    (s: String) => optic.getOption(s).map(onChange).getOrEmpty
 }
 
-object FormInputEV {
+object FormInputEV     {
   type Props             = FormInputEV[_]
   type ChangeCallback[A] = A => Callback
   type Backend           = RenderScope[Props, State, Unit]
 
   final case class State(curValue: Option[String], changed: Boolean = false)
 
-  def onTextChange(b: Backend): ReactEventFromInput => Callback = (e: ReactEventFromInput) => {
-    // Capture the value outside setState, react reuses the events
-    val v = e.target.value
-    // First update the internal state, then call the outside listener
-    b.setState(State(v.some, changed = true)) *>
-      b.props.valSet(v) *>
-      b.props.onChangeC(v)
-  }
+  def onTextChange(b: Backend): ReactEventFromInput => Callback =
+    (e: ReactEventFromInput) => {
+      // Capture the value outside setState, react reuses the events
+      val v = e.target.value
+      // First update the internal state, then call the outside listener
+      b.setState(State(v.some, changed = true)) *>
+        b.props.valSet(v) *>
+        b.props.onChangeC(v)
+    }
 
-  def onBlur(b: Backend, c: ChangeCallback[String]): Callback =
+  def onBlur(b:       Backend, c: ChangeCallback[String]): Callback =
     c(b.state.curValue.orEmpty)
 
   protected val component =

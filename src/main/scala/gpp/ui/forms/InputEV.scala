@@ -8,45 +8,44 @@ import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.{ Callback, ReactEventFromInput, ScalaComponent }
-import monocle.Iso
-import monocle.Prism
 import react.common.ReactProps
 
 /**
-  * Input component that uses a EVar to share the content of the field
+  * Input component that uses a StateSnapshot to share the content of the field
   */
 final case class InputEV[A](
   name:        String,
   id:          String,
   snapshot:    StateSnapshot[A],
-  prism:       Prism[String, A] = Iso.id[String].asPrism,
+  optic:       InputOptics[A] = InputOptics.id,
   inputType:   InputEV.InputType = InputEV.TextInput,
   placeholder: String = "",
   disabled:    Boolean = false,
-  onChange:    InputEV.ChangeCallback[A] = (_: A) => Callback.empty, // callback for parents of this component
+  onChange:    InputEV.ChangeCallback[A] =
+    (_: A) => Callback.empty, // callback for parents of this component
   onBlur:      InputEV.ChangeCallback[A] = (_: A) => Callback.empty
 ) extends ReactProps {
   @inline def render: VdomElement = InputEV.component(this)
-  def valGet: String              = prism.reverseGet(snapshot.value)
-  def valSet(s: String): Callback = prism.getOption(s).map(snapshot.setState).getOrEmpty
-  val onBlurC: InputEV.ChangeCallback[String] =
-    (s: String) => prism.getOption(s).map(onBlur).getOrEmpty
+  def valGet: String              = optic.reverseGet(snapshot.value)
+  def valSet(s: String): Callback = optic.getOption(s).map(snapshot.setState).getOrEmpty
+  val onBlurC: InputEV.ChangeCallback[String]   =
+    (s: String) => optic.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
-    (s: String) => prism.getOption(s).map(onChange).getOrEmpty
+    (s: String) => optic.getOption(s).map(onChange).getOrEmpty
 }
 
-object InputEV {
+object InputEV         {
   type Props             = InputEV[_]
   type ChangeCallback[A] = A => Callback
   type Backend           = RenderScope[Props, State, Unit]
 
   final case class State(curValue: Option[String], changed: Boolean = false)
 
-  sealed trait InputType extends Product with Serializable
-  case object TextInput extends InputType
+  sealed trait InputType    extends Product with Serializable
+  case object TextInput     extends InputType
   case object PasswordInput extends InputType
 
-  def onTextChange(b: Backend)(e: ReactEventFromInput): Callback = {
+  def onTextChange(b: Backend)(e: ReactEventFromInput): Callback    = {
     // Capture the value outside setState, react reuses the events
     val v = e.target.value
     // First update the internal state, then call the outside listener
@@ -55,7 +54,7 @@ object InputEV {
       b.props.onChangeC(v)
   }
 
-  def onBlur(b: Backend, c: ChangeCallback[String]): Callback =
+  def onBlur(b:       Backend, c: ChangeCallback[String]): Callback =
     c(b.state.curValue.orEmpty)
 
   protected val component =

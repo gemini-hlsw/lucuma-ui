@@ -22,15 +22,15 @@ final case class EnumSelect[A](
   placeholder: String,
   disabled:    Boolean,
   onChange:    A => Callback = (_: A) => Callback.empty
-)(
-  implicit val enum: Enumerated[A],
-  val show:          Show[A]
+)(implicit
+  val enum:    Enumerated[A],
+  val show:    Show[A]
 ) extends ReactProps {
   @inline def render: VdomElement =
     EnumSelect.component(this.asInstanceOf[EnumSelect[Any]])
 }
 
-object EnumSelect {
+object EnumSelect      {
   type Props[A] = EnumSelect[A]
 
   implicit protected def propsReuse[A]: Reusability[Props[A]] =
@@ -48,9 +48,9 @@ object EnumSelect {
           <.label(p.label),
           Select(
             placeholder = p.placeholder,
-            fluid       = true,
-            disabled    = p.disabled,
-            value       = p.value.map(i => p.enum.tag(i)).orUndefined,
+            fluid = true,
+            disabled = p.disabled,
+            value = p.value.map(i => p.enum.tag(i)).orUndefined,
             options = p.enum.all
               .map(i => DropdownItem(text = i.show, value = p.enum.tag(i))),
             onChange = (ddp: Dropdown.DropdownProps) =>
