@@ -19,7 +19,7 @@ final case class InputEV[A](
   name:        String,
   id:          String,
   snapshot:    StateSnapshot[A],
-  prism:       Prism[A, String] = Iso.id[String].asPrism,
+  prism:       Prism[String, A] = Iso.id[String].asPrism,
   inputType:   InputEV.InputType = InputEV.TextInput,
   placeholder: String = "",
   disabled:    Boolean = false,
@@ -27,12 +27,12 @@ final case class InputEV[A](
   onBlur:      InputEV.ChangeCallback[A] = (_: A) => Callback.empty
 ) extends ReactProps {
   @inline def render: VdomElement = InputEV.component(this)
-  def valGet: String              = prism.getOption(snapshot.value).orEmpty
-  def valSet(s: String): Callback = snapshot.setState(prism.reverseGet(s))
+  def valGet: String              = prism.reverseGet(snapshot.value)
+  def valSet(s: String): Callback = prism.getOption(s).map(snapshot.setState).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String] =
-    (s: String) => onBlur(prism.reverseGet(s))
+    (s: String) => prism.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
-    (s: String) => onChange(prism.reverseGet(s))
+    (s: String) => prism.getOption(s).map(onChange).getOrEmpty
 }
 
 object InputEV {

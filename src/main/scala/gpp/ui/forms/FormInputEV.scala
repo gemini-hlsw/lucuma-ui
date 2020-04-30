@@ -55,17 +55,17 @@ final case class FormInputEV[A](
   transparent:    js.UndefOr[Boolean] = js.undefined,
   width:          js.UndefOr[SemanticWidth] = js.undefined,
   snapshot:       StateSnapshot[A],
-  prism:          Prism[A, String] = Iso.id[String].asPrism,
+  prism:          Prism[String, A] = Iso.id[String].asPrism,
   onChange:       FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty, // callback for parents of this component
   onBlur:         FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty
 ) extends ReactProps {
   @inline def render: VdomElement = FormInputEV.component(this)
-  def valGet: String              = prism.getOption(snapshot.value).orEmpty
-  def valSet(s: String): Callback = snapshot.setState(prism.reverseGet(s))
-  val onBlurC: FormInputEV.ChangeCallback[String] =
-    (s: String) => onBlur(prism.reverseGet(s))
-  val onChangeC: FormInputEV.ChangeCallback[String] =
-    (s: String) => onChange(prism.reverseGet(s))
+  def valGet: String              = prism.reverseGet(snapshot.value)
+  def valSet(s: String): Callback = prism.getOption(s).map(snapshot.setState).getOrEmpty
+  val onBlurC: InputEV.ChangeCallback[String] =
+    (s: String) => prism.getOption(s).map(onBlur).getOrEmpty
+  val onChangeC: InputEV.ChangeCallback[String] =
+    (s: String) => prism.getOption(s).map(onChange).getOrEmpty
 }
 
 object FormInputEV {
