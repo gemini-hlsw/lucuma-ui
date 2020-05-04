@@ -3,15 +3,16 @@
 
 package gpp.ui.forms
 
-import cats.implicits._
+import scala.scalajs.js.JSConverters._
+
 import cats.Show
+import cats.implicits._
 import gem.util.Enumerated
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import react.common.ReactProps
-import react.semanticui.modules.dropdown._
-import scala.scalajs.js.JSConverters._
 import react.semanticui.addons.select.Select
+import react.semanticui.modules.dropdown._
 
 /**
   * Produces a dropdown menu, similar to a combobox

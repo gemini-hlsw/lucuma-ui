@@ -5,8 +5,8 @@ package gpp.ui.forms
 
 import cats.implicits._
 import gsp.math.optics.Format
-import monocle.Prism
 import monocle.Iso
+import monocle.Prism
 
 /**
   * Define an object that can convert from A to String and optionally viceversa
