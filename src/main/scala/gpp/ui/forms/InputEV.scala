@@ -4,10 +4,12 @@
 package gpp.ui.forms
 
 import cats.implicits._
+import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.ReactEventFromInput
+import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.{ Callback, ReactEventFromInput, ScalaComponent }
 import react.common.ReactProps
 
 /**
@@ -45,7 +47,7 @@ object InputEV         {
   case object TextInput     extends InputType
   case object PasswordInput extends InputType
 
-  def onTextChange(b: Backend)(e: ReactEventFromInput): Callback    = {
+  def onTextChange(b: Backend)(e: ReactEventFromInput): Callback = {
     // Capture the value outside setState, react reuses the events
     val v = e.target.value
     // First update the internal state, then call the outside listener
@@ -54,7 +56,7 @@ object InputEV         {
       b.props.onChangeC(v)
   }
 
-  def onBlur(b:       Backend, c: ChangeCallback[String]): Callback =
+  def onBlur(b: Backend, c: ChangeCallback[String]): Callback =
     c(b.state.curValue.orEmpty)
 
   protected val component =
