@@ -84,7 +84,7 @@ object FormInputEV     {
         b.props.onChangeC(v)
     }
 
-  def onBlur(b:       Backend, c: ChangeCallback[String]): Callback =
+  def onBlur(b: Backend, c: ChangeCallback[String]): Callback =
     c(b.state.curValue.orEmpty)
 
   protected val component =
