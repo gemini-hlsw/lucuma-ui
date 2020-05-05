@@ -4,7 +4,7 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler-sjs06" % "0.17.0")
 
 addSbtPlugin("com.geirsson" % "sbt-ci-release" % "1.5.3")
 
-addSbtPlugin("edu.gemini" % "sbt-gsp" % "0.1.15")
+addSbtPlugin("edu.gemini" % "sbt-gsp" % "0.1.16")
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.4")
 
