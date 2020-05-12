@@ -1,7 +1,7 @@
 import sbt._
 
-val reactJS      = "16.7.0"
-val scalaJsReact = "1.6.0"
+val reactJS      = "16.13.1"
+val scalaJsReact = "1.7.0"
 
 parallelExecution in (ThisBuild, Test) := false
 
@@ -18,7 +18,10 @@ inThisBuild(
         "scm:git:git@github.com:gemini-hlsw/gpp-ui.git"
       )
     ),
-    scalaVersion := "2.13.1"
+    scalaVersion := "2.13.1",
+    scalacOptions ++= Seq(
+      "-Ymacro-annotations"
+    )
   ) ++ gspPublishSettings
 )
 
@@ -29,11 +32,11 @@ lazy val root: Project =
     .settings(
       name := "gpp-ui",
       libraryDependencies ++= Seq(
-        "org.typelevel" %%% "cats-core" % "2.1.1",
-        "com.github.japgolly.scalajs-react" %%% "core" % scalaJsReact,
-        "edu.gemini" %%% "gsp-core-model" % "0.1.8",
-        "io.github.cquiroz.react" %%% "common" % "0.7.1",
-        "io.github.cquiroz.react" %%% "react-semantic-ui" % "0.4.12",
-        "com.github.julien-truffaut" %%% "monocle-core" % "2.0.4"
+        "org.typelevel"                     %%% "cats-core"         % "2.1.1",
+        "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReact,
+        "edu.gemini"                        %%% "gsp-core-model"    % "0.2.0",
+        "io.github.cquiroz.react"           %%% "common"            % "0.8.1",
+        "io.github.cquiroz.react"           %%% "react-semantic-ui" % "0.5.0",
+        "com.github.julien-truffaut"        %%% "monocle-core"      % "2.0.4"
       )
     )

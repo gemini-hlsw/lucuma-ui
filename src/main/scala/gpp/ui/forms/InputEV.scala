@@ -10,6 +10,7 @@ import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.vdom.html_<^._
+import monocle.macros.Lenses
 import react.common.ReactProps
 
 /**
@@ -41,7 +42,8 @@ object InputEV         {
   type ChangeCallback[A] = A => Callback
   type Backend           = RenderScope[Props, State, Unit]
 
-  final case class State(curValue: Option[String], changed: Boolean = false)
+  @Lenses
+  final case class State(curValue: Option[String], prevValue: String)
 
   sealed trait InputType    extends Product with Serializable
   case object TextInput     extends InputType
@@ -51,7 +53,7 @@ object InputEV         {
     // Capture the value outside setState, react reuses the events
     val v = e.target.value
     // First update the internal state, then call the outside listener
-    b.setState(State(v.some, changed = true)) *>
+    b.modState(State.curValue.set(v.some)) *>
       b.props.valSet(v) *>
       b.props.onChangeC(v)
   }
@@ -62,7 +64,15 @@ object InputEV         {
   protected val component =
     ScalaComponent
       .builder[Props]("InputEV")
-      .initialState(State(None))
+      .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
+        val newValue = props.valGet
+        // Update state of the input if the property has changed
+        // TBD Should check if the state has changed?
+        stateOpt match {
+          case Some(state) if newValue === state.prevValue => state
+          case _                                           => State(newValue.some, newValue)
+        }
+      }
       .render { b =>
         val p = b.props
         val s = b.state
@@ -79,19 +89,6 @@ object InputEV         {
           ^.onChange ==> onTextChange(b),
           ^.onBlur --> onBlur(b, p.onBlurC)
         )
-      }
-      .componentWillMount { ctx =>
-        // Update state of the input if the property has changed
-        ctx
-          .setState(State(ctx.props.valGet.some))
-          .when_((ctx.props.valGet.some =!= ctx.state.curValue) && !ctx.state.changed)
-      }
-      .componentWillReceiveProps { ctx =>
-        // Update state of the input if the property has changed
-        // TBD Should check if the state has changed?
-        ctx
-          .setState(State(ctx.nextProps.valGet.some))
-          .when_(ctx.nextProps.valGet.some =!= ctx.state.curValue)
       }
       .build
 }
