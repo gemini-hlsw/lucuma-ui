@@ -14,6 +14,8 @@ import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.MonocleReact._
+import monocle.macros.Lenses
 import react.common._
 import react.semanticui._
 import react.semanticui.collections.form.FormInput
@@ -72,14 +74,15 @@ object FormInputEV     {
   type ChangeCallback[A] = A => Callback
   type Backend           = RenderScope[Props, State, Unit]
 
-  final case class State(curValue: Option[String], changed: Boolean = false)
+  @Lenses
+  final case class State(curValue: Option[String], prevValue: String)
 
   def onTextChange(b: Backend): ReactEventFromInput => Callback =
     (e: ReactEventFromInput) => {
       // Capture the value outside setState, react reuses the events
       val v = e.target.value
       // First update the internal state, then call the outside listener
-      b.setState(State(v.some, changed = true)) *>
+      b.setStateL(State.curValue)(v.some) *>
         b.props.valSet(v) *>
         b.props.onChangeC(v)
     }
@@ -90,7 +93,15 @@ object FormInputEV     {
   protected val component =
     ScalaComponent
       .builder[Props]("FormInputEV")
-      .initialState(State(None))
+      .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
+        val newValue = props.valGet
+        // Update state of the input if the property has changed
+        // TBD Should check if the state has changed?
+        stateOpt match {
+          case Some(state) if newValue === state.prevValue => state
+          case _                                           => State(newValue.some, newValue)
+        }
+      }
       .render { b =>
         val p = b.props
         val s = b.state
@@ -124,19 +135,6 @@ object FormInputEV     {
           p.width,
           s.curValue.orEmpty
         )(^.id := p.id, ^.onBlur --> onBlur(b, p.onBlurC))
-      }
-      .componentWillMount { ctx =>
-        // Update state of the input if the property has changed
-        ctx
-          .setState(State(ctx.props.valGet.some))
-          .when_((ctx.props.valGet.some =!= ctx.state.curValue) && !ctx.state.changed)
-      }
-      .componentWillReceiveProps { ctx =>
-        // Update state of the input if the property has changed
-        // TBD Should check if the state has changed?
-        ctx
-          .setState(State(ctx.nextProps.valGet.some))
-          .when_(ctx.nextProps.valGet.some =!= ctx.state.curValue)
       }
       .build
 }
