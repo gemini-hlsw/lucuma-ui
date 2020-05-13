@@ -14,6 +14,7 @@ import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.MonocleReact._
 import monocle.macros.Lenses
 import react.common._
 import react.semanticui._
@@ -81,7 +82,7 @@ object FormInputEV     {
       // Capture the value outside setState, react reuses the events
       val v = e.target.value
       // First update the internal state, then call the outside listener
-      b.modState(State.curValue.set(v.some)) *>
+      b.setStateL(State.curValue)(v.some) *>
         b.props.valSet(v) *>
         b.props.onChangeC(v)
     }

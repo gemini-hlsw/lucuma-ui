@@ -34,6 +34,7 @@ lazy val root: Project =
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"         % "2.1.1",
         "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReact,
         "edu.gemini"                        %%% "gsp-core-model"    % "0.2.0",
         "io.github.cquiroz.react"           %%% "common"            % "0.8.1",
         "io.github.cquiroz.react"           %%% "react-semantic-ui" % "0.5.0",
