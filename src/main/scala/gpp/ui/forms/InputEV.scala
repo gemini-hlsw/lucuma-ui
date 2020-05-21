@@ -28,9 +28,8 @@ final case class InputEV[A](
   onChange:    InputEV.ChangeCallback[A] =
     (_: A) => Callback.empty, // callback for parents of this component
   onBlur:      InputEV.ChangeCallback[A] = (_: A) => Callback.empty
-) extends ReactProps {
-  @inline def render: VdomElement = InputEV.component(this)
-  def valGet: String              = optic.reverseGet(snapshot.value)
+) extends ReactProps[InputEV[Any]](InputEV.component) {
+  def valGet: String = optic.reverseGet(snapshot.value)
   def valSet(s: String): Callback = optic.getOption(s).map(snapshot.setState).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =
     (s: String) => optic.getOption(s).map(onBlur).getOrEmpty
@@ -38,10 +37,10 @@ final case class InputEV[A](
     (s: String) => optic.getOption(s).map(onChange).getOrEmpty
 }
 
-object InputEV         {
-  type Props             = InputEV[_]
+object InputEV                                          {
+  type Props[A]          = InputEV[A]
   type ChangeCallback[A] = A => Callback
-  type Backend           = RenderScope[Props, State, Unit]
+  type Backend[A]        = RenderScope[Props[A], State, Unit]
 
   @Lenses
   final case class State(curValue: Option[String], prevValue: String)
@@ -50,7 +49,7 @@ object InputEV         {
   case object TextInput     extends InputType
   case object PasswordInput extends InputType
 
-  def onTextChange(b: Backend)(e: ReactEventFromInput): Callback = {
+  def onTextChange[A](b: Backend[A])(e: ReactEventFromInput): Callback = {
     // Capture the value outside setState, react reuses the events
     val v = e.target.value
     // First update the internal state, then call the outside listener
@@ -59,12 +58,12 @@ object InputEV         {
       b.props.onChangeC(v)
   }
 
-  def onBlur(b: Backend, c: ChangeCallback[String]): Callback =
+  def onBlur[A](b: Backend[A], c: ChangeCallback[String]): Callback =
     c(b.state.curValue.orEmpty)
 
   protected val component =
     ScalaComponent
-      .builder[Props]("InputEV")
+      .builder[Props[Any]]
       .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
         val newValue = props.valGet
         // Update state of the input if the property has changed
