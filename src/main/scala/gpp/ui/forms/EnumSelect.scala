@@ -26,12 +26,9 @@ final case class EnumSelect[A](
 )(implicit
   val enum:    Enumerated[A],
   val show:    Show[A]
-) extends ReactProps {
-  @inline def render: VdomElement =
-    EnumSelect.component(this.asInstanceOf[EnumSelect[Any]])
-}
+) extends ReactProps[EnumSelect[Any]](EnumSelect.component)
 
-object EnumSelect      {
+object EnumSelect {
   type Props[A] = EnumSelect[A]
 
   implicit protected def propsReuse[A]: Reusability[Props[A]] =
@@ -39,7 +36,7 @@ object EnumSelect      {
 
   protected val component =
     ScalaComponent
-      .builder[Props[Any]]("EnumSelect")
+      .builder[Props[Any]]
       .stateless
       .render_P { p =>
         implicit val show = p.show
