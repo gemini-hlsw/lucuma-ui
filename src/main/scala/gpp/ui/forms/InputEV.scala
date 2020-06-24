@@ -15,32 +15,33 @@ import monocle.macros.Lenses
 import react.common.ReactProps
 
 /**
-  * Input component that uses a StateSnapshot to share the content of the field
+  * Input component that uses an ExternalValue to share the content of the field
   */
-final case class InputEV[A](
-  name:        String,
-  id:          String,
-  snapshot:    StateSnapshot[A],
-  optic:       InputOptics[A] = InputOptics.id,
-  inputType:   InputEV.InputType = InputEV.TextInput,
-  placeholder: String = "",
-  disabled:    Boolean = false,
-  onChange:    InputEV.ChangeCallback[A] =
+final case class InputEV[EV[_], A](
+  name:            String,
+  id:              String,
+  value:           EV[A],
+  format:          InputFormat[A] = InputFormat.id,
+  inputType:       InputEV.InputType = InputEV.TextInput,
+  placeholder:     String = "",
+  disabled:        Boolean = false,
+  onChange:        InputEV.ChangeCallback[A] =
     (_: A) => Callback.empty, // callback for parents of this component
-  onBlur:      InputEV.ChangeCallback[A] = (_: A) => Callback.empty
-) extends ReactProps[InputEV[Any]](InputEV.component) {
-  def valGet: String = optic.reverseGet(snapshot.value)
-  def valSet(s: String): Callback = optic.getOption(s).map(snapshot.setState).getOrEmpty
+  onBlur:          InputEV.ChangeCallback[A] = (_: A) => Callback.empty
+)(implicit val ev: ExternalValue[EV])
+    extends ReactProps[InputEV[Any, Any]](InputEV.component) {
+  def valGet: String = format.reverseGet(ev.get(value))
+  def valSet(s: String): Callback = format.getOption(s).map(ev.set(value)).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =
-    (s: String) => optic.getOption(s).map(onBlur).getOrEmpty
+    (s: String) => format.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
-    (s: String) => optic.getOption(s).map(onChange).getOrEmpty
+    (s: String) => format.getOption(s).map(onChange).getOrEmpty
 }
 
-object InputEV                                          {
-  type Props[A]          = InputEV[A]
+object InputEV {
+  type Props[EV[_], A]   = InputEV[EV, A]
   type ChangeCallback[A] = A => Callback
-  type Backend[A]        = RenderScope[Props[A], State, Unit]
+  type Scope[EV[_], A]   = RenderScope[Props[EV, A], State, Unit]
 
   @Lenses
   final case class State(curValue: Option[String], prevValue: String)
@@ -49,25 +50,25 @@ object InputEV                                          {
   case object TextInput     extends InputType
   case object PasswordInput extends InputType
 
-  def onTextChange[A](b: Backend[A])(e: ReactEventFromInput): Callback = {
+  def onTextChange[EV[_], A]($ : Scope[EV, A])(e: ReactEventFromInput): Callback = {
     // Capture the value outside setState, react reuses the events
     val v = e.target.value
     // First update the internal state, then call the outside listener
-    b.setStateL(State.curValue)(v.some) *>
-      b.props.valSet(v) *>
-      b.props.onChangeC(v)
+    $.setStateL(State.curValue)(v.some) *>
+      // Next 2 might not be called if the InputFormat returns None
+      $.props.valSet(v) *>
+      $.props.onChangeC(v)
   }
 
-  def onBlur[A](b: Backend[A], c: ChangeCallback[String]): Callback =
-    c(b.state.curValue.orEmpty)
+  def onBlur[EV[_], A]($ : Scope[EV, A], c: ChangeCallback[String]): Callback =
+    c($.state.curValue.orEmpty)
 
   protected val component =
     ScalaComponent
-      .builder[Props[Any]]
+      .builder[Props[Any, Any]]
       .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
         val newValue = props.valGet
-        // Update state of the input if the property has changed
-        // TBD Should check if the state has changed?
+        // Force new value from props if the prop changes (or we are initializing).
         stateOpt match {
           case Some(state) if newValue === state.prevValue => state
           case _                                           => State(newValue.some, newValue)

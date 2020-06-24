@@ -18,7 +18,7 @@ inThisBuild(
         "scm:git:git@github.com:gemini-hlsw/gpp-ui.git"
       )
     ),
-    scalaVersion := "2.13.1",
+    scalaVersion := "2.13.2",
     scalacOptions ++= Seq(
       "-Ymacro-annotations"
     )
@@ -38,6 +38,8 @@ lazy val root: Project =
         "edu.gemini"                        %%% "gsp-core-model"    % "0.2.4",
         "io.github.cquiroz.react"           %%% "common"            % "0.9.3",
         "io.github.cquiroz.react"           %%% "react-semantic-ui" % "0.5.7",
-        "com.github.julien-truffaut"        %%% "monocle-core"      % "2.0.5"
-      )
+        "com.github.julien-truffaut"        %%% "monocle-core"      % "2.0.5",
+        "com.rpiaggio"                      %%% "crystal"           % "0.7.1"
+      ),
+      addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.11.0").cross(CrossVersion.full))
     )

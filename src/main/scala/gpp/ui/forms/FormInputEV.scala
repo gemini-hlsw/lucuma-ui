@@ -22,88 +22,93 @@ import react.semanticui.collections.form.FormInput
 import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.input._
 import react.semanticui.elements.label._
+import crystal.ViewF
+import crystal.react.implicits._
+import cats.effect.Effect
 
 /**
-  * FormInput component that uses a StateSnapshot to share the content of the field
+  * FormInput component that uses an ExternalValue to share the content of the field
   */
-final case class FormInputEV[A](
-  name:           String,
-  id:             String,
-  action:         js.UndefOr[ShorthandSB[VdomNode]] = js.undefined,
-  actionPosition: js.UndefOr[ActionPosition] = js.undefined,
-  as:             js.UndefOr[AsC] = js.undefined,
-  className:      js.UndefOr[String] = js.undefined,
-  clazz:          js.UndefOr[Css] = js.undefined,
-  content:        js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
-  control:        js.UndefOr[String] = js.undefined,
-  disabled:       js.UndefOr[Boolean] = js.undefined,
-  error:          js.UndefOr[ShorthandB[Label]] = js.undefined,
-  fluid:          js.UndefOr[Boolean] = js.undefined,
-  focus:          js.UndefOr[Boolean] = js.undefined,
-  icon:           js.UndefOr[ShorthandSB[Icon]] = js.undefined,
-  iconPosition:   js.UndefOr[IconPosition] = js.undefined,
-  inline:         js.UndefOr[Boolean] = js.undefined,
-  input:          js.UndefOr[VdomNode] = js.undefined,
-  inverted:       js.UndefOr[Boolean] = js.undefined,
-  label:          js.UndefOr[ShorthandS[Label]] = js.undefined,
-  labelPosition:  js.UndefOr[LabelPosition] = js.undefined,
-  loading:        js.UndefOr[Boolean] = js.undefined,
-  required:       js.UndefOr[Boolean] = js.undefined,
-  size:           js.UndefOr[SemanticSize] = js.undefined,
-  tabIndex:       js.UndefOr[String | JsNumber] = js.undefined,
-  tpe:            js.UndefOr[String] = js.undefined,
-  transparent:    js.UndefOr[Boolean] = js.undefined,
-  width:          js.UndefOr[SemanticWidth] = js.undefined,
-  snapshot:       StateSnapshot[A],
-  optic:          InputOptics[A] = InputOptics.id,
-  onChange:       FormInputEV.ChangeCallback[A] =
+final case class FormInputEV[EV[_], A](
+  name:            String,
+  id:              String,
+  action:          js.UndefOr[ShorthandSB[VdomNode]] = js.undefined,
+  actionPosition:  js.UndefOr[ActionPosition] = js.undefined,
+  as:              js.UndefOr[AsC] = js.undefined,
+  className:       js.UndefOr[String] = js.undefined,
+  clazz:           js.UndefOr[Css] = js.undefined,
+  content:         js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
+  control:         js.UndefOr[String] = js.undefined,
+  disabled:        js.UndefOr[Boolean] = js.undefined,
+  error:           js.UndefOr[ShorthandB[Label]] = js.undefined,
+  fluid:           js.UndefOr[Boolean] = js.undefined,
+  focus:           js.UndefOr[Boolean] = js.undefined,
+  icon:            js.UndefOr[ShorthandSB[Icon]] = js.undefined,
+  iconPosition:    js.UndefOr[IconPosition] = js.undefined,
+  inline:          js.UndefOr[Boolean] = js.undefined,
+  input:           js.UndefOr[VdomNode] = js.undefined,
+  inverted:        js.UndefOr[Boolean] = js.undefined,
+  label:           js.UndefOr[ShorthandS[Label]] = js.undefined,
+  labelPosition:   js.UndefOr[LabelPosition] = js.undefined,
+  loading:         js.UndefOr[Boolean] = js.undefined,
+  required:        js.UndefOr[Boolean] = js.undefined,
+  size:            js.UndefOr[SemanticSize] = js.undefined,
+  tabIndex:        js.UndefOr[String | JsNumber] = js.undefined,
+  tpe:             js.UndefOr[String] = js.undefined,
+  transparent:     js.UndefOr[Boolean] = js.undefined,
+  width:           js.UndefOr[SemanticWidth] = js.undefined,
+  value:           EV[A],
+  format:          InputFormat[A] = InputFormat.id,
+  onChange:        FormInputEV.ChangeCallback[A] =
     (_: A) => Callback.empty, // callback for parents of this component
-  onBlur:         FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty
-) extends ReactProps[FormInputEV[Any]](FormInputEV.component) {
-  def valGet: String = optic.reverseGet(snapshot.value)
-  def valSet(s: String): Callback = optic.getOption(s).map(snapshot.setState).getOrEmpty
+  onBlur:          FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty
+)(implicit val ev: ExternalValue[EV])
+    extends ReactProps[FormInputEV[Any, Any]](FormInputEV.component) {
+  def valGet: String = format.reverseGet(ev.get(value))
+  def valSet(s: String): Callback =
+    format.getOption(s).map(ev.set(value)).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =
-    (s: String) => optic.getOption(s).map(onBlur).getOrEmpty
+    (s: String) => format.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
-    (s: String) => optic.getOption(s).map(onChange).getOrEmpty
+    (s: String) => format.getOption(s).map(onChange).getOrEmpty
 }
 
-object FormInputEV                                              {
-  type Props[A]          = FormInputEV[A]
+object FormInputEV {
+  type Props[EV[_], A]   = FormInputEV[EV, A]
   type ChangeCallback[A] = A => Callback
-  type Backend[A]        = RenderScope[Props[A], State, Unit]
+  type Scope[EV[_], A]   = RenderScope[Props[EV, A], State, Unit]
 
   @Lenses
-  final case class State(curValue: Option[String], prevValue: String)
+  final case class State(curValue: String, prevValue: String)
 
-  def onTextChange[A](b: Backend[A]): ReactEventFromInput => Callback =
+  def onTextChange[EV[_], A]($ : Scope[EV, A]): ReactEventFromInput => Callback =
     (e: ReactEventFromInput) => {
       // Capture the value outside setState, react reuses the events
       val v = e.target.value
       // First update the internal state, then call the outside listener
-      b.setStateL(State.curValue)(v.some) *>
-        b.props.valSet(v) *>
-        b.props.onChangeC(v)
+      $.setStateL(State.curValue)(v) *>
+        // Next 2 might not be called if the InputFormat returns None
+        $.props.valSet(v) *>
+        $.props.onChangeC(v)
     }
 
-  def onBlur[A](b: Backend[A], c: ChangeCallback[String]): Callback =
-    c(b.state.curValue.orEmpty)
+  def onBlur[EV[_], A]($ : Scope[EV, A], c: ChangeCallback[String]): Callback =
+    c($.state.curValue)
 
   protected val component =
     ScalaComponent
-      .builder[Props[Any]]
+      .builder[Props[Any, Any]]
       .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
         val newValue = props.valGet
-        // Update state of the input if the property has changed
-        // TBD Should check if the state has changed?
+        // Force new value from props if the prop changes (or we are initializing).
         stateOpt match {
           case Some(state) if newValue === state.prevValue => state
-          case _                                           => State(newValue.some, newValue)
+          case _                                           => State(newValue, newValue)
         }
       }
-      .render { b =>
-        val p = b.props
-        val s = b.state
+      .render { $ =>
+        val p = $.props
+        val s = $.state
         FormInput(
           p.action,
           p.actionPosition,
@@ -125,15 +130,15 @@ object FormInputEV                                              {
           p.labelPosition,
           p.loading,
           js.undefined,
-          onTextChange(b),
+          onTextChange($),
           p.required,
           p.size,
           p.tabIndex,
           p.tpe,
           p.transparent,
           p.width,
-          s.curValue.orEmpty
-        )(^.id := p.id, ^.onBlur --> onBlur(b, p.onBlurC))
+          s.curValue
+        )(^.id := p.id, ^.onBlur --> onBlur($, p.onBlurC))
       }
       .build
 }
