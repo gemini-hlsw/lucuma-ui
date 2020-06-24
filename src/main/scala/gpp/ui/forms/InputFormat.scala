@@ -20,12 +20,12 @@ object InputFormat {
   /**
     * Build optics from a Prism
     */
-  def fromPrism[A](prism:  Prism[String, A]) =
+  def fromPrism[A](prism: Prism[String, A]) =
     Format.fromPrism(prism)
 
   /**
     * Build optics from a Iso
     */
-  def fromIso[A](iso:      Iso[String, A]): InputFormat[A] =
+  def fromIso[A](iso: Iso[String, A]): InputFormat[A] =
     Format.fromIso(iso)
 }
