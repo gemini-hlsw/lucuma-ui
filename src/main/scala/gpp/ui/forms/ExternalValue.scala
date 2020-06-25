@@ -9,24 +9,24 @@ import crystal.react.implicits._
 import cats.effect.Effect
 import japgolly.scalajs.react.extra.StateSnapshot
 
-trait ExternalValue[W[_]] {
-  def get[A](w: W[A]): A
-  def set[A](w: W[A]): A => Callback
+trait ExternalValue[EV[_]] {
+  def get[A](ev: EV[A]): A
+  def set[A](ev: EV[A]): A => Callback
 }
 
 object ExternalValue {
   implicit def externalValueViewF[F[_]: Effect]: ExternalValue[ViewF[F, *]] =
     new ExternalValue[ViewF[F, *]] {
-      override def get[A](w: ViewF[F, A]): A = w.get
+      override def get[A](ev: ViewF[F, A]): A = ev.get
 
-      override def set[A](w: ViewF[F, A]): A => Callback =
-        w.set.andThen(_.runInCB)
+      override def set[A](ev: ViewF[F, A]): A => Callback =
+        ev.set.andThen(_.runInCB)
     }
 
   implicit val externalValueStateSnapshot: ExternalValue[StateSnapshot] =
     new ExternalValue[StateSnapshot] {
-      override def get[A](w: StateSnapshot[A]): A = w.value
+      override def get[A](ev: StateSnapshot[A]): A = ev.value
 
-      override def set[A](w: StateSnapshot[A]): A => Callback = w.setState
+      override def set[A](ev: StateSnapshot[A]): A => Callback = ev.setState
     }
 }
