@@ -123,7 +123,7 @@ object EnumViewSelect {
         FormSelect(
           js.undefined,
           js.undefined,
-          false,
+          js.undefined,
           p.as,
           p.basic,
           p.button,
