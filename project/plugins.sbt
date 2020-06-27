@@ -8,4 +8,4 @@ addSbtPlugin("edu.gemini" % "sbt-gsp" % "0.2.2")
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.0")
 
-addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.11")
+addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat" % "0.1.13")
