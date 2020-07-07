@@ -14,7 +14,6 @@ import japgolly.scalajs.react.raw.JsNumber
 import react.common.ReactProps
 import react.common._
 import react.semanticui._
-import react.semanticui.addons.select.Select
 import react.semanticui.collections.form.FormSelect
 import react.semanticui.collections.form.FormDropdown
 import react.semanticui.elements.icon.Icon

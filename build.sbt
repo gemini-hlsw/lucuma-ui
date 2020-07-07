@@ -1,7 +1,15 @@
 import sbt._
 
-val reactJS      = "16.13.1"
-val scalaJsReact = "1.7.3"
+lazy val reactJS                = "16.13.1"
+lazy val scalaJsReactVersion    = "1.7.3"
+lazy val gspCoreModelVersion    = "0.2.6"
+lazy val gspMathVersion         = "0.2.4"
+lazy val monocleVersion         = "2.0.5"
+lazy val crystalVersion         = "0.7.1"
+lazy val catsVersion            = "2.1.1"
+lazy val reactCommonVersion     = "0.9.3"
+lazy val reactSemanticUIVersion = "0.5.8"
+lazy val kindProjectorVersion   = "0.11.0"
 
 parallelExecution in (ThisBuild, Test) := false
 
@@ -18,7 +26,7 @@ inThisBuild(
         "scm:git:git@github.com:gemini-hlsw/gpp-ui.git"
       )
     ),
-    scalaVersion := "2.13.2",
+    scalaVersion := "2.13.3",
     scalacOptions ++= Seq(
       "-Ymacro-annotations"
     )
@@ -32,14 +40,17 @@ lazy val root: Project =
     .settings(
       name := "gpp-ui",
       libraryDependencies ++= Seq(
-        "org.typelevel"                     %%% "cats-core"         % "2.1.1",
-        "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReact,
-        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReact,
-        "edu.gemini"                        %%% "gsp-core-model"    % "0.2.5",
-        "io.github.cquiroz.react"           %%% "common"            % "0.9.3",
-        "io.github.cquiroz.react"           %%% "react-semantic-ui" % "0.5.9",
-        "com.github.julien-truffaut"        %%% "monocle-core"      % "2.0.5",
-        "com.rpiaggio"                      %%% "crystal"           % "0.7.1"
+        "org.typelevel"                     %%% "cats-core"         % catsVersion,
+        "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReactVersion,
+        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReactVersion,
+        "edu.gemini"                        %%% "gsp-core-model"    % gspCoreModelVersion,
+        "edu.gemini"                        %%% "gsp-math"          % gspMathVersion,
+        "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
+        "io.github.cquiroz.react"           %%% "react-semantic-ui" % reactSemanticUIVersion,
+        "com.github.julien-truffaut"        %%% "monocle-core"      % monocleVersion,
+        "com.rpiaggio"                      %%% "crystal"           % crystalVersion
       ),
-      addCompilerPlugin(("org.typelevel" %% "kind-projector" % "0.11.0").cross(CrossVersion.full))
+      addCompilerPlugin(
+        ("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)
+      )
     )
