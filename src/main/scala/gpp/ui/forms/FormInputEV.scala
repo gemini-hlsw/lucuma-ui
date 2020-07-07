@@ -11,7 +11,6 @@ import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.ReactEventFromInput
 import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
-import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.MonocleReact._
@@ -22,9 +21,6 @@ import react.semanticui.collections.form.FormInput
 import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.input._
 import react.semanticui.elements.label._
-import crystal.ViewF
-import crystal.react.implicits._
-import cats.effect.Effect
 
 /**
   * FormInput component that uses an ExternalValue to share the content of the field
