@@ -7,7 +7,7 @@ lazy val gspMathVersion         = "0.2.8"
 lazy val monocleVersion         = "2.0.5"
 lazy val crystalVersion         = "0.7.1"
 lazy val catsVersion            = "2.1.1"
-lazy val reactCommonVersion     = "0.9.4"
+lazy val reactCommonVersion     = "0.9.6"
 lazy val reactSemanticUIVersion = "0.6.0"
 lazy val kindProjectorVersion   = "0.11.0"
 
