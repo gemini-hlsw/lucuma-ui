@@ -1,7 +1,7 @@
 import sbt._
 
 lazy val reactJS                = "16.13.1"
-lazy val scalaJsReactVersion    = "1.7.4"
+lazy val scalaJsReactVersion    = "1.7.5"
 lazy val gspCoreModelVersion    = "0.2.8"
 lazy val gspMathVersion         = "0.2.8"
 lazy val monocleVersion         = "2.1.0"
