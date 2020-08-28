@@ -19,7 +19,7 @@ import react.semanticui.collections.form.FormDropdown
 import react.semanticui.elements.icon.Icon
 import react.semanticui.modules.dropdown._
 import react.semanticui.modules.dropdown.Dropdown._
-import crystal.ViewOptF
+import crystal.ViewF
 import crystal.react.implicits._
 import cats.effect.Effect
 import scalajs.js
@@ -28,8 +28,8 @@ import scalajs.js.|
 /**
   * Produces a dropdown menu, similar to a combobox
   */
-final case class EnumViewSelect[F[_], A](
-  value:                ViewOptF[F, A],
+final case class EnumViewMultipleSelect[F[_], A](
+  value:                ViewF[F, List[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
@@ -103,12 +103,12 @@ final case class EnumViewSelect[F[_], A](
   val enum:             Enumerated[A],
   val show:             Show[A],
   val effect:           Effect[F]
-) extends ReactProps[EnumViewSelect[Any, Any]](EnumViewSelect.component) {
-  def apply(mods: TagMod*): EnumViewSelect[F, A] = copy(modifiers = modifiers ++ mods)
+) extends ReactProps[EnumViewMultipleSelect[Any, Any]](EnumViewMultipleSelect.component) {
+  def apply(mods: TagMod*): EnumViewMultipleSelect[F, A] = copy(modifiers = modifiers ++ mods)
 }
 
-object EnumViewSelect {
-  type Props[F[_], A] = EnumViewSelect[F, A]
+object EnumViewMultipleSelect {
+  type Props[F[_], A] = EnumViewMultipleSelect[F, A]
 
   protected val component =
     ScalaComponent
@@ -154,22 +154,24 @@ object EnumViewSelect {
           false,
           p.loading,
           p.minCharacters,
-          false,
+          true,
           p.noResultsMessage,
           js.undefined,
           p.onBlur,
           p.onBlurE,
           js.undefined,
-          (e: ReactEvent, ddp: FormDropdown.FormDropdownProps) =>
-            ddp.value.toOption
-              .flatMap(v => p.enum.fromTag(v.asInstanceOf[String]))
-              .map(v => p.value.set(v).runInCB)
-              .getOrEmpty
-              >> p.onChangeE
+          (e: ReactEvent, ddp: FormDropdown.FormDropdownProps) => {
+            val enums = ddp.value
+              .asInstanceOf[js.Array[String]]
+              .toList
+              .flatMap(v => p.enum.fromTag(v))
+            p.value.set(enums).runInCB >>
+              p.onChangeE
                 .map(_(e, ddp))
                 .toOption
                 .orElse(p.onChange.map(_(ddp)).toOption)
-                .getOrEmpty,
+                .getOrEmpty
+          },
           p.onClick,
           p.onClickE,
           p.onClose,
@@ -205,7 +207,7 @@ object EnumViewSelect {
           p.tpe,
           p.trigger,
           p.upward,
-          p.value.get.map(i => p.enum.tag(i)).orUndefined,
+          p.value.get.map(i => p.enum.tag(i)).toJSArray,
           p.width,
           p.wrapSelection,
           p.modifiers
