@@ -1,9 +1,9 @@
 // Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package gpp.ui.forms
+package lucuma.ui.forms
 
-import gsp.math.optics.Format
+import lucuma.core.optics.Format
 import monocle.Iso
 import monocle.Prism
 

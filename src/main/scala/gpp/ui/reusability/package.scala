@@ -1,13 +1,12 @@
 // Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package gpp.ui
+package lucuma.ui
 
-import gem.util.Enumerated
+import lucuma.core.data.EnumZipper
+import lucuma.core.math.Angle
+import lucuma.core.util.Enumerated
 import japgolly.scalajs.react.Reusability
-import gsp.math.Angle
-import gem.data.EnumZipper
-import gem.Observation
 
 /**
   * Instances of reusability for some utility types
@@ -21,13 +20,6 @@ trait UtilReusabilityInstances {
 }
 
 /**
-  * Instances of reusability for some model types
-  */
-trait ModelReusabilityInstances {
-  implicit val obsIdReuse: Reusability[Observation.Id] = Reusability.by(_.format)
-}
-
-/**
   * Instances of reusability for some common math types
   */
 trait MathReusabilityInstances {
@@ -35,7 +27,4 @@ trait MathReusabilityInstances {
     Reusability.by(_.toMicroarcseconds)
 }
 
-package object reusability
-    extends ModelReusabilityInstances
-    with UtilReusabilityInstances
-    with MathReusabilityInstances
+package object reusability extends UtilReusabilityInstances with MathReusabilityInstances
