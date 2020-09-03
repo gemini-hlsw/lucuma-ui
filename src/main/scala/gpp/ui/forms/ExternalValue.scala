@@ -3,10 +3,10 @@
 
 package lucuma.ui.forms
 
-import japgolly.scalajs.react.Callback
+import cats.effect.Effect
 import crystal.ViewF
 import crystal.react.implicits._
-import cats.effect.Effect
+import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.extra.StateSnapshot
 
 trait ExternalValue[EV[_]] {

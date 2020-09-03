@@ -5,11 +5,11 @@ package lucuma.ui.forms
 
 import cats.implicits._
 import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.ReactEventFromInput
 import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.MonocleReact._
 import monocle.macros.Lenses
 import react.common.ReactProps
 

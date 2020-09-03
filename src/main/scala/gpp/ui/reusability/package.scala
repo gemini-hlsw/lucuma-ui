@@ -3,10 +3,10 @@
 
 package lucuma.ui
 
+import japgolly.scalajs.react.Reusability
 import lucuma.core.data.EnumZipper
 import lucuma.core.math.Angle
 import lucuma.core.util.Enumerated
-import japgolly.scalajs.react.Reusability
 
 /**
   * Instances of reusability for some utility types

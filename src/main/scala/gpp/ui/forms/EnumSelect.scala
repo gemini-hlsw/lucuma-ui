@@ -7,9 +7,9 @@ import scala.scalajs.js.JSConverters._
 
 import cats.Show
 import cats.implicits._
-import lucuma.core.util.Enumerated
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.util.Enumerated
 import react.common.ReactProps
 import react.semanticui.addons.select.Select
 import react.semanticui.modules.dropdown._
