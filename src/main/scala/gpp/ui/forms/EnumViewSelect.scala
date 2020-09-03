@@ -5,7 +5,7 @@ package lucuma.ui.forms
 
 import cats.Show
 import cats.effect.Effect
-import cats.implicits._
+import cats.syntax.all._
 import crystal.ViewOptF
 import crystal.react.implicits._
 import japgolly.scalajs.react._

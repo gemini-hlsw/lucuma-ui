@@ -6,7 +6,7 @@ package lucuma.ui.forms
 import scala.scalajs.js.JSConverters._
 
 import cats.Show
-import cats.implicits._
+import cats.syntax.all._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Enumerated
