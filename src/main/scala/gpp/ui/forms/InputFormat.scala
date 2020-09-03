@@ -8,9 +8,9 @@ import monocle.Iso
 import monocle.Prism
 
 /**
-  * Convenience constructors for Prism to convert from A to String and optionally viceversa
-  * It is meant to be used for Input widgets targeting some A
-  */
+ * Convenience constructors for Prism to convert from A to String and optionally viceversa
+ * It is meant to be used for Input widgets targeting some A
+ */
 object InputFormat {
   val id: InputFormat[String] = fromIso(Iso.id[String])
 
@@ -18,14 +18,14 @@ object InputFormat {
     Format(_getOption, _reverseGet)
 
   /**
-    * Build optics from a Prism
-    */
+   * Build optics from a Prism
+   */
   def fromPrism[A](prism: Prism[String, A]) =
     Format.fromPrism(prism)
 
   /**
-    * Build optics from a Iso
-    */
+   * Build optics from a Iso
+   */
   def fromIso[A](iso: Iso[String, A]): InputFormat[A] =
     Format.fromIso(iso)
 }

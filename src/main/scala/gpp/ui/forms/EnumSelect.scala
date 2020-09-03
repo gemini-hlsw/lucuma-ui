@@ -15,8 +15,8 @@ import react.semanticui.addons.select.Select
 import react.semanticui.modules.dropdown._
 
 /**
-  * Produces a dropdown menu, similar to a combobox
-  */
+ * Produces a dropdown menu, similar to a combobox
+ */
 final case class EnumSelect[A](
   label:       String,
   value:       Option[A],

@@ -14,8 +14,8 @@ import monocle.macros.Lenses
 import react.common.ReactProps
 
 /**
-  * Input component that uses an ExternalValue to share the content of the field
-  */
+ * Input component that uses an ExternalValue to share the content of the field
+ */
 final case class InputEV[EV[_], A](
   name:            String,
   id:              String,

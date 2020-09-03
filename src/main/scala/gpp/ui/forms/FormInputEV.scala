@@ -23,8 +23,8 @@ import react.semanticui.elements.input._
 import react.semanticui.elements.label._
 
 /**
-  * FormInput component that uses an ExternalValue to share the content of the field
-  */
+ * FormInput component that uses an ExternalValue to share the content of the field
+ */
 final case class FormInputEV[EV[_], A](
   name:            String,
   id:              String,

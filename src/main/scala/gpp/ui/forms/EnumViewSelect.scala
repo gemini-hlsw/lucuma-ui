@@ -26,8 +26,8 @@ import scalajs.js
 import scalajs.js.|
 
 /**
-  * Produces a dropdown menu, similar to a combobox
-  */
+ * Produces a dropdown menu, similar to a combobox
+ */
 final case class EnumViewSelect[F[_], A](
   value:                ViewOptF[F, A],
   as:                   js.UndefOr[AsC] = js.undefined,

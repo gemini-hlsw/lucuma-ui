@@ -9,8 +9,8 @@ import lucuma.core.math.Angle
 import lucuma.core.util.Enumerated
 
 /**
-  * Instances of reusability for some utility types
-  */
+ * Instances of reusability for some utility types
+ */
 trait UtilReusabilityInstances {
   implicit def enumReuse[A: Enumerated]: Reusability[A] =
     Reusability.by(Enumerated[A].tag)
@@ -20,8 +20,8 @@ trait UtilReusabilityInstances {
 }
 
 /**
-  * Instances of reusability for some common math types
-  */
+ * Instances of reusability for some common math types
+ */
 trait MathReusabilityInstances {
   implicit val angleReuse: Reusability[Angle] =
     Reusability.by(_.toMicroarcseconds)
