@@ -1,22 +1,22 @@
 // Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package gpp.ui.forms
+package lucuma.ui.forms
 
 import scala.scalajs.js.JSConverters._
 
 import cats.Show
 import cats.implicits._
-import gem.util.Enumerated
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.util.Enumerated
 import react.common.ReactProps
 import react.semanticui.addons.select.Select
 import react.semanticui.modules.dropdown._
 
 /**
-  * Produces a dropdown menu, similar to a combobox
-  */
+ * Produces a dropdown menu, similar to a combobox
+ */
 final case class EnumSelect[A](
   label:       String,
   value:       Option[A],

@@ -1,33 +1,33 @@
 // Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package gpp.ui.forms
-
-import scalajs.js.JSConverters._
+package lucuma.ui.forms
 
 import cats.Show
+import cats.effect.Effect
 import cats.implicits._
-import gem.util.Enumerated
+import crystal.ViewF
+import crystal.react.implicits._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.vdom.html_<^._
 import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.util.Enumerated
 import react.common.ReactProps
 import react.common._
 import react.semanticui._
-import react.semanticui.collections.form.FormSelect
 import react.semanticui.collections.form.FormDropdown
+import react.semanticui.collections.form.FormSelect
 import react.semanticui.elements.icon.Icon
-import react.semanticui.modules.dropdown._
 import react.semanticui.modules.dropdown.Dropdown._
-import crystal.ViewF
-import crystal.react.implicits._
-import cats.effect.Effect
+import react.semanticui.modules.dropdown._
+
+import scalajs.js.JSConverters._
 import scalajs.js
 import scalajs.js.|
 
 /**
-  * Produces a dropdown menu, similar to a combobox
-  */
+ * Produces a dropdown menu, similar to a combobox
+ */
 final case class EnumViewMultipleSelect[F[_], A](
   value:                ViewF[F, List[A]],
   as:                   js.UndefOr[AsC] = js.undefined,

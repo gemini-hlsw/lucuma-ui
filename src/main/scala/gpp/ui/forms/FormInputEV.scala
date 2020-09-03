@@ -1,19 +1,19 @@
 // Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package gpp.ui.forms
+package lucuma.ui.forms
 
 import scala.scalajs.js
 import scala.scalajs.js.|
 
 import cats.implicits._
 import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.ReactEventFromInput
 import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
-import japgolly.scalajs.react.MonocleReact._
 import monocle.macros.Lenses
 import react.common._
 import react.semanticui._
@@ -23,8 +23,8 @@ import react.semanticui.elements.input._
 import react.semanticui.elements.label._
 
 /**
-  * FormInput component that uses an ExternalValue to share the content of the field
-  */
+ * FormInput component that uses an ExternalValue to share the content of the field
+ */
 final case class FormInputEV[EV[_], A](
   name:            String,
   id:              String,
