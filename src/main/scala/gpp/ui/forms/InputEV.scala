@@ -3,7 +3,7 @@
 
 package lucuma.ui.forms
 
-import cats.implicits._
+import cats.syntax.all._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.ReactEventFromInput
