@@ -5,10 +5,10 @@ package lucuma.ui.forms
 
 import scala.scalajs.js.JSConverters._
 
-import cats.Show
-import cats.syntax.all._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.syntax.all._
+import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.ReactProps
 import react.semanticui.addons.select.Select
@@ -25,21 +25,21 @@ final case class EnumSelect[A](
   onChange:    A => Callback = (_: A) => Callback.empty
 )(implicit
   val enum:    Enumerated[A],
-  val show:    Show[A]
+  val display: Display[A]
 ) extends ReactProps[EnumSelect[Any]](EnumSelect.component)
 
 object EnumSelect {
   type Props[A] = EnumSelect[A]
 
   implicit protected def propsReuse[A]: Reusability[Props[A]] =
-    Reusability.by(p => (p.label, p.value.map(p.show.show), p.placeholder, p.disabled))
+    Reusability.by(p => (p.label, p.value.map(p.display.shortName), p.placeholder, p.disabled))
 
   protected val component =
     ScalaComponent
       .builder[Props[Any]]
       .stateless
       .render_P { p =>
-        implicit val show = p.show
+        implicit val display = p.display
 
         <.div(
           ^.cls := "field",
@@ -50,7 +50,7 @@ object EnumSelect {
             disabled = p.disabled,
             value = p.value.map(i => p.enum.tag(i)).orUndefined,
             options = p.enum.all
-              .map(i => DropdownItem(text = i.show, value = p.enum.tag(i))),
+              .map(i => DropdownItem(text = i.shortName, value = p.enum.tag(i))),
             onChange = (ddp: Dropdown.DropdownProps) =>
               ddp.value.toOption
                 .flatMap(v => p.enum.fromTag(v.asInstanceOf[String]))
