@@ -3,7 +3,6 @@
 
 package lucuma.ui.forms
 
-import cats.Show
 import cats.effect.Effect
 import cats.syntax.all._
 import crystal.ViewF
@@ -11,6 +10,8 @@ import crystal.react.implicits._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.syntax.all._
+import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.ReactProps
 import react.common._
@@ -101,7 +102,7 @@ final case class EnumViewMultipleSelect[F[_], A](
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
   val enum:             Enumerated[A],
-  val show:             Show[A],
+  val display:          Display[A],
   val effect:           Effect[F]
 ) extends ReactProps[EnumViewMultipleSelect[Any, Any]](EnumViewMultipleSelect.component) {
   def apply(mods: TagMod*): EnumViewMultipleSelect[F, A] = copy(modifiers = modifiers ++ mods)
@@ -115,8 +116,8 @@ object EnumViewMultipleSelect {
       .builder[Props[Any, Any]]
       .stateless
       .render_P { p =>
-        implicit val show   = p.show
-        implicit val effect = p.effect
+        implicit val display = p.display
+        implicit val effect  = p.effect
 
         FormSelect(
           additionLabel = js.undefined,
@@ -188,7 +189,7 @@ object EnumViewMultipleSelect {
           p.onSearchChangeE,
           p.open,
           p.openOnFocus,
-          options = p.enum.all.map(i => DropdownItem(text = i.show, value = p.enum.tag(i))),
+          options = p.enum.all.map(i => DropdownItem(text = i.shortName, value = p.enum.tag(i))),
           p.placeholder,
           p.pointing,
           p.renderLabel,
