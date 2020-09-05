@@ -6,8 +6,8 @@ lazy val lucumaCoreVersion      = "0.4.1"
 lazy val monocleVersion         = "2.1.0"
 lazy val crystalVersion         = "0.7.1"
 lazy val catsVersion            = "2.2.0"
-lazy val reactCommonVersion     = "0.9.7"
-lazy val reactSemanticUIVersion = "0.6.4"
+lazy val reactCommonVersion     = "0.9.8"
+lazy val reactSemanticUIVersion = "0.6.3"
 lazy val kindProjectorVersion   = "0.11.0"
 
 parallelExecution in (ThisBuild, Test) := false
