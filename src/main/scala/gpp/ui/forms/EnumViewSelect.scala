@@ -105,7 +105,7 @@ final case class EnumViewSelect[F[_], A](
   val display:          Display[A],
   val effect:           Effect[F]
 ) extends ReactProps[EnumViewSelect[Any, Any]](EnumViewSelect.component) {
-  def apply(mods: TagMod*): EnumViewSelect[F, A] = copy(modifiers = modifiers ++ mods)
+  def withMods(mods: TagMod*): EnumViewSelect[F, A] = copy(modifiers = modifiers ++ mods)
 }
 
 object EnumViewSelect {

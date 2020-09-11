@@ -55,6 +55,7 @@ final case class FormInputEV[EV[_], A](
   width:           js.UndefOr[SemanticWidth] = js.undefined,
   value:           EV[A],
   format:          InputFormat[A] = InputFormat.id,
+  modifiers:       Seq[TagMod] = Seq.empty,
   onChange:        FormInputEV.ChangeCallback[A] =
     (_: A) => Callback.empty, // callback for parents of this component
   onBlur:          FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty
@@ -67,6 +68,8 @@ final case class FormInputEV[EV[_], A](
     (s: String) => format.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
     (s: String) => format.getOption(s).map(onChange).getOrEmpty
+
+  def withMods(mods: TagMod*): FormInputEV[EV, A] = copy(modifiers = modifiers ++ mods)
 }
 
 object FormInputEV {
@@ -134,7 +137,7 @@ object FormInputEV {
           p.transparent,
           p.width,
           s.curValue
-        )(^.id := p.id, ^.onBlur --> onBlur($, p.onBlurC))
+        )((p.modifiers :+ (^.id := p.id) :+ (^.onBlur --> onBlur($, p.onBlurC)): _*))
       }
       .build
 }
