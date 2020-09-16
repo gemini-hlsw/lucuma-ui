@@ -30,7 +30,7 @@ import scalajs.js.|
  * Produces a dropdown menu, similar to a combobox
  */
 final case class EnumViewMultipleSelect[F[_], A](
-  value:                ViewF[F, List[A]],
+  value:                ViewF[F, Set[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
@@ -164,7 +164,7 @@ object EnumViewMultipleSelect {
           (e: ReactEvent, ddp: FormDropdown.FormDropdownProps) => {
             val enums = ddp.value
               .asInstanceOf[js.Array[String]]
-              .toList
+              .toSet
               .flatMap(v => p.enum.fromTag(v))
             p.value.set(enums).runInCB >>
               p.onChangeE
