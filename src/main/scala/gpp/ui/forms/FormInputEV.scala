@@ -137,7 +137,10 @@ object FormInputEV {
           p.transparent,
           p.width,
           s.curValue
-        )((p.modifiers :+ (^.id := p.id) :+ (^.onBlur --> onBlur($, p.onBlurC)): _*))
+        )(
+          (p.modifiers :+ (^.id := p.id) :+ (^.name := p.name)
+            :+ (^.onBlur --> onBlur($, p.onBlurC)): _*)
+        )
       }
       .build
 }

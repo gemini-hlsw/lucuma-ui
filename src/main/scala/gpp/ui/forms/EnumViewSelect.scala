@@ -53,9 +53,10 @@ final case class EnumViewSelect[F[_], A](
   fluid:                js.UndefOr[Boolean] = js.undefined,
   header:               js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
   icon:                 js.UndefOr[ShorthandS[Icon]] = js.undefined,
+  id:                   js.UndefOr[String] = js.undefined,
   inline:               js.UndefOr[Boolean] = js.undefined,
   item:                 js.UndefOr[Boolean] = js.undefined,
-  label:                js.UndefOr[ShorthandS[String]] = js.undefined,
+  label:                js.UndefOr[String] = js.undefined,
   labeled:              js.UndefOr[Boolean] = js.undefined,
   loading:              js.UndefOr[Boolean] = js.undefined,
   minCharacters:        js.UndefOr[JsNumber] = js.undefined,
@@ -208,7 +209,7 @@ object EnumViewSelect {
           p.value.get.map(i => p.enum.tag(i)).orUndefined,
           p.width,
           p.wrapSelection,
-          p.modifiers
+          p.modifiers :+ (^.id := p.id)
         )
       }
       .build
