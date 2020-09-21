@@ -19,6 +19,7 @@ import react.semanticui._
 import react.semanticui.collections.form.FormDropdown
 import react.semanticui.collections.form.FormSelect
 import react.semanticui.elements.icon.Icon
+import react.semanticui.elements.label.Label
 import react.semanticui.modules.dropdown.Dropdown._
 import react.semanticui.modules.dropdown._
 
@@ -56,7 +57,7 @@ final case class EnumViewSelect[F[_], A](
   id:                   js.UndefOr[String] = js.undefined,
   inline:               js.UndefOr[Boolean] = js.undefined,
   item:                 js.UndefOr[Boolean] = js.undefined,
-  label:                js.UndefOr[String] = js.undefined,
+  label:                js.UndefOr[ShorthandS[Label]] = js.undefined,
   labeled:              js.UndefOr[Boolean] = js.undefined,
   loading:              js.UndefOr[Boolean] = js.undefined,
   minCharacters:        js.UndefOr[JsNumber] = js.undefined,
