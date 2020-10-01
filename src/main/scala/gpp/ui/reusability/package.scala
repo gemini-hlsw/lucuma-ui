@@ -3,6 +3,8 @@
 
 package lucuma.ui
 
+import eu.timepit.refined.api.RefType
+import lucuma.core.model._
 import japgolly.scalajs.react.Reusability
 import lucuma.core.data.EnumZipper
 import lucuma.core.math.Angle
@@ -27,4 +29,30 @@ trait MathReusabilityInstances {
     Reusability.by(_.toMicroarcseconds)
 }
 
-package object reusability extends UtilReusabilityInstances with MathReusabilityInstances
+/**
+ * Generic reusability of refined types
+ */
+trait RefinedReusabiltyInstances {
+  implicit def refTypeCogen[F[_, _], T: Reusability, P](implicit
+    rt: RefType[F]
+  ): Reusability[F[T, P]] =
+    Reusability.by(rt.unwrap)
+}
+
+/**
+ * Reusability instances for model classes
+ */
+trait ModelReusabiltyInstances extends RefinedReusabiltyInstances {
+  implicit val userIdReuse: Reusability[User.Id]                 = Reusability.derive
+  implicit val orcidIdReuse: Reusability[OrcidId]                = Reusability.by(_.value.toString)
+  implicit val orcidProfileResuse: Reusability[OrcidProfile]     = Reusability.derive
+  implicit val standardRoleIdReuse: Reusability[StandardRole.Id] = Reusability.derive
+  implicit val partnerReuse: Reusability[Partner]                = Reusability.derive
+  implicit val standardRoleReuse: Reusability[StandardRole]      = Reusability.derive
+  implicit val standardUserReuse: Reusability[StandardUser]      = Reusability.derive
+}
+
+package object reusability
+    extends UtilReusabilityInstances
+    with MathReusabilityInstances
+    with ModelReusabiltyInstances
