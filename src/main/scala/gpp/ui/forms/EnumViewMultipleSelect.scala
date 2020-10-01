@@ -31,6 +31,7 @@ import scalajs.js.|
  * Produces a dropdown menu, similar to a combobox
  */
 final case class EnumViewMultipleSelect[F[_], A](
+  id:                   String,
   value:                ViewF[F, Set[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
@@ -54,7 +55,6 @@ final case class EnumViewMultipleSelect[F[_], A](
   fluid:                js.UndefOr[Boolean] = js.undefined,
   header:               js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
   icon:                 js.UndefOr[ShorthandS[Icon]] = js.undefined,
-  id:                   js.UndefOr[String] = js.undefined,
   inline:               js.UndefOr[Boolean] = js.undefined,
   item:                 js.UndefOr[Boolean] = js.undefined,
   label:                js.UndefOr[ShorthandS[Label]] = js.undefined,

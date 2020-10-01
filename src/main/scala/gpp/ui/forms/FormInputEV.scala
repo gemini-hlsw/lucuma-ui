@@ -26,7 +26,6 @@ import react.semanticui.elements.label._
  * FormInput component that uses an ExternalValue to share the content of the field
  */
 final case class FormInputEV[EV[_], A](
-  name:            String,
   id:              String,
   action:          js.UndefOr[ShorthandSB[VdomNode]] = js.undefined,
   actionPosition:  js.UndefOr[ActionPosition] = js.undefined,
@@ -138,8 +137,7 @@ object FormInputEV {
           p.width,
           s.curValue
         )(
-          (p.modifiers :+ (^.id := p.id) :+ (^.name := p.name)
-            :+ (^.onBlur --> onBlur($, p.onBlurC)): _*)
+          (p.modifiers :+ (^.id := p.id) :+ (^.onBlur --> onBlur($, p.onBlurC)): _*)
         )
       }
       .build
