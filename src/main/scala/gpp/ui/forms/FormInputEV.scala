@@ -60,7 +60,7 @@ final case class FormInputEV[EV[_], A](
   onBlur:          FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty
 )(implicit val ev: ExternalValue[EV])
     extends ReactProps[FormInputEV[Any, Any]](FormInputEV.component) {
-  def valGet: String = format.reverseGet(ev.get(value))
+  def valGet: String = ev.get(value).foldMap(format.reverseGet)
   def valSet(s: String): Callback =
     format.getOption(s).map(ev.set(value)).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =

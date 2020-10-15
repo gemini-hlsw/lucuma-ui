@@ -4,10 +4,11 @@
 package lucuma.ui
 
 import eu.timepit.refined.api.RefType
-import lucuma.core.model._
+import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react.Reusability
 import lucuma.core.data.EnumZipper
-import lucuma.core.math.Angle
+import lucuma.core.math._
+import lucuma.core.model._
 import lucuma.core.util.Enumerated
 
 /**
@@ -25,8 +26,15 @@ trait UtilReusabilityInstances {
  * Instances of reusability for some common math types
  */
 trait MathReusabilityInstances {
-  implicit val angleReuse: Reusability[Angle] =
+  implicit val angleReuse: Reusability[Angle]             =
     Reusability.by(_.toMicroarcseconds)
+  implicit def raReuse: Reusability[RightAscension]       = Reusability.byEq
+  implicit def decReuse: Reusability[Declination]         = Reusability.byEq
+  implicit def coordinatesReuse: Reusability[Coordinates] = Reusability.byEq
+  implicit def epochReuse: Reusability[Epoch]             = Reusability.byEq
+  implicit def pvReuse: Reusability[ProperVelocity]       = Reusability.byEq
+  implicit def rvReuse: Reusability[RadialVelocity]       = Reusability.byEq
+  implicit def parallaxReuse: Reusability[Parallax]       = Reusability.byEq
 }
 
 /**
@@ -42,14 +50,19 @@ trait RefinedReusabiltyInstances {
 /**
  * Reusability instances for model classes
  */
-trait ModelReusabiltyInstances extends RefinedReusabiltyInstances {
-  implicit val userIdReuse: Reusability[User.Id]                 = Reusability.derive
-  implicit val orcidIdReuse: Reusability[OrcidId]                = Reusability.by(_.value.toString)
-  implicit val orcidProfileResuse: Reusability[OrcidProfile]     = Reusability.derive
-  implicit val standardRoleIdReuse: Reusability[StandardRole.Id] = Reusability.derive
-  implicit val partnerReuse: Reusability[Partner]                = Reusability.derive
-  implicit val standardRoleReuse: Reusability[StandardRole]      = Reusability.derive
-  implicit val standardUserReuse: Reusability[StandardUser]      = Reusability.derive
+trait ModelReusabiltyInstances
+    extends RefinedReusabiltyInstances
+    with UtilReusabilityInstances
+    with MathReusabilityInstances {
+  implicit val userIdReuse: Reusability[User.Id]                    = Reusability.derive
+  implicit val orcidIdReuse: Reusability[OrcidId]                   = Reusability.by(_.value.toString)
+  implicit val orcidProfileResuse: Reusability[OrcidProfile]        = Reusability.derive
+  implicit val standardRoleIdReuse: Reusability[StandardRole.Id]    = Reusability.derive
+  implicit val partnerReuse: Reusability[Partner]                   = Reusability.derive
+  implicit val standardRoleReuse: Reusability[StandardRole]         = Reusability.derive
+  implicit val standardUserReuse: Reusability[StandardUser]         = Reusability.derive
+  implicit def catalogIdReuse: Reusability[CatalogId]               = Reusability.derive
+  implicit def siderealTrackingReuse: Reusability[SiderealTracking] = Reusability.derive
 }
 
 package object reusability
