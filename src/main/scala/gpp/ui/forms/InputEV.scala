@@ -29,7 +29,7 @@ final case class InputEV[EV[_], A](
   onBlur:          InputEV.ChangeCallback[A] = (_: A) => Callback.empty
 )(implicit val ev: ExternalValue[EV])
     extends ReactProps[InputEV[Any, Any]](InputEV.component) {
-  def valGet: String = format.reverseGet(ev.get(value))
+  def valGet: String = ev.get(value).foldMap(format.reverseGet)
   def valSet(s: String): Callback = format.getOption(s).map(ev.set(value)).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =
     (s: String) => format.getOption(s).map(onBlur).getOrEmpty
