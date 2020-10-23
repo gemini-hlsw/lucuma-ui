@@ -21,6 +21,7 @@ out/
 .bloop/
 .metals/
 metals.sbt
+.bsp/
 
 # Mac OS
 .DS_Store
