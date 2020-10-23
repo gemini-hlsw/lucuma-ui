@@ -4,32 +4,35 @@
 package lucuma.ui.forms
 
 import cats.effect.Effect
-import crystal.ViewF
+import cats.syntax.all._
+import crystal.ViewOptF
 import crystal.react.implicits._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.syntax.all._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.ReactProps
 import react.common._
 import react.semanticui._
 import react.semanticui.collections.form.FormDropdown
+import react.semanticui.collections.form.FormSelect
 import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.label.Label
 import react.semanticui.modules.dropdown.Dropdown._
 import react.semanticui.modules.dropdown._
 
+import scalajs.js.JSConverters._
 import scalajs.js
 import scalajs.js.|
 
 /**
- * Produces a dropdown menu, similar to a combobox, for which the
- * value is required.
+ * Produces a dropdown menu, similar to a combobox
  */
 final case class EnumViewSelect[F[_], A](
   id:                   String,
-  value:                ViewF[F, A],
+  value:                ViewOptF[F, A],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
@@ -44,6 +47,7 @@ final case class EnumViewSelect[F[_], A](
   defaultSearchQuery:   js.UndefOr[String] = js.undefined,
   defaultSelectedLabel: js.UndefOr[JsNumber | String] = js.undefined,
   defaultUpward:        js.UndefOr[Boolean] = js.undefined,
+  defaultValue:         js.UndefOr[A] = js.undefined,
   direction:            js.UndefOr[Direction] = js.undefined,
   disabled:             js.UndefOr[Boolean] = js.undefined,
   error:                js.UndefOr[Boolean] = js.undefined,
@@ -78,6 +82,7 @@ final case class EnumViewSelect[F[_], A](
   onSearchChangeE:      js.UndefOr[OnSearchChangeE] = js.undefined,
   open:                 js.UndefOr[Boolean] = js.undefined,
   openOnFocus:          js.UndefOr[Boolean] = js.undefined,
+  placeholder:          js.UndefOr[String] = js.undefined,
   pointing:             js.UndefOr[Pointing] = js.undefined,
   renderLabel:          js.UndefOr[RenderLabel] = js.undefined,
   required:             js.UndefOr[Boolean] = js.undefined,
@@ -101,23 +106,112 @@ final case class EnumViewSelect[F[_], A](
   val enum:             Enumerated[A],
   val display:          Display[A],
   val effect:           Effect[F]
-) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
-    with EnumViewSelectBase {
+) extends ReactProps[EnumViewSelect[Any, Any]](EnumViewSelect.component) {
+  def withMods(mods: TagMod*): EnumViewSelect[F, A] = copy(modifiers = modifiers ++ mods)
+}
 
-  type AA    = A
-  type BB    = A
-  type FF[X] = F[X]
+object EnumViewSelect {
+  type Props[F[_], A] = EnumViewSelect[F, A]
 
-  val clearable   = false
-  val multiple    = false
-  val placeholder = js.undefined
+  protected val component =
+    ScalaComponent
+      .builder[Props[Any, Any]]
+      .stateless
+      .render_P { p =>
+        implicit val display = p.display
+        implicit val effect  = p.effect
 
-  def withMods(mods: TagMod*): EnumViewSelect[F, A]            = copy(modifiers = modifiers ++ mods)
-  def setter(ddp:    FormDropdown.FormDropdownProps): Callback =
-    ddp.value.toOption
-      .flatMap(v => enum.fromTag(v.asInstanceOf[String]))
-      .map(v => value.set(v).runInCB)
-      .getOrEmpty
-
-  def getter = enum.tag(value.get)
+        FormSelect(
+          additionLabel = js.undefined,
+          additionPosition = js.undefined,
+          allowAdditions = js.undefined,
+          p.as,
+          p.basic,
+          p.button,
+          p.className,
+          p.clazz,
+          clearable = false,
+          p.closeOnBlur,
+          p.closeOnEscape,
+          p.closeOnChange,
+          p.compact,
+          content = js.undefined,
+          control = js.undefined,
+          p.deburr,
+          p.defaultOpen,
+          p.defaultSearchQuery,
+          p.defaultSelectedLabel,
+          p.defaultUpward,
+          p.defaultValue.map(i => p.enum.tag(i)),
+          p.direction,
+          p.disabled,
+          p.error,
+          p.floating,
+          p.fluid,
+          p.header,
+          p.icon,
+          p.inline,
+          p.item,
+          p.label,
+          p.labeled,
+          lazyLoad = false,
+          p.loading,
+          p.minCharacters,
+          multiple = false,
+          p.noResultsMessage,
+          onAddItem = js.undefined,
+          p.onBlur,
+          p.onBlurE,
+          onChange = js.undefined,
+          (e: ReactEvent, ddp: FormDropdown.FormDropdownProps) =>
+            ddp.value.toOption
+              .flatMap(v => p.enum.fromTag(v.asInstanceOf[String]))
+              .map(v => p.value.set(v).runInCB)
+              .getOrEmpty
+              >> p.onChangeE
+                .map(_(e, ddp))
+                .toOption
+                .orElse(p.onChange.map(_(ddp)).toOption)
+                .getOrEmpty,
+          p.onClick,
+          p.onClickE,
+          p.onClose,
+          p.onCloseE,
+          p.onFocus,
+          p.onFocusE,
+          p.onLabelClick,
+          p.onLabelClickE,
+          p.onMouseDown,
+          p.onMouseDownE,
+          p.onOpen,
+          p.onOpenE,
+          p.onSearchChange,
+          p.onSearchChangeE,
+          p.open,
+          p.openOnFocus,
+          options = p.enum.all.map(i => DropdownItem(text = i.shortName, value = p.enum.tag(i))),
+          p.placeholder,
+          p.pointing,
+          p.renderLabel,
+          p.required,
+          p.scrolling,
+          p.search,
+          p.searchInput,
+          p.searchQuery,
+          p.selectOnBlur,
+          p.selectOnNavigation,
+          p.selectedLabel,
+          p.simple,
+          p.tabIndex,
+          p.text,
+          p.tpe,
+          p.trigger,
+          p.upward,
+          p.value.get.map(i => p.enum.tag(i)).orUndefined,
+          p.width,
+          p.wrapSelection,
+          p.modifiers :+ (^.id := p.id)
+        )
+      }
+      .build
 }
