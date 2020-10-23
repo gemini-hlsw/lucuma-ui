@@ -3,7 +3,6 @@
 
 package lucuma.ui.forms
 
-import cats.Id
 import cats.effect.Effect
 import crystal.ViewF
 import crystal.react.implicits._
@@ -21,21 +20,23 @@ import react.semanticui.elements.label.Label
 import react.semanticui.modules.dropdown.Dropdown._
 import react.semanticui.modules.dropdown._
 
+import scalajs.js.JSConverters._
 import scalajs.js
 import scalajs.js.|
 
 /**
  * Produces a dropdown menu, similar to a combobox, for which the
- * value is required.
+ * value is optional.
  */
-final case class EnumViewSelect[F[_], A](
+final case class EnumViewOptionalSelect[F[_], A](
   id:                   String,
-  value:                ViewF[F, Id[A]],
+  value:                ViewF[F, Option[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
   className:            js.UndefOr[String] = js.undefined,
   clazz:                js.UndefOr[Css] = js.undefined,
+  clearable:            js.UndefOr[Boolean] = js.undefined,
   closeOnBlur:          js.UndefOr[Boolean] = js.undefined,
   closeOnEscape:        js.UndefOr[Boolean] = js.undefined,
   closeOnChange:        js.UndefOr[Boolean] = js.undefined,
@@ -79,6 +80,7 @@ final case class EnumViewSelect[F[_], A](
   onSearchChangeE:      js.UndefOr[OnSearchChangeE] = js.undefined,
   open:                 js.UndefOr[Boolean] = js.undefined,
   openOnFocus:          js.UndefOr[Boolean] = js.undefined,
+  placeholder:          js.UndefOr[String] = js.undefined,
   pointing:             js.UndefOr[Pointing] = js.undefined,
   renderLabel:          js.UndefOr[RenderLabel] = js.undefined,
   required:             js.UndefOr[Boolean] = js.undefined,
@@ -106,20 +108,19 @@ final case class EnumViewSelect[F[_], A](
     with EnumViewSelectBase {
 
   type AA    = A
-  type GG[X] = Id[A]
+  type GG[X] = Option[X]
   type FF[X] = F[X]
 
-  override val clearable   = false
-  override val multiple    = false
-  override val placeholder = js.undefined
+  override val multiple = false
 
-  def withMods(mods: TagMod*): EnumViewSelect[F, A] = copy(modifiers = modifiers ++ mods)
+  def withMods(mods: TagMod*): EnumViewOptionalSelect[F, A] = copy(modifiers = modifiers ++ mods)
 
   override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
     ddp.value.toOption
       .flatMap(v => enum.fromTag(v.asInstanceOf[String]))
-      .map(v => value.set(v).runInCB)
+      .map(v => value.set(Some(v)).runInCB)
       .getOrEmpty
 
-  override def getter = enum.tag(value.get)
+  // sets the value of the underlying select from the ViewF[F, B]
+  override def getter = value.get.map(i => enum.tag(i)).orUndefined
 }

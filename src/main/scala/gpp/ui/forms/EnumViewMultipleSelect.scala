@@ -4,20 +4,17 @@
 package lucuma.ui.forms
 
 import cats.effect.Effect
-import cats.syntax.all._
 import crystal.ViewF
 import crystal.react.implicits._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.core.syntax.all._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.ReactProps
 import react.common._
 import react.semanticui._
 import react.semanticui.collections.form.FormDropdown
-import react.semanticui.collections.form.FormSelect
 import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.label.Label
 import react.semanticui.modules.dropdown.Dropdown._
@@ -28,7 +25,8 @@ import scalajs.js
 import scalajs.js.|
 
 /**
- * Produces a dropdown menu, similar to a combobox
+ * Produces a dropdown menu, similar to a combobox, for which
+ * multiple values can be selected.
  */
 final case class EnumViewMultipleSelect[F[_], A](
   id:                   String,
@@ -47,7 +45,6 @@ final case class EnumViewMultipleSelect[F[_], A](
   defaultSearchQuery:   js.UndefOr[String] = js.undefined,
   defaultSelectedLabel: js.UndefOr[JsNumber | String] = js.undefined,
   defaultUpward:        js.UndefOr[Boolean] = js.undefined,
-  defaultValue:         js.UndefOr[A] = js.undefined,
   direction:            js.UndefOr[Direction] = js.undefined,
   disabled:             js.UndefOr[Boolean] = js.undefined,
   error:                js.UndefOr[Boolean] = js.undefined,
@@ -106,114 +103,25 @@ final case class EnumViewMultipleSelect[F[_], A](
   val enum:             Enumerated[A],
   val display:          Display[A],
   val effect:           Effect[F]
-) extends ReactProps[EnumViewMultipleSelect[Any, Any]](EnumViewMultipleSelect.component) {
+) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
+    with EnumViewSelectBase {
+
+  type AA    = A
+  type GG[X] = Set[X]
+  type FF[X] = F[X]
+
+  override val clearable = false
+  override val multiple  = true
+
   def withMods(mods: TagMod*): EnumViewMultipleSelect[F, A] = copy(modifiers = modifiers ++ mods)
-}
 
-object EnumViewMultipleSelect {
-  type Props[F[_], A] = EnumViewMultipleSelect[F, A]
+  override def setter(ddp: FormDropdown.FormDropdownProps): Callback = {
+    val enums = ddp.value
+      .asInstanceOf[js.Array[String]]
+      .toSet
+      .flatMap(v => enum.fromTag(v))
+    value.set(enums).runInCB
+  }
 
-  protected val component =
-    ScalaComponent
-      .builder[Props[Any, Any]]
-      .stateless
-      .render_P { p =>
-        implicit val display = p.display
-        implicit val effect  = p.effect
-
-        FormSelect(
-          additionLabel = js.undefined,
-          additionPosition = js.undefined,
-          allowAdditions = js.undefined,
-          p.as,
-          p.basic,
-          p.button,
-          p.className,
-          p.clazz,
-          clearable = false,
-          p.closeOnBlur,
-          p.closeOnEscape,
-          p.closeOnChange,
-          p.compact,
-          content = js.undefined,
-          control = js.undefined,
-          p.deburr,
-          p.defaultOpen,
-          p.defaultSearchQuery,
-          p.defaultSelectedLabel,
-          p.defaultUpward,
-          p.defaultValue.map(i => p.enum.tag(i)),
-          p.direction,
-          p.disabled,
-          p.error,
-          p.floating,
-          p.fluid,
-          p.header,
-          p.icon,
-          p.inline,
-          p.item,
-          p.label,
-          p.labeled,
-          lazyLoad = false,
-          p.loading,
-          p.minCharacters,
-          multiple = true,
-          p.noResultsMessage,
-          onAddItem = js.undefined,
-          p.onBlur,
-          p.onBlurE,
-          onChange = js.undefined,
-          (e: ReactEvent, ddp: FormDropdown.FormDropdownProps) => {
-            val enums = ddp.value
-              .asInstanceOf[js.Array[String]]
-              .toSet
-              .flatMap(v => p.enum.fromTag(v))
-            p.value.set(enums).runInCB >>
-              p.onChangeE
-                .map(_(e, ddp))
-                .toOption
-                .orElse(p.onChange.map(_(ddp)).toOption)
-                .getOrEmpty
-          },
-          p.onClick,
-          p.onClickE,
-          p.onClose,
-          p.onCloseE,
-          p.onFocus,
-          p.onFocusE,
-          p.onLabelClick,
-          p.onLabelClickE,
-          p.onMouseDown,
-          p.onMouseDownE,
-          p.onOpen,
-          p.onOpenE,
-          p.onSearchChange,
-          p.onSearchChangeE,
-          p.open,
-          p.openOnFocus,
-          options = p.enum.all.map(i => DropdownItem(text = i.shortName, value = p.enum.tag(i))),
-          p.placeholder,
-          p.pointing,
-          p.renderLabel,
-          p.required,
-          p.scrolling,
-          p.search,
-          p.searchInput,
-          p.searchQuery,
-          p.selectOnBlur,
-          p.selectOnNavigation,
-          p.selectedLabel,
-          p.simple,
-          p.tabIndex,
-          p.text,
-          p.tpe,
-          p.trigger,
-          p.upward,
-          p.value.get.map(i => p.enum.tag(i)).toJSArray,
-          p.width,
-          p.wrapSelection,
-          p.modifiers :+ (^.id := p.id)
-        )
-      }
-      .build
+  override def getter = value.get.map(i => enum.tag(i)).toJSArray
 }
