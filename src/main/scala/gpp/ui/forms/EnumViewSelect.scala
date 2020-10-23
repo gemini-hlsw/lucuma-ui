@@ -3,6 +3,7 @@
 
 package lucuma.ui.forms
 
+import cats.Id
 import cats.effect.Effect
 import crystal.ViewF
 import crystal.react.implicits._
@@ -29,7 +30,7 @@ import scalajs.js.|
  */
 final case class EnumViewSelect[F[_], A](
   id:                   String,
-  value:                ViewF[F, A],
+  value:                ViewF[F, Id[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
@@ -105,19 +106,20 @@ final case class EnumViewSelect[F[_], A](
     with EnumViewSelectBase {
 
   type AA    = A
-  type BB    = A
+  type GG[X] = Id[A]
   type FF[X] = F[X]
 
-  val clearable   = false
-  val multiple    = false
-  val placeholder = js.undefined
+  override val clearable   = false
+  override val multiple    = false
+  override val placeholder = js.undefined
 
-  def withMods(mods: TagMod*): EnumViewSelect[F, A]            = copy(modifiers = modifiers ++ mods)
-  def setter(ddp:    FormDropdown.FormDropdownProps): Callback =
+  def withMods(mods: TagMod*): EnumViewSelect[F, A] = copy(modifiers = modifiers ++ mods)
+
+  override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
     ddp.value.toOption
       .flatMap(v => enum.fromTag(v.asInstanceOf[String]))
       .map(v => value.set(v).runInCB)
       .getOrEmpty
 
-  def getter = enum.tag(value.get)
+  override def getter = enum.tag(value.get)
 }

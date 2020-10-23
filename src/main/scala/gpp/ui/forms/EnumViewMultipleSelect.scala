@@ -107,14 +107,15 @@ final case class EnumViewMultipleSelect[F[_], A](
     with EnumViewSelectBase {
 
   type AA    = A
-  type BB    = Set[A]
+  type GG[X] = Set[X]
   type FF[X] = F[X]
 
-  val clearable = false
-  val multiple  = true
+  override val clearable = false
+  override val multiple  = true
 
   def withMods(mods: TagMod*): EnumViewMultipleSelect[F, A] = copy(modifiers = modifiers ++ mods)
-  def setter(ddp: FormDropdown.FormDropdownProps): Callback = {
+
+  override def setter(ddp: FormDropdown.FormDropdownProps): Callback = {
     val enums = ddp.value
       .asInstanceOf[js.Array[String]]
       .toSet
@@ -122,5 +123,5 @@ final case class EnumViewMultipleSelect[F[_], A](
     value.set(enums).runInCB
   }
 
-  def getter = value.get.map(i => enum.tag(i)).toJSArray
+  override def getter = value.get.map(i => enum.tag(i)).toJSArray
 }

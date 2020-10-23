@@ -30,10 +30,10 @@ import scalajs.js.|
 trait EnumViewSelectBase {
   type FF[_]
   type AA
-  type BB
+  type GG[_]
 
   val id: String
-  val value: ViewF[FF, BB]
+  val value: ViewF[FF, GG[AA]]
   val as: js.UndefOr[AsC]
   val basic: js.UndefOr[Boolean]
   val button: js.UndefOr[Boolean]

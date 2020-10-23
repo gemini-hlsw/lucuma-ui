@@ -108,18 +108,19 @@ final case class EnumViewOptionalSelect[F[_], A](
     with EnumViewSelectBase {
 
   type AA    = A
-  type BB    = Option[A]
+  type GG[X] = Option[X]
   type FF[X] = F[X]
 
-  val multiple = false
+  override val multiple = false
 
-  def withMods(mods: TagMod*): EnumViewOptionalSelect[F, A]    = copy(modifiers = modifiers ++ mods)
-  def setter(ddp:    FormDropdown.FormDropdownProps): Callback =
+  def withMods(mods: TagMod*): EnumViewOptionalSelect[F, A] = copy(modifiers = modifiers ++ mods)
+
+  override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
     ddp.value.toOption
       .flatMap(v => enum.fromTag(v.asInstanceOf[String]))
       .map(v => value.set(Some(v)).runInCB)
       .getOrEmpty
 
   // sets the value of the underlying select from the ViewF[F, B]
-  def getter = value.get.map(i => enum.tag(i)).orUndefined
+  override def getter = value.get.map(i => enum.tag(i)).orUndefined
 }
