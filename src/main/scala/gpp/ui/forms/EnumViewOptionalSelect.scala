@@ -25,17 +25,18 @@ import scalajs.js
 import scalajs.js.|
 
 /**
- * Produces a dropdown menu, similar to a combobox, for which
- * multiple values can be selected.
+ * Produces a dropdown menu, similar to a combobox, for which the
+ * value is optional.
  */
-final case class EnumViewMultipleSelect[F[_], A](
+final case class EnumViewOptionalSelect[F[_], A](
   id:                   String,
-  value:                ViewF[F, Set[A]],
+  value:                ViewF[F, Option[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
   className:            js.UndefOr[String] = js.undefined,
   clazz:                js.UndefOr[Css] = js.undefined,
+  clearable:            js.UndefOr[Boolean] = js.undefined,
   closeOnBlur:          js.UndefOr[Boolean] = js.undefined,
   closeOnEscape:        js.UndefOr[Boolean] = js.undefined,
   closeOnChange:        js.UndefOr[Boolean] = js.undefined,
@@ -107,20 +108,18 @@ final case class EnumViewMultipleSelect[F[_], A](
     with EnumViewSelectBase {
 
   type AA    = A
-  type BB    = Set[A]
+  type BB    = Option[A]
   type FF[X] = F[X]
 
-  val clearable = false
-  val multiple  = true
+  val multiple = false
 
-  def withMods(mods: TagMod*): EnumViewMultipleSelect[F, A] = copy(modifiers = modifiers ++ mods)
-  def setter(ddp: FormDropdown.FormDropdownProps): Callback = {
-    val enums = ddp.value
-      .asInstanceOf[js.Array[String]]
-      .toSet
-      .flatMap(v => enum.fromTag(v))
-    value.set(enums).runInCB
-  }
+  def withMods(mods: TagMod*): EnumViewOptionalSelect[F, A]    = copy(modifiers = modifiers ++ mods)
+  def setter(ddp:    FormDropdown.FormDropdownProps): Callback =
+    ddp.value.toOption
+      .flatMap(v => enum.fromTag(v.asInstanceOf[String]))
+      .map(v => value.set(Some(v)).runInCB)
+      .getOrEmpty
 
-  def getter = value.get.map(i => enum.tag(i)).toJSArray
+  // sets the value of the underlying select from the ViewF[F, B]
+  def getter = value.get.map(i => enum.tag(i)).orUndefined
 }
