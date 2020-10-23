@@ -54,10 +54,9 @@ trait ModelReusabiltyInstances
     extends RefinedReusabiltyInstances
     with UtilReusabilityInstances
     with MathReusabilityInstances {
-  implicit val userIdReuse: Reusability[User.Id]                    = Reusability.derive
+  implicit def idReuse[Id <: WithId#Id]: Reusability[Id]            = Reusability.by(_.value)
   implicit val orcidIdReuse: Reusability[OrcidId]                   = Reusability.by(_.value.toString)
   implicit val orcidProfileResuse: Reusability[OrcidProfile]        = Reusability.derive
-  implicit val standardRoleIdReuse: Reusability[StandardRole.Id]    = Reusability.derive
   implicit val partnerReuse: Reusability[Partner]                   = Reusability.derive
   implicit val standardRoleReuse: Reusability[StandardRole]         = Reusability.derive
   implicit val standardUserReuse: Reusability[StandardUser]         = Reusability.derive
