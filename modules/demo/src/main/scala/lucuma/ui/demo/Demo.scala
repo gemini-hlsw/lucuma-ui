@@ -10,12 +10,18 @@ import cats.effect._
 import crystal._
 import crystal.react._
 import crystal.react.implicits._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.auto._
+import eu.timepit.refined.numeric.Interval
 import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.math._
 import lucuma.ui.forms._
+import lucuma.ui.reusability._
 import monocle.macros.Lenses
+import _root_.react.semanticui.collections.form.Form
 import org.scalajs.dom
 
 final case class FormComponent(root: ViewF[IO, RootModel])
@@ -31,9 +37,45 @@ object FormComponent {
       .builder[Props]("Home")
       .render_P { p =>
         <.div(
-          <.form(
-            FormInputEV(id = "field1", value = p.root.zoom(RootModel.field1)),
-            FormInputEV(id = "field2", value = p.root.zoom(RootModel.field2))
+          Form(
+            FormInputEV(id = "field1",
+                        label = "Upper case string",
+                        value = p.root.zoom(RootModel.field1),
+                        format = InputFormat.upperCase,
+                        changeAuditor = ChangeAuditor.useFormattedValue
+            ),
+            <.div(p.root.get.field1, ^.padding := "0 0 1em 1em"),
+            FormInputEV(id = "just",
+                        label = "Int max 1024",
+                        value = p.root.zoom(RootModel.justAnInt),
+                        format = InputFormat.forInt,
+                        changeAuditor = ChangeAuditor.nonNegativeInt(max = 1024)
+            ),
+            <.div(p.root.get.justAnInt, ^.padding := "0 0 1em 1em"),
+            FormInputEV(
+              id = "refined",
+              label = "Refined int 0 - 2048",
+              value = p.root.zoom(RootModel.refinedInt),
+              format = InputFormat.forRefinedInt[Interval.Closed[0, 2048]],
+              changeAuditor = ChangeAuditor.defaultForNonNegInts
+            ),
+            <.div(p.root.get.refinedInt.value, ^.padding := "0 0 1em 1em"),
+            FormInputEV(
+              id = "neg",
+              label = "Int -1023 to 1024",
+              value = p.root.zoom(RootModel.negInt),
+              format = InputFormat.forInt,
+              changeAuditor = ChangeAuditor.int(-1023, 1024)
+              // updateOn = UpdateValue.OnBlur
+            ),
+            <.div(p.root.get.negInt, ^.padding := "0 0 1em 1em"),
+            FormInputEV(id = "just",
+                        label = "Int max 17",
+                        value = p.root.zoom(RootModel.ra),
+                        format = RightAscension.fromStringHMS,
+                        changeAuditor = ChangeAuditor.rightAscension
+            ),
+            <.div(p.root.get.ra.toString, ^.padding := "0 0 1em 1em")
           )
         )
       }
@@ -43,7 +85,13 @@ object FormComponent {
 }
 
 @Lenses
-final case class RootModel(field1: String, field2: String)
+final case class RootModel(
+  field1:     String,
+  justAnInt:  Int,
+  refinedInt: Int Refined Interval.Closed[0, 2048],
+  negInt:     Int,
+  ra:         RightAscension
+)
 
 object RootModel {
   implicit val modelReusability: Reusability[RootModel] = Reusability.derive[RootModel]
@@ -65,7 +113,7 @@ trait AppMain extends IOApp {
   override final def run(args: List[String]): IO[ExitCode] = {
     ReusabilityOverlay.overrideGloballyInDev()
 
-    val initialModel = RootModel("field1", "field2")
+    val initialModel = RootModel("FIELD1", 0, 0, 0, RightAscension.fromRadians(0.0))
 
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())

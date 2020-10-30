@@ -3,9 +3,15 @@
 
 package lucuma.ui.forms
 
+import cats.syntax.all._
+import eu.timepit.refined._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.api.Validate
+// import eu.timepit.refined.auto._
 import lucuma.core.optics.Format
 import monocle.Iso
 import monocle.Prism
+import mouse.all._
 
 /**
  * Convenience constructors for Prism to convert from A to String and optionally viceversa
@@ -28,4 +34,17 @@ object InputFormat {
    */
   def fromIso[A](iso: Iso[String, A]): InputFormat[A] =
     Format.fromIso(iso)
+
+  val forInt: InputFormat[Int] =
+    InputFormat[Int](_.parseIntOption)(_.toString)
+
+  type RefinedInt[P] = Int Refined P
+  def forRefinedInt[P](implicit v: Validate[Int, P]): InputFormat[RefinedInt[P]] =
+    forInt ^<-? refinedIntPrism[P]
+
+  def refinedIntPrism[P](implicit v: Validate[Int, P]): Prism[Int, RefinedInt[P]] =
+    Prism[Int, RefinedInt[P]](i => refineV[P](i)(v).toOption)(_.value)
+
+  // using this alone will all the user to type any case, but convert to uppercase on blur
+  val upperCase: InputFormat[String] = InputFormat[String](s => s.toUpperCase.some)(s => s)
 }

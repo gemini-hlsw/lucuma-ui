@@ -3,6 +3,7 @@
 
 package lucuma.ui
 
+import coulomb.Quantity
 import eu.timepit.refined.api.RefType
 import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react.Reusability
@@ -48,6 +49,14 @@ trait RefinedReusabiltyInstances {
 }
 
 /**
+ * Generic reusability of coulomb quantities
+ */
+trait CoulombReusabilityInstance {
+  implicit def quantityReuse[N: Reusability, U]: Reusability[Quantity[N, U]] =
+    Reusability.by(_.value)
+}
+
+/**
  * Reusability instances for model classes
  */
 trait ModelReusabiltyInstances
@@ -68,3 +77,4 @@ package object reusability
     extends UtilReusabilityInstances
     with MathReusabilityInstances
     with ModelReusabiltyInstances
+    with CoulombReusabilityInstance
