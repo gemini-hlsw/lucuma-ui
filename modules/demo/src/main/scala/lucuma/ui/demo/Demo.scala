@@ -19,6 +19,7 @@ import lucuma.ui.forms._
 import monocle.macros.Lenses
 import org.scalajs.dom
 import _root_.react.semanticui.collections.form.Form
+import japgolly.scalajs.react.MonocleReact._
 
 final case class FormComponent(root: ViewF[IO, RootModel])
     extends ReactProps[FormComponent](FormComponent.component)
@@ -26,18 +27,25 @@ final case class FormComponent(root: ViewF[IO, RootModel])
 object FormComponent {
   type Props = FormComponent
 
+  @Lenses
+  case class State(valid1: Boolean = true, valid2: Boolean = true)
+
   implicit val propsReuse = Reusability.derive[Props]
+  implicit val stateReuse = Reusability.derive[State]
 
   val component =
     ScalaComponent
       .builder[Props]
-      .render_P { p =>
+      .initialState(State())
+      .render { $ =>
         <.div(^.paddingTop := "20px")(
-          s"MODEL: ${p.root.get}",
+          s"MODEL: ${$.props.root.get}",
+          <.br,
+          s"STATE: ${$.state}",
           Form(
             FormInputEV(
               id = "field1",
-              value = p.root.zoom(RootModel.field1),
+              value = $.props.root.zoom(RootModel.field1),
               validate = InputValidate(
                 s =>
                   if (s.isEmpty)
@@ -45,9 +53,22 @@ object FormComponent {
                   else
                     s.toUpperCase.validNel,
                 identity[String]
-              )
+              ),
+              onValidChange = v => $.setStateL(State.valid1)(v)
             ),
-            FormInputEV(id = "field2", value = p.root.zoom(RootModel.field2))
+            FormInputEV(
+              id = "field2",
+              value = $.props.root.zoom(RootModel.field2),
+              validate = InputValidate(
+                s =>
+                  if (s.isEmpty)
+                    "Can't be empty".invalidNel
+                  else
+                    s.toLowerCase.validNel,
+                identity[String]
+              ),
+              onValidChange = v => $.setStateL(State.valid2)(v)
+            )
           )
         )
       }
@@ -79,7 +100,7 @@ trait AppMain extends IOApp {
   override final def run(args: List[String]): IO[ExitCode] = {
     ReusabilityOverlay.overrideGloballyInDev()
 
-    val initialModel = RootModel("FIELD1", "field2")
+    val initialModel = RootModel("FIELD1", "")
 
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())
