@@ -16,7 +16,7 @@ module.exports.moduleName = path.basename(rootDir);
 module.exports.stageDir = path.resolve(__dirname, "../../stage/static/");
 
 // Resources dir on sbt
-const resourcesDir = path.resolve(rootDir, "../src/main/resources");
+const resourcesDir = path.resolve(rootDir, "../demo/src/main/resources");
 module.exports.resourcesDir = resourcesDir;
 const localResourcesDir = path.resolve(
   rootDir,
