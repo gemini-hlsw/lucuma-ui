@@ -1,6 +1,7 @@
 import sbt._
 
 lazy val reactJS                = "16.13.1"
+lazy val FUILess                = "2.8.7"
 lazy val scalaJsReactVersion    = "1.7.5"
 lazy val lucumaCoreVersion      = "0.6.4"
 lazy val monocleVersion         = "2.1.0"
@@ -84,8 +85,9 @@ lazy val demo =
         "favicons-webpack-plugin"       -> "4.2.0"
       ),
       npmDependencies in Compile ++= Seq(
-        "react"     -> reactJS,
-        "react-dom" -> reactJS
+        "react"            -> reactJS,
+        "react-dom"        -> reactJS,
+        "fomantic-ui-less" -> FUILess
       ),
       skip in publish := true
     )
