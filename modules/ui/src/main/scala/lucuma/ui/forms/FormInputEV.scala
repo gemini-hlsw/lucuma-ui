@@ -7,6 +7,7 @@ import scala.scalajs.js
 import scala.scalajs.js.|
 
 import cats.syntax.all._
+import japgolly.scalajs.react.BackendScope
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.ReactEventFromInput
@@ -21,6 +22,9 @@ import react.semanticui.collections.form.FormInput
 import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.input._
 import react.semanticui.elements.label._
+import cats.data.NonEmptyList
+import scalajs.js.JSConverters._
+import japgolly.scalajs.react.React
 
 /**
  * FormInput component that uses an ExternalValue to share the content of the field
@@ -53,20 +57,32 @@ final case class FormInputEV[EV[_], A](
   transparent:     js.UndefOr[Boolean] = js.undefined,
   width:           js.UndefOr[SemanticWidth] = js.undefined,
   value:           EV[A],
-  format:          InputFormat[A] = InputFormat.id,
+  validate:        InputValidate[A] = InputValidate.id,
   modifiers:       Seq[TagMod] = Seq.empty,
   onChange:        FormInputEV.ChangeCallback[A] =
     (_: A) => Callback.empty, // callback for parents of this component
   onBlur:          FormInputEV.ChangeCallback[A] = (_: A) => Callback.empty
 )(implicit val ev: ExternalValue[EV])
     extends ReactProps[FormInputEV[Any, Any]](FormInputEV.component) {
-  def valGet: String = ev.get(value).foldMap(format.reverseGet)
+
+  def valGet: String = ev.get(value).foldMap(validate.reverseGet)
+
   def valSet(s: String): Callback =
-    format.getOption(s).map(ev.set(value)).getOrEmpty
-  val onBlurC: InputEV.ChangeCallback[String]   =
-    (s: String) => format.getOption(s).map(onBlur).getOrEmpty
+    validate
+      .getValidated(s)
+      .fold(_ => Callback.empty, ev.set(value))
+
   val onChangeC: InputEV.ChangeCallback[String] =
-    (s: String) => format.getOption(s).map(onChange).getOrEmpty
+    (s: String) =>
+      validate
+        .getValidated(s)
+        .fold(_ => Callback.empty, onChange)
+
+  def onBlurC(onError: NonEmptyList[String] => Callback): InputEV.ChangeCallback[String] =
+    (s: String) =>
+      validate
+        .getValidated(s)
+        .fold(onError, onBlur)
 
   def withMods(mods: TagMod*): FormInputEV[EV, A] = copy(modifiers = modifiers ++ mods)
 }
@@ -77,68 +93,92 @@ object FormInputEV {
   type Scope[EV[_], A]   = RenderScope[Props[EV, A], State, Unit]
 
   @Lenses
-  final case class State(curValue: String, prevValue: String)
+  final case class State(curValue: String, prevValue: String, errors: Option[NonEmptyList[String]])
 
-  def onTextChange[EV[_], A]($ : Scope[EV, A]): ReactEventFromInput => Callback =
-    (e: ReactEventFromInput) => {
-      // Capture the value outside setState, react reuses the events
-      val v = e.target.value
-      // First update the internal state, then call the outside listener
-      $.setStateL(State.curValue)(v) *>
-        // Next 2 might not be called if the InputFormat returns None
-        $.props.valSet(v) *>
-        $.props.onChangeC(v)
+  class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
+
+    def onTextChange(props: Props[EV, A]): ReactEventFromInput => Callback =
+      (e: ReactEventFromInput) => {
+        // Capture the value outside setState, react reuses the events
+        val v = e.target.value
+        // First update the internal state, then call the outside listener
+        $.setStateL(State.curValue)(v) *>
+          // Next 2 might not be called if the InputFormat returns None
+          props.valSet(v) *>
+          props.onChangeC(v)
+      }
+
+    def onBlur(state: State, c: ChangeCallback[String]): Callback =
+      c(state.curValue)
+
+    def render(p: Props[EV, A], s: State): VdomNode = {
+
+      val validationError: js.UndefOr[Label] =
+        s.errors.map(e => Label(e.toList.mkString(","))).orUndefined
+
+      val error: js.UndefOr[ShorthandB[Label]] = p.error
+        .flatMap[ShorthandB[Label]] {
+          (_: Any) match {
+            case b: Boolean => validationError.map(_.asInstanceOf[ShorthandB[Label]]).orElse(b)
+            case l: Label   =>
+              validationError
+                .map(vel => Label(content = React.Fragment(l, vel)).asInstanceOf[ShorthandB[Label]])
+                .orElse(l)
+          }
+        }
+        .orElse(validationError)
+
+      FormInput(
+        p.action,
+        p.actionPosition,
+        p.as,
+        p.className,
+        p.clazz,
+        p.content,
+        p.control,
+        p.disabled,
+        error,
+        p.fluid,
+        p.focus,
+        p.icon,
+        p.iconPosition,
+        p.inline,
+        p.input,
+        p.inverted,
+        p.label,
+        p.labelPosition,
+        p.loading,
+        js.undefined,
+        onTextChange(p),
+        p.required,
+        p.size,
+        p.tabIndex,
+        p.tpe,
+        p.transparent,
+        p.width,
+        s.curValue
+      )(
+        (p.modifiers :+ (^.id := p.id) :+ (^.onBlur --> onBlur(
+          s,
+          p.onBlurC(e => $.setStateL(State.errors)(e.some))
+        )): _*)
+      )
     }
+  }
 
-  def onBlur[EV[_], A]($ : Scope[EV, A], c: ChangeCallback[String]): Callback =
-    c($.state.curValue)
-
-  protected val component =
+  protected def buildComponent[EV[_], A] =
     ScalaComponent
-      .builder[Props[Any, Any]]
+      .builder[Props[EV, A]]
       .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
         val newValue = props.valGet
         // Force new value from props if the prop changes (or we are initializing).
         stateOpt match {
           case Some(state) if newValue === state.prevValue => state
-          case _                                           => State(newValue, newValue)
+          case _                                           => State(newValue, newValue, none)
         }
       }
-      .render { $ =>
-        val p = $.props
-        val s = $.state
-        FormInput(
-          p.action,
-          p.actionPosition,
-          p.as,
-          p.className,
-          p.clazz,
-          p.content,
-          p.control,
-          p.disabled,
-          p.error,
-          p.fluid,
-          p.focus,
-          p.icon,
-          p.iconPosition,
-          p.inline,
-          p.input,
-          p.inverted,
-          p.label,
-          p.labelPosition,
-          p.loading,
-          js.undefined,
-          onTextChange($),
-          p.required,
-          p.size,
-          p.tabIndex,
-          p.tpe,
-          p.transparent,
-          p.width,
-          s.curValue
-        )(
-          (p.modifiers :+ (^.id := p.id) :+ (^.onBlur --> onBlur($, p.onBlurC)): _*)
-        )
-      }
+      .renderBackend[Backend[EV, A]]
       .build
+
+  protected val component = buildComponent[Any, Any]
 }

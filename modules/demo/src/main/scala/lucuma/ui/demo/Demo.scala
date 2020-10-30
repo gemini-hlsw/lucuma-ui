@@ -6,6 +6,7 @@ package lucuma.ui.demo
 import scala.scalajs.js.annotation._
 
 import react.common.ReactProps
+import cats.syntax.all._
 import cats.effect._
 import crystal._
 import crystal.react._
@@ -17,6 +18,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.forms._
 import monocle.macros.Lenses
 import org.scalajs.dom
+import _root_.react.semanticui.collections.form.Form
 
 final case class FormComponent(root: ViewF[IO, RootModel])
     extends ReactProps[FormComponent](FormComponent.component)
@@ -28,11 +30,23 @@ object FormComponent {
 
   val component =
     ScalaComponent
-      .builder[Props]("Home")
+      .builder[Props]
       .render_P { p =>
-        <.div(
-          <.form(
-            FormInputEV(id = "field1", value = p.root.zoom(RootModel.field1)),
+        <.div(^.paddingTop := "20px")(
+          s"MODEL: ${p.root.get}",
+          Form(
+            FormInputEV(
+              id = "field1",
+              value = p.root.zoom(RootModel.field1),
+              validate = InputValidate(
+                s =>
+                  if (s.isEmpty)
+                    "Can't be empty".invalidNel
+                  else
+                    s.toUpperCase.validNel,
+                identity[String]
+              )
+            ),
             FormInputEV(id = "field2", value = p.root.zoom(RootModel.field2))
           )
         )
@@ -65,7 +79,7 @@ trait AppMain extends IOApp {
   override final def run(args: List[String]): IO[ExitCode] = {
     ReusabilityOverlay.overrideGloballyInDev()
 
-    val initialModel = RootModel("field1", "field2")
+    val initialModel = RootModel("FIELD1", "field2")
 
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())
