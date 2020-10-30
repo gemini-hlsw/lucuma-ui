@@ -25,17 +25,77 @@ inThisBuild(
         "scm:git:git@github.com:gemini-hlsw/lucuma-ui.git"
       )
     ),
-    scalaVersion := "2.13.3",
     scalacOptions ++= Seq(
       "-Ymacro-annotations"
     )
   ) ++ lucumaPublishSettings
 )
 
-lazy val root: Project =
+skip in publish := true
+
+addCommandAlias(
+  "restartWDS",
+  "; demo/fastOptJS::stopWebpackDevServer; demo/fastOptJS::startWebpackDevServer; ~demo/fastOptJS"
+)
+
+lazy val demo =
   project
-    .in(file("."))
+    .in(file("modules/demo"))
+    .enablePlugins(ScalaJSBundlerPlugin)
+    .settings(
+      version in webpack := "4.44.1",
+      version in startWebpackDevServer := "3.11.0",
+      webpackConfigFile in fastOptJS := Some(
+        baseDirectory.value / "webpack" / "dev.webpack.config.js"
+      ),
+      webpackConfigFile in fullOptJS := Some(
+        baseDirectory.value / "webpack" / "prod.webpack.config.js"
+      ),
+      webpackMonitoredDirectories += (resourceDirectory in Compile).value,
+      webpackResources := (baseDirectory.value / "webpack") * "*.js",
+      includeFilter in webpackMonitoredFiles := "*",
+      useYarn := true,
+      webpackBundlingMode in fastOptJS := BundlingMode.LibraryOnly(),
+      webpackBundlingMode in fullOptJS := BundlingMode.Application,
+      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
+      test := {},
+      // NPM libs for development, mostly to let webpack do its magic
+      Compile / npmDevDependencies ++= Seq(
+        "postcss"                       -> "8.1.1",
+        "postcss-loader"                -> "4.0.3",
+        "autoprefixer"                  -> "10.0.1",
+        "url-loader"                    -> "4.1.0",
+        "file-loader"                   -> "6.0.0",
+        "css-loader"                    -> "3.5.3",
+        "style-loader"                  -> "1.2.1",
+        // Don't upgrade less until https://github.com/less/less.js/issues/3434 is fixed
+        "less"                          -> "3.9.0",
+        "less-loader"                   -> "7.0.1",
+        "sass"                          -> "1.26.11",
+        "sass-loader"                   -> "9.0.2",
+        "webpack-merge"                 -> "4.2.2",
+        "mini-css-extract-plugin"       -> "0.9.0",
+        "webpack-dev-server-status-bar" -> "1.1.2",
+        "cssnano"                       -> "4.1.10",
+        "terser-webpack-plugin"         -> "4.2.2",
+        "html-webpack-plugin"           -> "4.3.0",
+        "css-minimizer-webpack-plugin"  -> "1.1.5",
+        "favicons-webpack-plugin"       -> "4.2.0"
+      ),
+      npmDependencies in Compile ++= Seq(
+        "react"     -> reactJS,
+        "react-dom" -> reactJS
+      ),
+      skip in publish := true
+    )
+    .dependsOn(ui)
+
+lazy val ui =
+  project
+    .in(file("modules/ui"))
     .enablePlugins(ScalaJSPlugin)
+    .settings(lucumaScalaJsSettings: _*)
     .settings(
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
