@@ -6,6 +6,7 @@ package lucuma.ui.demo
 import scala.scalajs.js.annotation._
 
 import react.common.ReactProps
+import react.semanticui.collections.form.Form
 import cats.syntax.all._
 import cats.effect._
 import crystal._
@@ -18,7 +19,6 @@ import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.forms._
 import monocle.macros.Lenses
 import org.scalajs.dom
-import _root_.react.semanticui.collections.form.Form
 import japgolly.scalajs.react.MonocleReact._
 
 final case class FormComponent(root: ViewF[IO, RootModel])
