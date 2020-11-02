@@ -19,6 +19,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.forms._
+import lucuma.ui.optics.ValidateInput
 import monocle.macros.Lenses
 import org.scalajs.dom
 import japgolly.scalajs.react.MonocleReact._
@@ -48,7 +49,7 @@ object FormComponent {
             FormInputEV(
               id = "field1",
               value = $.props.root.zoom(RootModel.field1),
-              validate = InputValidate(
+              validate = ValidateInput(
                 s =>
                   if (s.isEmpty)
                     "Can't be empty".invalidNec
@@ -63,7 +64,7 @@ object FormComponent {
               value = $.props.root.zoom(RootModel.field2),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validate = InputValidate(
+              validate = ValidateInput(
                 s =>
                   if (s.isEmpty)
                     "Can't be empty".invalidNec

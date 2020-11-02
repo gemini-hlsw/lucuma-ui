@@ -101,16 +101,21 @@ lazy val ui =
     .settings(
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
-        "org.typelevel"                     %%% "cats-core"         % catsVersion,
-        "com.github.japgolly.scalajs-react" %%% "core"              % scalaJsReactVersion,
-        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"  % scalaJsReactVersion,
-        "edu.gemini"                        %%% "lucuma-core"       % lucumaCoreVersion,
-        "io.github.cquiroz.react"           %%% "common"            % reactCommonVersion,
-        "io.github.cquiroz.react"           %%% "react-semantic-ui" % reactSemanticUIVersion,
-        "com.github.julien-truffaut"        %%% "monocle-core"      % monocleVersion,
-        "com.rpiaggio"                      %%% "crystal"           % crystalVersion
+        "org.typelevel"                     %%% "cats-core"           % catsVersion,
+        "com.github.japgolly.scalajs-react" %%% "core"                % scalaJsReactVersion,
+        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"    % scalaJsReactVersion,
+        "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
+        "io.github.cquiroz.react"           %%% "common"              % reactCommonVersion,
+        "io.github.cquiroz.react"           %%% "react-semantic-ui"   % reactSemanticUIVersion,
+        "com.github.julien-truffaut"        %%% "monocle-core"        % monocleVersion,
+        "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
+        "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
+        "org.scalameta"                     %%% "munit"               % "0.7.14"          % Test,
+        "org.typelevel"                     %%% "discipline-munit"    % "0.3.0"           % Test
       ),
       addCompilerPlugin(
         ("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)
-      )
+      ),
+      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
+      testFrameworks += new TestFramework("munit.Framework")
     )

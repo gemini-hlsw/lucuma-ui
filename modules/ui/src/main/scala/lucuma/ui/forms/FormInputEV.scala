@@ -12,6 +12,7 @@ import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import monocle.macros.Lenses
+import lucuma.ui.optics.ValidateInput
 import react.common._
 import react.semanticui._
 import react.semanticui.collections.form.FormInput
@@ -58,7 +59,7 @@ final case class FormInputEV[EV[_], A](
   transparent:     js.UndefOr[Boolean] = js.undefined,
   width:           js.UndefOr[SemanticWidth] = js.undefined,
   value:           EV[A],
-  validate:        InputValidate[A] = InputValidate.id,
+  validate:        ValidateInput[A] = ValidateInput.id,
   modifiers:       Seq[TagMod] = Seq.empty,
   onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
   onBlur:          FormInputEV.ChangeCallback[ValidatedNec[String, A]] = (_: ValidatedNec[String, A]) =>
