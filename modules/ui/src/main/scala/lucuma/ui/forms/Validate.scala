@@ -7,7 +7,8 @@ import cats.data.Validated
 import lucuma.core.optics.Format
 import monocle.Iso
 import monocle.Prism
-import cats.data.NonEmptyList
+import cats.data.NonEmptyChain
+import cats.data.ValidatedNec
 
 abstract class Validate[T, A, E] extends Serializable { self =>
   val reverseGet: A => T
@@ -16,9 +17,9 @@ abstract class Validate[T, A, E] extends Serializable { self =>
 }
 
 case class InputValidate[A](
-  getValidated: String => Validated[NonEmptyList[String], A],
+  getValidated: String => ValidatedNec[String, A],
   reverseGet:   A => String
-) extends Validate[String, A, NonEmptyList[String]]
+) extends Validate[String, A, NonEmptyChain[String]]
 
 object InputValidate {
   val id: InputValidate[String] = fromIso(Iso.id[String])
@@ -26,9 +27,9 @@ object InputValidate {
   /**
    * Build optics from a Prism
    */
-  def fromFormat[A](format: Format[String, A]) =
+  def fromFormat[A](format: Format[String, A], errorMessage: String = "Invalid format") =
     InputValidate(
-      format.getOption.andThen(o => Validated.fromOption(o, NonEmptyList.of("Invalid format"))),
+      format.getOption.andThen(o => Validated.fromOption(o, NonEmptyChain(errorMessage))),
       format.reverseGet
     )
 

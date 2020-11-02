@@ -49,9 +49,9 @@ object FormComponent {
               validate = InputValidate(
                 s =>
                   if (s.isEmpty)
-                    "Can't be empty".invalidNel
+                    "Can't be empty".invalidNec
                   else
-                    s.toUpperCase.validNel,
+                    s.toUpperCase.validNec,
                 identity[String]
               ),
               onValidChange = v => $.setStateL(State.valid1)(v)
@@ -62,9 +62,9 @@ object FormComponent {
               validate = InputValidate(
                 s =>
                   if (s.isEmpty)
-                    "Can't be empty".invalidNel
+                    "Can't be empty".invalidNec
                   else
-                    s.toLowerCase.validNel,
+                    s.toLowerCase.validNec,
                 identity[String]
               ),
               onValidChange = v => $.setStateL(State.valid2)(v)

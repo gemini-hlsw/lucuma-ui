@@ -18,12 +18,12 @@ import react.semanticui.collections.form.FormInput
 import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.input._
 import react.semanticui.elements.label._
-import cats.data.NonEmptyList
+import cats.data.NonEmptyChain
 import scalajs.js.JSConverters._
 import japgolly.scalajs.react.React
 import cats.data.Validated.Valid
 import cats.data.Validated.Invalid
-import cats.data.Validated
+import cats.data.ValidatedNec
 
 /**
  * FormInput component that uses an ExternalValue to share the content of the field
@@ -59,8 +59,8 @@ final case class FormInputEV[EV[_], A](
   validate:        InputValidate[A] = InputValidate.id,
   modifiers:       Seq[TagMod] = Seq.empty,
   onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
-  onBlur:          FormInputEV.ChangeCallback[Validated[NonEmptyList[String], A]] =
-    (_: Validated[NonEmptyList[String], A]) => Callback.empty // for extra actions
+  onBlur:          FormInputEV.ChangeCallback[ValidatedNec[String, A]] = (_: ValidatedNec[String, A]) =>
+    Callback.empty // for extra actions
 )(implicit val ev: ExternalValue[EV])
     extends ReactProps[FormInputEV[Any, Any]](FormInputEV.component) {
 
@@ -68,7 +68,7 @@ final case class FormInputEV[EV[_], A](
 
   def valSet: InputEV.ChangeCallback[A] = ev.set(value)
 
-  def onBlurC(onError: NonEmptyList[String] => Callback): InputEV.ChangeCallback[String] =
+  def onBlurC(onError: NonEmptyChain[String] => Callback): InputEV.ChangeCallback[String] =
     (s: String) => {
       val validated = validate.getValidated(s)
       validated.swap.toOption.map(onError).getOrEmpty >> onBlur(validated)
@@ -82,14 +82,14 @@ object FormInputEV {
   type ChangeCallback[A] = A => Callback
 
   @Lenses
-  final case class State(curValue: String, prevValue: String, errors: Option[NonEmptyList[String]])
+  final case class State(curValue: String, prevValue: String, errors: Option[NonEmptyChain[String]])
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
 
     def validate(
       props: Props[EV, A],
       value: String,
-      cb:    Validated[NonEmptyList[String], A] => Callback = _ => Callback.empty
+      cb:    ValidatedNec[String, A] => Callback = _ => Callback.empty
     ): Callback = {
       val validated = props.validate.getValidated(value)
       props.onValidChange(validated.isValid) >> cb(validated)
