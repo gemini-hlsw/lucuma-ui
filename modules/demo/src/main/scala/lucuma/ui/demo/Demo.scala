@@ -6,6 +6,8 @@ package lucuma.ui.demo
 import scala.scalajs.js.annotation._
 
 import react.common.ReactProps
+import react.semanticui.collections.form.Form
+import cats.syntax.all._
 import cats.effect._
 import crystal._
 import crystal.react._
@@ -17,6 +19,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.forms._
 import monocle.macros.Lenses
 import org.scalajs.dom
+import japgolly.scalajs.react.MonocleReact._
 
 final case class FormComponent(root: ViewF[IO, RootModel])
     extends ReactProps[FormComponent](FormComponent.component)
@@ -24,16 +27,48 @@ final case class FormComponent(root: ViewF[IO, RootModel])
 object FormComponent {
   type Props = FormComponent
 
+  @Lenses
+  case class State(valid1: Boolean = true, valid2: Boolean = true)
+
   implicit val propsReuse = Reusability.derive[Props]
+  implicit val stateReuse = Reusability.derive[State]
 
   val component =
     ScalaComponent
-      .builder[Props]("Home")
-      .render_P { p =>
-        <.div(
-          <.form(
-            FormInputEV(id = "field1", value = p.root.zoom(RootModel.field1)),
-            FormInputEV(id = "field2", value = p.root.zoom(RootModel.field2))
+      .builder[Props]
+      .initialState(State())
+      .render { $ =>
+        <.div(^.paddingTop := "20px")(
+          s"MODEL: ${$.props.root.get}",
+          <.br,
+          s"STATE: ${$.state}",
+          Form(
+            FormInputEV(
+              id = "field1",
+              value = $.props.root.zoom(RootModel.field1),
+              validate = InputValidate(
+                s =>
+                  if (s.isEmpty)
+                    "Can't be empty".invalidNec
+                  else
+                    s.toUpperCase.validNec,
+                identity[String]
+              ),
+              onValidChange = v => $.setStateL(State.valid1)(v)
+            ),
+            FormInputEV(
+              id = "field2",
+              value = $.props.root.zoom(RootModel.field2),
+              validate = InputValidate(
+                s =>
+                  if (s.isEmpty)
+                    "Can't be empty".invalidNec
+                  else
+                    s.toLowerCase.validNec,
+                identity[String]
+              ),
+              onValidChange = v => $.setStateL(State.valid2)(v)
+            )
           )
         )
       }
@@ -65,7 +100,7 @@ trait AppMain extends IOApp {
   override final def run(args: List[String]): IO[ExitCode] = {
     ReusabilityOverlay.overrideGloballyInDev()
 
-    val initialModel = RootModel("field1", "field2")
+    val initialModel = RootModel("FIELD1", "")
 
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())
