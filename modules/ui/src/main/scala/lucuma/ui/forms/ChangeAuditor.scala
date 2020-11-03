@@ -10,61 +10,28 @@ import mouse.all._
 sealed trait AuditResult[A] extends Product with Serializable
 object AuditResult {
   case class Reject[A]() extends AuditResult[A]
-  case class Accept[A](newA: Option[A]) extends AuditResult[A]
-  case class NewString[A](newS: String, newA: Option[A], cursorOffset: Int) extends AuditResult[A]
+  case class Accept[A]() extends AuditResult[A]
+  case class NewString[A](newS: String, cursorOffset: Int) extends AuditResult[A]
 
   def reject[A]: AuditResult[A] = Reject()
-  def accept[A](newA:    Option[A]): AuditResult[A] = Accept(newA)
-  def newString[A](newS: String, newA: Option[A], cursorOffset: Int = 0): AuditResult[A] =
-    NewString(newS, newA, cursorOffset)
+  def accept[A]: AuditResult[A] = Accept()
+  def newString[A](newS: String, cursorOffset: Int = 0): AuditResult[A] =
+    NewString(newS, cursorOffset)
 }
 
 object ChangeAuditor {
-  def fromFormat[A]: ChangeAuditor[A] = (s, f) =>
-    f.getOption(s).fold(AuditResult.reject[A])(newA => AuditResult.accept(newA.some))
+  def accept[A]: ChangeAuditor[A] = _ => AuditResult.accept
 
-  def defaultForNonNegInts[A]: ChangeAuditor[A] = (s, f) => {
-    val newS = if (s == "") "0" else s
-    fromFormat(newS, f)
-    // TODO: Strip leading zeros if there are non-zeros?
-  }
+  def forInt(min: Int = Int.MinValue, max: Int = Int.MaxValue): ChangeAuditor[Int] =
+    fromInputValidate(InputValidate.forIntRange(min, max))
 
-  // can be used by regular and refined Ints.
-  def defaultForInts[A]: ChangeAuditor[A] = (s, f) => {
-    val newS = s match {
-      case ""  => "0"
-      case "-" => "-0"
-      case _   => s
-    }
-    fromFormat(newS, f)
-  }
+  def forNonNegInt(max: Int = Int.MaxValue): ChangeAuditor[Int] =
+    fromInputValidate(InputValidate.forNonNegIntRange(max))
 
-  def int(min: Int = Int.MinValue, max: Int = Int.MaxValue): ChangeAuditor[Int] = (s, f) => {
-    def inRange(i: Int) = i >= min && i <= max
-    val vetted = defaultForInts(s, f)
-    vetted match {
-      case AuditResult.Accept(Some(i)) if inRange(i)          => vetted
-      case AuditResult.NewString(_, Some(i), _) if inRange(i) => vetted
-      case _                                                  => AuditResult.reject
-    }
-  }
-
-  def nonNegativeInt(max: Int = Int.MaxValue): ChangeAuditor[Int] = (s, f) => {
-    def inRange(i: Int) = i >= 0 && i <= max
-    val vetted = defaultForNonNegInts(s, f)
-    vetted match {
-      case AuditResult.Accept(Some(i)) if inRange(i)          => vetted
-      case AuditResult.NewString(_, Some(i), _) if inRange(i) => vetted
-      case _                                                  => AuditResult.reject
-    }
-  }
-
-  val useFormattedValue: ChangeAuditor[String] = (s, f) =>
-    f.getOption(s)
-      .fold(AuditResult.reject[String])(newS => AuditResult.newString(newS, newS.some))
+  val upperCase: ChangeAuditor[String] = s => AuditResult.newString(s.toUpperCase)
 
   val rightAscension: ChangeAuditor[RightAscension] =
-    (str, format) => {
+    str => {
       def validateHoursOrMins(hours: String): Option[Unit] =
         if (hours == "") ().some
         else
@@ -91,10 +58,15 @@ object ChangeAuditor {
       }.fold(false)(_ => true)
 
       if (isValid)
-        format
-          .getOption(str)
-          .fold(AuditResult.accept[RightAscension](None))(r => AuditResult.accept(r.some))
+        AuditResult.accept
       else
         AuditResult.reject
     }
+
+  def fromFormat[A](f: InputFormat[A]): ChangeAuditor[A] = s =>
+    f.getOption(s).fold(AuditResult.reject[A])(_ => AuditResult.accept)
+
+  def fromInputValidate[A](v: InputValidate[A]): ChangeAuditor[A] = s =>
+    v.getValidated(s).fold(_ => AuditResult.reject, _ => AuditResult.accept)
+
 }

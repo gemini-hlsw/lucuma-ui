@@ -6,7 +6,6 @@ package lucuma.ui
 import lucuma.core.optics.Format
 
 package object forms {
-  type InputFormat[A] = Format[String, A]
-
-  type ChangeAuditor[A] = (String, InputFormat[A]) => AuditResult[A]
+  type InputFormat[A]   = Format[String, A]
+  type ChangeAuditor[A] = String => AuditResult[A]
 }

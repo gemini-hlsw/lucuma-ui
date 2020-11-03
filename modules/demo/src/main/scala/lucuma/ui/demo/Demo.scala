@@ -6,6 +6,7 @@ package lucuma.ui.demo
 import scala.scalajs.js.annotation._
 
 import react.common.ReactProps
+import react.semanticui.collections.form.Form
 import cats.effect._
 import crystal._
 import crystal.react._
@@ -21,7 +22,6 @@ import lucuma.core.math._
 import lucuma.ui.forms._
 import lucuma.ui.reusability._
 import monocle.macros.Lenses
-import _root_.react.semanticui.collections.form.Form
 import org.scalajs.dom
 
 final case class FormComponent(root: ViewF[IO, RootModel])
@@ -30,7 +30,11 @@ final case class FormComponent(root: ViewF[IO, RootModel])
 object FormComponent {
   type Props = FormComponent
 
+  @Lenses
+  case class State(valid1: Boolean = true, valid2: Boolean = true)
+
   implicit val propsReuse = Reusability.derive[Props]
+  implicit val stateReuse = Reusability.derive[State]
 
   val component =
     ScalaComponent
@@ -41,39 +45,49 @@ object FormComponent {
             FormInputEV(id = "field1",
                         label = "Upper case string",
                         value = p.root.zoom(RootModel.field1),
-                        format = InputFormat.upperCase,
-                        changeAuditor = ChangeAuditor.useFormattedValue
+                        validate = InputValidate.notEmpty,
+                        changeAuditor = ChangeAuditor.upperCase
             ),
             <.div(p.root.get.field1, ^.padding := "0 0 1em 1em"),
-            FormInputEV(id = "just",
-                        label = "Int max 1024",
-                        value = p.root.zoom(RootModel.justAnInt),
-                        format = InputFormat.forInt,
-                        changeAuditor = ChangeAuditor.nonNegativeInt(max = 1024)
+            FormInputEV(
+              id = "just",
+              label = "Int max 1024 constrained",
+              value = p.root.zoom(RootModel.justAnInt),
+              validate = InputValidate.forInt,
+              changeAuditor = ChangeAuditor.forNonNegInt(max = 1024)
             ),
             <.div(p.root.get.justAnInt, ^.padding := "0 0 1em 1em"),
+            FormInputEV(
+              id = "validated-int",
+              label = "Int max 1024 post validated",
+              value = p.root.zoom(RootModel.validatedInt),
+              validate = InputValidate.forIntRange(0, 1024)
+            ),
+            <.div(p.root.get.validatedInt, ^.padding := "0 0 1em 1em"),
             FormInputEV(
               id = "refined",
               label = "Refined int 0 - 2048",
               value = p.root.zoom(RootModel.refinedInt),
-              format = InputFormat.forRefinedInt[Interval.Closed[0, 2048]],
-              changeAuditor = ChangeAuditor.defaultForNonNegInts
+              validate = InputValidate.forRefinedInt[Interval.Closed[0, 2048]],
+              changeAuditor =
+                ChangeAuditor.fromFormat(InputFormat.forRefinedInt[Interval.Closed[0, 2048]])
             ),
             <.div(p.root.get.refinedInt.value, ^.padding := "0 0 1em 1em"),
             FormInputEV(
               id = "neg",
               label = "Int -1023 to 1024",
               value = p.root.zoom(RootModel.negInt),
-              format = InputFormat.forInt,
-              changeAuditor = ChangeAuditor.int(-1023, 1024)
-              // updateOn = UpdateValue.OnBlur
+              validate = InputValidate.forIntRange(),
+              changeAuditor = ChangeAuditor.forInt(-1023, 1024)
             ),
             <.div(p.root.get.negInt, ^.padding := "0 0 1em 1em"),
-            FormInputEV(id = "just",
-                        label = "Int max 17",
-                        value = p.root.zoom(RootModel.ra),
-                        format = RightAscension.fromStringHMS,
-                        changeAuditor = ChangeAuditor.rightAscension
+            FormInputEV(
+              id = "ra",
+              label = "RA",
+              value = p.root.zoom(RootModel.ra),
+              validate =
+                InputValidate.fromFormat(RightAscension.fromStringHMS, "Invalid RA Format"),
+              changeAuditor = ChangeAuditor.rightAscension
             ),
             <.div(p.root.get.ra.toString, ^.padding := "0 0 1em 1em")
           )
@@ -86,11 +100,12 @@ object FormComponent {
 
 @Lenses
 final case class RootModel(
-  field1:     String,
-  justAnInt:  Int,
-  refinedInt: Int Refined Interval.Closed[0, 2048],
-  negInt:     Int,
-  ra:         RightAscension
+  field1:       String,
+  justAnInt:    Int,
+  validatedInt: Int,
+  refinedInt:   Int Refined Interval.Closed[0, 2048],
+  negInt:       Int,
+  ra:           RightAscension
 )
 
 object RootModel {
@@ -113,7 +128,7 @@ trait AppMain extends IOApp {
   override final def run(args: List[String]): IO[ExitCode] = {
     ReusabilityOverlay.overrideGloballyInDev()
 
-    val initialModel = RootModel("FIELD1", 0, 0, 0, RightAscension.fromRadians(0.0))
+    val initialModel = RootModel("Starts Mixed", 0, 0, 0, 0, RightAscension.fromRadians(0.0))
 
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())

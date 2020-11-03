@@ -45,6 +45,5 @@ object InputFormat {
   def refinedIntPrism[P](implicit v: Validate[Int, P]): Prism[Int, RefinedInt[P]] =
     Prism[Int, RefinedInt[P]](i => refineV[P](i)(v).toOption)(_.value)
 
-  // using this alone will all the user to type any case, but convert to uppercase on blur
   val upperCase: InputFormat[String] = InputFormat[String](s => s.toUpperCase.some)(s => s)
 }

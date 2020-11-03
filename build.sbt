@@ -2,14 +2,14 @@ import sbt._
 
 lazy val reactJS                = "16.13.1"
 lazy val FUILess                = "2.8.7"
-lazy val scalaJsReactVersion    = "1.7.5"
+lazy val scalaJsReactVersion    = "1.7.6"
 lazy val lucumaCoreVersion      = "0.6.4"
 lazy val monocleVersion         = "2.1.0"
 lazy val crystalVersion         = "0.8.1"
 lazy val catsVersion            = "2.2.0"
 lazy val mouseVersion           = "0.25"
 lazy val reactCommonVersion     = "0.11.0"
-lazy val reactSemanticUIVersion = "0.9.0"
+lazy val reactSemanticUIVersion = "0.9.1"
 lazy val kindProjectorVersion   = "0.11.0"
 
 parallelExecution in (ThisBuild, Test) := false
