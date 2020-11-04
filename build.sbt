@@ -110,8 +110,8 @@ lazy val ui =
         "com.github.julien-truffaut"        %%% "monocle-core"        % monocleVersion,
         "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
-        "org.scalameta"                     %%% "munit"               % "0.7.14"          % Test,
-        "org.typelevel"                     %%% "discipline-munit"    % "1.0.1"           % Test
+        "org.scalameta"                     %%% "munit"               % "0.7.16"          % Test,
+        "org.typelevel"                     %%% "discipline-munit"    % "0.3.0"           % Test
       ),
       addCompilerPlugin(
         ("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)
