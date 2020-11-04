@@ -7,7 +7,7 @@ import cats.data.NonEmptyChain
 import cats.data.NonEmptyList
 
 package object optics {
-  type ValidateNec[E, T, A] = Validate[NonEmptyChain[E], T, A]
-  type ValidateNel[E, T, A] = Validate[NonEmptyList[E], T, A]
-  type ValidateInput[A]     = ValidateNec[String, String, A]
+  type ValidFormatNec[E, T, A] = ValidFormat[NonEmptyChain[E], T, A]
+  type ValidFormatNel[E, T, A] = ValidFormat[NonEmptyList[E], T, A]
+  type ValidFormatInput[A]     = ValidFormatNec[String, String, A]
 }

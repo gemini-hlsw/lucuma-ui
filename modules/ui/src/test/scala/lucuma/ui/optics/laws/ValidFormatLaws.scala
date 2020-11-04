@@ -6,12 +6,12 @@ package lucuma.ui.optics.laws
 import cats.Eq
 import cats.syntax.all._
 import lucuma.core.optics.laws._
-import lucuma.ui.optics.Validate
+import lucuma.ui.optics.ValidFormat
 import cats.data.Validated
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
 
-final case class ValidateLaws[E, T, A](validate: Validate[E, T, A]) {
+final case class ValidFormatLaws[E, T, A](validate: ValidFormat[E, T, A]) {
 
   def normalize(t: T): IsEq[Validated[E, Validated[E, A]]] =
     validate.normalize(t).map(validate.getValidated) <-> validate

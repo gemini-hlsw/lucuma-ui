@@ -12,7 +12,7 @@ import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import monocle.macros.Lenses
-import lucuma.ui.optics.ValidateInput
+import lucuma.ui.optics.ValidFormatInput
 import react.common._
 import react.semanticui._
 import react.semanticui.collections.form.FormInput
@@ -59,7 +59,7 @@ final case class FormInputEV[EV[_], A](
   transparent:     js.UndefOr[Boolean] = js.undefined,
   width:           js.UndefOr[SemanticWidth] = js.undefined,
   value:           EV[A],
-  validate:        ValidateInput[A] = ValidateInput.id,
+  validFormat:     ValidFormatInput[A] = ValidFormatInput.id,
   modifiers:       Seq[TagMod] = Seq.empty,
   onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
   onBlur:          FormInputEV.ChangeCallback[ValidatedNec[String, A]] = (_: ValidatedNec[String, A]) =>
@@ -67,13 +67,13 @@ final case class FormInputEV[EV[_], A](
 )(implicit val ev: ExternalValue[EV])
     extends ReactProps[FormInputEV[Any, Any]](FormInputEV.component) {
 
-  def valGet: String = ev.get(value).foldMap(validate.reverseGet)
+  def valGet: String = ev.get(value).foldMap(validFormat.reverseGet)
 
   def valSet: InputEV.ChangeCallback[A] = ev.set(value)
 
   def onBlurC(onError: NonEmptyChain[String] => Callback): InputEV.ChangeCallback[String] =
     (s: String) => {
-      val validated = validate.getValidated(s)
+      val validated = validFormat.getValidated(s)
       validated.swap.toOption.map(onError).getOrEmpty >> onBlur(validated)
     }
 
@@ -94,7 +94,7 @@ object FormInputEV {
       value: String,
       cb:    ValidatedNec[String, A] => Callback = _ => Callback.empty
     ): Callback = {
-      val validated = props.validate.getValidated(value)
+      val validated = props.validFormat.getValidated(value)
       props.onValidChange(validated.isValid) >> cb(validated)
     }
 

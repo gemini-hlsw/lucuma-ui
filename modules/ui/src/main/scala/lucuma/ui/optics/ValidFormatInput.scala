@@ -11,14 +11,14 @@ import monocle.Prism
 import cats.data.NonEmptyChain
 import cats.data.ValidatedNec
 
-object ValidateInput {
-  val id: ValidateInput[String] = fromIso(Iso.id[String])
+object ValidFormatInput {
+  val id: ValidFormatInput[String] = fromIso(Iso.id[String])
 
   def apply[A](
     getValidated: String => ValidatedNec[String, A],
     reverseGet:   A => String
-  ): ValidateInput[A] =
-    Validate(getValidated, reverseGet)
+  ): ValidFormatInput[A] =
+    ValidFormat(getValidated, reverseGet)
 
   /**
    * Build optics from a Format
@@ -26,8 +26,8 @@ object ValidateInput {
   def fromFormat[A](
     format:       Format[String, A],
     errorMessage: String = "Invalid format"
-  ): ValidateInput[A] =
-    Validate(
+  ): ValidFormatInput[A] =
+    ValidFormat(
       format.getOption.andThen(o => Validated.fromOption(o, NonEmptyChain(errorMessage))),
       format.reverseGet
     )
@@ -38,14 +38,14 @@ object ValidateInput {
   def fromPrism[A](
     prism:        Prism[String, A],
     errorMessage: String = "Invalid value"
-  ): ValidateInput[A] =
+  ): ValidFormatInput[A] =
     fromFormat(Format.fromPrism(prism), errorMessage)
 
   /**
    * Build optics from a Iso
    */
-  def fromIso[A](iso: Iso[String, A]): ValidateInput[A] =
-    Validate(
+  def fromIso[A](iso: Iso[String, A]): ValidFormatInput[A] =
+    ValidFormat(
       (iso.get _).andThen(_.valid),
       iso.reverseGet
     )
@@ -56,8 +56,8 @@ object ValidateInput {
   def fromFormatOptional[A](
     format:       Format[String, A],
     errorMessage: String = "Invalid format"
-  ): ValidateInput[Option[A]] =
-    ValidateInput(
+  ): ValidFormatInput[Option[A]] =
+    ValidFormatInput(
       (a: String) =>
         if (a.isEmpty) Validated.validNec(None)
         else

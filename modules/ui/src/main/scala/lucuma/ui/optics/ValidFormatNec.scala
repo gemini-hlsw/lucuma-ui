@@ -8,17 +8,17 @@ import cats.data.Validated
 import lucuma.core.optics.Format
 import monocle.Iso
 import monocle.Prism
-import cats.data.NonEmptyList
-import cats.data.ValidatedNel
+import cats.data.NonEmptyChain
+import cats.data.ValidatedNec
 
-object ValidateNel {
-  def id[E, A]: ValidateNel[E, A, A] = fromIso(Iso.id[A])
+object ValidFormatNec {
+  def id[E, A]: ValidFormatNec[E, A, A] = fromIso(Iso.id[A])
 
   def apply[E, T, A](
-    getValidated: T => ValidatedNel[E, A],
+    getValidated: T => ValidatedNec[E, A],
     reverseGet:   A => T
-  ): ValidateNel[E, T, A] =
-    Validate(getValidated, reverseGet)
+  ): ValidFormatNec[E, T, A] =
+    ValidFormat(getValidated, reverseGet)
 
   /**
    * Build optics from a Format
@@ -26,9 +26,9 @@ object ValidateNel {
   def fromFormat[E, T, A](
     format: Format[T, A],
     error:  E
-  ): ValidateNel[E, T, A] =
-    Validate(
-      format.getOption.andThen(o => Validated.fromOption(o, NonEmptyList.of(error))),
+  ): ValidFormatNec[E, T, A] =
+    ValidFormat(
+      format.getOption.andThen(o => Validated.fromOption(o, NonEmptyChain(error))),
       format.reverseGet
     )
 
@@ -38,14 +38,14 @@ object ValidateNel {
   def fromPrism[E, T, A](
     prism: Prism[T, A],
     error: E
-  ): ValidateNel[E, T, A] =
+  ): ValidFormatNec[E, T, A] =
     fromFormat(Format.fromPrism(prism), error)
 
   /**
    * Build optics from a Iso
    */
-  def fromIso[E, T, A](iso: Iso[T, A]): ValidateNel[E, T, A] =
-    Validate(
+  def fromIso[E, T, A](iso: Iso[T, A]): ValidFormatNec[E, T, A] =
+    ValidFormat(
       (iso.get _).andThen(_.valid),
       iso.reverseGet
     )
