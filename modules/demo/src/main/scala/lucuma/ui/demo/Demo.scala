@@ -6,6 +6,8 @@ package lucuma.ui.demo
 import scala.scalajs.js.annotation._
 
 import react.common.ReactProps
+import react.common.style.Css
+import react.semanticui.elements.label.LabelPointing
 import react.semanticui.collections.form.Form
 import cats.syntax.all._
 import cats.effect._
@@ -59,6 +61,8 @@ object FormComponent {
             FormInputEV(
               id = "field2",
               value = $.props.root.zoom(RootModel.field2),
+              errorClazz = Css("error-label"),
+              errorPointing = LabelPointing.Below,
               validate = InputValidate(
                 s =>
                   if (s.isEmpty)

@@ -39,6 +39,8 @@ final case class FormInputEV[EV[_], A](
   control:         js.UndefOr[String] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
   error:           js.UndefOr[ShorthandB[Label]] = js.undefined,
+  errorClazz:      js.UndefOr[Css] = js.undefined,
+  errorPointing:   js.UndefOr[LabelPointing] = js.undefined,
   fluid:           js.UndefOr[Boolean] = js.undefined,
   focus:           js.UndefOr[Boolean] = js.undefined,
   icon:            js.UndefOr[ShorthandSB[Icon]] = js.undefined,
@@ -120,7 +122,14 @@ object FormInputEV {
     def render(p: Props[EV, A], s: State): VdomNode = {
 
       val validationError: js.UndefOr[Label] =
-        s.errors.map(e => Label(e.toList.mkString(","))).orUndefined
+        s.errors
+          .map(e =>
+            Label(content = e.toList.mkString(","),
+                  clazz = p.errorClazz,
+                  pointing = p.errorPointing
+            )(^.position.absolute)
+          )
+          .orUndefined
 
       val error: js.UndefOr[ShorthandB[Label]] = p.error
         .flatMap[ShorthandB[Label]] {

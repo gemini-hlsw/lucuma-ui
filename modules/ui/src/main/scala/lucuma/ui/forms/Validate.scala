@@ -3,6 +3,7 @@
 
 package lucuma.ui.forms
 
+import cats.implicits._
 import cats.data.Validated
 import lucuma.core.optics.Format
 import monocle.Iso
@@ -25,7 +26,7 @@ object InputValidate {
   val id: InputValidate[String] = fromIso(Iso.id[String])
 
   /**
-   * Build optics from a Prism
+   * Build optics from a Format
    */
   def fromFormat[A](format: Format[String, A], errorMessage: String = "Invalid format") =
     InputValidate(
@@ -44,4 +45,21 @@ object InputValidate {
    */
   def fromIso[A](iso: Iso[String, A]): InputValidate[A] =
     fromFormat(Format.fromIso(iso))
+
+  /**
+   * Build optic from a Format but allow empty values to become `None
+   */
+  def fromFormatOptional[A](
+    format:       Format[String, A],
+    errorMessage: String = "Invalid format"
+  ): InputValidate[Option[A]] =
+    InputValidate(
+      (a: String) =>
+        if (a.isEmpty) Validated.validNec(None)
+        else
+          format.getOption
+            .andThen(o => Validated.fromOption(o, NonEmptyChain(errorMessage)))(a)
+            .map(x => Some(x)),
+      (a: Option[A]) => a.foldMap(format.reverseGet)
+    )
 }
