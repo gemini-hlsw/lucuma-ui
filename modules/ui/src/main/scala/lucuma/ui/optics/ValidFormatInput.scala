@@ -11,9 +11,19 @@ import monocle.Prism
 import cats.data.NonEmptyChain
 import cats.data.ValidatedNec
 
-object ValidFormatInput {
+/**
+ * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[String]` and `T = String`.
+ */
+object ValidFormatInput extends ValidFormatInputInstances {
+
+  /**
+   * Build optic that's always valid and doesn't normalize or format
+   */
   val id: ValidFormatInput[String] = fromIso(Iso.id[String])
 
+  /**
+   * Build optic from getValidated and reverseGet functions.
+   */
   def apply[A](
     getValidated: String => ValidatedNec[String, A],
     reverseGet:   A => String
@@ -21,7 +31,7 @@ object ValidFormatInput {
     ValidFormat(getValidated, reverseGet)
 
   /**
-   * Build optics from a Format
+   * Build optic from a Format
    */
   def fromFormat[A](
     format:       Format[String, A],
@@ -33,7 +43,7 @@ object ValidFormatInput {
     )
 
   /**
-   * Build optics from a Prism
+   * Build optic from a Prism
    */
   def fromPrism[A](
     prism:        Prism[String, A],
@@ -42,7 +52,7 @@ object ValidFormatInput {
     fromFormat(Format.fromPrism(prism), errorMessage)
 
   /**
-   * Build optics from a Iso
+   * Build optic from a Iso
    */
   def fromIso[A](iso: Iso[String, A]): ValidFormatInput[A] =
     ValidFormat(
@@ -51,7 +61,7 @@ object ValidFormatInput {
     )
 
   /**
-   * Build optic from a Format but allow empty values to become `None
+   * Build optic from a Format but allow empty values to become `None`
    */
   def fromFormatOptional[A](
     format:       Format[String, A],

@@ -11,9 +11,19 @@ import monocle.Prism
 import cats.data.NonEmptyChain
 import cats.data.ValidatedNec
 
+/**
+ * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[E]`.
+ */
 object ValidFormatNec {
+
+  /**
+   * Build optic that's always valid and doesn't normalize or format
+   */
   def id[E, A]: ValidFormatNec[E, A, A] = fromIso(Iso.id[A])
 
+  /**
+   * Build optic from getValidated and reverseGet functions.
+   */
   def apply[E, T, A](
     getValidated: T => ValidatedNec[E, A],
     reverseGet:   A => T
@@ -21,7 +31,7 @@ object ValidFormatNec {
     ValidFormat(getValidated, reverseGet)
 
   /**
-   * Build optics from a Format
+   * Build optic from a Format
    */
   def fromFormat[E, T, A](
     format: Format[T, A],
@@ -33,7 +43,7 @@ object ValidFormatNec {
     )
 
   /**
-   * Build optics from a Prism
+   * Build optic from a Prism
    */
   def fromPrism[E, T, A](
     prism: Prism[T, A],
@@ -42,7 +52,7 @@ object ValidFormatNec {
     fromFormat(Format.fromPrism(prism), error)
 
   /**
-   * Build optics from a Iso
+   * Build optic from a Iso
    */
   def fromIso[E, T, A](iso: Iso[T, A]): ValidFormatNec[E, T, A] =
     ValidFormat(

@@ -20,6 +20,7 @@ import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.forms._
 import lucuma.ui.optics.ValidFormatInput
+import lucuma.ui.refined._
 import monocle.macros.Lenses
 import org.scalajs.dom
 import japgolly.scalajs.react.MonocleReact._
@@ -49,14 +50,9 @@ object FormComponent {
             FormInputEV(
               id = "field1",
               value = $.props.root.zoom(RootModel.field1),
-              validFormat = ValidFormatInput(
-                s =>
-                  if (s.isEmpty)
-                    "Can't be empty".invalidNec
-                  else
-                    s.toUpperCase.validNec,
-                identity[String]
-              ),
+              errorClazz = Css("error-label"),
+              errorPointing = LabelPointing.Below,
+              validFormat = ValidFormatInput.upperNESValidFormat,
               onValidChange = v => $.setStateL(State.valid1)(v)
             ),
             FormInputEV(
@@ -83,10 +79,11 @@ object FormComponent {
 }
 
 @Lenses
-final case class RootModel(field1: String, field2: String)
+final case class RootModel(field1: UpperNES, field2: String)
 
 object RootModel {
-  implicit val modelReusability: Reusability[RootModel] = Reusability.derive[RootModel]
+  implicit val upperNESReusability: Reusability[UpperNES] = Reusability.by(_.value)
+  implicit val modelReusability: Reusability[RootModel]   = Reusability.derive[RootModel]
 }
 
 case class AppContext[F[_]]()(implicit val cs: ContextShift[F])
@@ -105,7 +102,7 @@ trait AppMain extends IOApp {
   override final def run(args: List[String]): IO[ExitCode] = {
     ReusabilityOverlay.overrideGloballyInDev()
 
-    val initialModel = RootModel("FIELD1", "")
+    val initialModel = RootModel(UpperNES.unsafeFrom("FIELD"), "")
 
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())

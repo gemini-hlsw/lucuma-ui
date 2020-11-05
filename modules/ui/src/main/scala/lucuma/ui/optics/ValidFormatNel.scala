@@ -11,9 +11,19 @@ import monocle.Prism
 import cats.data.NonEmptyList
 import cats.data.ValidatedNel
 
+/**
+ * Convenience version of `ValidFormat` when the error type is `NonEmptyList[E]`.
+ */
 object ValidFormatNel {
+
+  /**
+   * Build optic that's always valid and doesn't normalize or format
+   */
   def id[E, A]: ValidFormatNel[E, A, A] = fromIso(Iso.id[A])
 
+  /**
+   * Build optic from getValidated and reverseGet functions.
+   */
   def apply[E, T, A](
     getValidated: T => ValidatedNel[E, A],
     reverseGet:   A => T
