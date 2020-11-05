@@ -13,7 +13,30 @@ import org.typelevel.discipline.Laws
 import cats.laws.discipline._
 
 trait ValidFormatTests[E, T, A] extends Laws {
-  val validFormatLaws: ValidFormatLaws[E, T, A]
+  val validFormatChecks: ValidFormatChecks[E, T, A]
+
+  def validFormatLaws(implicit
+    at: Arbitrary[T],
+    et: Eq[T],
+    aa: Arbitrary[A],
+    ea: Eq[A],
+    ee: Eq[E]
+  ): RuleSet =
+    new SimpleRuleSet(
+      "validateLaws",
+      "normalize"        -> forAll((t: T) => validFormatChecks.normalizeLaw(t)),
+      "parse roundtrip"  -> forAll((t: T) => validFormatChecks.parseRoundTripLaw(t)),
+      "format roundtrip" -> forAll((a: A) => validFormatChecks.formatRoundTripLaw(a))
+    )
+
+  /** Convenience constructor that allows passing an explicit generator for input values. */
+  def validFormatLawsWith(gt: Gen[T])(implicit
+    et:                       Eq[T],
+    aa:                       Arbitrary[A],
+    ea:                       Eq[A],
+    ee:                       Eq[E]
+  ): RuleSet =
+    validFormatLaws(Arbitrary(gt), et, aa, ea, ee)
 
   def validFormat(implicit
     at: Arbitrary[T],
@@ -24,10 +47,10 @@ trait ValidFormatTests[E, T, A] extends Laws {
   ): RuleSet =
     new SimpleRuleSet(
       "validate",
-      "normalize"        -> forAll((t: T) => validFormatLaws.normalize(t)),
-      "parse roundtrip"  -> forAll((t: T) => validFormatLaws.parseRoundTrip(t)),
-      "format roundtrip" -> forAll((a: A) => validFormatLaws.formatRoundTrip(a)),
-      "coverage"         -> exists((t: T) => validFormatLaws.demonstratesValidationOrNormalization(t))
+      (validFormatLaws.props :+
+        "coverage" -> exists((t: T) =>
+          validFormatChecks.ensureValidationOrNormalizationCheck(t)
+        )): _*
     )
 
   /** Convenience constructor that allows passing an explicit generator for input values. */
@@ -38,14 +61,13 @@ trait ValidFormatTests[E, T, A] extends Laws {
     ee:                   Eq[E]
   ): RuleSet =
     validFormat(Arbitrary(gt), et, aa, ea, ee)
-
 }
 
 object ValidFormatTests extends Laws {
 
   def apply[T, A, E](v: ValidFormat[T, A, E]): ValidFormatTests[T, A, E] =
     new ValidFormatTests[T, A, E] {
-      val validFormatLaws: ValidFormatLaws[T, A, E] = ValidFormatLaws(v)
+      val validFormatChecks: ValidFormatChecks[T, A, E] = ValidFormatChecks(v)
     }
 
 }

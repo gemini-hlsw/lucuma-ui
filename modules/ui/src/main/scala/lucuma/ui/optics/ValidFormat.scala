@@ -10,19 +10,29 @@ import monocle.Iso
 import monocle.Prism
 import lucuma.core.optics.SplitEpi
 
+/**
+ * A validating and normalizing optic. Behaves similarly to `Format`, but the getter returns
+ * a `Validated[E, A]` instead of an `Option[A]`.
+ *
+ * Laws are the same for `Format`, except that `coverage` allows no normalization to happen
+ * as long as there are invalid inputs.
+ *
+ * Composition with `Format` or stronger optics (`Prism` and `Iso`) yields another `ValidFormat`,
+ * and require providing an `E` instance for the invalid cases.
+ */
 abstract class ValidFormat[E, T, A] extends Serializable { self =>
   val getValidated: T => Validated[E, A]
 
   val reverseGet: A => T
 
   /**
-   * getValidated and reverseGet, yielding a normalized formatted value if valid. Subsequent getValidated/reverseGet cycles are
-   * idempotent.
+   * getValidated and reverseGet, yielding a normalized formatted value if valid. Subsequent
+   * getValidated/reverseGet cycles are idempotent.
    */
   def normalize(t: T): Validated[E, T] =
     getValidated(t).map(reverseGet)
 
-  /** Like getValidated, but throws IllegalArgumentException on failure. */
+  /** Like getValidated, but throws IllegalArgumentException when Invalid. */
   def unsafeGet(t: T): A =
     getValidated(t).getOrElse {
       throw new IllegalArgumentException(s"unsafeGet failed: $t")
@@ -76,6 +86,15 @@ abstract class ValidFormat[E, T, A] extends Serializable { self =>
 }
 
 object ValidFormat {
+
+  /**
+   * Build optic that's always valid and doesn't normalize or format
+   */
+  def id[E, A]: ValidFormat[E, A, A] = fromIso(Iso.id[A])
+
+  /**
+   * Build optic from getValidated and reverseGet functions.
+   */
   def apply[E, T, A](
     _getValidated: T => Validated[E, A],
     _reverseGet:   A => T
@@ -86,7 +105,7 @@ object ValidFormat {
     }
 
   /**
-   * Build optics from a Format
+   * Build optic from a Format
    */
   def fromFormat[E, T, A](format: Format[T, A], error: E): ValidFormat[E, T, A] =
     ValidFormat(
@@ -95,13 +114,13 @@ object ValidFormat {
     )
 
   /**
-   * Build optics from a Prism
+   * Build optic from a Prism
    */
   def fromPrism[E, T, A](prism: Prism[T, A], error: E): ValidFormat[E, T, A] =
     fromFormat(Format.fromPrism(prism), error)
 
   /**
-   * Build optics from a Iso
+   * Build optic from a Iso
    */
   def fromIso[E, T, A](iso: Iso[T, A]): ValidFormat[E, T, A] =
     ValidFormat(

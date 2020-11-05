@@ -10,6 +10,7 @@ import lucuma.core.data.EnumZipper
 import lucuma.core.math._
 import lucuma.core.model._
 import lucuma.core.util.Enumerated
+import coulomb.Quantity
 
 /**
  * Instances of reusability for some utility types
@@ -26,15 +27,19 @@ trait UtilReusabilityInstances {
  * Instances of reusability for some common math types
  */
 trait MathReusabilityInstances {
-  implicit val angleReuse: Reusability[Angle]             =
+  // Reusability for coulomb quantities.
+  implicit def quantityReuse[N: Reusability, U]: Reusability[Quantity[N, U]] =
+    Reusability.by(_.value)
+  implicit val angleReuse: Reusability[Angle]                                =
     Reusability.by(_.toMicroarcseconds)
-  implicit def raReuse: Reusability[RightAscension]       = Reusability.byEq
-  implicit def decReuse: Reusability[Declination]         = Reusability.byEq
-  implicit def coordinatesReuse: Reusability[Coordinates] = Reusability.byEq
-  implicit def epochReuse: Reusability[Epoch]             = Reusability.byEq
-  implicit def pvReuse: Reusability[ProperVelocity]       = Reusability.byEq
-  implicit def rvReuse: Reusability[RadialVelocity]       = Reusability.byEq
-  implicit def parallaxReuse: Reusability[Parallax]       = Reusability.byEq
+  implicit def raReuse: Reusability[RightAscension]                          = Reusability.byEq
+  implicit def decReuse: Reusability[Declination]                            = Reusability.byEq
+  implicit def coordinatesReuse: Reusability[Coordinates]                    = Reusability.byEq
+  implicit def epochReuse: Reusability[Epoch]                                = Reusability.byEq
+  implicit def pvReuse: Reusability[ProperVelocity]                          = Reusability.byEq
+  implicit def rvReuse: Reusability[RadialVelocity]                          = Reusability.byEq
+  implicit def parallaxReuse: Reusability[Parallax]                          = Reusability.byEq
+  implicit val magnitudeValueReuse: Reusability[MagnitudeValue]              = Reusability.byEq
 }
 
 /**
@@ -62,6 +67,7 @@ trait ModelReusabiltyInstances
   implicit val standardUserReuse: Reusability[StandardUser]         = Reusability.derive
   implicit def catalogIdReuse: Reusability[CatalogId]               = Reusability.derive
   implicit def siderealTrackingReuse: Reusability[SiderealTracking] = Reusability.derive
+  implicit val magnitudeReuse: Reusability[Magnitude]               = Reusability.derive
 }
 
 package object reusability
