@@ -72,12 +72,6 @@ final case class FormInputEV[EV[_], A](
 
   def valSet: InputEV.ChangeCallback[A] = ev.set(value)
 
-  def onBlurC(onError: NonEmptyChain[String] => Callback): InputEV.ChangeCallback[String] =
-    (s: String) => {
-      val validated = validFormat.getValidated(s)
-      validated.swap.toOption.map(onError).getOrEmpty >> onBlur(validated)
-    }
-
   def withMods(mods: TagMod*): FormInputEV[EV, A] = copy(modifiers = modifiers ++ mods)
 }
 
@@ -115,7 +109,7 @@ object FormInputEV {
         state.curValue,
         { validated =>
           val validatedCB = validated match {
-            case Valid(a)   => props.valSet(a)
+            case Valid(a)   => props.valSet(a).when(state.prevValue =!= state.curValue)
             case Invalid(e) => $.setStateL(State.errors)(e.some)
           }
           validatedCB >> props.onBlur(validated)
