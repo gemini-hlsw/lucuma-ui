@@ -7,6 +7,7 @@ import scala.scalajs.js
 import scala.scalajs.js.|
 
 import cats.syntax.all._
+import cats.Eq
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.raw.JsNumber
@@ -65,7 +66,7 @@ final case class FormInputEV[EV[_], A](
   onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
   onBlur:          FormInputEV.ChangeCallback[ValidatedNec[String, A]] = (_: ValidatedNec[String, A]) =>
     Callback.empty // for extra actions
-)(implicit val ev: ExternalValue[EV])
+)(implicit val ev: ExternalValue[EV], val eq: Eq[A])
     extends ReactProps[FormInputEV[Any, Any]](FormInputEV.component) {
 
   def valGet: String = ev.get(value).foldMap(validFormat.reverseGet)
@@ -109,8 +110,14 @@ object FormInputEV {
         state.curValue,
         { validated =>
           val validatedCB = validated match {
-            case Valid(a)   => props.valSet(a).when(state.prevValue =!= state.curValue)
-            case Invalid(e) => $.setStateL(State.errors)(e.some)
+            case Valid(a)   =>
+              implicit val eq = props.eq
+              if (props.ev.get(props.value).exists(_ =!= a)) // Only set if resulting A changed.
+                props.valSet(a)
+              else                                           // A didn't change, but redisplay formatted string.
+                $.setStateL(State.curValue)(props.valGet)
+            case Invalid(e) =>
+              $.setStateL(State.errors)(e.some)
           }
           validatedCB >> props.onBlur(validated)
         }
