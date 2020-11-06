@@ -36,7 +36,7 @@ trait MathReusabilityInstances {
   implicit def decReuse: Reusability[Declination]                            = Reusability.byEq
   implicit def coordinatesReuse: Reusability[Coordinates]                    = Reusability.byEq
   implicit def epochReuse: Reusability[Epoch]                                = Reusability.byEq
-  implicit def pvReuse: Reusability[ProperVelocity]                          = Reusability.byEq
+  implicit def pmReuse: Reusability[ProperMotion]                            = Reusability.byEq
   implicit def rvReuse: Reusability[RadialVelocity]                          = Reusability.byEq
   implicit def parallaxReuse: Reusability[Parallax]                          = Reusability.byEq
   implicit val magnitudeValueReuse: Reusability[MagnitudeValue]              = Reusability.byEq
