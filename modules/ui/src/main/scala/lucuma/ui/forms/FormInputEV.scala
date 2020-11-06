@@ -61,6 +61,7 @@ final case class FormInputEV[EV[_], A](
   value:           EV[A],
   validFormat:     ValidFormatInput[A] = ValidFormatInput.id,
   modifiers:       Seq[TagMod] = Seq.empty,
+  onTextChange:    String => Callback = _ => Callback.empty,
   onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
   onBlur:          FormInputEV.ChangeCallback[ValidatedNec[String, A]] = (_: ValidatedNec[String, A]) =>
     Callback.empty // for extra actions
@@ -103,7 +104,8 @@ object FormInputEV {
         // Capture the value outside setState, react reuses the events
         val v = e.target.value
         // First update the internal state, then call the outside listener
-        $.setStateL(State.curValue)(v) >> $.setStateL(State.errors)(none) >>
+        $.setStateL(State.curValue)(v) *> $.setStateL(State.errors)(none) *>
+          props.onTextChange(v) *>
           validate(props, v)
       }
 
