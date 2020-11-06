@@ -24,6 +24,7 @@ import lucuma.ui.refined._
 import monocle.macros.Lenses
 import org.scalajs.dom
 import japgolly.scalajs.react.MonocleReact._
+import eu.timepit.refined.cats._
 
 final case class FormComponent(root: ViewF[IO, RootModel])
     extends ReactProps[FormComponent](FormComponent.component)
