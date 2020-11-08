@@ -4,11 +4,13 @@
 package lucuma.ui.optics
 
 import cats.syntax.all._
-import cats.data.Validated
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.api.{ Validate => RefinedValidate }
 import lucuma.core.optics.Format
 import monocle.Iso
 import monocle.Prism
 import cats.data.NonEmptyChain
+import cats.data.Validated
 import cats.data.ValidatedNec
 
 /**
@@ -75,5 +77,17 @@ object ValidFormatInput extends ValidFormatInputInstances {
             .andThen(o => Validated.fromOption(o, NonEmptyChain(errorMessage)))(a)
             .map(x => Some(x)),
       (a: Option[A]) => a.foldMap(format.reverseGet)
+    )
+
+  def forRefinedString[P](
+    error:      String = "Invalid format"
+  )(implicit v: RefinedValidate[String, P]): ValidFormatInput[String Refined P] =
+    ValidFormat.forRefined[NonEmptyChain[String], String, P](NonEmptyChain(error))
+
+  def forRefinedInt[P](
+    error:      String = "Invalid format"
+  )(implicit v: RefinedValidate[Int, P]): ValidFormatInput[Int Refined P] =
+    intValidFormat(error).composeValidFormat(
+      ValidFormat.forRefined[NonEmptyChain[String], Int, P](NonEmptyChain(error))
     )
 }

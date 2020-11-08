@@ -13,7 +13,10 @@ import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import monocle.macros.Lenses
+import lucuma.ui.optics.AuditResult
+import lucuma.ui.optics.ChangeAuditor
 import lucuma.ui.optics.ValidFormatInput
+import org.scalajs.dom.html
 import react.common._
 import react.semanticui._
 import react.semanticui.collections.form.FormInput
@@ -21,6 +24,7 @@ import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.input._
 import react.semanticui.elements.label._
 import cats.data.NonEmptyChain
+import cats.data.Chain
 import scalajs.js.JSConverters._
 import japgolly.scalajs.react.React
 import cats.data.Validated.Valid
@@ -61,6 +65,7 @@ final case class FormInputEV[EV[_], A](
   width:           js.UndefOr[SemanticWidth] = js.undefined,
   value:           EV[A],
   validFormat:     ValidFormatInput[A] = ValidFormatInput.id,
+  changeAuditor:   ChangeAuditor[A] = ChangeAuditor.accept[A],
   modifiers:       Seq[TagMod] = Seq.empty,
   onTextChange:    String => Callback = _ => Callback.empty,
   onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
@@ -81,9 +86,15 @@ object FormInputEV {
   type ChangeCallback[A] = A => Callback
 
   @Lenses
-  final case class State(curValue: String, prevValue: String, errors: Option[NonEmptyChain[String]])
+  final case class State(
+    displayValue: String,
+    modelValue:   String,
+    cursor:       Option[(Int, Int)],
+    errors:       Option[NonEmptyChain[String]]
+  )
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
+    private val outerRef = Ref[html.Element]
 
     def validate(
       props: Props[EV, A],
@@ -94,20 +105,72 @@ object FormInputEV {
       props.onValidChange(validated.isValid) >> cb(validated)
     }
 
+    def getInputElement(e: html.Element): CallbackOption[html.Input] = {
+      def childChain(ele: html.Element): Chain[html.Element] =
+        Chain.fromSeq(
+          (0 until ele.childElementCount).map(i => ele.children.item(i).asInstanceOf[html.Element])
+        )
+
+      def findWithClass(ele: html.Element, acc: Chain[html.Element]): Chain[html.Element] = {
+        val newAcc   = if (ele.className.contains("input")) acc :+ ele else acc
+        val children = childChain(ele)
+        if (children.isEmpty) newAcc
+        else newAcc ++ children.flatMap(c => findWithClass(c, Chain.empty))
+      }
+      // val oc = findWithClass(e, Chain.empty).headOption.map(_.firstChild.asInstanceOf[html.Input])
+      CallbackOption.liftOption(
+        findWithClass(e, Chain.empty).headOption.map(_.firstChild.asInstanceOf[html.Input])
+      )
+    }
+
+    def getCursor: CallbackTo[Option[(Int, Int)]] =
+      outerRef.get.flatMap(getInputElement).map(i => (i.selectionStart, i.selectionEnd)).asCallback
+
+    def setCursor(cursor: (Int, Int)): Callback =
+      outerRef.get.flatMap(getInputElement).map(i => i.setSelectionRange(cursor._1, cursor._2))
+
+    def setStateCursor(offset: Int): Callback =
+      getCursor
+        .map(oc => oc.map { case (start, end) => (start + offset, end + offset) })
+        .flatMap(oc => $.setStateL(State.cursor)(oc))
+
+    def clearStateCursor: Callback = $.setStateL(State.cursor)(None)
+
+    def setCursorFromState: Callback =
+      $.state.flatMap(s => s.cursor.map(setCursor).getOrElse(Callback.empty))
+
+    def audit(auditor: ChangeAuditor[A], value: String): CallbackTo[String] = {
+      def setDisplayValue(s: String): CallbackTo[String] =
+        $.setStateL(State.displayValue)(s).map(_ => s)
+      getCursor
+        .map {
+          case Some(c) => c._1
+          case _       => value.length
+        }
+        .flatMap { c =>
+          auditor(value, c) match {
+            case AuditResult.Accept()                => clearStateCursor *> setDisplayValue(value)
+            case AuditResult.NewString(newS, offset) =>
+              setStateCursor(offset) *> setDisplayValue(newS)
+            case AuditResult.Reject()                => setStateCursor(-1) *> CallbackTo(value)
+          }
+        }
+    }
+
     def onTextChange(props: Props[EV, A]): ReactEventFromInput => Callback =
       (e: ReactEventFromInput) => {
         // Capture the value outside setState, react reuses the events
         val v = e.target.value
-        // First update the internal state, then call the outside listener
-        $.setStateL(State.curValue)(v) *> $.setStateL(State.errors)(none) *>
-          props.onTextChange(v) *>
-          validate(props, v)
+        audit(props.changeAuditor, v).flatMap(newS =>
+          // First update the internal state, then call the outside listener
+          $.setStateL(State.errors)(none) *> props.onTextChange(newS) *> validate(props, newS)
+        )
       }
 
     def onBlur(props: Props[EV, A], state: State): Callback =
       validate(
         props,
-        state.curValue,
+        state.displayValue,
         { validated =>
           val validatedCB = validated match {
             case Valid(a)   =>
@@ -115,13 +178,14 @@ object FormInputEV {
               if (props.ev.get(props.value).exists(_ =!= a)) // Only set if resulting A changed.
                 props.valSet(a)
               else                                           // A didn't change, but redisplay formatted string.
-                $.setStateL(State.curValue)(props.valGet)
+                $.setStateL(State.displayValue)(props.valGet)
             case Invalid(e) =>
               $.setStateL(State.errors)(e.some)
           }
           validatedCB >> props.onBlur(validated)
         }
       )
+    val OuterDiv = <.div()
 
     def render(p: Props[EV, A], s: State): VdomNode = {
 
@@ -147,37 +211,39 @@ object FormInputEV {
         }
         .orElse(validationError)
 
-      FormInput(
-        p.action,
-        p.actionPosition,
-        p.as,
-        p.className,
-        p.clazz,
-        p.content,
-        p.control,
-        p.disabled,
-        error,
-        p.fluid,
-        p.focus,
-        p.icon,
-        p.iconPosition,
-        p.inline,
-        p.input,
-        p.inverted,
-        p.label,
-        p.labelPosition,
-        p.loading,
-        js.undefined,
-        onTextChange(p),
-        p.required,
-        p.size,
-        p.tabIndex,
-        p.tpe,
-        p.transparent,
-        p.width,
-        s.curValue
-      )(
-        (p.modifiers :+ (^.id := p.id) :+ (^.onBlur --> onBlur(p, s)): _*)
+      OuterDiv.withRef(outerRef)(
+        FormInput(
+          p.action,
+          p.actionPosition,
+          p.as,
+          p.className,
+          p.clazz,
+          p.content,
+          p.control,
+          p.disabled,
+          error,
+          p.fluid,
+          p.focus,
+          p.icon,
+          p.iconPosition,
+          p.inline,
+          p.input,
+          p.inverted,
+          p.label,
+          p.labelPosition,
+          p.loading,
+          js.undefined,
+          onTextChange(p),
+          p.required,
+          p.size,
+          p.tabIndex,
+          p.tpe,
+          p.transparent,
+          p.width,
+          s.displayValue
+        )(
+          (p.modifiers :+ (^.id := p.id) :+ (^.onBlur --> onBlur(p, s)): _*)
+        )
       )
     }
   }
@@ -189,12 +255,17 @@ object FormInputEV {
         val newValue = props.valGet
         // Force new value from props if the prop changes (or we are initializing).
         stateOpt match {
-          case Some(state) if newValue === state.prevValue => state
-          case _                                           => State(newValue, newValue, none)
+          case Some(state) if newValue === state.modelValue => state
+          case _                                            => State(newValue, newValue, none, none)
         }
       }
       .renderBackend[Backend[EV, A]]
-      .componentDidMount($ => $.backend.validate($.props, $.props.valGet))
+      .componentDidMount($ =>
+        $.backend
+          .audit($.props.changeAuditor, $.props.valGet)
+          .flatMap($.backend.validate($.props, _))
+      )
+      .componentDidUpdate(_.backend.setCursorFromState)
       .build
 
   protected val component = buildComponent[Any, Any]

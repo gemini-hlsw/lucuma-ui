@@ -7,6 +7,7 @@ lazy val lucumaCoreVersion      = "0.7.0"
 lazy val monocleVersion         = "2.1.0"
 lazy val crystalVersion         = "0.8.1"
 lazy val catsVersion            = "2.2.0"
+lazy val mouseVersion           = "0.25"
 lazy val reactCommonVersion     = "0.11.1"
 lazy val reactSemanticUIVersion = "0.9.1"
 lazy val kindProjectorVersion   = "0.11.0"
@@ -109,6 +110,7 @@ lazy val ui =
         "io.github.cquiroz.react"           %%% "react-semantic-ui"   % reactSemanticUIVersion,
         "com.github.julien-truffaut"        %%% "monocle-core"        % monocleVersion,
         "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
+        "org.typelevel"                     %%% "mouse"               % mouseVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
         "org.scalameta"                     %%% "munit"               % "0.7.16"          % Test,
         "org.typelevel"                     %%% "discipline-munit"    % "1.0.1"           % Test

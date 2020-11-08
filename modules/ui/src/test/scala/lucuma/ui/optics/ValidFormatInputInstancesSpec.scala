@@ -5,6 +5,8 @@ package lucuma.ui.optics
 
 import cats.syntax.all._
 import munit.DisciplineSuite
+import lucuma.core.math.Epoch
+import lucuma.core.math.arb.ArbEpoch._
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.optics.laws.discipline.ValidFormatTests
 import lucuma.ui.refined._
@@ -15,7 +17,7 @@ import org.scalacheck.Arbitrary
 
 final class ValidFormatInputInstancesSpec extends DisciplineSuite {
   val genUpperNES: Gen[UpperNES] =
-    Gen.alphaUpperStr.suchThat(_.nonEmpty).map(UpperNES.unsafeFrom)
+    Gen.asciiStr.suchThat(_.nonEmpty).map(s => UpperNES.unsafeFrom(s.toUpperCase))
 
   implicit val arbUpperNES: Arbitrary[UpperNES] = Arbitrary(genUpperNES)
 
@@ -26,4 +28,8 @@ final class ValidFormatInputInstancesSpec extends DisciplineSuite {
   checkAll("upperNESValidFormat",
            ValidFormatTests(ValidFormatInput.upperNESValidFormat).validFormat
   )
+  checkAll("optionalEpochValidFormat",
+           ValidFormatTests(ValidFormatInput.fromFormatOptional(Epoch.fromString)).validFormat
+  )
+  checkAll("intValidFormat", ValidFormatTests(ValidFormatInput.intValidFormat()).validFormat)
 }
