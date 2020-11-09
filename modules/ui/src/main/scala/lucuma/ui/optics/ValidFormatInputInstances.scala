@@ -12,12 +12,15 @@ import eu.timepit.refined.types.string.NonEmptyString
  */
 trait ValidFormatInputInstances {
   val nonEmptyValidFormat = ValidFormatInput[NonEmptyString](
-    s => NonEmptyString.from(s).fold(_ => "Can't be empty".invalidNec, _.validNec),
+    s => NonEmptyString.from(s).fold(_ => NonEmptyString("Can't be empty").invalidNec, _.validNec),
     _.toString
   )
 
   val upperNESValidFormat = ValidFormatInput[UpperNES](
-    s => UpperNES.from(s.toUpperCase).fold(_ => "Can't be empty".invalidNec, s => s.validNec),
+    s =>
+      UpperNES
+        .from(s.toUpperCase)
+        .fold(_ => NonEmptyString("Can't be empty").invalidNec, s => s.validNec),
     _.toString
   )
 }

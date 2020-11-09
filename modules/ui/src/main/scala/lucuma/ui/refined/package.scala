@@ -4,16 +4,17 @@
 package lucuma.ui
 
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.char.UpperCase
+import eu.timepit.refined.char.LowerCase
 import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.api.RefinedTypeOps
 import eu.timepit.refined.collection.Forall
 import eu.timepit.refined.boolean.And
+import eu.timepit.refined.boolean.Not
 
 /**
  * Convenience refined definitions.
  */
 package object refined {
-  type UpperNES = String Refined And[NonEmpty, Forall[UpperCase]]
+  type UpperNES = String Refined And[NonEmpty, Forall[Not[LowerCase]]]
   object UpperNES extends RefinedTypeOps[UpperNES, String]
 }

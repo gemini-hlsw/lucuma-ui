@@ -25,6 +25,8 @@ import monocle.macros.Lenses
 import org.scalajs.dom
 import japgolly.scalajs.react.MonocleReact._
 import eu.timepit.refined.cats._
+import eu.timepit.refined.types.string.NonEmptyString
+import eu.timepit.refined.auto._
 
 final case class FormComponent(root: ViewF[IO, RootModel])
     extends ReactProps[FormComponent](FormComponent.component)
@@ -61,10 +63,11 @@ object FormComponent {
               value = $.props.root.zoom(RootModel.field2),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
+              error = NonEmptyString("This is another error"),
               validFormat = ValidFormatInput(
                 s =>
                   if (s.isEmpty)
-                    "Can't be empty".invalidNec
+                    NonEmptyString("Can't be empty").invalidNec
                   else
                     s.toLowerCase.validNec,
                 identity[String]
