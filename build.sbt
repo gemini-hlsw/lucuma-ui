@@ -110,7 +110,7 @@ lazy val ui =
         "com.github.julien-truffaut"        %%% "monocle-core"        % monocleVersion,
         "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
-        "org.scalameta"                     %%% "munit"               % "0.7.16"          % Test,
+        "org.scalameta"                     %%% "munit"               % "0.7.17"          % Test,
         "org.typelevel"                     %%% "discipline-munit"    % "1.0.1"           % Test
       ),
       addCompilerPlugin(
