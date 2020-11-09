@@ -111,7 +111,7 @@ lazy val ui =
         "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
         "org.scalameta"                     %%% "munit"               % "0.7.17"          % Test,
-        "org.typelevel"                     %%% "discipline-munit"    % "1.0.1"           % Test
+        "org.typelevel"                     %%% "discipline-munit"    % "1.0.2"           % Test
       ),
       addCompilerPlugin(
         ("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)
