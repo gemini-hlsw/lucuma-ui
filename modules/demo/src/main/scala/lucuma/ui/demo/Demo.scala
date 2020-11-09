@@ -98,7 +98,10 @@ object FormComponent {
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.forRefinedString[UpperNEPred]("Can't be empty"),
-              changeAuditor = ChangeAuditor.forRefinedString[UpperNEPred](formatFn = _.toUpperCase),
+              changeAuditor = ChangeAuditor.forRefinedString[UpperNEPred](formatFn = _.toUpperCase,
+                                                                          filterMode =
+                                                                            FilterMode.Lax
+              ),
               onValidChange = v => $.setStateL(State.forcedUpper)(v)
             ),
             FormInputEV(
