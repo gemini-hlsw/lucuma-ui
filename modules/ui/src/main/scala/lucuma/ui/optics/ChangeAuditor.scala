@@ -156,10 +156,14 @@ object ChangeAuditor {
       val (minus, newStr, newPos) =
         if (str.startsWith("-")) ("-", str.substring(1), cursorPos - 1) else ("", str, cursorPos)
       if (newPos > 0) {
-        val regex    = s"^(0{0,$newPos})".r
-        val stripped = regex.replaceAllIn(newStr, "")
+        // We actually only want to strip zeros if there is another digit to the right
+        val regex    = s"0{0,$newPos}(\\d+)".r
+        val stripped = newStr match {
+          case regex(remainder) => remainder
+          case _                => newStr
+        }
         val s        = s"$minus$stripped"
-        (s, s, newStr.length - stripped.length)
+        (s, s, s.length - str.length)
       } else {
         (str, str, 0)
       }
