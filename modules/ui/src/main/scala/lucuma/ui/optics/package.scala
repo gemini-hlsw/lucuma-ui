@@ -5,9 +5,10 @@ package lucuma.ui
 
 import cats.data.NonEmptyChain
 import cats.data.NonEmptyList
+import eu.timepit.refined.types.string.NonEmptyString
 
 package object optics {
   type ValidFormatNec[E, T, A] = ValidFormat[NonEmptyChain[E], T, A]
   type ValidFormatNel[E, T, A] = ValidFormat[NonEmptyList[E], T, A]
-  type ValidFormatInput[A]     = ValidFormatNec[String, String, A]
+  type ValidFormatInput[A]     = ValidFormatNec[NonEmptyString, String, A]
 }
