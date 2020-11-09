@@ -32,6 +32,7 @@ import eu.timepit.refined.auto._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.cats._
+import eu.timepit.refined.types.string.NonEmptyString
 
 object types {
   type ZeroTo2048 = Interval.Closed[0, 2048]
@@ -81,10 +82,11 @@ object FormComponent {
               value = $.props.root.zoom(RootModel.field2),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
+              error = NonEmptyString("This is another error"),
               validFormat = ValidFormatInput(
                 s =>
                   if (s.isEmpty)
-                    "Can't be empty".invalidNec
+                    NonEmptyString("Can't be empty").invalidNec
                   else
                     s.toLowerCase.validNec,
                 identity[String]

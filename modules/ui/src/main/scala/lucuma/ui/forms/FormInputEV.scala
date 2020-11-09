@@ -26,10 +26,10 @@ import react.semanticui.elements.label._
 import cats.data.NonEmptyChain
 import cats.data.Chain
 import scalajs.js.JSConverters._
-import japgolly.scalajs.react.React
 import cats.data.Validated.Valid
 import cats.data.Validated.Invalid
 import cats.data.ValidatedNec
+import eu.timepit.refined.types.string.NonEmptyString
 
 /**
  * FormInput component that uses an ExternalValue to share the content of the field
@@ -44,7 +44,7 @@ final case class FormInputEV[EV[_], A](
   content:         js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
   control:         js.UndefOr[String] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
-  error:           js.UndefOr[ShorthandB[Label]] = js.undefined,
+  error:           js.UndefOr[ShorthandB[NonEmptyString]] = js.undefined,
   errorClazz:      js.UndefOr[Css] = js.undefined,
   errorPointing:   js.UndefOr[LabelPointing] = js.undefined,
   fluid:           js.UndefOr[Boolean] = js.undefined,
@@ -69,8 +69,9 @@ final case class FormInputEV[EV[_], A](
   modifiers:       Seq[TagMod] = Seq.empty,
   onTextChange:    String => Callback = _ => Callback.empty,
   onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
-  onBlur:          FormInputEV.ChangeCallback[ValidatedNec[String, A]] = (_: ValidatedNec[String, A]) =>
-    Callback.empty // for extra actions
+  onBlur:          FormInputEV.ChangeCallback[ValidatedNec[NonEmptyString, A]] =
+    // Only use for extra actions, setting should be done through value.set
+    (_: ValidatedNec[NonEmptyString, A]) => Callback.empty
 )(implicit val ev: ExternalValue[EV], val eq: Eq[A])
     extends ReactProps[FormInputEV[Any, Any]](FormInputEV.component) {
 
@@ -90,7 +91,7 @@ object FormInputEV {
     displayValue: String,
     modelValue:   String,
     cursor:       Option[(Int, Int)],
-    errors:       Option[NonEmptyChain[String]]
+    errors:       Option[NonEmptyChain[NonEmptyString]]
   )
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
@@ -99,7 +100,7 @@ object FormInputEV {
     def validate(
       props: Props[EV, A],
       value: String,
-      cb:    ValidatedNec[String, A] => Callback = _ => Callback.empty
+      cb:    ValidatedNec[NonEmptyString, A] => Callback = _ => Callback.empty
     ): Callback = {
       val validated = props.validFormat.getValidated(value)
       props.onValidChange(validated.isValid) >> cb(validated)
@@ -189,27 +190,28 @@ object FormInputEV {
 
     def render(p: Props[EV, A], s: State): VdomNode = {
 
-      val validationError: js.UndefOr[Label] =
-        s.errors
-          .map(e =>
-            Label(content = e.toList.mkString(","),
-                  clazz = p.errorClazz,
-                  pointing = p.errorPointing
-            )(^.position.absolute)
-          )
-          .orUndefined
+      def errorLabel(errors: NonEmptyChain[NonEmptyString]): js.UndefOr[ShorthandB[Label]] = {
+        val vdoms = errors.toList.map[VdomNode](_.value)
+        val list  = vdoms.head +: vdoms.tail.flatMap[VdomNode](e => List(<.br, <.br, e))
+        Label(
+          content = React.Fragment(list: _*),
+          clazz = p.errorClazz,
+          pointing = p.errorPointing
+        )(
+          ^.position.absolute
+        )
+      }
 
       val error: js.UndefOr[ShorthandB[Label]] = p.error
         .flatMap[ShorthandB[Label]] {
           (_: Any) match {
-            case b: Boolean => validationError.map(_.asInstanceOf[ShorthandB[Label]]).orElse(b)
-            case l: Label   =>
-              validationError
-                .map(vel => Label(content = React.Fragment(l, vel)).asInstanceOf[ShorthandB[Label]])
-                .orElse(l)
+            case b: Boolean => s.errors.map(errorLabel).getOrElse(b)
+            case e          => // We can't pattern match against NonEmptyString, but we know it is one.
+              val nes = e.asInstanceOf[NonEmptyString]
+              s.errors.map(ve => errorLabel(nes +: ve)).getOrElse(errorLabel(NonEmptyChain(nes)))
           }
         }
-        .orElse(validationError)
+        .orElse(s.errors.orUndefined.flatMap(errorLabel))
 
       OuterDiv.withRef(outerRef)(
         FormInput(

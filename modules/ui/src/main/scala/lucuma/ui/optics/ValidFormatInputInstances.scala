@@ -5,6 +5,7 @@ package lucuma.ui.optics
 
 import lucuma.ui.refined._
 import cats.syntax.all._
+import eu.timepit.refined.auto._
 import eu.timepit.refined.types.string.NonEmptyString
 import mouse.all._
 
@@ -13,16 +14,19 @@ import mouse.all._
  */
 trait ValidFormatInputInstances {
   val nonEmptyValidFormat = ValidFormatInput[NonEmptyString](
-    s => NonEmptyString.from(s).fold(_ => "Can't be empty".invalidNec, _.validNec),
+    s => NonEmptyString.from(s).fold(_ => NonEmptyString("Can't be empty").invalidNec, _.validNec),
     _.toString
   )
 
   val upperNESValidFormat = ValidFormatInput[UpperNES](
-    s => UpperNES.from(s.toUpperCase).fold(_ => "Can't be empty".invalidNec, s => s.validNec),
+    s =>
+      UpperNES
+        .from(s.toUpperCase)
+        .fold(_ => NonEmptyString("Can't be empty").invalidNec, s => s.validNec),
     _.toString
   )
 
-  def intValidFormat(errorMessage: String = "Must be an integer") = ValidFormatInput[Int](
+  def intValidFormat(errorMessage: NonEmptyString = "Must be an integer") = ValidFormatInput[Int](
     s => fixIntString(s).parseIntOption.fold(errorMessage.invalidNec[Int])(_.validNec),
     _.toString
   )

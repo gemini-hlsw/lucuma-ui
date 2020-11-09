@@ -12,6 +12,8 @@ import monocle.Prism
 import cats.data.NonEmptyChain
 import cats.data.Validated
 import cats.data.ValidatedNec
+import eu.timepit.refined.types.string.NonEmptyString
+import eu.timepit.refined.auto._
 
 /**
  * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[String]` and `T = String`.
@@ -27,7 +29,7 @@ object ValidFormatInput extends ValidFormatInputInstances {
    * Build optic from getValidated and reverseGet functions.
    */
   def apply[A](
-    getValidated: String => ValidatedNec[String, A],
+    getValidated: String => ValidatedNec[NonEmptyString, A],
     reverseGet:   A => String
   ): ValidFormatInput[A] =
     ValidFormat(getValidated, reverseGet)
@@ -37,7 +39,7 @@ object ValidFormatInput extends ValidFormatInputInstances {
    */
   def fromFormat[A](
     format:       Format[String, A],
-    errorMessage: String = "Invalid format"
+    errorMessage: NonEmptyString = "Invalid format"
   ): ValidFormatInput[A] =
     ValidFormat(
       format.getOption.andThen(o => Validated.fromOption(o, NonEmptyChain(errorMessage))),
@@ -49,7 +51,7 @@ object ValidFormatInput extends ValidFormatInputInstances {
    */
   def fromPrism[A](
     prism:        Prism[String, A],
-    errorMessage: String = "Invalid value"
+    errorMessage: NonEmptyString = "Invalid value"
   ): ValidFormatInput[A] =
     fromFormat(Format.fromPrism(prism), errorMessage)
 
@@ -67,7 +69,7 @@ object ValidFormatInput extends ValidFormatInputInstances {
    */
   def fromFormatOptional[A](
     format:       Format[String, A],
-    errorMessage: String = "Invalid format"
+    errorMessage: NonEmptyString = "Invalid format"
   ): ValidFormatInput[Option[A]] =
     ValidFormatInput(
       (a: String) =>
@@ -80,14 +82,14 @@ object ValidFormatInput extends ValidFormatInputInstances {
     )
 
   def forRefinedString[P](
-    error:      String = "Invalid format"
+    error:      NonEmptyString = "Invalid format"
   )(implicit v: RefinedValidate[String, P]): ValidFormatInput[String Refined P] =
-    ValidFormat.forRefined[NonEmptyChain[String], String, P](NonEmptyChain(error))
+    ValidFormat.forRefined[NonEmptyChain[NonEmptyString], String, P](NonEmptyChain(error))
 
   def forRefinedInt[P](
-    error:      String = "Invalid format"
+    error:      NonEmptyString = "Invalid format"
   )(implicit v: RefinedValidate[Int, P]): ValidFormatInput[Int Refined P] =
     intValidFormat(error).composeValidFormat(
-      ValidFormat.forRefined[NonEmptyChain[String], Int, P](NonEmptyChain(error))
+      ValidFormat.forRefined[NonEmptyChain[NonEmptyString], Int, P](NonEmptyChain(error))
     )
 }
