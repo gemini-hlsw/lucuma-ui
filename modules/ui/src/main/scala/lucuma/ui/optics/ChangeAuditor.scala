@@ -8,6 +8,7 @@ import cats.syntax.all._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{ Validate => RefinedValidate }
 import eu.timepit.refined.numeric.Positive
+import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
 import mouse.all._
 
@@ -117,7 +118,6 @@ object ChangeAuditor {
       val (formatStr, newStr, offset) = fixDecimalString(str, cursorPos, decimals.value)
       println(s"Format: $formatStr NewStr: $newStr Offset: $offset")
       if (hasNDecimalsOrFewer(newStr, decimals.value))
-        // if (s"\\d?(\\.\\d{0,$decimals})?".r.matches(newStr))
         formatStr.parseBigDecimalOption match {
           case None                     => AuditResult.reject
           case Some(_) if newStr == str => AuditResult.accept
@@ -182,35 +182,50 @@ object ChangeAuditor {
    */
   val rightAscension: ChangeAuditor[RightAscension] =
     ChangeAuditor { (str, _) =>
-      def stripped = stripZerosPastNPlaces(str, 6)
-      def validateHoursOrMins(hoursOrMins: String, max: Int): Option[Unit] =
-        if (hoursOrMins == "") ().some
-        else
-          """\d{1,2}""".r.matches(hoursOrMins).option(()) *>
-            hoursOrMins.parseIntOption.flatMap(i => if (i >= 0 && i <= max) ().some else None)
-
-      def validateSeconds(seconds: String): Option[Unit] =
-        if (seconds == "") ().some
-        else
-          hasNDecimalsOrFewer(seconds, 6).option(()) *>
-            seconds.parseDoubleOption.flatMap(d => if (d >= 0.0 && d < 60.0) ().some else None)
-
-      val isValid = {
+      val stripped = stripZerosPastNPlaces(str, 6)
+      val isValid  =
         stripped.split(":").toList match {
-          case Nil                                => ().some // it's just one or more ":"
+          case Nil                                => true // it's just one or more ":"
           case hours :: Nil                       =>
-            validateHoursOrMins(hours, 23)
+            isValidNDigitInt(hours, 2, 23)
           case hours :: minutes :: Nil            =>
-            validateHoursOrMins(hours, 23) *> validateHoursOrMins(minutes, 59)
+            isValidNDigitInt(hours, 2, 23) && isValidNDigitInt(minutes, 2, 59)
           case hours :: minutes :: seconds :: Nil =>
-            validateHoursOrMins(hours, 23) *> validateHoursOrMins(minutes, 59) *>
-              validateSeconds(seconds)
-          case _                                  => None
+            isValidNDigitInt(hours, 2, 23) && isValidNDigitInt(minutes, 2, 59) &&
+              isValidSeconds(seconds, 6)
+          case _                                  => false
         }
-      }.fold(false)(_ => true)
 
       if (isValid)
         if (str == stripped) AuditResult.accept else AuditResult.newString(stripped)
+      else
+        AuditResult.reject
+    }
+
+  /**
+   * for Declination entry.
+   */
+  val declination: ChangeAuditor[Declination] =
+    ChangeAuditor { (str, _) =>
+      val (sign, noSign) =
+        if (str.startsWith("+") || str.startsWith("-")) (str.head, str.tail) else ("", str)
+      val stripped       = stripZerosPastNPlaces(noSign, 6)
+
+      val isValid =
+        stripped.split(":").toList match {
+          case Nil                                  => true // it's just one or more ":"
+          case degrees :: Nil                       =>
+            isValidNDigitInt(degrees, 2, 90)
+          case degrees :: minutes :: Nil            =>
+            isValidNDigitInt(degrees, 2, 90) && isValidNDigitInt(minutes, 2, 59)
+          case degrees :: minutes :: seconds :: Nil =>
+            isValidNDigitInt(degrees, 2, 90) && isValidNDigitInt(minutes, 2, 59) &&
+              isValidSeconds(seconds, 6)
+          case _                                    => false
+        }
+
+      if (isValid)
+        if (noSign == stripped) AuditResult.accept else AuditResult.newString(s"$sign$stripped")
       else
         AuditResult.reject
     }
@@ -284,4 +299,18 @@ object ChangeAuditor {
     val decimalPos = str.indexOf(".")
     decimalPos < 0 || decimalPos > str.length - n - 2
   }
+
+  private def isValidNDigitInt(str: String, maxDigits: Int, maxValue: Int) =
+    if (str == "") true
+    else
+      str.length <= maxDigits && str.parseIntOption
+        .map(i => 0 <= i && i <= maxValue)
+        .getOrElse(false)
+
+  private def isValidSeconds(str: String, decimals: Int): Boolean =
+    if (str == "") true
+    else
+      (str.indexOf(".") <= 2) && hasNDecimalsOrFewer(str, decimals) && str.parseDoubleOption
+        .map(d => d >= 0.0 && d < 60.0)
+        .getOrElse(false)
 }

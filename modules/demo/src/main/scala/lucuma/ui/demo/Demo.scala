@@ -18,6 +18,8 @@ import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^._
+import lucuma.core.math.Declination
+import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
 import lucuma.ui.forms._
 import lucuma.ui.optics.ChangeAuditor
@@ -33,7 +35,6 @@ import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
-import lucuma.core.math.Epoch
 
 object types {
   type ZeroTo2048 = Interval.Closed[0, 2048]
@@ -54,6 +55,7 @@ object FormComponent {
     refinedOdd:    Boolean = true,
     bigDecimal:    Boolean = true,
     ra:            Boolean = true,
+    dec:           Boolean = true,
     epoch:         Boolean = true,
     optionalEpoch: Boolean = true
   )
@@ -163,6 +165,17 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.ra)(v)
             ),
             FormInputEV(
+              id = "dec",
+              label = "Dec",
+              value = $.props.root.zoom(RootModel.dec),
+              errorClazz = Css("error-label"),
+              errorPointing = LabelPointing.Below,
+              validFormat =
+                ValidFormatInput.fromFormat(Declination.fromStringSignedDMS, "Invalid Dec Format"),
+              changeAuditor = ChangeAuditor.declination,
+              onValidChange = v => $.setStateL(State.dec)(v)
+            ),
+            FormInputEV(
               id = "epoch",
               label = "Epoch",
               value = $.props.root.zoom(RootModel.epoch),
@@ -203,6 +216,7 @@ final case class RootModel(
   refinedOdd:    Int Refined Odd,
   bigDecimal:    BigDecimal,
   ra:            RightAscension,
+  dec:           Declination,
   epoch:         Epoch,
   optionalEpoch: Option[Epoch]
 )
@@ -228,7 +242,18 @@ trait AppMain extends IOApp {
     ReusabilityOverlay.overrideGloballyInDev()
 
     val initialModel =
-      RootModel("FIELD", "", "UPPER", 0, 0, 1, 0, RightAscension.Zero, Epoch.J2000, None)
+      RootModel("FIELD",
+                "",
+                "UPPER",
+                0,
+                0,
+                1,
+                0,
+                RightAscension.Zero,
+                Declination.Zero,
+                Epoch.J2000,
+                None
+      )
 
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())
