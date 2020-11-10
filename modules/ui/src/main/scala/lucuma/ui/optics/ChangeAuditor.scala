@@ -47,7 +47,10 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * Unconditionally allows the field to be empty.
    * This is useful when using a ChangeAuditor made from a Format,
    * but you want the user to be able to empty the field while editing,
-   * even if the Format won't accept it.
+   * even if the Format won't accept it. This will often be used
+   * after the ".int" or ".decimal" methods so that a user will be
+   * able to make the field empty while editing, even if the Format
+   * doesn't interpret "" as zero.
    */
   def allowEmpty: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
     if (s == "") AuditResult.accept else self.audit(s, c)
@@ -116,7 +119,6 @@ object ChangeAuditor {
   def bigDecimal(decimals: Int Refined Positive): ChangeAuditor[BigDecimal] = ChangeAuditor {
     (str, cursorPos) =>
       val (formatStr, newStr, offset) = fixDecimalString(str, cursorPos, decimals.value)
-      println(s"Format: $formatStr NewStr: $newStr Offset: $offset")
       if (hasNDecimalsOrFewer(newStr, decimals.value))
         formatStr.parseBigDecimalOption match {
           case None                     => AuditResult.reject

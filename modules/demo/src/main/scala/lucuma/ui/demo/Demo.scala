@@ -183,7 +183,8 @@ object FormComponent {
               errorPointing = LabelPointing.Below,
               validFormat =
                 ValidFormatInput.fromFormat(Epoch.fromStringNoScheme, "Must be a number"),
-              changeAuditor = ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3),
+              changeAuditor =
+                ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3).allowEmpty,
               onValidChange = v => $.setStateL(State.epoch)(v)
             ),
             FormInputEV(
