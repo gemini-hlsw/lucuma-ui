@@ -51,6 +51,8 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * after the ".int" or ".decimal" methods so that a user will be
    * able to make the field empty while editing, even if the Format
    * doesn't interpret "" as zero.
+   * Hint: If you're going to chain this together with another "modifier"
+   * like 'int', you probably want this one last.
    */
   def allowEmpty: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
     if (s == "") AuditResult.accept else self.audit(s, c)
