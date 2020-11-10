@@ -33,6 +33,7 @@ import eu.timepit.refined.api.Refined
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
+import lucuma.core.math.Epoch
 
 object types {
   type ZeroTo2048 = Interval.Closed[0, 2048]
@@ -45,13 +46,16 @@ object FormComponent {
 
   @Lenses
   case class State(
-    valid1:      Boolean = true,
-    valid2:      Boolean = true,
-    forcedUpper: Boolean = true,
-    validJaI:    Boolean = true,
-    refinedInt:  Boolean = true,
-    refinedOdd:  Boolean = true,
-    ra:          Boolean = true
+    valid1:        Boolean = true,
+    valid2:        Boolean = true,
+    forcedUpper:   Boolean = true,
+    validJaI:      Boolean = true,
+    refinedInt:    Boolean = true,
+    refinedOdd:    Boolean = true,
+    bigDecimal:    Boolean = true,
+    ra:            Boolean = true,
+    epoch:         Boolean = true,
+    optionalEpoch: Boolean = true
   )
 
   implicit val propsReuse = Reusability.derive[Props]
@@ -72,7 +76,7 @@ object FormComponent {
               label = "field1 - uppercased on blur, can't be empty",
               value = $.props.root.zoom(RootModel.field1),
               errorClazz = Css("error-label"),
-              errorPointing = LabelPointing.Above,
+              errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.upperNESValidFormat,
               onValidChange = v => $.setStateL(State.valid1)(v)
             ),
@@ -113,7 +117,7 @@ object FormComponent {
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.intValidFormat(),
-              changeAuditor = ChangeAuditor.forInt,
+              changeAuditor = ChangeAuditor.int,
               onValidChange = v => $.setStateL(State.validJaI)(v)
             ),
             FormInputEV(
@@ -138,9 +142,18 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.refinedOdd)(v)
             ),
             FormInputEV(
+              id = "big-decimal",
+              label = "Big Decimal, 4 decimal places",
+              value = $.props.root.zoom(RootModel.bigDecimal),
+              errorClazz = Css("error-label"),
+              errorPointing = LabelPointing.Below,
+              validFormat = ValidFormatInput.bigDecimalValidFormat(),
+              changeAuditor = ChangeAuditor.bigDecimal(4),
+              onValidChange = v => $.setStateL(State.bigDecimal)(v)
+            ),
+            FormInputEV(
               id = "ra",
               label = "RA",
-              // placeholder = "hh:mm:ss.sss",
               value = $.props.root.zoom(RootModel.ra),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
@@ -148,6 +161,29 @@ object FormComponent {
                 ValidFormatInput.fromFormat(RightAscension.fromStringHMS, "Invalid RA Format"),
               changeAuditor = ChangeAuditor.rightAscension,
               onValidChange = v => $.setStateL(State.ra)(v)
+            ),
+            FormInputEV(
+              id = "epoch",
+              label = "Epoch",
+              value = $.props.root.zoom(RootModel.epoch),
+              errorClazz = Css("error-label"),
+              errorPointing = LabelPointing.Below,
+              validFormat =
+                ValidFormatInput.fromFormat(Epoch.fromStringNoScheme, "Must be a number"),
+              changeAuditor = ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3),
+              onValidChange = v => $.setStateL(State.epoch)(v)
+            ),
+            FormInputEV(
+              id = "opt-epoch",
+              label = "Optional Epoch",
+              value = $.props.root.zoom(RootModel.optionalEpoch),
+              errorClazz = Css("error-label"),
+              errorPointing = LabelPointing.Below,
+              validFormat =
+                ValidFormatInput.fromFormatOptional(Epoch.fromStringNoScheme, "Must be a number"),
+              changeAuditor =
+                ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3).optional,
+              onValidChange = v => $.setStateL(State.epoch)(v)
             )
           )
         )
@@ -159,17 +195,20 @@ object FormComponent {
 
 @Lenses
 final case class RootModel(
-  field1:      UpperNES,
-  field2:      String,
-  forcedUpper: String Refined UpperNEPred,
-  justAnInt:   Int,
-  refinedInt:  Int Refined Interval.Closed[0, 2048],
-  refinedOdd:  Int Refined Odd,
-  ra:          RightAscension
+  field1:        UpperNES,
+  field2:        String,
+  forcedUpper:   String Refined UpperNEPred,
+  justAnInt:     Int,
+  refinedInt:    Int Refined Interval.Closed[0, 2048],
+  refinedOdd:    Int Refined Odd,
+  bigDecimal:    BigDecimal,
+  ra:            RightAscension,
+  epoch:         Epoch,
+  optionalEpoch: Option[Epoch]
 )
 
 object RootModel {
-  implicit val modelReusability: Reusability[RootModel] = Reusability.derive[RootModel]
+  implicit val modelReusability: Reusability[RootModel] = Reusability.by_==[RootModel]
 }
 
 case class AppContext[F[_]]()(implicit val cs: ContextShift[F])
@@ -188,7 +227,8 @@ trait AppMain extends IOApp {
   override final def run(args: List[String]): IO[ExitCode] = {
     ReusabilityOverlay.overrideGloballyInDev()
 
-    val initialModel = RootModel("FIELD", "", "UPPER", 0, 0, 1, RightAscension.Zero)
+    val initialModel =
+      RootModel("FIELD", "", "UPPER", 0, 0, 1, 0, RightAscension.Zero, Epoch.J2000, None)
 
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())

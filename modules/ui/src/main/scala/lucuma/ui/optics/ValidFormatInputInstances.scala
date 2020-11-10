@@ -31,9 +31,24 @@ trait ValidFormatInputInstances {
     _.toString
   )
 
+  def bigDecimalValidFormat(errorMessage: NonEmptyString = "Must be a number") =
+    ValidFormatInput[BigDecimal](
+      s =>
+        fixDecimalString(s).parseBigDecimalOption
+          .fold(errorMessage.invalidNec[BigDecimal])(_.validNec),
+      _.toString
+    )
+
   private def fixIntString(str: String): String = str match {
     case ""  => "0"
     case "-" => "-0"
+    case _   => str
+  }
+
+  private def fixDecimalString(str: String): String = str match {
+    case ""  => "0"
+    case "-" => "-0"
+    case "." => "0."
     case _   => str
   }
 }

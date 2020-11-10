@@ -13,5 +13,4 @@ package object optics {
   type ValidFormatNec[E, T, A] = ValidFormat[NonEmptyChain[E], T, A]
   type ValidFormatNel[E, T, A] = ValidFormat[NonEmptyList[E], T, A]
   type ValidFormatInput[A]     = ValidFormatNec[NonEmptyString, String, A]
-  type ChangeAuditor[A]        = (String, Int) => AuditResult[A]
 }

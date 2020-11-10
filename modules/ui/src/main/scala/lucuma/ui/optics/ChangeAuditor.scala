@@ -7,18 +7,19 @@ import cats.data.Validated._
 import cats.syntax.all._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{ Validate => RefinedValidate }
-import lucuma.core.math._
+import eu.timepit.refined.numeric.Positive
+import lucuma.core.math.RightAscension
 import mouse.all._
 
-sealed trait AuditResult[A] extends Product with Serializable
+sealed trait AuditResult extends Product with Serializable
 object AuditResult {
-  case class Reject[A]() extends AuditResult[A]
-  case class Accept[A]() extends AuditResult[A]
-  case class NewString[A](newS: String, cursorOffset: Int) extends AuditResult[A]
+  case object Reject extends AuditResult
+  case object Accept extends AuditResult
+  case class NewString(newS: String, cursorOffset: Int) extends AuditResult
 
-  def reject[A]: AuditResult[A] = Reject()
-  def accept[A]: AuditResult[A] = Accept()
-  def newString[A](newS: String, cursorOffset: Int = 0): AuditResult[A] =
+  def reject: AuditResult = Reject
+  def accept: AuditResult = Accept
+  def newString(newS: String, cursorOffset: Int = 0): AuditResult =
     NewString(newS, cursorOffset)
 }
 
@@ -28,21 +29,101 @@ object FilterMode {
   case object Strict extends FilterMode
 }
 
+final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
+
+  /**
+   * Converts a ChangeAuditor[A] into a ChangeAuditor[Option[A]].
+   * It unconditionally allows spaces. This is useful when using
+   * a ChangeAuditor made from a Format, but the model field is optional.
+   * Hint: If you're going to chain this together with another "modifier"
+   * like 'int', you want this one last.
+   */
+  def optional: ChangeAuditor[Option[A]] = ChangeAuditor { (s, c) =>
+    if (s == "") AuditResult.accept else self.audit(s, c)
+  }
+
+  /**
+   * Unconditionally allows the field to be empty.
+   * This is useful when using a ChangeAuditor made from a Format,
+   * but you want the user to be able to empty the field while editing,
+   * even if the Format won't accept it.
+   */
+  def allowEmpty: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+    if (s == "") AuditResult.accept else self.audit(s, c)
+  }
+
+  /**
+   * Validates the input against ChangeAuditor.int before passing
+   * the result on to the "original" ChangeAuditor.
+   * This is useful when using a ChangeAuditor made from a format
+   * to get better behavior for entering values.
+   */
+  def int: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+    self.checkAgainstSelf(s, ChangeAuditor.int.audit(s, c))
+  }
+
+  /**
+   * Validates the input against ChangeAuditor.bigDecimal before passing
+   * the result on to the "original" ChangeAuditor.
+   * This is useful when using a ChangeAuditor made from a format
+   * to get better behavior for entering values.
+   */
+  def decimal(decimals: Int Refined Positive): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+    self.checkAgainstSelf(s, ChangeAuditor.bigDecimal(decimals).audit(s, c))
+  }
+
+  private def checkAgainstSelf(str: String, result: AuditResult): AuditResult = {
+    def rejectOrPassOn(s: String) = audit(s, 0) match {
+      case AuditResult.Reject => AuditResult.reject
+      case _                  => result
+    }
+    result match {
+      case AuditResult.Reject             => AuditResult.reject
+      case AuditResult.Accept             => rejectOrPassOn(str)
+      case AuditResult.NewString(newS, _) => rejectOrPassOn(newS)
+    }
+  }
+}
+
 object ChangeAuditor {
   import FilterMode._
 
-  def accept[A]: ChangeAuditor[A] = (_, _) => AuditResult.accept
+  def accept[A]: ChangeAuditor[A] = ChangeAuditor((_, _) => AuditResult.accept)
 
   /**
    * For a plain integer. Only allows entry of numeric values.
+   * ALlows the input to be empty or "-", etc. to make entry easier.
+   * It also strips leading zeros.
    */
-  def forInt: ChangeAuditor[Int] = (str, cursorPos) => {
+  def int: ChangeAuditor[Int] = ChangeAuditor { (str, cursorPos) =>
     val (formatStr, newStr, offset) = fixIntString(str, cursorPos)
     formatStr.parseIntOption match {
       case None                     => AuditResult.reject
       case Some(_) if newStr == str => AuditResult.accept
       case _                        => AuditResult.newString(newStr, offset)
     }
+  }
+
+  /**
+   * For a big decimal.
+   * ALlows the input to be empty or "-", etc. to make entry easier.
+   * It also strips leading and trailing zeros (past the number of
+   * allowed decimals).
+   *
+   * @param decimals - maximum number of allowed decimals.
+   */
+  def bigDecimal(decimals: Int Refined Positive): ChangeAuditor[BigDecimal] = ChangeAuditor {
+    (str, cursorPos) =>
+      val (formatStr, newStr, offset) = fixDecimalString(str, cursorPos, decimals.value)
+      println(s"Format: $formatStr NewStr: $newStr Offset: $offset")
+      if (hasNDecimalsOrFewer(newStr, decimals.value))
+        // if (s"\\d?(\\.\\d{0,$decimals})?".r.matches(newStr))
+        formatStr.parseBigDecimalOption match {
+          case None                     => AuditResult.reject
+          case Some(_) if newStr == str => AuditResult.accept
+          case _                        => AuditResult.newString(newStr, offset)
+        }
+      else AuditResult.reject
   }
 
   /**
@@ -56,7 +137,7 @@ object ChangeAuditor {
    */
   def forRefinedInt[P](filterMode: FilterMode = FilterMode.Strict)(implicit
     v:                             RefinedValidate[Int, P]
-  ): ChangeAuditor[Int Refined P] = (str, cursorPos) => {
+  ): ChangeAuditor[Int Refined P] = ChangeAuditor { (str, cursorPos) =>
     val (formatStr, newStr, offset) = fixIntString(str, cursorPos)
     val validFormat                 = filterMode match {
       case Strict => ValidFormatInput.forRefinedInt[P]()
@@ -69,11 +150,6 @@ object ChangeAuditor {
     }
   }
 
-  /**
-   * Takes a string formatting function, such as _.toUpperCase and forces
-   * input to that format. If the length of the string is changed other than
-   * at the end, it could mean the cursor position will be off.
-   */
   /**
    * For Refined Strings.
    *
@@ -89,7 +165,7 @@ object ChangeAuditor {
     formatFn:   String => String = identity
   )(implicit
     v:          RefinedValidate[String, P]
-  ): ChangeAuditor[String Refined P] = (s, _) => {
+  ): ChangeAuditor[String Refined P] = ChangeAuditor { (s, _) =>
     val newStr = formatFn(s)
     val valid  = filterMode match {
       case Strict => ValidFormatInput.forRefinedString[P]().getValidated(newStr)
@@ -105,7 +181,7 @@ object ChangeAuditor {
    * for RightAscension entry.
    */
   val rightAscension: ChangeAuditor[RightAscension] =
-    (str, _) => {
+    ChangeAuditor { (str, _) =>
       def stripped = stripZerosPastNPlaces(str, 6)
       def validateHoursOrMins(hoursOrMins: String, max: Int): Option[Unit] =
         if (hoursOrMins == "") ().some
@@ -116,7 +192,7 @@ object ChangeAuditor {
       def validateSeconds(seconds: String): Option[Unit] =
         if (seconds == "") ().some
         else
-          """\d{0,2}(\.\d{0,6})?""".r.matches(seconds).option(()) *>
+          hasNDecimalsOrFewer(seconds, 6).option(()) *>
             seconds.parseDoubleOption.flatMap(d => if (d >= 0.0 && d < 60.0) ().some else None)
 
       val isValid = {
@@ -142,37 +218,40 @@ object ChangeAuditor {
   /**
    * Build from an InputFormat instance.
    */
-  def fromFormat[A](f: InputFormat[A]): ChangeAuditor[A] = (s, _) =>
-    f.getOption(s).fold(AuditResult.reject[A])(_ => AuditResult.accept)
+  def fromFormat[A](f: InputFormat[A]): ChangeAuditor[A] = ChangeAuditor { (s, _) =>
+    f.getOption(s).fold(AuditResult.reject)(_ => AuditResult.accept)
+  }
 
   /**
    * Build from a ValidFormatInput instance.
    */
-  def fromValidFormatInput[A](v: ValidFormatInput[A]): ChangeAuditor[A] = (s, _) =>
+  def fromValidFormatInput[A](v: ValidFormatInput[A]): ChangeAuditor[A] = ChangeAuditor { (s, _) =>
     v.getValidated(s).fold(_ => AuditResult.reject, _ => AuditResult.accept)
+  }
 
-  private def fixIntString(str: String, cursorPos: Int): (String, String, Int) = {
-    def stripZerosBeforeCursor: (String, String, Int) = {
-      val (minus, newStr, newPos) =
-        if (str.startsWith("-")) ("-", str.substring(1), cursorPos - 1) else ("", str, cursorPos)
-      if (newPos > 0) {
-        // We actually only want to strip zeros if there is another digit to the right
-        val regex    = s"0{0,$newPos}(\\d+)".r
-        val stripped = newStr match {
-          case regex(remainder) => remainder
-          case _                => newStr
-        }
-        val s        = s"$minus$stripped"
-        (s, s, s.length - str.length)
-      } else {
-        (str, str, 0)
-      }
-    }
+  private def fixIntString(str: String, cursorPos: Int): (String, String, Int) =
     str match {
       case ""   => ("0", str, 0)
       case "-"  => ("-0", str, 0)
       case "0-" => ("0", "-", -1)
-      case _    => stripZerosBeforeCursor
+      case _    => stripZerosBeforeN(str, cursorPos)
+    }
+
+  private def fixDecimalString(
+    str:       String,
+    cursorPos: Int,
+    decimals:  Int
+  ): (String, String, Int) = {
+    val postStripped = stripZerosPastNPlaces(str, decimals)
+    postStripped match {
+      case ""   => ("0", postStripped, 0)
+      case "-"  => ("-0", postStripped, 0)
+      case "0-" => ("0", "-", -1)
+      case "."  => ("0.0", "0.", 1)
+      case _    =>
+        val dp = postStripped.indexOf(".")
+        val n  = if (dp < 0) cursorPos else math.min(dp, cursorPos)
+        stripZerosBeforeN(postStripped, n)
     }
   }
 
@@ -182,5 +261,27 @@ object ChangeAuditor {
       case regex(base) => base
       case _           => str
     }
+  }
+
+  private def stripZerosBeforeN(str: String, n: Int): (String, String, Int) = {
+    val (minus, newStr, newPos) =
+      if (str.startsWith("-")) ("-", str.substring(1), n - 1) else ("", str, n)
+    if (newPos > 0) {
+      // We actually only want to strip zeros if there is another digit to the right
+      val regex    = s"0{0,$newPos}(\\d+)".r
+      val stripped = newStr match {
+        case regex(remainder) => remainder
+        case _                => newStr
+      }
+      val s        = s"$minus$stripped"
+      (s, s, s.length - str.length)
+    } else {
+      (str, str, 0)
+    }
+  }
+
+  private def hasNDecimalsOrFewer(str: String, n: Int): Boolean = {
+    val decimalPos = str.indexOf(".")
+    decimalPos < 0 || decimalPos > str.length - n - 2
   }
 }

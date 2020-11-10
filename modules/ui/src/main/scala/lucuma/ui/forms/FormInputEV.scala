@@ -149,11 +149,11 @@ object FormInputEV {
           case _       => value.length
         }
         .flatMap { c =>
-          auditor(value, c) match {
-            case AuditResult.Accept()                => clearStateCursor *> setDisplayValue(value)
+          auditor.audit(value, c) match {
+            case AuditResult.Accept                  => clearStateCursor *> setDisplayValue(value)
             case AuditResult.NewString(newS, offset) =>
               setStateCursor(offset) *> setDisplayValue(newS)
-            case AuditResult.Reject()                => setStateCursor(-1) *> CallbackTo(value)
+            case AuditResult.Reject                  => setStateCursor(-1) *> CallbackTo(value)
           }
         }
     }
