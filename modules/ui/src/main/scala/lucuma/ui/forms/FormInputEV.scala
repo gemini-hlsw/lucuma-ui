@@ -16,6 +16,7 @@ import monocle.macros.Lenses
 import lucuma.ui.optics.AuditResult
 import lucuma.ui.optics.ChangeAuditor
 import lucuma.ui.optics.ValidFormatInput
+import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html
 import react.common._
 import react.semanticui._
@@ -91,6 +92,7 @@ object FormInputEV {
     displayValue: String,
     modelValue:   String,
     cursor:       Option[(Int, Int)],
+    lastKeyCode:  Int,
     errors:       Option[NonEmptyChain[NonEmptyString]]
   )
 
@@ -143,6 +145,14 @@ object FormInputEV {
     def audit(auditor: ChangeAuditor[A], value: String): CallbackTo[String] = {
       def setDisplayValue(s: String): CallbackTo[String] =
         $.setStateL(State.displayValue)(s).map(_ => s)
+
+      def cursorOffsetForReject: CallbackTo[Int] =
+        $.state.map(_.lastKeyCode match {
+          case KeyCode.Backspace => 1
+          case KeyCode.Delete    => 0
+          case _                 => -1
+        })
+
       getCursor
         .map {
           case Some(c) => c._1
@@ -153,7 +163,8 @@ object FormInputEV {
             case AuditResult.Accept                  => clearStateCursor *> setDisplayValue(value)
             case AuditResult.NewString(newS, offset) =>
               setStateCursor(offset) *> setDisplayValue(newS)
-            case AuditResult.Reject                  => setStateCursor(-1) *> CallbackTo(value)
+            case AuditResult.Reject                  =>
+              cursorOffsetForReject.flatMap(setStateCursor _) *> CallbackTo(value)
           }
         }
     }
@@ -186,6 +197,10 @@ object FormInputEV {
           validatedCB >> props.onBlur(validated)
         }
       )
+
+    val onKeyDown: ReactKeyboardEventFromInput => Callback = e =>
+      $.setStateL(State.lastKeyCode)(e.keyCode) *> clearStateCursor
+
     val OuterDiv = <.div()
 
     def render(p: Props[EV, A], s: State): VdomNode = {
@@ -244,7 +259,8 @@ object FormInputEV {
           p.width,
           s.displayValue
         )(
-          (p.modifiers :+ (^.id := p.id) :+ (^.onBlur --> onBlur(p, s)): _*)
+          (p.modifiers :+ (^.id := p.id) :+ (^.onKeyDown ==> onKeyDown)
+            :+ (^.onBlur --> onBlur(p, s)): _*)
         )
       )
     }
@@ -258,7 +274,7 @@ object FormInputEV {
         // Force new value from props if the prop changes (or we are initializing).
         stateOpt match {
           case Some(state) if newValue === state.modelValue => state
-          case _                                            => State(newValue, newValue, none, none)
+          case _                                            => State(newValue, newValue, none, 0, none)
         }
       }
       .renderBackend[Backend[EV, A]]
