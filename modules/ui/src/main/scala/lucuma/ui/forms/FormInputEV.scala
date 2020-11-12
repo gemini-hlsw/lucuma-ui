@@ -132,7 +132,7 @@ object FormInputEV {
     def setCursor(cursor: (Int, Int)): Callback =
       outerRef.get.flatMap(getInputElement).map(i => i.setSelectionRange(cursor._1, cursor._2))
 
-    def setStateCursor(offset: Int): Callback =
+    def setStateCursorFromInput(offset: Int): Callback =
       getCursor
         .map(oc => oc.map { case (start, end) => (start + offset, end + offset) })
         .flatMap(oc => $.setStateL(State.cursor)(oc))
@@ -140,7 +140,7 @@ object FormInputEV {
     def clearStateCursor: Callback = $.setStateL(State.cursor)(None)
 
     def setCursorFromState: Callback =
-      $.state.flatMap(s => s.cursor.map(setCursor).getOrElse(Callback.empty))
+      $.state.flatMap(s => s.cursor.map(setCursor).getOrEmpty)
 
     def audit(auditor: ChangeAuditor[A], value: String): CallbackTo[String] = {
       def setDisplayValue(s: String): CallbackTo[String] =
@@ -162,9 +162,9 @@ object FormInputEV {
           auditor.audit(value, c) match {
             case AuditResult.Accept                  => clearStateCursor *> setDisplayValue(value)
             case AuditResult.NewString(newS, offset) =>
-              setStateCursor(offset) *> setDisplayValue(newS)
+              setStateCursorFromInput(offset) *> setDisplayValue(newS)
             case AuditResult.Reject                  =>
-              cursorOffsetForReject.flatMap(setStateCursor _) *> CallbackTo(value)
+              cursorOffsetForReject.flatMap(setStateCursorFromInput _) *> CallbackTo(value)
           }
         }
     }
@@ -201,7 +201,7 @@ object FormInputEV {
     val onKeyDown: ReactKeyboardEventFromInput => Callback = e =>
       $.setStateL(State.lastKeyCode)(e.keyCode) *> clearStateCursor
 
-    val OuterDiv = <.div()
+    val OuterSpan = <.span
 
     def render(p: Props[EV, A], s: State): VdomNode = {
 
@@ -228,7 +228,7 @@ object FormInputEV {
         }
         .orElse(s.errors.orUndefined.flatMap(errorLabel))
 
-      OuterDiv.withRef(outerRef)(
+      OuterSpan.withRef(outerRef)(
         FormInput(
           p.action,
           p.actionPosition,

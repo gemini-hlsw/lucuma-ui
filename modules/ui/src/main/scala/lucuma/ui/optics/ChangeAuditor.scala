@@ -308,8 +308,7 @@ object ChangeAuditor {
     if (str == "") true
     else
       str.length <= maxDigits && str.parseIntOption
-        .map(i => 0 <= i && i <= maxValue)
-        .getOrElse(false)
+        .exists(i => 0 <= i && i <= maxValue)
 
   private def isValidSeconds(str: String, decimals: Int): Boolean =
     if (str == "") true
