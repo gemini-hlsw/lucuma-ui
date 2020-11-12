@@ -15,6 +15,7 @@ import eu.timepit.refined.boolean.Not
  * Convenience refined definitions.
  */
 package object refined {
-  type UpperNES = String Refined And[NonEmpty, Forall[Not[LowerCase]]]
+  type UpperNEPred = And[NonEmpty, Forall[Not[LowerCase]]]
+  type UpperNES    = String Refined UpperNEPred
   object UpperNES extends RefinedTypeOps[UpperNES, String]
 }
