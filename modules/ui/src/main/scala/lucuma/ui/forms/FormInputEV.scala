@@ -125,7 +125,7 @@ object FormInputEV {
         else {
           val children = childChain(ele)
           if (children.isEmpty) none
-          else children.collectFirstSome(c => findWithClass(c))
+          else children.collectFirstSome(findWithClass)
         }
 
       findWithClass(e).map(_.firstChild.asInstanceOf[html.Input])
