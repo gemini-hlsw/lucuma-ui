@@ -59,6 +59,15 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
   }
 
   /**
+   * Reject if the string contains any of the strings in the parameters.
+   *
+   * @param strs - The list of strings to check for.
+   */
+  def deny(strs: String*): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+    if (strs.exists(s.contains)) AuditResult.reject else self.audit(s, c)
+  }
+
+  /**
    * Validates the input against ChangeAuditor.int before passing
    * the result on to the "original" ChangeAuditor.
    * This is useful when using a ChangeAuditor made from a format
@@ -137,21 +146,33 @@ object ChangeAuditor {
    *                     for the P. If Lax, it only validates that it is an
    *                     Int. This can be useful in instances where the
    *                     ValidFormatInstance makes it difficult to enter values,
-   *                     such as for Odd integers.
+   *                     such as for Odd integers or other discontinuous ranges.
+   * NOTE: If the filter mode is Strict, the refined Int is tested to see
+   *       if it allows a value of -1. If it does not, minus signs are not
+   *       permitted to be entered. This WOULD cause a problem with discontinuous
+   *       ranges that exclude -1 but allow other negative numbers, EXCEPT that,
+   *       as noted above, Lax filter mode should be used for this type of refined
+   *       Int. This is required because scala, and refined, treat a -0 as a 0.
    */
   def forRefinedInt[P](filterMode: FilterMode = FilterMode.Strict)(implicit
     v:                             RefinedValidate[Int, P]
-  ): ChangeAuditor[Int Refined P] = ChangeAuditor { (str, cursorPos) =>
-    val (formatStr, newStr, offset) = fixIntString(str, cursorPos)
-    val validFormat                 = filterMode match {
-      case Strict => ValidFormatInput.forRefinedInt[P]()
-      case Lax    => ValidFormatInput.intValidFormat()
+  ): ChangeAuditor[Int Refined P] = {
+
+    val auditor: ChangeAuditor[Int Refined P] = ChangeAuditor { (str, cursorPos) =>
+      val (formatStr, newStr, offset) = fixIntString(str, cursorPos)
+      val validFormat                 = filterMode match {
+        case Strict => ValidFormatInput.forRefinedInt[P]()
+        case Lax    => ValidFormatInput.intValidFormat()
+      }
+      validFormat.getValidated(formatStr) match {
+        case Invalid(_)                => AuditResult.reject
+        case Valid(_) if newStr == str => AuditResult.accept
+        case _                         => AuditResult.newString(newStr, offset)
+      }
     }
-    validFormat.getValidated(formatStr) match {
-      case Invalid(_)                => AuditResult.reject
-      case Valid(_) if newStr == str => AuditResult.accept
-      case _                         => AuditResult.newString(newStr, offset)
-    }
+
+    if (filterMode == Lax || ValidFormat.refinedPrism[Int, P].getOption(-1).isDefined) auditor
+    else auditor.deny("-")
   }
 
   /**
