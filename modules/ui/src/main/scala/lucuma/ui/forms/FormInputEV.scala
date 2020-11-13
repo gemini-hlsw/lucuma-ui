@@ -6,8 +6,8 @@ package lucuma.ui.forms
 import scala.scalajs.js
 import scala.scalajs.js.|
 
+import cats._
 import cats.syntax.all._
-import cats.Eq
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.raw.JsNumber
@@ -93,11 +93,12 @@ object FormInputEV {
     modelValue:   String,
     cursor:       Option[(Int, Int)],
     lastKeyCode:  Int,
+    inputElement: Option[html.Input],
     errors:       Option[NonEmptyChain[NonEmptyString]]
   )
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
-    private val outerRef = Ref[html.Element]
+    private[forms] val outerRef = Ref[html.Element]
 
     def validate(
       props: Props[EV, A],
@@ -108,29 +109,36 @@ object FormInputEV {
       props.onValidChange(validated.isValid) >> cb(validated)
     }
 
-    def getInputElement(e: html.Element): CallbackOption[html.Input] = {
+    // Looks for an element with a class of "input", which is div that contains
+    // the actual input element, and extracts the input from it. There is nothing
+    // on the input element with which to identify it, so we can't search directly.
+    // If the cursor has a problem with jumping to the end of the text, a change
+    // in HTML structure is probably causing this to fail.
+    def getInputElement(e: html.Element): Option[html.Input] = {
       def childChain(ele: html.Element): Chain[html.Element] =
         Chain.fromSeq(
           (0 until ele.childElementCount).map(i => ele.children.item(i).asInstanceOf[html.Element])
         )
 
-      def findWithClass(ele: html.Element, acc: Chain[html.Element]): Chain[html.Element] = {
-        val newAcc   = if (ele.className.contains("input")) acc :+ ele else acc
-        val children = childChain(ele)
-        if (children.isEmpty) newAcc
-        else newAcc ++ children.flatMap(c => findWithClass(c, Chain.empty))
-      }
-      // val oc = findWithClass(e, Chain.empty).headOption.map(_.firstChild.asInstanceOf[html.Input])
-      CallbackOption.liftOption(
-        findWithClass(e, Chain.empty).headOption.map(_.firstChild.asInstanceOf[html.Input])
-      )
+      def findWithClass(ele: html.Element): Option[html.Element] =
+        if (ele.className.contains("input")) ele.some
+        else {
+          val children = childChain(ele)
+          if (children.isEmpty) none
+          else children.collectFirstSome(c => findWithClass(c))
+        }
+
+      findWithClass(e).map(_.firstChild.asInstanceOf[html.Input])
     }
 
+    def getInputFromState: CallbackOption[html.Input] =
+      CallbackOption($.state.map(_.inputElement))
+
     def getCursor: CallbackTo[Option[(Int, Int)]] =
-      outerRef.get.flatMap(getInputElement).map(i => (i.selectionStart, i.selectionEnd)).asCallback
+      getInputFromState.map(i => (i.selectionStart, i.selectionEnd)).asCallback
 
     def setCursor(cursor: (Int, Int)): Callback =
-      outerRef.get.flatMap(getInputElement).map(i => i.setSelectionRange(cursor._1, cursor._2))
+      getInputFromState.map(i => i.setSelectionRange(cursor._1, cursor._2))
 
     def setStateCursorFromInput(offset: Int): Callback =
       getCursor
@@ -274,14 +282,18 @@ object FormInputEV {
         // Force new value from props if the prop changes (or we are initializing).
         stateOpt match {
           case Some(state) if newValue === state.modelValue => state
-          case _                                            => State(newValue, newValue, none, 0, none)
+          case _                                            => State(newValue, newValue, none, 0, none, none)
         }
       }
       .renderBackend[Backend[EV, A]]
       .componentDidMount($ =>
-        $.backend
-          .audit($.props.changeAuditor, $.props.valGet)
-          .flatMap($.backend.validate($.props, _))
+        $.backend.outerRef.get
+          .map($.backend.getInputElement)
+          .flatMap(oi => $.setStateL(State.inputElement)(oi))
+          *>
+            $.backend
+              .audit($.props.changeAuditor, $.props.valGet)
+              .flatMap($.backend.validate($.props, _))
       )
       .componentDidUpdate(_.backend.setCursorFromState)
       .build
