@@ -120,7 +120,7 @@ final case class EnumViewMultipleSelect[F[_], A](
       .asInstanceOf[js.Array[String]]
       .toSet
       .flatMap(v => enum.fromTag(v))
-    value.set(enums).runInCB
+    value.set(enums).runAsyncCB
   }
 
   override def getter = value.get.map(i => enum.tag(i)).toJSArray

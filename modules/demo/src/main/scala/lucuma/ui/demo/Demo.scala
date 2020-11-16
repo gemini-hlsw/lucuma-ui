@@ -259,7 +259,7 @@ trait AppMain extends IOApp {
     for {
       _ <- AppCtx.initIn[IO](AppContext[IO]())
     } yield {
-      val RootComponent = AppRoot[IO](initialModel)(rootComponent, None)
+      val RootComponent = AppRoot[IO](initialModel)(rootComponent)
 
       val container = Option(dom.document.getElementById("root")).getOrElse {
         val elem = dom.document.createElement("div")

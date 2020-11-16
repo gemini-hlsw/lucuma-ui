@@ -22,7 +22,7 @@ object ExternalValue {
       override def get[A](ev: ViewF[F, A]): Option[A] = ev.get.some
 
       override def set[A](ev: ViewF[F, A]): A => Callback =
-        ev.set.andThen(_.runInCB)
+        ev.set.andThen(_.runAsyncCB)
     }
 
   implicit def externalValueViewOptF[F[_]: Effect]: ExternalValue[ViewOptF[F, *]] =
@@ -30,7 +30,7 @@ object ExternalValue {
       override def get[A](ev: ViewOptF[F, A]): Option[A] = ev.get
 
       override def set[A](ev: ViewOptF[F, A]): A => Callback =
-        ev.set.andThen(_.runInCB)
+        ev.set.andThen(_.runAsyncCB)
     }
 
   implicit val externalValueStateSnapshot: ExternalValue[StateSnapshot] =
