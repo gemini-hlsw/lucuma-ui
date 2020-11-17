@@ -16,6 +16,7 @@ import monocle.macros.Lenses
 import lucuma.ui.optics.AuditResult
 import lucuma.ui.optics.ChangeAuditor
 import lucuma.ui.optics.ValidFormatInput
+import lucuma.ui.reusability._
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html
 import react.common._
@@ -95,6 +96,9 @@ object FormInputEV {
     lastKeyCode:  Int,
     errors:       Option[NonEmptyChain[NonEmptyString]]
   )
+
+  implicit val neChainReuse: Reusability[NonEmptyChain[NonEmptyString]] = Reusability.by_==
+  implicit val stateReuse: Reusability[State]                           = Reusability.by(s => (s.displayValue, s.errors))
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
     private val outerRef = Ref[html.Element]
@@ -266,7 +270,9 @@ object FormInputEV {
     }
   }
 
-  protected def buildComponent[EV[_], A] =
+  protected def buildComponent[EV[_], A] = {
+    implicit val propsReuse: Reusability[Props[EV, A]] = Reusability.never
+
     ScalaComponent
       .builder[Props[EV, A]]
       .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
@@ -284,7 +290,9 @@ object FormInputEV {
           .flatMap($.backend.validate($.props, _))
       )
       .componentDidUpdate(_.backend.setCursorFromState)
+      .configure(Reusability.shouldComponentUpdate)
       .build
+  }
 
   protected val component = buildComponent[Any, Any]
 }
