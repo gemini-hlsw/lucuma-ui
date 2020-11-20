@@ -17,6 +17,7 @@ import lucuma.ui.optics.AuditResult
 import lucuma.ui.optics.ChangeAuditor
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.reusability._
+import org.scalajs.dom.document
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html
 import react.common._
@@ -26,7 +27,6 @@ import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.input._
 import react.semanticui.elements.label._
 import cats.data.NonEmptyChain
-import cats.data.Chain
 import scalajs.js.JSConverters._
 import cats.data.Validated.Valid
 import cats.data.Validated.Invalid
@@ -37,7 +37,7 @@ import eu.timepit.refined.types.string.NonEmptyString
  * FormInput component that uses an ExternalValue to share the content of the field
  */
 final case class FormInputEV[EV[_], A](
-  id:              String,
+  id:              NonEmptyString,
   action:          js.UndefOr[ShorthandSB[VdomNode]] = js.undefined,
   actionPosition:  js.UndefOr[ActionPosition] = js.undefined,
   as:              js.UndefOr[AsC] = js.undefined,
@@ -102,7 +102,6 @@ object FormInputEV {
   implicit val stateReuse: Reusability[State]                           = Reusability.by(s => (s.displayValue, s.errors))
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
-    private[forms] val outerRef = Ref[html.Element]
 
     def validate(
       props: Props[EV, A],
@@ -113,27 +112,9 @@ object FormInputEV {
       props.onValidChange(validated.isValid) >> cb(validated)
     }
 
-    // Looks for an element with a class of "input", which is div that contains
-    // the actual input element, and extracts the input from it. There is nothing
-    // on the input element with which to identify it, so we can't search directly.
-    // If the cursor has a problem with jumping to the end of the text, a change
-    // in HTML structure is probably causing this to fail.
-    def getInputElement(e: html.Element): Option[html.Input] = {
-      def childChain(ele: html.Element): Chain[html.Element] =
-        Chain.fromSeq(
-          (0 until ele.childElementCount).map(i => ele.children.item(i).asInstanceOf[html.Element])
-        )
-
-      def findWithClass(ele: html.Element): Option[html.Element] =
-        if (ele.className.contains("input")) ele.some
-        else {
-          val children = childChain(ele)
-          if (children.isEmpty) none
-          else children.collectFirstSome(findWithClass)
-        }
-
-      findWithClass(e).map(_.firstChild.asInstanceOf[html.Input])
-    }
+    // queries the dom based on id. Onus is on user to make id's unique.
+    def getInputElement(id: NonEmptyString): Option[html.Input] =
+      Option(document.querySelector(s"#${id.value}").asInstanceOf[html.Input])
 
     def getInputFromState: CallbackOption[html.Input] =
       CallbackOption($.state.map(_.inputElement))
@@ -213,8 +194,6 @@ object FormInputEV {
     val onKeyDown: ReactKeyboardEventFromInput => Callback = e =>
       $.setStateL(State.lastKeyCode)(e.keyCode) *> clearStateCursor
 
-    val OuterSpan = <.span
-
     def render(p: Props[EV, A], s: State): VdomNode = {
 
       def errorLabel(errors: NonEmptyChain[NonEmptyString]): js.UndefOr[ShorthandB[Label]] = {
@@ -240,40 +219,38 @@ object FormInputEV {
         }
         .orElse(s.errors.orUndefined.flatMap(errorLabel))
 
-      OuterSpan.withRef(outerRef)(
-        FormInput(
-          p.action,
-          p.actionPosition,
-          p.as,
-          p.className,
-          p.clazz,
-          p.content,
-          p.control,
-          p.disabled,
-          error,
-          p.fluid,
-          p.focus,
-          p.icon,
-          p.iconPosition,
-          p.inline,
-          p.input,
-          p.inverted,
-          p.label,
-          p.labelPosition,
-          p.loading,
-          js.undefined,
-          onTextChange(p),
-          p.required,
-          p.size,
-          p.tabIndex,
-          p.tpe,
-          p.transparent,
-          p.width,
-          s.displayValue
-        )(
-          (p.modifiers :+ (^.id := p.id) :+ (^.onKeyDown ==> onKeyDown)
-            :+ (^.onBlur --> onBlur(p, s)): _*)
-        )
+      FormInput(
+        p.action,
+        p.actionPosition,
+        p.as,
+        p.className,
+        p.clazz,
+        p.content,
+        p.control,
+        p.disabled,
+        error,
+        p.fluid,
+        p.focus,
+        p.icon,
+        p.iconPosition,
+        p.inline,
+        p.input,
+        p.inverted,
+        p.label,
+        p.labelPosition,
+        p.loading,
+        js.undefined,
+        onTextChange(p),
+        p.required,
+        p.size,
+        p.tabIndex,
+        p.tpe,
+        p.transparent,
+        p.width,
+        s.displayValue
+      )(
+        (p.modifiers :+ (^.id := p.id.value) :+ (^.onKeyDown ==> onKeyDown)
+          :+ (^.onBlur --> onBlur(p, s)): _*)
       )
     }
   }
@@ -293,9 +270,7 @@ object FormInputEV {
       }
       .renderBackend[Backend[EV, A]]
       .componentDidMount($ =>
-        $.backend.outerRef.get
-          .map($.backend.getInputElement)
-          .flatMap(oi => $.setStateL(State.inputElement)(oi))
+        $.setStateL(State.inputElement)($.backend.getInputElement($.props.id))
           *>
             $.backend
               .audit($.props.changeAuditor, $.props.valGet)
