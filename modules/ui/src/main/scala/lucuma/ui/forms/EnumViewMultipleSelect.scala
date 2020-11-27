@@ -98,6 +98,7 @@ final case class EnumViewMultipleSelect[F[_], A](
   upward:               js.UndefOr[Boolean] = js.undefined,
   width:                js.UndefOr[SemanticWidth] = js.undefined,
   wrapSelection:        js.UndefOr[Boolean] = js.undefined,
+  exclude:              Set[A] = Set.empty[A],
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
   val enum:             Enumerated[A],
