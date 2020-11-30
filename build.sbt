@@ -10,7 +10,7 @@ lazy val catsVersion            = "2.3.0"
 lazy val mouseVersion           = "0.25"
 lazy val reactCommonVersion     = "0.11.2"
 lazy val reactSemanticUIVersion = "0.10.1"
-lazy val kindProjectorVersion   = "0.11.1"
+lazy val kindProjectorVersion   = "0.11.2"
 
 parallelExecution in (ThisBuild, Test) := false
 
