@@ -59,6 +59,15 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
   }
 
   /**
+   * Unconditionally allows the field to be a minus sign.
+   * This is used by the `int` and `decimal` modifiers below, but
+   * could possibly be useful elsewhere.
+   */
+  def allowMinus: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+    if (s == "-") AuditResult.accept else self.audit(s, c)
+  }
+
+  /**
    * Reject if the string contains any of the strings in the parameters.
    *
    * @param strs - The list of strings to check for.
@@ -73,8 +82,16 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * This is useful when using a ChangeAuditor made from a format
    * to get better behavior for entering values.
    */
-  def int: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
-    self.checkAgainstSelf(s, ChangeAuditor.int.audit(s, c))
+  def int: ChangeAuditor[A] = {
+    // Check to see if negative values are allowed. If this causes
+    // problems, we may need to make the check optional.
+    val allowNeg = isAllowed("-1")
+
+    val auditor = ChangeAuditor[A] { (s, c) =>
+      val (result, newS, newC) = ChangeAuditor.processIntString(s, c)
+      self.checkAgainstSelf(newS, newC, result)
+    }
+    if (allowNeg) auditor.allowMinus else auditor.deny("-")
   }
 
   /**
@@ -83,20 +100,35 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * This is useful when using a ChangeAuditor made from a format
    * to get better behavior for entering values.
    */
-  def decimal(decimals: Int Refined Positive): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
-    self.checkAgainstSelf(s, ChangeAuditor.bigDecimal(decimals).audit(s, c))
+  def decimal(decimals: Int Refined Positive): ChangeAuditor[A] = {
+    // Check to see if negative values are allowed. If this causes
+    // problems, we may need to make the check optional.
+    val negStr   = "-0." + "0" * (decimals.value - 1) + "1"
+    val allowNeg = isAllowed(negStr)
+
+    val auditor = ChangeAuditor[A] { (s, c) =>
+      val (result, newS, newC) = ChangeAuditor.processDecimalString(s, c, decimals)
+      self.checkAgainstSelf(newS, newC, result)
+    }
+    if (allowNeg) auditor.allowMinus else auditor.deny("-")
   }
 
-  private def checkAgainstSelf(str: String, result: AuditResult): AuditResult = {
-    def rejectOrPassOn(s: String) = audit(s, 0) match {
+  private def checkAgainstSelf(str: String, cursor: Int, result: AuditResult): AuditResult = {
+    def rejectOrPassOn(s: String, c: Int) = audit(s, c) match {
       case AuditResult.Reject => AuditResult.reject
       case _                  => result
     }
+
     result match {
-      case AuditResult.Reject             => AuditResult.reject
-      case AuditResult.Accept             => rejectOrPassOn(str)
-      case AuditResult.NewString(newS, _) => rejectOrPassOn(newS)
+      case AuditResult.Reject                => AuditResult.reject
+      case AuditResult.Accept                => rejectOrPassOn(str, cursor)
+      case AuditResult.NewString(newS, newC) => rejectOrPassOn(newS, newC)
     }
+  }
+
+  private def isAllowed(s: String): Boolean = audit(s, 0) match {
+    case AuditResult.Reject => false
+    case _                  => true
   }
 }
 
@@ -111,12 +143,7 @@ object ChangeAuditor {
    * It also strips leading zeros.
    */
   def int: ChangeAuditor[Int] = ChangeAuditor { (str, cursorPos) =>
-    val (formatStr, newStr, offset) = fixIntString(str, cursorPos)
-    formatStr.parseIntOption match {
-      case None                     => AuditResult.reject
-      case Some(_) if newStr == str => AuditResult.accept
-      case _                        => AuditResult.newString(newStr, offset)
-    }
+    processIntString(str, cursorPos)._1
   }
 
   /**
@@ -128,15 +155,7 @@ object ChangeAuditor {
    * @param decimals - maximum number of allowed decimals.
    */
   def bigDecimal(decimals: Int Refined Positive): ChangeAuditor[BigDecimal] = ChangeAuditor {
-    (str, cursorPos) =>
-      val (formatStr, newStr, offset) = fixDecimalString(str, cursorPos, decimals.value)
-      if (hasNDecimalsOrFewer(newStr, decimals.value))
-        formatStr.parseBigDecimalOption match {
-          case None                     => AuditResult.reject
-          case Some(_) if newStr == str => AuditResult.accept
-          case _                        => AuditResult.newString(newStr, offset)
-        }
-      else AuditResult.reject
+    (str, cursorPos) => processDecimalString(str, cursorPos, decimals)._1
   }
 
   /**
@@ -269,6 +288,17 @@ object ChangeAuditor {
     v.getValidated(s).fold(_ => AuditResult.reject, _ => AuditResult.accept)
   }
 
+  private def processIntString(str: String, cursorPos: Int): (AuditResult, String, Int) = {
+    val (formatStr, newStr, offset) = fixIntString(str, cursorPos)
+
+    val result = formatStr.parseIntOption match {
+      case None                     => AuditResult.reject
+      case Some(_) if newStr == str => AuditResult.accept
+      case _                        => AuditResult.newString(newStr, offset)
+    }
+    (result, formatStr, offset)
+  }
+
   private def fixIntString(str: String, cursorPos: Int): (String, String, Int) =
     str match {
       case ""   => ("0", str, 0)
@@ -276,6 +306,25 @@ object ChangeAuditor {
       case "0-" => ("0", "-", -1)
       case _    => stripZerosBeforeN(str, cursorPos)
     }
+
+  private def processDecimalString(
+    str:       String,
+    cursorPos: Int,
+    decimals:  Int Refined Positive
+  ): (AuditResult, String, Int) = {
+    val (formatStr, newStr, offset) = fixDecimalString(str, cursorPos, decimals.value)
+
+    val result =
+      if (hasNDecimalsOrFewer(newStr, decimals.value))
+        formatStr.parseBigDecimalOption match {
+          case None                     => AuditResult.reject
+          case Some(_) if newStr == str => AuditResult.accept
+          case _                        => AuditResult.newString(newStr, offset)
+        }
+      else AuditResult.reject
+
+    (result, formatStr, offset)
+  }
 
   private def fixDecimalString(
     str:       String,
