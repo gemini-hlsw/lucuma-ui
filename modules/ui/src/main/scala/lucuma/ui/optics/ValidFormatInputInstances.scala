@@ -3,8 +3,12 @@
 
 package lucuma.ui.optics
 
-import lucuma.ui.refined._
+import cats.data.NonEmptyChain
+import cats.data.Validated
 import cats.syntax.all._
+import lucuma.core.math.Declination
+import lucuma.core.math.RightAscension
+import lucuma.ui.refined._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.types.string.NonEmptyString
 import mouse.all._
@@ -38,6 +42,30 @@ trait ValidFormatInputInstances {
           .fold(errorMessage.invalidNec[BigDecimal])(_.validNec),
       _.toString
     )
+
+  val truncatedRA = ValidFormatInput[TruncatedRA](
+    s => {
+      val ota = RightAscension.fromStringHMS
+        .getOption(s)
+        .map(TruncatedRA(_))
+      Validated.fromOption(ota, NonEmptyChain("Invalid Right Ascension"))
+    },
+    tra => {
+      val s = RightAscension.fromStringHMS.reverseGet(tra.ra)
+      s.dropRight(3)
+    }
+  )
+
+  val truncatedDec = ValidFormatInput[TruncatedDec](
+    s => {
+      val otd = Declination.fromStringSignedDMS.getOption(s).map(TruncatedDec(_))
+      Validated.fromOption(otd, NonEmptyChain("Invalid Declination"))
+    },
+    tdec => {
+      val s = Declination.fromStringSignedDMS.reverseGet(tdec.dec)
+      s.dropRight(4)
+    }
+  )
 
   private def fixIntString(str: String): String = str match {
     case ""  => "0"
