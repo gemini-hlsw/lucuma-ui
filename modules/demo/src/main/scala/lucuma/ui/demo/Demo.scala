@@ -252,7 +252,7 @@ trait AppMain extends IOApp {
         1,
         0.123456,
         RightAscension.fromStringHMS.getOption("12:34:56.789876").get,
-        Declination.fromStringSignedDMS.getOption("-11:22:33.123456").get,
+        Declination.fromStringSignedDMS.getOption("-11:22:33.987654").get,
         Epoch.J2000,
         None
       )

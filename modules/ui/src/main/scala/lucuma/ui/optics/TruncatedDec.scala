@@ -7,9 +7,10 @@ import cats.Eq
 import lucuma.core.math.Angle
 import lucuma.core.math.Declination
 import lucuma.core.optics.SplitEpi
+import spire.math.Rational
 
 /**
- * A wrapper for Declination that is truncated to 2
+ * A wrapper for Declination that is rounded to 2
  * decimal places of precision. This is used for input in
  * the UI to allow for lawful ValidFormatInput instances.
  *
@@ -20,7 +21,7 @@ sealed abstract case class TruncatedDec private (dec: Declination)
 
 object TruncatedDec {
   def apply(dec: Declination): TruncatedDec = {
-    val microArcSecs = dec.toAngle.toMicroarcseconds / 10000 * 10000
+    val microArcSecs = Rational(dec.toAngle.toMicroarcseconds, 10000).round.toLong * 10000
     new TruncatedDec(Declination.fromAngleWithCarry(Angle.fromMicroarcseconds(microArcSecs))._1) {}
   }
 

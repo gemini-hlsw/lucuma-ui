@@ -7,9 +7,10 @@ import cats.Eq
 import lucuma.core.math.HourAngle
 import lucuma.core.math.RightAscension
 import lucuma.core.optics.SplitEpi
+import spire.math.Rational
 
 /**
- * A wrapper for RightAscension that is truncated to 3
+ * A wrapper for RightAscension that is rounded to 3
  * decimal places of precision. This is used for input in
  * the UI to allow for lawful ValidFormatInput instances.
  *
@@ -20,7 +21,7 @@ sealed abstract case class TruncatedRA private (ra: RightAscension)
 
 object TruncatedRA {
   def apply(ra: RightAscension): TruncatedRA = {
-    val microSecs = ra.toHourAngle.toMicroseconds / 1000 * 1000
+    val microSecs = Rational(ra.toHourAngle.toMicroseconds, 1000).round.toLong * 1000
     new TruncatedRA(RightAscension(HourAngle.fromMicroseconds(microSecs))) {}
   }
 
