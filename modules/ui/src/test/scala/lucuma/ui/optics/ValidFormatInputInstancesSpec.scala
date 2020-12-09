@@ -7,6 +7,7 @@ import cats.syntax.all._
 import munit.DisciplineSuite
 import lucuma.core.math.Epoch
 import lucuma.core.math.arb.ArbEpoch._
+import lucuma.ui.optics.arb._
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.optics.laws.discipline.ValidFormatTests
 import lucuma.ui.refined._
@@ -16,6 +17,9 @@ import org.scalacheck.Gen
 import org.scalacheck.Arbitrary
 
 final class ValidFormatInputInstancesSpec extends DisciplineSuite {
+  import ArbTruncatedRA._
+  import ArbTruncatedDec._
+
   val genUpperNES: Gen[UpperNES] =
     Gen.asciiStr.suchThat(_.nonEmpty).map(s => UpperNES.unsafeFrom(s.toUpperCase))
 
@@ -35,4 +39,6 @@ final class ValidFormatInputInstancesSpec extends DisciplineSuite {
   checkAll("bigDecimalValidFormat",
            ValidFormatTests(ValidFormatInput.bigDecimalValidFormat()).validFormat
   )
+  checkAll("truncatedRAValidFormat", ValidFormatTests(ValidFormatInput.truncatedRA).validFormat)
+  checkAll("truncatedDecValidFormat", ValidFormatTests(ValidFormatInput.truncatedDec).validFormat)
 }

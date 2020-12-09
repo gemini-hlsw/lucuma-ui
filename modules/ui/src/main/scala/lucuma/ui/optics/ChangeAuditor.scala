@@ -8,8 +8,8 @@ import cats.syntax.all._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{ Validate => RefinedValidate }
 import eu.timepit.refined.numeric.Positive
-import lucuma.core.math.Declination
-import lucuma.core.math.RightAscension
+import lucuma.ui.optics.TruncatedDec
+import lucuma.ui.optics.TruncatedRA
 import mouse.all._
 
 sealed trait AuditResult extends Product with Serializable
@@ -224,9 +224,9 @@ object ChangeAuditor {
   /**
    * for RightAscension entry.
    */
-  val rightAscension: ChangeAuditor[RightAscension] =
+  val truncatedRA: ChangeAuditor[TruncatedRA] =
     ChangeAuditor { (str, _) =>
-      val stripped = stripZerosPastNPlaces(str, 6)
+      val stripped = stripZerosPastNPlaces(str, 3)
       val isValid  =
         stripped.split(":").toList match {
           case Nil                                => true // it's just one or more ":"
@@ -236,7 +236,7 @@ object ChangeAuditor {
             isValidNDigitInt(hours, 2, 23) && isValidNDigitInt(minutes, 2, 59)
           case hours :: minutes :: seconds :: Nil =>
             isValidNDigitInt(hours, 2, 23) && isValidNDigitInt(minutes, 2, 59) &&
-              isValidSeconds(seconds, 6)
+              isValidSeconds(seconds, 3)
           case _                                  => false
         }
 
@@ -249,11 +249,11 @@ object ChangeAuditor {
   /**
    * for Declination entry.
    */
-  val declination: ChangeAuditor[Declination] =
+  val truncatedDec: ChangeAuditor[TruncatedDec] =
     ChangeAuditor { (str, _) =>
       val (sign, noSign) =
         if (str.startsWith("+") || str.startsWith("-")) (str.head, str.tail) else ("", str)
-      val stripped       = stripZerosPastNPlaces(noSign, 6)
+      val stripped       = stripZerosPastNPlaces(noSign, 2)
 
       val isValid =
         stripped.split(":").toList match {
@@ -264,7 +264,7 @@ object ChangeAuditor {
             isValidNDigitInt(degrees, 2, 90) && isValidNDigitInt(minutes, 2, 59)
           case degrees :: minutes :: seconds :: Nil =>
             isValidNDigitInt(degrees, 2, 90) && isValidNDigitInt(minutes, 2, 59) &&
-              isValidSeconds(seconds, 6)
+              isValidSeconds(seconds, 2)
           case _                                    => false
         }
 

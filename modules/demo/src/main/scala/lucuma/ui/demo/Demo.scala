@@ -22,8 +22,11 @@ import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
 import lucuma.ui.forms._
+import lucuma.ui.implicits._
 import lucuma.ui.optics.ChangeAuditor
 import lucuma.ui.optics.FilterMode
+import lucuma.ui.optics.TruncatedDec
+import lucuma.ui.optics.TruncatedRA
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.refined._
 import lucuma.ui.reusability._
@@ -156,23 +159,21 @@ object FormComponent {
             FormInputEV(
               id = "ra",
               label = "RA",
-              value = $.props.root.zoom(RootModel.ra),
+              value = $.props.root.zoom(RootModel.ra).zoomSplitEpi(TruncatedRA.rightAscension),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat =
-                ValidFormatInput.fromFormat(RightAscension.fromStringHMS, "Invalid RA Format"),
-              changeAuditor = ChangeAuditor.rightAscension,
+              validFormat = ValidFormatInput.truncatedRA,
+              changeAuditor = ChangeAuditor.truncatedRA,
               onValidChange = v => $.setStateL(State.ra)(v)
             ),
             FormInputEV(
               id = "dec",
               label = "Dec",
-              value = $.props.root.zoom(RootModel.dec),
+              value = $.props.root.zoom(RootModel.dec).zoomSplitEpi(TruncatedDec.declination),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat =
-                ValidFormatInput.fromFormat(Declination.fromStringSignedDMS, "Invalid Dec Format"),
-              changeAuditor = ChangeAuditor.declination,
+              validFormat = ValidFormatInput.truncatedDec,
+              changeAuditor = ChangeAuditor.truncatedDec,
               onValidChange = v => $.setStateL(State.dec)(v)
             ),
             FormInputEV(
@@ -242,17 +243,18 @@ trait AppMain extends IOApp {
     ReusabilityOverlay.overrideGloballyInDev()
 
     val initialModel =
-      RootModel("FIELD",
-                "",
-                "UPPER",
-                0,
-                0,
-                1,
-                0,
-                RightAscension.Zero,
-                Declination.Zero,
-                Epoch.J2000,
-                None
+      RootModel(
+        "FIELD",
+        "",
+        "UPPER",
+        0,
+        0,
+        1,
+        0.123456,
+        RightAscension.fromStringHMS.getOption("12:34:56.789876").get,
+        Declination.fromStringSignedDMS.getOption("-11:22:33.987654").get,
+        Epoch.J2000,
+        None
       )
 
     for {
