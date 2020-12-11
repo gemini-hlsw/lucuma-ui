@@ -113,6 +113,14 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
     if (allowNeg) auditor.allowMinus else auditor.deny("-")
   }
 
+  /**
+   * Allows you to treat the current ChangeAuditor as though it is for a different
+   * type. Useful, for example, if you can't directly use a Format for a type because
+   * you have to allow interim invalid values while typing. You can use something
+   * like a BigDecimal auditor and then call this.
+   */
+  def as[B] = ChangeAuditor[B]((s, c) => self.audit(s, c))
+
   private def checkAgainstSelf(str: String, cursor: Int, result: AuditResult): AuditResult = {
     def rejectOrPassOn(s: String, c: Int) = audit(s, c) match {
       case AuditResult.Reject => AuditResult.reject
@@ -136,6 +144,13 @@ object ChangeAuditor {
   import FilterMode._
 
   def accept[A]: ChangeAuditor[A] = ChangeAuditor((_, _) => AuditResult.accept)
+
+  /**
+   * For a string. Simply limits the length of the input string.
+   */
+  def maxLength(max: Int Refined Positive): ChangeAuditor[String] = ChangeAuditor { (str, _) =>
+    if (str.length > max.value) AuditResult.reject else AuditResult.accept
+  }
 
   /**
    * For a plain integer. Only allows entry of numeric values.
