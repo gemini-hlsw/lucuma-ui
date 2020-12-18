@@ -113,7 +113,7 @@ lazy val ui =
         "org.typelevel"                     %%% "mouse"               % mouseVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
         "org.scalameta"                     %%% "munit"               % "0.7.20"          % Test,
-        "org.typelevel"                     %%% "discipline-munit"    % "1.0.3"           % Test
+        "org.typelevel"                     %%% "discipline-munit"    % "1.0.4"           % Test
       ),
       addCompilerPlugin(
         ("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)
