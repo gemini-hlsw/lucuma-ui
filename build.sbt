@@ -107,10 +107,9 @@ lazy val ui =
         "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"    % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
         "io.github.cquiroz.react"           %%% "common"              % reactCommonVersion,
+        "io.github.cquiroz.react"           %%% "cats"                % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "react-semantic-ui"   % reactSemanticUIVersion,
         "com.github.julien-truffaut"        %%% "monocle-core"        % monocleVersion,
-        "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
-        "org.typelevel"                     %%% "mouse"               % mouseVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
         "org.scalameta"                     %%% "munit"               % "0.7.20"          % Test,
         "org.typelevel"                     %%% "discipline-munit"    % "1.0.4"           % Test
