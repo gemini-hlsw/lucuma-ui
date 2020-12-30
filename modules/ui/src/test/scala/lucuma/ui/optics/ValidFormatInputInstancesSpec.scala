@@ -33,7 +33,7 @@ final class ValidFormatInputInstancesSpec extends DisciplineSuite {
            ValidFormatTests(ValidFormatInput.upperNESValidFormat).validFormat
   )
   checkAll("optionalEpochValidFormat",
-           ValidFormatTests(ValidFormatInput.fromFormatOptional(Epoch.fromString)).validFormat
+           ValidFormatTests(ValidFormatInput.fromPrism(Epoch.fromString)).validFormat
   )
   checkAll("intValidFormat", ValidFormatTests(ValidFormatInput.intValidFormat()).validFormat)
   checkAll("bigDecimalValidFormat",

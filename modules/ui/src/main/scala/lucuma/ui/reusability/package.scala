@@ -3,14 +3,26 @@
 
 package lucuma.ui
 
+import java.time.Duration
+import java.time.Instant
+
+import scala.collection.immutable.SortedMap
+import scala.collection.immutable.SortedSet
+
+import cats.Order
+import cats.Eq
+import cats.kernel.instances.sortedMap._
+import coulomb.Quantity
 import eu.timepit.refined.api.RefType
+import io.circe.Json
 import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react.Reusability
+import japgolly.scalajs.react.raw.JsNumber
 import lucuma.core.data.EnumZipper
 import lucuma.core.math._
 import lucuma.core.model._
 import lucuma.core.util.Enumerated
-import coulomb.Quantity
+import react.common.implicits._
 
 /**
  * Instances of reusability for some utility types
@@ -21,6 +33,12 @@ trait UtilReusabilityInstances {
 
   implicit def enumZipperReuse[A: Reusability]: Reusability[EnumZipper[A]] =
     Reusability.by(z => (z.lefts, z.focus, z.rights))
+
+  implicit val jsonReuse: Reusability[Json] = Reusability.by_==
+
+  implicit def sortedSetReuse[A: Order]: Reusability[SortedSet[A]] = Reusability.byEq
+
+  implicit def sortedMapReuse[K, V: Eq]: Reusability[SortedMap[K, V]] = Reusability.byEq
 }
 
 /**
@@ -40,6 +58,16 @@ trait MathReusabilityInstances {
   implicit def rvReuse: Reusability[RadialVelocity]                          = Reusability.byEq
   implicit def parallaxReuse: Reusability[Parallax]                          = Reusability.byEq
   implicit val magnitudeValueReuse: Reusability[MagnitudeValue]              = Reusability.byEq
+  implicit val jsNumberReuse: Reusability[JsNumber]                          = Reusability.byEq
+}
+
+/**
+ * reusability of timme types
+ */
+trait TimeReusabilityInstances {
+  implicit val durationReuse: Reusability[Duration] = Reusability.by(_.getSeconds)
+  implicit val instantReuse: Reusability[Instant]   =
+    Reusability.by(i => (i.getEpochSecond, i.getNano))
 }
 
 /**
@@ -68,9 +96,11 @@ trait ModelReusabiltyInstances
   implicit def catalogIdReuse: Reusability[CatalogId]               = Reusability.derive
   implicit def siderealTrackingReuse: Reusability[SiderealTracking] = Reusability.derive
   implicit val magnitudeReuse: Reusability[Magnitude]               = Reusability.derive
+  implicit val userReuse: Reusability[User]                         = Reusability.byEq
 }
 
 package object reusability
     extends UtilReusabilityInstances
     with MathReusabilityInstances
     with ModelReusabiltyInstances
+    with TimeReusabilityInstances
