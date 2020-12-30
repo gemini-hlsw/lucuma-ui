@@ -3,7 +3,7 @@ import sbt._
 lazy val reactJS                = "16.13.1"
 lazy val FUILess                = "2.8.7"
 lazy val scalaJsReactVersion    = "1.7.7"
-lazy val lucumaCoreVersion      = "0.7.3"
+lazy val lucumaCoreVersion      = "0.7.4"
 lazy val monocleVersion         = "2.1.0"
 lazy val crystalVersion         = "0.9.1"
 lazy val catsVersion            = "2.3.1"
@@ -110,6 +110,8 @@ lazy val ui =
         "io.github.cquiroz.react"           %%% "cats"                % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "react-semantic-ui"   % reactSemanticUIVersion,
         "com.github.julien-truffaut"        %%% "monocle-core"        % monocleVersion,
+        "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
+        "org.typelevel"                     %%% "mouse"               % mouseVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
         "org.scalameta"                     %%% "munit"               % "0.7.20"          % Test,
         "org.typelevel"                     %%% "discipline-munit"    % "1.0.4"           % Test
