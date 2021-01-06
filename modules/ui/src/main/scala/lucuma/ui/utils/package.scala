@@ -18,6 +18,12 @@ package object utils extends ReactUtils {
         case -1 => list
         case n  => (list.take(n) :+ mod(list(n))) ++ list.drop(n + 1)
       }
+
+    def removeFirstWhere(find: A => Boolean): List[A] =
+      list.indexWhere(find) match {
+        case -1 => list
+        case n  => list.take(n) ++ list.drop(n + 1)
+      }
   }
 
   val versionDateFormatter: DateTimeFormatter =
