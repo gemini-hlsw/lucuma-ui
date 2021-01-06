@@ -9,6 +9,7 @@ import scala.scalajs.js.|
 import cats._
 import cats.syntax.all._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
@@ -31,6 +32,7 @@ import scalajs.js.JSConverters._
 import cats.data.Validated.Valid
 import cats.data.Validated.Invalid
 import cats.data.ValidatedNec
+import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
 
 /**
@@ -98,7 +100,7 @@ object FormInputEV {
     errors:       Option[NonEmptyChain[NonEmptyString]]
   )
 
-  implicit val neChainReuse: Reusability[NonEmptyChain[NonEmptyString]] = Reusability.by_==
+  implicit val neChainReuse: Reusability[NonEmptyChain[NonEmptyString]] = Reusability.byEq
   implicit val stateReuse: Reusability[State]                           = Reusability.by(s => (s.displayValue, s.errors))
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
@@ -172,7 +174,7 @@ object FormInputEV {
         )
       }
 
-    def onBlur(props: Props[EV, A], state: State): Callback =
+    def submit(props: Props[EV, A], state: State): Callback =
       validate(
         props,
         state.displayValue,
@@ -191,8 +193,11 @@ object FormInputEV {
         }
       )
 
-    val onKeyDown: ReactKeyboardEventFromInput => Callback = e =>
-      $.setStateL(State.lastKeyCode)(e.keyCode) *> clearStateCursor
+    def onKeyDown(props: Props[EV, A], state: State): ReactKeyboardEventFromInput => Callback = e =>
+      if (e.keyCode === 13)
+        submit(props, state)
+      else
+        $.setStateL(State.lastKeyCode)(e.keyCode) *> clearStateCursor
 
     def render(p: Props[EV, A], s: State): VdomNode = {
 
@@ -249,8 +254,10 @@ object FormInputEV {
         p.width,
         s.displayValue
       )(
-        (p.modifiers :+ (^.id := p.id.value) :+ (^.onKeyDown ==> onKeyDown)
-          :+ (^.onBlur --> onBlur(p, s)): _*)
+        (p.modifiers :+
+          (^.id := p.id.value) :+
+          (^.onKeyDown ==> onKeyDown(p, s)) :+
+          (^.onBlur --> submit(p, s)): _*)
       )
     }
   }
