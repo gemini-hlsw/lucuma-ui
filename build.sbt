@@ -9,7 +9,7 @@ lazy val crystalVersion         = "0.9.1"
 lazy val catsVersion            = "2.3.1"
 lazy val mouseVersion           = "0.26.2"
 lazy val reactCommonVersion     = "0.11.2"
-lazy val reactSemanticUIVersion = "0.10.1"
+lazy val reactSemanticUIVersion = "0.10.2"
 lazy val kindProjectorVersion   = "0.11.2"
 
 parallelExecution in (ThisBuild, Test) := false
