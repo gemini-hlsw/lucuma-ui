@@ -194,7 +194,7 @@ object FormInputEV {
       )
 
     def onKeyDown(props: Props[EV, A], state: State): ReactKeyboardEventFromInput => Callback = e =>
-      if (e.keyCode === 13)
+      if (e.keyCode === KeyCode.Enter)
         submit(props, state)
       else
         $.setStateL(State.lastKeyCode)(e.keyCode) *> clearStateCursor
