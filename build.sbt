@@ -113,7 +113,7 @@ lazy val ui =
         "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
         "org.typelevel"                     %%% "mouse"               % mouseVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
-        "org.scalameta"                     %%% "munit"               % "0.7.20"          % Test,
+        "org.scalameta"                     %%% "munit"               % "0.7.21"          % Test,
         "org.typelevel"                     %%% "discipline-munit"    % "1.0.4"           % Test
       ),
       addCompilerPlugin(
