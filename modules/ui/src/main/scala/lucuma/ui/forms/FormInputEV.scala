@@ -1,23 +1,26 @@
-// Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2021 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package lucuma.ui.forms
 
-import scala.scalajs.js
-import scala.scalajs.js.|
-
 import cats._
+import cats.data.NonEmptyChain
+import cats.data.Validated.Invalid
+import cats.data.Validated.Valid
+import cats.data.ValidatedNec
 import cats.syntax.all._
-import japgolly.scalajs.react._
+import eu.timepit.refined.cats._
+import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.CatsReact._
 import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
-import monocle.macros.Lenses
 import lucuma.ui.optics.AuditResult
 import lucuma.ui.optics.ChangeAuditor
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.reusability._
+import monocle.macros.Lenses
 import org.scalajs.dom.document
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html
@@ -27,13 +30,11 @@ import react.semanticui.collections.form.FormInput
 import react.semanticui.elements.icon.Icon
 import react.semanticui.elements.input._
 import react.semanticui.elements.label._
-import cats.data.NonEmptyChain
+
+import scala.scalajs.js
+import scala.scalajs.js.|
+
 import scalajs.js.JSConverters._
-import cats.data.Validated.Valid
-import cats.data.Validated.Invalid
-import cats.data.ValidatedNec
-import eu.timepit.refined.cats._
-import eu.timepit.refined.types.string.NonEmptyString
 
 /**
  * FormInput component that uses an ExternalValue to share the content of the field

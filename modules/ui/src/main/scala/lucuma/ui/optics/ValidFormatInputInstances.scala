@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2021 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package lucuma.ui.optics
@@ -6,11 +6,11 @@ package lucuma.ui.optics
 import cats.data.NonEmptyChain
 import cats.data.Validated
 import cats.syntax.all._
+import eu.timepit.refined.auto._
+import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
 import lucuma.ui.refined._
-import eu.timepit.refined.auto._
-import eu.timepit.refined.types.string.NonEmptyString
 import mouse.all._
 
 /**

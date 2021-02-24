@@ -1,17 +1,17 @@
-// Copyright (c) 2016-2020 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2021 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package lucuma.ui.optics
 
-import cats.syntax.all._
 import cats.data.Validated
-import eu.timepit.refined.refineV
+import cats.syntax.all._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{ Validate => RefinedValidate }
+import eu.timepit.refined.refineV
 import lucuma.core.optics.Format
+import lucuma.core.optics.SplitEpi
 import monocle.Iso
 import monocle.Prism
-import lucuma.core.optics.SplitEpi
 
 /**
  * A validating and normalizing optic. Behaves similarly to `Format`, but the getter returns
