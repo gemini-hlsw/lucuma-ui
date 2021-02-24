@@ -3,10 +3,10 @@
 
 package lucuma.ui.utils
 
-import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.ReactMouseEvent
 import cats.effect.Effect
 import crystal.react.implicits._
+import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.ReactMouseEvent
 
 trait ReactUtils {
   def linkOverride[F[_]: Effect](f: => F[Unit]): ReactMouseEvent => Callback =

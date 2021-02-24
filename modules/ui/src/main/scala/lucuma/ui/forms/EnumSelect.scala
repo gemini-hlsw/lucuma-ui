@@ -3,8 +3,6 @@
 
 package lucuma.ui.forms
 
-import scala.scalajs.js.JSConverters._
-
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.syntax.all._
@@ -13,6 +11,8 @@ import lucuma.core.util.Enumerated
 import react.common.ReactProps
 import react.semanticui.addons.select.Select
 import react.semanticui.modules.dropdown._
+
+import scala.scalajs.js.JSConverters._
 
 /**
  * Produces a dropdown menu, similar to a combobox

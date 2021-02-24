@@ -3,17 +3,18 @@
 
 package lucuma.ui.demo
 
-import scala.scalajs.js.annotation._
-
-import react.common.ReactProps
-import react.common.style.Css
-import react.semanticui.elements.label.LabelPointing
-import react.semanticui.collections.form.Form
-import cats.syntax.all._
 import cats.effect._
-import crystal._
+import cats.syntax.all._
+import crystal.AppRootContext
+import crystal.ViewF
 import crystal.react._
 import crystal.react.implicits._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.auto._
+import eu.timepit.refined.cats._
+import eu.timepit.refined.numeric._
+import eu.timepit.refined.types.string.NonEmptyString
+import japgolly.scalajs.react.MonocleReact._
 import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
@@ -32,12 +33,12 @@ import lucuma.ui.refined._
 import lucuma.ui.reusability._
 import monocle.macros.Lenses
 import org.scalajs.dom
-import japgolly.scalajs.react.MonocleReact._
-import eu.timepit.refined.auto._
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.numeric._
-import eu.timepit.refined.cats._
-import eu.timepit.refined.types.string.NonEmptyString
+import react.common.ReactProps
+import react.common.style.Css
+import react.semanticui.collections.form.Form
+import react.semanticui.elements.label.LabelPointing
+
+import scala.scalajs.js.annotation._
 
 object types {
   type ZeroTo2048 = Interval.Closed[0, 2048]

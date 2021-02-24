@@ -3,14 +3,8 @@
 
 package lucuma.ui
 
-import java.time.Duration
-import java.time.Instant
-
-import scala.collection.immutable.SortedMap
-import scala.collection.immutable.SortedSet
-
-import cats.Order
 import cats.Eq
+import cats.Order
 import cats.kernel.instances.sortedMap._
 import coulomb.Quantity
 import eu.timepit.refined.api.RefType
@@ -23,6 +17,11 @@ import lucuma.core.math._
 import lucuma.core.model._
 import lucuma.core.util.Enumerated
 import react.common.implicits._
+
+import java.time.Duration
+import java.time.Instant
+import scala.collection.immutable.SortedMap
+import scala.collection.immutable.SortedSet
 
 /**
  * Instances of reusability for some utility types

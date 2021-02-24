@@ -3,9 +3,9 @@
 
 package lucuma.ui.utils
 
+import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation._
-import scala.annotation.nowarn
 
 @nowarn
 @js.native

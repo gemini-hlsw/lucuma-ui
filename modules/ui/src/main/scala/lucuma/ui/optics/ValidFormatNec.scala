@@ -3,13 +3,13 @@
 
 package lucuma.ui.optics
 
-import cats.syntax.all._
+import cats.data.NonEmptyChain
 import cats.data.Validated
+import cats.data.ValidatedNec
+import cats.syntax.all._
 import lucuma.core.optics.Format
 import monocle.Iso
 import monocle.Prism
-import cats.data.NonEmptyChain
-import cats.data.ValidatedNec
 
 /**
  * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[E]`.

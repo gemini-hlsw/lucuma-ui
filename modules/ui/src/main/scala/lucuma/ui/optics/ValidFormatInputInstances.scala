@@ -6,11 +6,11 @@ package lucuma.ui.optics
 import cats.data.NonEmptyChain
 import cats.data.Validated
 import cats.syntax.all._
+import eu.timepit.refined.auto._
+import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
 import lucuma.ui.refined._
-import eu.timepit.refined.auto._
-import eu.timepit.refined.types.string.NonEmptyString
 import mouse.all._
 
 /**

@@ -3,17 +3,17 @@
 
 package lucuma.ui.optics
 
-import cats.syntax.all._
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.api.{ Validate => RefinedValidate }
-import lucuma.core.optics.Format
-import monocle.Iso
-import monocle.Prism
 import cats.data.NonEmptyChain
 import cats.data.Validated
 import cats.data.ValidatedNec
-import eu.timepit.refined.types.string.NonEmptyString
+import cats.syntax.all._
+import eu.timepit.refined.api.Refined
+import eu.timepit.refined.api.{ Validate => RefinedValidate }
 import eu.timepit.refined.auto._
+import eu.timepit.refined.types.string.NonEmptyString
+import lucuma.core.optics.Format
+import monocle.Iso
+import monocle.Prism
 
 /**
  * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[String]` and `T = String`.

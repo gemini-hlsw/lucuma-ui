@@ -3,15 +3,15 @@
 
 package lucuma.ui.optics
 
-import cats.syntax.all._
 import cats.data.Validated
-import eu.timepit.refined.refineV
+import cats.syntax.all._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{ Validate => RefinedValidate }
+import eu.timepit.refined.refineV
 import lucuma.core.optics.Format
+import lucuma.core.optics.SplitEpi
 import monocle.Iso
 import monocle.Prism
-import lucuma.core.optics.SplitEpi
 
 /**
  * A validating and normalizing optic. Behaves similarly to `Format`, but the getter returns

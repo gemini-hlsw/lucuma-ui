@@ -4,12 +4,12 @@
 package lucuma.ui
 
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.char.LowerCase
-import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.api.RefinedTypeOps
-import eu.timepit.refined.collection.Forall
 import eu.timepit.refined.boolean.And
 import eu.timepit.refined.boolean.Not
+import eu.timepit.refined.char.LowerCase
+import eu.timepit.refined.collection.Forall
+import eu.timepit.refined.collection.NonEmpty
 
 /**
  * Convenience refined definitions.
