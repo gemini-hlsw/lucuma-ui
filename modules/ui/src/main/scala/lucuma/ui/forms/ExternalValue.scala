@@ -10,6 +10,7 @@ import crystal.ViewOptF
 import crystal.react.implicits._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.extra.StateSnapshot
+import org.typelevel.log4cats.Logger
 
 trait ExternalValue[EV[_]] {
   def get[A](ev: EV[A]): Option[A]
@@ -17,7 +18,7 @@ trait ExternalValue[EV[_]] {
 }
 
 object ExternalValue {
-  implicit def externalValueViewF[F[_]: Effect]: ExternalValue[ViewF[F, *]] =
+  implicit def externalValueViewF[F[_]: Effect: Logger]: ExternalValue[ViewF[F, *]] =
     new ExternalValue[ViewF[F, *]] {
       override def get[A](ev: ViewF[F, A]): Option[A] = ev.get.some
 
@@ -25,7 +26,7 @@ object ExternalValue {
         ev.set.andThen(_.runAsyncCB)
     }
 
-  implicit def externalValueViewOptF[F[_]: Effect]: ExternalValue[ViewOptF[F, *]] =
+  implicit def externalValueViewOptF[F[_]: Effect: Logger]: ExternalValue[ViewOptF[F, *]] =
     new ExternalValue[ViewOptF[F, *]] {
       override def get[A](ev: ViewOptF[F, A]): Option[A] = ev.get
 

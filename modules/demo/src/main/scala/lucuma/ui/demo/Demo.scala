@@ -19,6 +19,7 @@ import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^._
+import log4cats.loglevel.LogLevelLogger
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
@@ -33,6 +34,7 @@ import lucuma.ui.refined._
 import lucuma.ui.reusability._
 import monocle.macros.Lenses
 import org.scalajs.dom
+import org.typelevel.log4cats.Logger
 import react.common.ReactProps
 import react.common.style.Css
 import react.semanticui.collections.form.Form
@@ -43,7 +45,7 @@ import scala.scalajs.js.annotation._
 object types {
   type ZeroTo2048 = Interval.Closed[0, 2048]
 }
-final case class FormComponent(root: ViewF[IO, RootModel])
+final case class FormComponent(root: ViewF[IO, RootModel])(implicit val logger: Logger[IO])
     extends ReactProps[FormComponent](FormComponent.component)
 
 object FormComponent {
@@ -72,6 +74,8 @@ object FormComponent {
       .builder[Props]
       .initialState(State())
       .render { $ =>
+        implicit val logger = $.props.logger
+
         <.div(^.paddingTop := "20px")(
           s"MODEL: ${$.props.root.get}",
           <.br,
@@ -205,7 +209,6 @@ object FormComponent {
       }
       .configure(Reusability.shouldComponentUpdate)
       .build
-
 }
 
 @Lenses
@@ -232,6 +235,8 @@ case class AppContext[F[_]]()(implicit val cs: ContextShift[F])
 object AppCtx extends AppRootContext[AppContext[IO]]
 
 trait AppMain extends IOApp {
+
+  implicit protected val logger: Logger[IO] = LogLevelLogger.createForRoot[IO]
 
   protected def rootComponent(
     view: ViewF[IO, RootModel]

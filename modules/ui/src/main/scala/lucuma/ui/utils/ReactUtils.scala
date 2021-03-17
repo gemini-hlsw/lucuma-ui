@@ -7,12 +7,13 @@ import cats.effect.Effect
 import crystal.react.implicits._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.ReactMouseEvent
+import org.typelevel.log4cats.Logger
 
 trait ReactUtils {
-  def linkOverride[F[_]: Effect](f: => F[Unit]): ReactMouseEvent => Callback =
-    e => linkOverride[F, Unit](f)(Effect[F])(e, ())
+  def linkOverride[F[_]: Effect: Logger](f: => F[Unit]): ReactMouseEvent => Callback =
+    e => linkOverride[F, Unit](f)(Effect[F], Logger[F])(e, ())
 
-  def linkOverride[F[_]: Effect, A](f: => F[Unit]): (ReactMouseEvent, A) => Callback =
+  def linkOverride[F[_]: Effect: Logger, A](f: => F[Unit]): (ReactMouseEvent, A) => Callback =
     (e: ReactMouseEvent, _: A) => {
       (e.preventDefaultCB *> f.runAsyncCB)
         .unless_(e.ctrlKey || e.metaKey)

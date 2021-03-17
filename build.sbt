@@ -5,7 +5,7 @@ lazy val FUILess                = "2.8.7"
 lazy val scalaJsReactVersion    = "1.7.7"
 lazy val lucumaCoreVersion      = "0.7.9"
 lazy val monocleVersion         = "2.1.0"
-lazy val crystalVersion         = "0.9.3"
+lazy val crystalVersion         = "0.10.0"
 lazy val catsVersion            = "2.4.2"
 lazy val mouseVersion           = "1.0.0"
 lazy val reactCommonVersion     = "0.11.3"
@@ -62,6 +62,7 @@ lazy val demo =
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       test := {},
+      libraryDependencies += "com.rpiaggio" %%% "log4cats-loglevel" % "0.2.0",
       // NPM libs for development, mostly to let webpack do its magic
       Compile / npmDevDependencies ++= Seq(
         "postcss"                       -> "8.1.1",
