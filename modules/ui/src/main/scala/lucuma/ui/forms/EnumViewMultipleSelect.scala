@@ -11,6 +11,7 @@ import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
+import org.typelevel.log4cats.Logger
 import react.common.ReactProps
 import react.common._
 import react.semanticui._
@@ -103,7 +104,8 @@ final case class EnumViewMultipleSelect[F[_], A](
 )(implicit
   val enum:             Enumerated[A],
   val display:          Display[A],
-  val effect:           Effect[F]
+  val effect:           Effect[F],
+  val logger:           Logger[F]
 ) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
     with EnumViewSelectBase {
 
