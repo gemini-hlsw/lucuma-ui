@@ -14,7 +14,7 @@ import monocle.Prism
 /**
  * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[E]`.
  */
-object ValidFormatNec {
+object ValidFormatNec extends ValidFormatNecInstances {
 
   /**
    * Build optic that's always valid and doesn't normalize or format
@@ -59,4 +59,5 @@ object ValidFormatNec {
       (iso.get _).andThen(_.valid),
       iso.reverseGet
     )
+
 }
