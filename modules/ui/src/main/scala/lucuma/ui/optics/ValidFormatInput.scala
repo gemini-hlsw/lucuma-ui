@@ -92,4 +92,11 @@ object ValidFormatInput extends ValidFormatInputInstances {
     intValidFormat(error).composeValidFormat(
       ValidFormat.forRefined[NonEmptyChain[NonEmptyString], Int, P](NonEmptyChain(error))
     )
+
+  def forRefinedBigDecimal[P](
+    error:      NonEmptyString = "Invalid format"
+  )(implicit v: RefinedValidate[BigDecimal, P]): ValidFormatInput[BigDecimal Refined P] =
+    bigDecimalValidFormat(error).composeValidFormat(
+      ValidFormat.forRefined[NonEmptyChain[NonEmptyString], BigDecimal, P](NonEmptyChain(error))
+    )
 }
