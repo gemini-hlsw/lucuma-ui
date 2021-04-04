@@ -33,7 +33,7 @@ inThisBuild(
   ) ++ lucumaPublishSettings
 )
 
-skip in publish := true
+publish / skip := true
 
 addCommandAlias(
   "restartWDS",
