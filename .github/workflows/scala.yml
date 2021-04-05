@@ -14,6 +14,6 @@ jobs:
         with:
           java-version: adopt@1.11
       - name: Checking your code format
-        run: csbt scalafmtCheckAll headerCheck test:headerCheck
+        run: sbt scalafmtCheckAll headerCheck test:headerCheck
       - name: Run tests
-        run: csbt test
+        run: sbt test
