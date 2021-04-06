@@ -5,7 +5,6 @@ package lucuma.ui.demo
 
 import cats.effect._
 import cats.syntax.all._
-import crystal.AppRootContext
 import crystal.ViewF
 import crystal.react._
 import crystal.react.implicits._
@@ -15,6 +14,7 @@ import eu.timepit.refined.cats._
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
@@ -232,7 +232,11 @@ object RootModel {
 
 case class AppContext[F[_]]()(implicit val cs: ContextShift[F])
 
-object AppCtx extends AppRootContext[AppContext[IO]]
+object AppContext {
+  implicit val contextReusability: Reusability[AppContext[IO]] = Reusability.never
+}
+
+object AppCtx extends Ctx[IO, AppContext[IO]]
 
 trait AppMain extends IOApp {
 
@@ -256,24 +260,24 @@ trait AppMain extends IOApp {
         0,
         0,
         1,
-        0.123456,
+        0.1234,
         RightAscension.fromStringHMS.getOption("12:34:56.789876").get,
         Declination.fromStringSignedDMS.getOption("-11:22:33.987654").get,
         Epoch.J2000,
         None
       )
 
-    for {
-      _ <- AppCtx.initIn[IO](AppContext[IO]())
-    } yield {
-      val RootComponent = AppRoot[IO](initialModel)(rootComponent)
-
+    IO {
       val container = Option(dom.document.getElementById("root")).getOrElse {
         val elem = dom.document.createElement("div")
         elem.id = "root"
         dom.document.body.appendChild(elem)
         elem
       }
+
+      val RootComponent = ContextProvider[IO](AppCtx, new AppContext[IO]())(
+        StateProvider[IO](initialModel)(rootComponent)
+      )
 
       RootComponent().renderIntoDOM(container)
 
