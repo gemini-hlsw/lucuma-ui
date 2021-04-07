@@ -35,12 +35,27 @@ trait ValidFormatInputInstances {
     _.toString
   )
 
+  // does not, and cannot, format to a particular number of decimal places. For that
+  // you need a TruncatedBigDecimal.
   def bigDecimalValidFormat(errorMessage: NonEmptyString = "Must be a number") =
     ValidFormatInput[BigDecimal](
       s =>
         fixDecimalString(s).parseBigDecimalOption
           .fold(errorMessage.invalidNec[BigDecimal])(_.validNec),
       _.toString
+    )
+
+  def truncatedBigDecimalValidFormat(
+    decimals:     TruncatedBigDecimal.IntDecimals,
+    errorMessage: NonEmptyString = "Must be a number"
+  ) =
+    ValidFormatInput[TruncatedBigDecimal](
+      s =>
+        fixDecimalString(s).parseBigDecimalOption
+          .fold(errorMessage.invalidNec[TruncatedBigDecimal])(
+            TruncatedBigDecimal(_, decimals).validNec
+          ),
+      tbd => s"%.${decimals.value}f".format(tbd.value)
     )
 
   val truncatedRA = ValidFormatInput[TruncatedRA](
@@ -73,7 +88,7 @@ trait ValidFormatInputInstances {
     case _   => str
   }
 
-  private def fixDecimalString(str: String): String = str match {
+  protected def fixDecimalString(str: String): String = str match {
     case ""  => "0"
     case "-" => "-0"
     case "." => "0."
