@@ -4,7 +4,6 @@
 package lucuma.ui.optics
 
 import cats.kernel.laws.discipline.EqTests
-import eu.timepit.refined.auto._
 import lucuma.core.optics.laws.discipline.SplitEpiTests
 import lucuma.ui.optics.arb._
 import org.scalacheck.Arbitrary._
@@ -13,9 +12,9 @@ import munit.DisciplineSuite
 class TruncatedBigDecimalSpec extends DisciplineSuite {
   import ArbTruncatedBigDecimal._
 
-  checkAll("TruncatedBigDecimal", EqTests[TruncatedBigDecimal].eqv)
+  checkAll("TruncatedBigDecimal", EqTests[TruncatedBigDecimal[2]].eqv)
 
   checkAll("TruncatedRefinedBigDecimal.bigDecimal",
-           SplitEpiTests(TruncatedBigDecimal.bigDecimal(2)).splitEpi
+           SplitEpiTests(TruncatedBigDecimal.bigDecimal[2]).splitEpi
   )
 }

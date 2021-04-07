@@ -4,7 +4,6 @@
 package lucuma.ui.optics.arb
 
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.auto._
 import eu.timepit.refined.scalacheck._
 import eu.timepit.refined.scalacheck.numeric.intervalClosedArbitrary
 import eu.timepit.refined.numeric.Interval
@@ -20,11 +19,11 @@ trait ArbTruncatedRefinedBigDecimal {
 
   implicit val arbClosed: Arbitrary[BigOneToThree] = intervalClosedArbitrary
 
-  implicit val arbTruncRefinedBD = Arbitrary[TruncatedRefinedBigDecimal[OneToThree]] {
-    arbitrary[BigOneToThree].map(TruncatedRefinedBigDecimal[OneToThree](_, 1).get)
+  implicit val arbTruncRefinedBD = Arbitrary[TruncatedRefinedBigDecimal[OneToThree, 1]] {
+    arbitrary[BigOneToThree].map(TruncatedRefinedBigDecimal[OneToThree, 1](_).get)
   }
 
-  implicit def cogTruncRefinedBD: Cogen[TruncatedRefinedBigDecimal[OneToThree]] =
+  implicit def cogTruncRefinedBD: Cogen[TruncatedRefinedBigDecimal[OneToThree, 1]] =
     Cogen[BigOneToThree].contramap(trbd => trbd.value)
   // Cogen[(BigOneToThree, Int)].contramap(trbd => (trbd.value, trbd.decimals))
 }

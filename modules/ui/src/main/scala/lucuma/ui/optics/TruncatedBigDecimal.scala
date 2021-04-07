@@ -4,24 +4,35 @@
 package lucuma.ui.optics
 
 import cats.Eq
-import eu.timepit.refined.api.Refined
-import eu.timepit.refined.numeric.Interval
 import lucuma.core.optics.SplitEpi
 
-sealed abstract case class TruncatedBigDecimal private (value: BigDecimal)
+/**
+ * A wrapper around a BigDecimal that is limited to a specified
+ * number of decimals places.
+ *
+ * The Dec type parameter must be a Singleton Int, which is enforced
+ *    by the compiler. The compiler cannot, however, keep you from
+ *    specifying negative numbers or extreme values. So, don't.
+ *
+ * @param value The BigDecimal. It is guaranteed to have a scale of no more than Dec.
+ * @param vo Evidence that Dec is a Singleton type.
+ */
+sealed abstract case class TruncatedBigDecimal[Dec <: Int] private (value: BigDecimal)(implicit
+  vo:                                                                      ValueOf[Dec]
+) { val decimals: Int = vo.value }
 
 object TruncatedBigDecimal {
-  type Decimals    = Interval.Closed[1, 10]
-  type IntDecimals = Int Refined Decimals
 
-  def apply(value:         BigDecimal, decimals: IntDecimals): TruncatedBigDecimal =
-    new TruncatedBigDecimal(
-      value.setScale(decimals.value, BigDecimal.RoundingMode.FLOOR)
+  def apply[Dec <: Int](value: BigDecimal)(implicit vo: ValueOf[Dec]): TruncatedBigDecimal[Dec] =
+    new TruncatedBigDecimal[Dec](
+      value.setScale(vo.value, BigDecimal.RoundingMode.HALF_UP)
     ) {}
 
-  def bigDecimal(decimals: IntDecimals): SplitEpi[BigDecimal, TruncatedBigDecimal] =
-    SplitEpi(TruncatedBigDecimal(_, decimals), _.value)
+  def bigDecimal[Dec <: Int](implicit
+    vo:                        ValueOf[Dec]
+  ): SplitEpi[BigDecimal, TruncatedBigDecimal[Dec]] =
+    SplitEpi(TruncatedBigDecimal(_), _.value)
 
-  implicit val truncatedBigDecimalEq: Eq[TruncatedBigDecimal] =
+  implicit def truncatedBigDecimalEq[Dec <: Int]: Eq[TruncatedBigDecimal[Dec]] =
     Eq.by(_.value)
 }

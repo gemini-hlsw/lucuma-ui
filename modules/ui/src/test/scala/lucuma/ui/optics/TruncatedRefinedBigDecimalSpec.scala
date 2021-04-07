@@ -4,7 +4,6 @@
 package lucuma.ui.optics
 
 import cats.kernel.laws.discipline.OrderTests
-import eu.timepit.refined.auto._
 import eu.timepit.refined.cats._
 import lucuma.core.optics.laws.discipline.SplitEpiTests
 import lucuma.ui.optics.arb._
@@ -14,9 +13,11 @@ import org.scalacheck.Arbitrary._
 class TruncatedRefinedBigDecimalSpec extends DisciplineSuite {
   import ArbTruncatedRefinedBigDecimal._
 
-  checkAll("TruncatedRefinedBigDecimal", OrderTests[TruncatedRefinedBigDecimal[OneToThree]].order)
+  checkAll("TruncatedRefinedBigDecimal",
+           OrderTests[TruncatedRefinedBigDecimal[OneToThree, 1]].order
+  )
 
   checkAll("TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal",
-           SplitEpiTests(TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree](1)).splitEpi
+           SplitEpiTests(TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree, 1]).splitEpi
   )
 }

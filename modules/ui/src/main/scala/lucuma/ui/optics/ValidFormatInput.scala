@@ -101,18 +101,20 @@ object ValidFormatInput extends ValidFormatInputInstances {
       ValidFormat.forRefined[NonEmptyChain[NonEmptyString], BigDecimal, P](NonEmptyChain(error))
     )
 
-  def forRefinedTruncatedBigDecimal[P](
-    decimals:   TruncatedRefinedBigDecimal.IntDecimals,
-    error:      NonEmptyString = "Invalid format"
-  )(implicit v: RefinedValidate[BigDecimal, P]): ValidFormatInput[TruncatedRefinedBigDecimal[P]] = {
+  def forRefinedTruncatedBigDecimal[P, Dec <: Int](
+    error: NonEmptyString = "Invalid format"
+  )(implicit
+    v:     RefinedValidate[BigDecimal, P],
+    vo:    ValueOf[Dec]
+  ): ValidFormatInput[TruncatedRefinedBigDecimal[P, Dec]] = {
     val prism = ValidFormat.refinedPrism[BigDecimal, P]
-    ValidFormatInput[TruncatedRefinedBigDecimal[P]](
+    ValidFormatInput[TruncatedRefinedBigDecimal[P, Dec]](
       s =>
         fixDecimalString(s).parseBigDecimalOption
           .flatMap(prism.getOption(_))
-          .flatMap(TruncatedRefinedBigDecimal.apply[P](_, decimals))
-          .fold(error.invalidNec[TruncatedRefinedBigDecimal[P]])(_.validNec),
-      trbd => s"%.${decimals.value}f".format(trbd.value.value)
+          .flatMap(TruncatedRefinedBigDecimal.apply[P, Dec](_))
+          .fold(error.invalidNec[TruncatedRefinedBigDecimal[P, Dec]])(_.validNec),
+      trbd => s"%.${vo.value}f".format(trbd.value.value)
     )
   }
 }

@@ -3,22 +3,17 @@
 
 package lucuma.ui.optics.arb
 
-import eu.timepit.refined.auto._
-import eu.timepit.refined.scalacheck.numeric.intervalClosedArbitrary
 import lucuma.ui.optics.TruncatedBigDecimal
 import org.scalacheck._
 import org.scalacheck.Arbitrary._
 
 trait ArbTruncatedBigDecimal {
 
-  implicit val arbClosedInterval: Arbitrary[TruncatedBigDecimal.IntDecimals] =
-    intervalClosedArbitrary
-
-  implicit val arbTruncatedDecimal = Arbitrary[TruncatedBigDecimal] {
-    arbitrary[BigDecimal].map(TruncatedBigDecimal(_, 2))
+  implicit val arbTruncatedDecimal = Arbitrary[TruncatedBigDecimal[2]] {
+    arbitrary[BigDecimal].map(TruncatedBigDecimal[2](_))
   }
 
-  implicit def cogTruncatedBigDecimal: Cogen[TruncatedBigDecimal] =
+  implicit def cogTruncatedBigDecimal: Cogen[TruncatedBigDecimal[2]] =
     Cogen[BigDecimal].contramap(_.value)
 }
 

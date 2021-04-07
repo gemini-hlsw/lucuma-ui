@@ -191,12 +191,12 @@ object FormComponent {
               value = $.props.root
                 .zoom(RootModel.refinedBigDec)
                 .zoomSplitEpi(
-                  TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree](1)
+                  TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree, 1]
                 ),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput
-                .forRefinedTruncatedBigDecimal[OneToThree](1, "Must be 1.0 to 3.0"),
+                .forRefinedTruncatedBigDecimal[OneToThree, 1]("Must be 1.0 to 3.0"),
               changeAuditor = ChangeAuditor.accept.decimal(1),
               onValidChange = v => $.setStateL(State.refinedBigDec)(v)
             ),

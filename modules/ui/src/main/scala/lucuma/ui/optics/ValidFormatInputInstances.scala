@@ -45,17 +45,16 @@ trait ValidFormatInputInstances {
       _.toString
     )
 
-  def truncatedBigDecimalValidFormat(
-    decimals:     TruncatedBigDecimal.IntDecimals,
+  def truncatedBigDecimalValidFormat[Dec <: Int](
     errorMessage: NonEmptyString = "Must be a number"
-  ) =
-    ValidFormatInput[TruncatedBigDecimal](
+  )(implicit vo:  ValueOf[Dec]) =
+    ValidFormatInput[TruncatedBigDecimal[Dec]](
       s =>
         fixDecimalString(s).parseBigDecimalOption
-          .fold(errorMessage.invalidNec[TruncatedBigDecimal])(
-            TruncatedBigDecimal(_, decimals).validNec
+          .fold(errorMessage.invalidNec[TruncatedBigDecimal[Dec]])(
+            TruncatedBigDecimal[Dec](_).validNec
           ),
-      tbd => s"%.${decimals.value}f".format(tbd.value)
+      tbd => s"%.${vo.value}f".format(tbd.value)
     )
 
   val truncatedRA = ValidFormatInput[TruncatedRA](

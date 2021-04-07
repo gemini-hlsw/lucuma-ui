@@ -43,11 +43,11 @@ final class ValidFormatInputInstancesSpec extends DisciplineSuite {
            ValidFormatTests(ValidFormatInput.bigDecimalValidFormat()).validFormat
   )
   checkAll("truncatedBigDecimalValidFormat",
-           ValidFormatTests(ValidFormatInput.truncatedBigDecimalValidFormat(2)).validFormat
+           ValidFormatTests(ValidFormatInput.truncatedBigDecimalValidFormat[2]()).validFormat
   )
   checkAll(
     "forTruncatedRefinedBigDecimal",
-    ValidFormatTests(ValidFormatInput.forRefinedTruncatedBigDecimal[OneToThree](1)).validFormat
+    ValidFormatTests(ValidFormatInput.forRefinedTruncatedBigDecimal[OneToThree, 1]()).validFormat
   )
   checkAll("truncatedRAValidFormat", ValidFormatTests(ValidFormatInput.truncatedRA).validFormat)
   checkAll("truncatedDecValidFormat", ValidFormatTests(ValidFormatInput.truncatedDec).validFormat)
