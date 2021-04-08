@@ -11,12 +11,15 @@ import lucuma.ui.optics.arb._
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.optics.laws.discipline.ValidFormatTests
 import lucuma.ui.refined._
+import eu.timepit.refined.auto._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.scalacheck.all._
 import org.scalacheck.Gen
 import org.scalacheck.Arbitrary
 
 final class ValidFormatInputInstancesSpec extends DisciplineSuite {
+  import ArbTruncatedBigDecimal._
+  import ArbTruncatedRefinedBigDecimal._
   import ArbTruncatedRA._
   import ArbTruncatedDec._
 
@@ -38,6 +41,13 @@ final class ValidFormatInputInstancesSpec extends DisciplineSuite {
   checkAll("intValidFormat", ValidFormatTests(ValidFormatInput.intValidFormat()).validFormat)
   checkAll("bigDecimalValidFormat",
            ValidFormatTests(ValidFormatInput.bigDecimalValidFormat()).validFormat
+  )
+  checkAll("truncatedBigDecimalValidFormat",
+           ValidFormatTests(ValidFormatInput.truncatedBigDecimalValidFormat[2]()).validFormat
+  )
+  checkAll(
+    "forTruncatedRefinedBigDecimal",
+    ValidFormatTests(ValidFormatInput.forRefinedTruncatedBigDecimal[OneToThree, 1]()).validFormat
   )
   checkAll("truncatedRAValidFormat", ValidFormatTests(ValidFormatInput.truncatedRA).validFormat)
   checkAll("truncatedDecValidFormat", ValidFormatTests(ValidFormatInput.truncatedDec).validFormat)

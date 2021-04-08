@@ -14,6 +14,8 @@ import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.optics.Format
 import monocle.Iso
 import monocle.Prism
+import mouse.all._
+import singleton.ops._
 
 /**
  * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[String]` and `T = String`.
@@ -99,4 +101,22 @@ object ValidFormatInput extends ValidFormatInputInstances {
     bigDecimalValidFormat(error).composeValidFormat(
       ValidFormat.forRefined[NonEmptyChain[NonEmptyString], BigDecimal, P](NonEmptyChain(error))
     )
+
+  def forRefinedTruncatedBigDecimal[P, Dec <: XInt](
+    error: NonEmptyString = "Invalid format"
+  )(implicit
+    v:     RefinedValidate[BigDecimal, P],
+    req:   Require[&&[Dec > 0, Dec < 10]],
+    vo:    ValueOf[Dec]
+  ): ValidFormatInput[TruncatedRefinedBigDecimal[P, Dec]] = {
+    val prism = ValidFormat.refinedPrism[BigDecimal, P]
+    ValidFormatInput[TruncatedRefinedBigDecimal[P, Dec]](
+      s =>
+        fixDecimalString(s).parseBigDecimalOption
+          .flatMap(prism.getOption(_))
+          .flatMap(TruncatedRefinedBigDecimal.apply[P, Dec](_))
+          .fold(error.invalidNec[TruncatedRefinedBigDecimal[P, Dec]])(_.validNec),
+      trbd => s"%.${vo.value}f".format(trbd.value.value)
+    )
+  }
 }

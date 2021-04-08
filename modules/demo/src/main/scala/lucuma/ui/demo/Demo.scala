@@ -29,6 +29,7 @@ import lucuma.ui.optics.ChangeAuditor
 import lucuma.ui.optics.FilterMode
 import lucuma.ui.optics.TruncatedDec
 import lucuma.ui.optics.TruncatedRA
+import lucuma.ui.optics.TruncatedRefinedBigDecimal
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.refined._
 import lucuma.ui.reusability._
@@ -42,11 +43,9 @@ import react.semanticui.elements.label.LabelPointing
 
 import scala.scalajs.js.annotation._
 
-object types {
-  type ZeroTo2048 = Interval.Closed[0, 2048]
-}
-final case class FormComponent(root: ViewF[IO, RootModel])(implicit val logger: Logger[IO])
-    extends ReactProps[FormComponent](FormComponent.component)
+final case class FormComponent(root: ViewF[IO, FormComponent.RootModel])(implicit
+  val logger:                        Logger[IO]
+) extends ReactProps[FormComponent](FormComponent.component)
 
 object FormComponent {
   type Props = FormComponent
@@ -60,11 +59,37 @@ object FormComponent {
     refinedInt:    Boolean = true,
     refinedOdd:    Boolean = true,
     bigDecimal:    Boolean = true,
+    refinedBigDec: Boolean = true,
     ra:            Boolean = true,
     dec:           Boolean = true,
     epoch:         Boolean = true,
     optionalEpoch: Boolean = true
   )
+
+  val OneBD   = BigDecimal(1.0)
+  val ThreeBD = BigDecimal(3.0)
+  type OneToThree = Interval.Closed[OneBD.type, ThreeBD.type]
+  type ZeroTo2048 = Interval.Closed[0, 2048]
+
+  @Lenses
+  final case class RootModel(
+    field1:        UpperNES,
+    field2:        String,
+    forcedUpper:   String Refined UpperNEPred,
+    justAnInt:     Int,
+    refinedInt:    Int Refined Interval.Closed[0, 2048],
+    refinedOdd:    Int Refined Odd,
+    bigDecimal:    BigDecimal,
+    refinedBigDec: BigDecimal Refined OneToThree,
+    ra:            RightAscension,
+    dec:           Declination,
+    epoch:         Epoch,
+    optionalEpoch: Option[Epoch]
+  )
+
+  object RootModel {
+    implicit val modelReusability: Reusability[RootModel] = Reusability.by_==[RootModel]
+  }
 
   implicit val propsReuse = Reusability.derive[Props]
   implicit val stateReuse = Reusability.derive[State]
@@ -136,9 +161,8 @@ object FormComponent {
               value = $.props.root.zoom(RootModel.refinedInt),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat =
-                ValidFormatInput.forRefinedInt[types.ZeroTo2048]("Must be in range 0-2048"),
-              changeAuditor = ChangeAuditor.forRefinedInt[types.ZeroTo2048](),
+              validFormat = ValidFormatInput.forRefinedInt[ZeroTo2048]("Must be in range 0-2048"),
+              changeAuditor = ChangeAuditor.forRefinedInt[ZeroTo2048](),
               onValidChange = v => $.setStateL(State.refinedInt)(v)
             ),
             FormInputEV(
@@ -160,6 +184,21 @@ object FormComponent {
               validFormat = ValidFormatInput.bigDecimalValidFormat(),
               changeAuditor = ChangeAuditor.bigDecimal(4),
               onValidChange = v => $.setStateL(State.bigDecimal)(v)
+            ),
+            FormInputEV(
+              id = "refined-big-decimal",
+              label = "Refined Big Decimal - 1 decimal place",
+              value = $.props.root
+                .zoom(RootModel.refinedBigDec)
+                .zoomSplitEpi(
+                  TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree, 1]
+                ),
+              errorClazz = Css("error-label"),
+              errorPointing = LabelPointing.Below,
+              validFormat = ValidFormatInput
+                .forRefinedTruncatedBigDecimal[OneToThree, 1]("Must be 1.0 to 3.0"),
+              changeAuditor = ChangeAuditor.accept.decimal(1),
+              onValidChange = v => $.setStateL(State.refinedBigDec)(v)
             ),
             FormInputEV(
               id = "ra",
@@ -211,25 +250,6 @@ object FormComponent {
       .build
 }
 
-@Lenses
-final case class RootModel(
-  field1:        UpperNES,
-  field2:        String,
-  forcedUpper:   String Refined UpperNEPred,
-  justAnInt:     Int,
-  refinedInt:    Int Refined Interval.Closed[0, 2048],
-  refinedOdd:    Int Refined Odd,
-  bigDecimal:    BigDecimal,
-  ra:            RightAscension,
-  dec:           Declination,
-  epoch:         Epoch,
-  optionalEpoch: Option[Epoch]
-)
-
-object RootModel {
-  implicit val modelReusability: Reusability[RootModel] = Reusability.by_==[RootModel]
-}
-
 case class AppContext[F[_]]()(implicit val cs: ContextShift[F])
 
 object AppContext {
@@ -239,6 +259,7 @@ object AppContext {
 object AppCtx extends Ctx[IO, AppContext[IO]]
 
 trait AppMain extends IOApp {
+  import FormComponent._
 
   implicit protected val logger: Logger[IO] = LogLevelLogger.createForRoot[IO]
 
@@ -260,7 +281,8 @@ trait AppMain extends IOApp {
         0,
         0,
         1,
-        0.1234,
+        0.123456,
+        Refined.unsafeApply[BigDecimal, OneToThree](OneBD),
         RightAscension.fromStringHMS.getOption("12:34:56.789876").get,
         Declination.fromStringSignedDMS.getOption("-11:22:33.987654").get,
         Epoch.J2000,
@@ -288,6 +310,6 @@ trait AppMain extends IOApp {
 
 @JSExportTopLevel("Demo")
 object Demo extends AppMain {
-  override protected def rootComponent(rootView: ViewF[IO, RootModel]): VdomElement =
+  override protected def rootComponent(rootView: ViewF[IO, FormComponent.RootModel]): VdomElement =
     FormComponent(rootView)
 }

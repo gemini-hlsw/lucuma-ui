@@ -12,6 +12,7 @@ import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
 import lucuma.ui.refined._
 import mouse.all._
+import singleton.ops._
 
 /**
  * Convenience ValidFormatInput instances.
@@ -35,12 +36,26 @@ trait ValidFormatInputInstances {
     _.toString
   )
 
+  // does not, and cannot, format to a particular number of decimal places. For that
+  // you need a TruncatedBigDecimal.
   def bigDecimalValidFormat(errorMessage: NonEmptyString = "Must be a number") =
     ValidFormatInput[BigDecimal](
       s =>
         fixDecimalString(s).parseBigDecimalOption
           .fold(errorMessage.invalidNec[BigDecimal])(_.validNec),
       _.toString
+    )
+
+  def truncatedBigDecimalValidFormat[Dec <: XInt](
+    errorMessage: NonEmptyString = "Must be a number"
+  )(implicit req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]) =
+    ValidFormatInput[TruncatedBigDecimal[Dec]](
+      s =>
+        fixDecimalString(s).parseBigDecimalOption
+          .fold(errorMessage.invalidNec[TruncatedBigDecimal[Dec]])(
+            TruncatedBigDecimal[Dec](_).validNec
+          ),
+      tbd => s"%.${vo.value}f".format(tbd.value)
     )
 
   val truncatedRA = ValidFormatInput[TruncatedRA](
@@ -73,7 +88,7 @@ trait ValidFormatInputInstances {
     case _   => str
   }
 
-  private def fixDecimalString(str: String): String = str match {
+  protected def fixDecimalString(str: String): String = str match {
     case ""  => "0"
     case "-" => "-0"
     case "." => "0."
