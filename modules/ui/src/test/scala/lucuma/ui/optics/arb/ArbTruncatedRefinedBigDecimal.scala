@@ -25,7 +25,6 @@ trait ArbTruncatedRefinedBigDecimal {
 
   implicit def cogTruncRefinedBD: Cogen[TruncatedRefinedBigDecimal[OneToThree, 1]] =
     Cogen[BigOneToThree].contramap(trbd => trbd.value)
-  // Cogen[(BigOneToThree, Int)].contramap(trbd => (trbd.value, trbd.decimals))
 }
 
 object ArbTruncatedRefinedBigDecimal extends ArbTruncatedRefinedBigDecimal

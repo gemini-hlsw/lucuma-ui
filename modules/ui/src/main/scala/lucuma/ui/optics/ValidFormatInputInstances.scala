@@ -12,6 +12,7 @@ import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
 import lucuma.ui.refined._
 import mouse.all._
+import singleton.ops._
 
 /**
  * Convenience ValidFormatInput instances.
@@ -45,9 +46,9 @@ trait ValidFormatInputInstances {
       _.toString
     )
 
-  def truncatedBigDecimalValidFormat[Dec <: Int](
+  def truncatedBigDecimalValidFormat[Dec <: XInt](
     errorMessage: NonEmptyString = "Must be a number"
-  )(implicit vo:  ValueOf[Dec]) =
+  )(implicit req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]) =
     ValidFormatInput[TruncatedBigDecimal[Dec]](
       s =>
         fixDecimalString(s).parseBigDecimalOption

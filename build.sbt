@@ -11,6 +11,7 @@ lazy val mouseVersion           = "1.0.2"
 lazy val reactCommonVersion     = "0.11.3"
 lazy val reactSemanticUIVersion = "0.10.6"
 lazy val kindProjectorVersion   = "0.11.3"
+lazy val singletonOpsVersion    = "0.5.0"
 
 parallelExecution in (ThisBuild, Test) := false
 
@@ -107,6 +108,7 @@ lazy val ui =
         "com.github.japgolly.scalajs-react" %%% "core"                % scalaJsReactVersion,
         "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"    % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
+        "eu.timepit"                        %%% "singleton-ops"       % singletonOpsVersion,
         "io.github.cquiroz.react"           %%% "common"              % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "cats"                % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "react-semantic-ui"   % reactSemanticUIVersion,
