@@ -14,8 +14,25 @@ trait Browser extends js.Object {
   val version: String = js.native
 }
 
-@js.native
-@JSImport("ua-parser-js", JSImport.Namespace)
-class UAParser(val ua: String) extends js.Object {
-  def getBrowser(): Browser = js.native
+sealed trait UAParser extends js.Object {
+  def getBrowser(): Browser
+}
+
+object UAParser {
+  def apply(ua: String): UAParser =
+    if (scala.scalajs.runtime.linkingInfo.productionMode) new UAParserProd(ua)
+    else new UAParserDev(ua)
+
+  @js.native
+  @JSImport("ua-parser-js", JSImport.Namespace)
+  class UAParserDev(val ua: String) extends js.Object with UAParser {
+    def getBrowser(): Browser = js.native
+  }
+
+  @js.native
+  @JSImport("ua-parser-js", JSImport.Default)
+  class UAParserProd(val ua: String) extends js.Object with UAParser {
+    def getBrowser(): Browser = js.native
+  }
+
 }
