@@ -4,7 +4,8 @@
 package lucuma.ui.forms
 
 import cats.Id
-import cats.effect.Effect
+import cats.effect.Async
+import cats.effect.std.Dispatcher
 import crystal.ViewF
 import crystal.react.implicits._
 import japgolly.scalajs.react._
@@ -103,7 +104,8 @@ final case class EnumViewSelect[F[_], A](
 )(implicit
   val enum:             Enumerated[A],
   val display:          Display[A],
-  val effect:           Effect[F],
+  val F:                Async[F],
+  val dispatcher:       Dispatcher[F],
   val logger:           Logger[F]
 ) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
     with EnumViewSelectBase {

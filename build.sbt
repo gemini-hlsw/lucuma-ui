@@ -5,17 +5,13 @@ lazy val FUILess                = "2.8.7"
 lazy val scalaJsReactVersion    = "1.7.7"
 lazy val lucumaCoreVersion      = "0.7.11"
 lazy val monocleVersion         = "2.1.0"
-lazy val crystalVersion         = "0.11.0"
+lazy val crystalVersion         = "0.12.0"
 lazy val catsVersion            = "2.6.0"
 lazy val mouseVersion           = "1.0.2"
 lazy val reactCommonVersion     = "0.11.3"
 lazy val reactSemanticUIVersion = "0.10.6"
 lazy val kindProjectorVersion   = "0.11.3"
 lazy val singletonOpsVersion    = "0.5.2"
-
-parallelExecution in (ThisBuild, Test) := false
-
-ThisBuild / turbo := true
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
 
@@ -30,7 +26,9 @@ inThisBuild(
     ),
     scalacOptions ++= Seq(
       "-Ymacro-annotations"
-    )
+    ),
+    turbo := true,
+    Test / parallelExecution := false
   ) ++ lucumaPublishSettings
 )
 
@@ -38,7 +36,7 @@ publish / skip := true
 
 addCommandAlias(
   "restartWDS",
-  "; demo/fastOptJS::stopWebpackDevServer; demo/fastOptJS::startWebpackDevServer; ~demo/fastOptJS"
+  "; demo/fastOptJS/stopWebpackDevServer; demo/fastOptJS/startWebpackDevServer; ~demo/fastOptJS"
 )
 
 lazy val demo =
@@ -46,24 +44,24 @@ lazy val demo =
     .in(file("modules/demo"))
     .enablePlugins(ScalaJSBundlerPlugin)
     .settings(
-      version in webpack := "4.44.1",
-      version in startWebpackDevServer := "3.11.0",
-      webpackConfigFile in fastOptJS := Some(
+      webpack / version := "4.44.1",
+      startWebpackDevServer / version := "3.11.0",
+      fastOptJS / webpackConfigFile := Some(
         baseDirectory.value / "webpack" / "dev.webpack.config.js"
       ),
-      webpackConfigFile in fullOptJS := Some(
+      fullOptJS / webpackConfigFile := Some(
         baseDirectory.value / "webpack" / "prod.webpack.config.js"
       ),
-      webpackMonitoredDirectories += (resourceDirectory in Compile).value,
+      webpackMonitoredDirectories += (Compile / resourceDirectory).value,
       webpackResources := (baseDirectory.value / "webpack") * "*.js",
-      includeFilter in webpackMonitoredFiles := "*",
+      Compile / includeFilter := "*",
       useYarn := true,
-      webpackBundlingMode in fastOptJS := BundlingMode.LibraryOnly(),
-      webpackBundlingMode in fullOptJS := BundlingMode.Application,
+      fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(),
+      fullOptJS / webpackBundlingMode := BundlingMode.Application,
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       test := {},
-      libraryDependencies += "com.rpiaggio" %%% "log4cats-loglevel" % "0.2.0",
+      libraryDependencies += "com.rpiaggio" %%% "log4cats-loglevel" % "0.3.0",
       // NPM libs for development, mostly to let webpack do its magic
       Compile / npmDevDependencies ++= Seq(
         "postcss"                       -> "8.1.1",
@@ -87,12 +85,12 @@ lazy val demo =
         "css-minimizer-webpack-plugin"  -> "1.1.5",
         "favicons-webpack-plugin"       -> "4.2.0"
       ),
-      npmDependencies in Compile ++= Seq(
+      Compile / npmDependencies ++= Seq(
         "react"            -> reactJS,
         "react-dom"        -> reactJS,
         "fomantic-ui-less" -> FUILess
       ),
-      skip in publish := true
+      publish / skip := true
     )
     .dependsOn(ui)
 
