@@ -4,6 +4,7 @@
 package lucuma.ui.demo
 
 import cats.effect._
+import cats.effect.std.Dispatcher
 import cats.syntax.all._
 import crystal.ViewF
 import crystal.react._
@@ -43,8 +44,21 @@ import react.semanticui.elements.label.LabelPointing
 
 import scala.scalajs.js.annotation._
 
+case class AppContext[F[_]]()(implicit val dispatcher: Dispatcher[F], val logger: Logger[F])
+
+object AppContext {
+  implicit val contextReusability: Reusability[AppContext[IO]] = Reusability.never
+
+  implicit def ctx2Dispatcher[F[_]](implicit ctx: AppContext[F]): Dispatcher[F] = ctx.dispatcher
+  implicit def ctx2Logger[F[_]](implicit ctx:     AppContext[F]): Logger[F]     = ctx.logger
+}
+
+object AppCtx extends Ctx[IO, AppContext[IO]]
+
+import AppContext._
+
 final case class FormComponent(root: ViewF[IO, FormComponent.RootModel])(implicit
-  val logger:                        Logger[IO]
+  val ctx:                           AppContext[IO]
 ) extends ReactProps[FormComponent](FormComponent.component)
 
 object FormComponent {
@@ -99,7 +113,7 @@ object FormComponent {
       .builder[Props]
       .initialState(State())
       .render { $ =>
-        implicit val logger = $.props.logger
+        implicit val ctx = $.props.ctx
 
         <.div(^.paddingTop := "20px")(
           s"MODEL: ${$.props.root.get}",
@@ -250,22 +264,12 @@ object FormComponent {
       .build
 }
 
-case class AppContext[F[_]]()(implicit val cs: ContextShift[F])
-
-object AppContext {
-  implicit val contextReusability: Reusability[AppContext[IO]] = Reusability.never
-}
-
-object AppCtx extends Ctx[IO, AppContext[IO]]
-
 trait AppMain extends IOApp {
   import FormComponent._
 
   implicit protected val logger: Logger[IO] = LogLevelLogger.createForRoot[IO]
 
-  protected def rootComponent(
-    view: ViewF[IO, RootModel]
-  ): VdomElement
+  protected def rootComponent(view: ViewF[IO, RootModel])(implicit ctx: AppContext[IO]): VdomElement
 
   @JSExport
   def runIOApp(): Unit = main(Array.empty)
@@ -289,27 +293,33 @@ trait AppMain extends IOApp {
         None
       )
 
-    IO {
-      val container = Option(dom.document.getElementById("root")).getOrElse {
-        val elem = dom.document.createElement("div")
-        elem.id = "root"
-        dom.document.body.appendChild(elem)
-        elem
+    Dispatcher[IO].allocated.map(_._1).flatMap { implicit dispatcher =>
+      IO {
+        val container = Option(dom.document.getElementById("root")).getOrElse {
+          val elem = dom.document.createElement("div")
+          elem.id = "root"
+          dom.document.body.appendChild(elem)
+          elem
+        }
+
+        implicit val ctx = new AppContext[IO]()
+
+        val RootComponent = ContextProvider[IO](AppCtx, ctx)(
+          StateProvider[IO](initialModel)(rootComponent)
+        )
+
+        RootComponent().renderIntoDOM(container)
+
+        ExitCode.Success
       }
-
-      val RootComponent = ContextProvider[IO](AppCtx, new AppContext[IO]())(
-        StateProvider[IO](initialModel)(rootComponent)
-      )
-
-      RootComponent().renderIntoDOM(container)
-
-      ExitCode.Success
     }
   }
 }
 
 @JSExportTopLevel("Demo")
 object Demo extends AppMain {
-  override protected def rootComponent(rootView: ViewF[IO, FormComponent.RootModel]): VdomElement =
+  override protected def rootComponent(rootView: ViewF[IO, FormComponent.RootModel])(implicit
+    ctx:                                         AppContext[IO]
+  ): VdomElement =
     FormComponent(rootView)
 }

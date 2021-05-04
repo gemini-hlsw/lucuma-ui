@@ -3,7 +3,8 @@
 
 package lucuma.ui.forms
 
-import cats.effect.Effect
+import cats.effect.Async
+import cats.effect.std.Dispatcher
 import cats.implicits._
 import crystal.ViewF
 import crystal.ViewOptF
@@ -18,7 +19,7 @@ trait ExternalValue[EV[_]] {
 }
 
 object ExternalValue {
-  implicit def externalValueViewF[F[_]: Effect: Logger]: ExternalValue[ViewF[F, *]] =
+  implicit def externalValueViewF[F[_]: Async: Dispatcher: Logger]: ExternalValue[ViewF[F, *]] =
     new ExternalValue[ViewF[F, *]] {
       override def get[A](ev: ViewF[F, A]): Option[A] = ev.get.some
 
@@ -26,7 +27,8 @@ object ExternalValue {
         ev.set.andThen(_.runAsyncCB)
     }
 
-  implicit def externalValueViewOptF[F[_]: Effect: Logger]: ExternalValue[ViewOptF[F, *]] =
+  implicit def externalValueViewOptF[F[_]: Async: Dispatcher: Logger]
+    : ExternalValue[ViewOptF[F, *]] =
     new ExternalValue[ViewOptF[F, *]] {
       override def get[A](ev: ViewOptF[F, A]): Option[A] = ev.get
 
