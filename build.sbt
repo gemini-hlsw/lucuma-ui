@@ -6,7 +6,7 @@ lazy val scalaJsReactVersion    = "1.7.7"
 lazy val lucumaCoreVersion      = "0.7.11"
 lazy val monocleVersion         = "2.1.0"
 lazy val crystalVersion         = "0.12.1"
-lazy val catsVersion            = "2.6.0"
+lazy val catsVersion            = "2.6.1"
 lazy val mouseVersion           = "1.0.2"
 lazy val reactCommonVersion     = "0.11.3"
 lazy val reactSemanticUIVersion = "0.10.6"
@@ -114,8 +114,8 @@ lazy val ui =
         "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
         "org.typelevel"                     %%% "mouse"               % mouseVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
-        "org.scalameta"                     %%% "munit"               % "0.7.25"          % Test,
-        "org.typelevel"                     %%% "discipline-munit"    % "1.0.9"           % Test
+        "org.scalameta"                     %%% "munit"               % "0.7.26"          % Test,
+        "org.typelevel"                     %%% "discipline-munit"    % "1.0.8"           % Test
       ),
       addCompilerPlugin(
         ("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)
