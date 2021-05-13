@@ -10,7 +10,7 @@ lazy val catsVersion            = "2.6.0"
 lazy val mouseVersion           = "1.0.2"
 lazy val reactCommonVersion     = "0.11.3"
 lazy val reactSemanticUIVersion = "0.10.6"
-lazy val kindProjectorVersion   = "0.11.3"
+lazy val kindProjectorVersion   = "0.12.0"
 lazy val singletonOpsVersion    = "0.5.2"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
