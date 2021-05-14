@@ -122,8 +122,7 @@ final case class EnumViewOptionalSelect[F[_], A](
 
   override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
     ddp.value.toOption
-      .flatMap(v => enum.fromTag(v.asInstanceOf[String]))
-      .map(v => value.set(Some(v)).runAsyncCB)
+      .map(v => value.set(enum.fromTag(v.asInstanceOf[String])).runAsyncCB)
       .getOrEmpty
 
   // sets the value of the underlying select from the ViewF[F, B]

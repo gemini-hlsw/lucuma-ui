@@ -210,7 +210,7 @@ object EnumViewSelectBase {
           p.tpe,
           p.trigger,
           p.upward,
-          value = p.getter,
+          value = p.getter.getOrElse(null),
           p.width,
           p.wrapSelection,
           p.modifiers :+ (^.id := p.id)
