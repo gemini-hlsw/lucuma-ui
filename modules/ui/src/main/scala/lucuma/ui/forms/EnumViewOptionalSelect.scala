@@ -3,8 +3,8 @@
 
 package lucuma.ui.forms
 
-import cats.effect.Async
-import cats.effect.std.Dispatcher
+import cats.effect.SyncIO
+import cats.syntax.all._
 import crystal.ViewF
 import crystal.react.implicits._
 import japgolly.scalajs.react._
@@ -30,9 +30,9 @@ import scalajs.js.|
  * Produces a dropdown menu, similar to a combobox, for which the
  * value is optional.
  */
-final case class EnumViewOptionalSelect[F[_], A](
+final case class EnumViewOptionalSelect[A](
   id:                   String,
-  value:                ViewF[F, Option[A]],
+  value:                ViewF[SyncIO, Option[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
@@ -106,24 +106,22 @@ final case class EnumViewOptionalSelect[F[_], A](
 )(implicit
   val enum:             Enumerated[A],
   val display:          Display[A],
-  val F:                Async[F],
-  val dispatcher:       Dispatcher[F],
-  val logger:           Logger[F]
+  val logger:           Logger[SyncIO]
 ) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
     with EnumViewSelectBase {
 
   type AA    = A
   type GG[X] = Option[X]
-  type FF[X] = F[X]
+  type FF[X] = SyncIO[X]
 
   override val multiple = false
 
-  def withMods(mods: TagMod*): EnumViewOptionalSelect[F, A] = copy(modifiers = modifiers ++ mods)
+  def withMods(mods: TagMod*): EnumViewOptionalSelect[A] = copy(modifiers = modifiers ++ mods)
 
   override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
     ddp.value.toOption
-      .map(v => value.set(enum.fromTag(v.asInstanceOf[String])).runAsyncCB)
-      .getOrEmpty
+      .map(v => value.set(enum.fromTag(v.asInstanceOf[String])))
+      .orEmpty
 
   // sets the value of the underlying select from the ViewF[F, B]
   override def getter = value.get.map(i => enum.tag(i)).orUndefined

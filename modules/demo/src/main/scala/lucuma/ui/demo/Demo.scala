@@ -4,10 +4,10 @@
 package lucuma.ui.demo
 
 import cats.effect._
-import cats.effect.std.Dispatcher
 import cats.syntax.all._
 import crystal.ViewF
 import crystal.react._
+import crystal.react.reuse._
 import crystal.react.implicits._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.auto._
@@ -44,22 +44,8 @@ import react.semanticui.elements.label.LabelPointing
 
 import scala.scalajs.js.annotation._
 
-case class AppContext[F[_]]()(implicit val dispatcher: Dispatcher[F], val logger: Logger[F])
-
-object AppContext {
-  implicit val contextReusability: Reusability[AppContext[IO]] = Reusability.never
-
-  implicit def ctx2Dispatcher[F[_]](implicit ctx: AppContext[F]): Dispatcher[F] = ctx.dispatcher
-  implicit def ctx2Logger[F[_]](implicit ctx:     AppContext[F]): Logger[F]     = ctx.logger
-}
-
-object AppCtx extends Ctx[IO, AppContext[IO]]
-
-import AppContext._
-
-final case class FormComponent(root: ViewF[IO, FormComponent.RootModel])(implicit
-  val ctx:                           AppContext[IO]
-) extends ReactProps[FormComponent](FormComponent.component)
+final case class FormComponent(root: ViewF[SyncIO, FormComponent.RootModel])
+    extends ReactProps[FormComponent](FormComponent.component)
 
 object FormComponent {
   type Props = FormComponent
@@ -113,8 +99,6 @@ object FormComponent {
       .builder[Props]
       .initialState(State())
       .render { $ =>
-        implicit val ctx = $.props.ctx
-
         <.div(^.paddingTop := "20px")(
           s"MODEL: ${$.props.root.get}",
           <.br,
@@ -264,17 +248,17 @@ object FormComponent {
       .build
 }
 
-trait AppMain extends IOApp {
+trait AppMain extends IOApp.Simple {
   import FormComponent._
 
   implicit protected val logger: Logger[IO] = LogLevelLogger.createForRoot[IO]
 
-  protected def rootComponent(view: ViewF[IO, RootModel])(implicit ctx: AppContext[IO]): VdomElement
+  protected def rootComponent(view: ViewF[SyncIO, RootModel]): VdomElement
 
   @JSExport
   def runIOApp(): Unit = main(Array.empty)
 
-  override final def run(args: List[String]): IO[ExitCode] = {
+  override final def run: IO[Unit] = IO {
     ReusabilityOverlay.overrideGloballyInDev()
 
     val initialModel =
@@ -293,33 +277,25 @@ trait AppMain extends IOApp {
         None
       )
 
-    Dispatcher[IO].allocated.map(_._1).flatMap { implicit dispatcher =>
-      IO {
-        val container = Option(dom.document.getElementById("root")).getOrElse {
-          val elem = dom.document.createElement("div")
-          elem.id = "root"
-          dom.document.body.appendChild(elem)
-          elem
-        }
-
-        implicit val ctx = new AppContext[IO]()
-
-        val RootComponent = ContextProvider[IO](AppCtx, ctx)(
-          StateProvider[IO](initialModel)(rootComponent)
-        )
-
-        RootComponent().renderIntoDOM(container)
-
-        ExitCode.Success
-      }
+    val container = Option(dom.document.getElementById("root")).getOrElse {
+      val elem = dom.document.createElement("div")
+      elem.id = "root"
+      dom.document.body.appendChild(elem)
+      elem
     }
+
+    val StateProvider = StateProviderSyncIO(initialModel)
+
+    (StateProvider((rootComponent _).reuseAlways)).renderIntoDOM(container)
+
+    ()
   }
 }
 
 @JSExportTopLevel("Demo")
 object Demo extends AppMain {
-  override protected def rootComponent(rootView: ViewF[IO, FormComponent.RootModel])(implicit
-    ctx:                                         AppContext[IO]
+  override protected def rootComponent(
+    rootView: ViewF[SyncIO, FormComponent.RootModel]
   ): VdomElement =
     FormComponent(rootView)
 }
