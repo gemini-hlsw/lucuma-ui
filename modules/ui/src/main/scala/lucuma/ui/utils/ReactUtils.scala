@@ -3,25 +3,21 @@
 
 package lucuma.ui.utils
 
-import cats.effect.Async
-import cats.effect.std.Dispatcher
+import cats.effect.SyncIO
 import crystal.react.implicits._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.ReactMouseEvent
-import org.typelevel.log4cats.Logger
 
 trait ReactUtils {
-  def linkOverride[F[_]: Async: Dispatcher: Logger](f: => F[Unit]): ReactMouseEvent => Callback =
+  def linkOverride(f: => SyncIO[Unit]): ReactMouseEvent => Callback =
     e => {
-      val forward = linkOverride[F, Unit](f)
+      val forward = linkOverride[Unit](f)
       forward(e, ())
     }
 
-  def linkOverride[F[_]: Async: Dispatcher: Logger, A](
-    f: => F[Unit]
-  ): (ReactMouseEvent, A) => Callback =
+  def linkOverride[A](f: => SyncIO[Unit]): (ReactMouseEvent, A) => Callback =
     (e: ReactMouseEvent, _: A) => {
-      (e.preventDefaultCB *> f.runAsyncCB)
+      (e.preventDefaultCB *> f)
         .unless_(e.ctrlKey || e.metaKey)
     }
 }
