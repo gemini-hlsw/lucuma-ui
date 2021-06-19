@@ -9,7 +9,7 @@ lazy val crystalVersion         = "0.15.0"
 lazy val catsVersion            = "2.6.1"
 lazy val mouseVersion           = "1.0.3"
 lazy val reactCommonVersion     = "0.11.3"
-lazy val reactSemanticUIVersion = "0.10.6"
+lazy val reactSemanticUIVersion = "0.10.7"
 lazy val kindProjectorVersion   = "0.13.0"
 lazy val singletonOpsVersion    = "0.5.2"
 
