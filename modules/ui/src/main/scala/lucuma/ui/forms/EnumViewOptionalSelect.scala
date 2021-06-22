@@ -12,7 +12,6 @@ import japgolly.scalajs.react.raw.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
-import org.typelevel.log4cats.Logger
 import react.common.ReactProps
 import react.common._
 import react.semanticui._
@@ -105,8 +104,7 @@ final case class EnumViewOptionalSelect[A](
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
   val enum:             Enumerated[A],
-  val display:          Display[A],
-  val logger:           Logger[SyncIO]
+  val display:          Display[A]
 ) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
     with EnumViewSelectBase {
 
