@@ -20,7 +20,6 @@ import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^._
-import log4cats.loglevel.LogLevelLogger
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
@@ -36,7 +35,6 @@ import lucuma.ui.refined._
 import lucuma.ui.reusability._
 import monocle.macros.Lenses
 import org.scalajs.dom
-import org.typelevel.log4cats.Logger
 import react.common.ReactProps
 import react.common.style.Css
 import react.semanticui.collections.form.Form
@@ -250,8 +248,6 @@ object FormComponent {
 
 trait AppMain extends IOApp.Simple {
   import FormComponent._
-
-  implicit protected val logger: Logger[IO] = LogLevelLogger.createForRoot[IO]
 
   protected def rootComponent(view: ViewF[SyncIO, RootModel]): VdomElement
 
