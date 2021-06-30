@@ -4,12 +4,12 @@
 package lucuma.ui.optics.laws
 
 import cats.Eq
-import cats.syntax.all._
-import lucuma.core.optics.laws._
-import lucuma.ui.optics.ValidFormat
 import cats.data.Validated
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
+import cats.syntax.all._
+import lucuma.core.optics.laws._
+import lucuma.ui.optics.ValidFormat
 
 final case class ValidFormatChecks[E, T, A](validate: ValidFormat[E, T, A]) {
 

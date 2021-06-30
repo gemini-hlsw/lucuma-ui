@@ -4,12 +4,12 @@
 package lucuma.ui.optics.arb
 
 import eu.timepit.refined.api.Refined
+import eu.timepit.refined.numeric.Interval
 import eu.timepit.refined.scalacheck._
 import eu.timepit.refined.scalacheck.numeric.intervalClosedArbitrary
-import eu.timepit.refined.numeric.Interval
 import lucuma.ui.optics.TruncatedRefinedBigDecimal
-import org.scalacheck._
 import org.scalacheck.Arbitrary._
+import org.scalacheck._
 
 trait ArbTruncatedRefinedBigDecimal {
   val OneBD   = BigDecimal(1.0)

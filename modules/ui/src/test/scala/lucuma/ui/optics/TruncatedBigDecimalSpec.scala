@@ -6,8 +6,8 @@ package lucuma.ui.optics
 import cats.kernel.laws.discipline.EqTests
 import lucuma.core.optics.laws.discipline.SplitEpiTests
 import lucuma.ui.optics.arb._
-import org.scalacheck.Arbitrary._
 import munit.DisciplineSuite
+import org.scalacheck.Arbitrary._
 
 class TruncatedBigDecimalSpec extends DisciplineSuite {
   import ArbTruncatedBigDecimal._

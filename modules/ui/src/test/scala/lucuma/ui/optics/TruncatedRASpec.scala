@@ -7,8 +7,8 @@ import cats.kernel.laws.discipline.EqTests
 import lucuma.core.math.arb._
 import lucuma.core.optics.laws.discipline.SplitEpiTests
 import lucuma.ui.optics.arb._
-import org.scalacheck.Arbitrary._
 import munit.DisciplineSuite
+import org.scalacheck.Arbitrary._
 
 class TruncatedRASpec extends DisciplineSuite {
   import ArbRightAscension._

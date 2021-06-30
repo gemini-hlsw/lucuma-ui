@@ -14,6 +14,12 @@ lazy val kindProjectorVersion   = "0.13.0"
 lazy val singletonOpsVersion    = "0.5.2"
 
 Global / onChangedBuildSource := ReloadOnSourceChanges
+ThisBuild / ScalafixConfig / bspEnabled := false
+
+addCommandAlias(
+  "fixImports",
+  "; scalafix OrganizeImports; Test/scalafix OrganizeImports; scalafmtAll"
+)
 
 inThisBuild(
   Seq(

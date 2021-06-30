@@ -4,18 +4,18 @@
 package lucuma.ui.optics
 
 import cats.syntax.all._
-import munit.DisciplineSuite
-import lucuma.core.math.Epoch
-import lucuma.core.math.arb.ArbEpoch._
-import lucuma.ui.optics.arb._
-import lucuma.ui.optics.ValidFormatInput
-import lucuma.ui.optics.laws.discipline.ValidFormatTests
-import lucuma.ui.refined._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.scalacheck.all._
-import org.scalacheck.Gen
+import lucuma.core.math.Epoch
+import lucuma.core.math.arb.ArbEpoch._
+import lucuma.ui.optics.ValidFormatInput
+import lucuma.ui.optics.arb._
+import lucuma.ui.optics.laws.discipline.ValidFormatTests
+import lucuma.ui.refined._
+import munit.DisciplineSuite
 import org.scalacheck.Arbitrary
+import org.scalacheck.Gen
 
 final class ValidFormatInputInstancesSpec extends DisciplineSuite {
   import ArbTruncatedBigDecimal._

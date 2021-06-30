@@ -4,8 +4,8 @@
 package lucuma.ui.optics.arb
 
 import lucuma.ui.optics.TruncatedBigDecimal
-import org.scalacheck._
 import org.scalacheck.Arbitrary._
+import org.scalacheck._
 
 trait ArbTruncatedBigDecimal {
 

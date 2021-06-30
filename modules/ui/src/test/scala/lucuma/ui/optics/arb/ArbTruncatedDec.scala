@@ -3,11 +3,11 @@
 
 package lucuma.ui.optics.arb
 
-import lucuma.core.math.arb._
 import lucuma.core.math.Declination
+import lucuma.core.math.arb._
 import lucuma.ui.optics.TruncatedDec
-import org.scalacheck._
 import org.scalacheck.Arbitrary._
+import org.scalacheck._
 
 trait ArbTruncatedDec {
   import ArbDeclination._

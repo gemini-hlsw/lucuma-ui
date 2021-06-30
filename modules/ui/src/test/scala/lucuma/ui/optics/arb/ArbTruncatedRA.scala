@@ -3,11 +3,11 @@
 
 package lucuma.ui.optics.arb
 
-import lucuma.core.math.arb._
 import lucuma.core.math.RightAscension
+import lucuma.core.math.arb._
 import lucuma.ui.optics.TruncatedRA
-import org.scalacheck._
 import org.scalacheck.Arbitrary._
+import org.scalacheck._
 
 trait ArbTruncatedRA {
   import ArbRightAscension._
