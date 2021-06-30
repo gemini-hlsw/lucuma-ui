@@ -7,8 +7,8 @@ import cats.Order
 import cats.data.NonEmptyChain
 import cats.data.ValidatedNec
 import cats.syntax.all._
-import eu.timepit.refined.types.string.NonEmptyString
 import eu.timepit.refined.auto._
+import eu.timepit.refined.types.string.NonEmptyString
 
 trait ValidFormatNecInstances {
 

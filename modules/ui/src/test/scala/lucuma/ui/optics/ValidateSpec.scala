@@ -3,14 +3,14 @@
 
 package lucuma.ui.optics
 
-import cats.syntax.all._
-import munit.DisciplineSuite
-import lucuma.ui.optics.laws.discipline.ValidFormatTests
-import org.scalacheck.Prop._
-import cats.data.Validated
 import cats.data.NonEmptyChain
+import cats.data.Validated
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
+import cats.syntax.all._
+import lucuma.ui.optics.laws.discipline.ValidFormatTests
+import munit.DisciplineSuite
+import org.scalacheck.Prop._
 
 final class ValidateSpec extends DisciplineSuite {
 

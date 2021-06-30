@@ -5,8 +5,9 @@ package lucuma.ui.optics
 
 import cats.Eq
 import lucuma.core.optics.SplitEpi
-import scala.annotation.unused
 import singleton.ops._
+
+import scala.annotation.unused
 
 /**
  * A wrapper around a BigDecimal that is limited to a specified

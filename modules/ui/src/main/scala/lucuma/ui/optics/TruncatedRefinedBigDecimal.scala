@@ -4,13 +4,14 @@
 package lucuma.ui.optics
 
 import cats.Order
-import eu.timepit.refined.refineV
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{ Validate => RefinedValidate }
 import eu.timepit.refined.cats._
+import eu.timepit.refined.refineV
 import lucuma.core.optics.SplitEpi
-import scala.annotation.unused
 import singleton.ops._
+
+import scala.annotation.unused
 
 /**
  * A wrapper around a Refined BigDecimal that is limited to a specified

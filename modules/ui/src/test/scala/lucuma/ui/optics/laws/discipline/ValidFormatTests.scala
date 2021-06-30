@@ -5,12 +5,12 @@ package lucuma.ui.optics.laws
 package discipline
 
 import cats.Eq
+import cats.laws.discipline._
 import lucuma.ui.optics.ValidFormat
 import org.scalacheck.Arbitrary
 import org.scalacheck.Gen
 import org.scalacheck.Prop._
 import org.typelevel.discipline.Laws
-import cats.laws.discipline._
 
 trait ValidFormatTests[E, T, A] extends Laws {
   val validFormatChecks: ValidFormatChecks[E, T, A]

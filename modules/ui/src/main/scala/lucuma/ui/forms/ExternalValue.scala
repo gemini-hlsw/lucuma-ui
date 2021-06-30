@@ -4,6 +4,7 @@
 package lucuma.ui.forms
 
 import cats.effect.Async
+import cats.effect.SyncIO
 import cats.effect.std.Dispatcher
 import cats.implicits._
 import crystal.ViewF
@@ -12,7 +13,6 @@ import crystal.react.implicits._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.extra.StateSnapshot
 import org.typelevel.log4cats.Logger
-import cats.effect.SyncIO
 
 trait ExternalValue[EV[_]] {
   def get[A](ev: EV[A]): Option[A]
