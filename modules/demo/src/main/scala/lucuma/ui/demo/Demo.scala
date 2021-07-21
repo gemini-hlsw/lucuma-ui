@@ -33,7 +33,7 @@ import lucuma.ui.optics.TruncatedRefinedBigDecimal
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.refined._
 import lucuma.ui.reusability._
-import monocle.macros.Lenses
+import monocle.Focus
 import org.scalajs.dom
 import react.common.ReactProps
 import react.common.style.Css
@@ -48,7 +48,6 @@ final case class FormComponent(root: ViewF[SyncIO, FormComponent.RootModel])
 object FormComponent {
   type Props = FormComponent
 
-  @Lenses
   case class State(
     valid1:        Boolean = true,
     valid2:        Boolean = true,
@@ -63,13 +62,26 @@ object FormComponent {
     epoch:         Boolean = true,
     optionalEpoch: Boolean = true
   )
+  object State {
+    val valid1        = Focus[State](_.valid1)
+    val valid2        = Focus[State](_.valid2)
+    val forcedUpper   = Focus[State](_.forcedUpper)
+    val validJaI      = Focus[State](_.validJaI)
+    val refinedInt    = Focus[State](_.refinedInt)
+    val refinedOdd    = Focus[State](_.refinedOdd)
+    val bigDecimal    = Focus[State](_.bigDecimal)
+    val refinedBigDec = Focus[State](_.refinedBigDec)
+    val ra            = Focus[State](_.ra)
+    val dec           = Focus[State](_.dec)
+    val epoch         = Focus[State](_.epoch)
+    val optionalEpoch = Focus[State](_.optionalEpoch)
+  }
 
   val OneBD   = BigDecimal(1.0)
   val ThreeBD = BigDecimal(3.0)
   type OneToThree = Interval.Closed[OneBD.type, ThreeBD.type]
   type ZeroTo2048 = Interval.Closed[0, 2048]
 
-  @Lenses
   final case class RootModel(
     field1:        UpperNES,
     field2:        String,
@@ -87,6 +99,19 @@ object FormComponent {
 
   object RootModel {
     implicit val modelReusability: Reusability[RootModel] = Reusability.by_==[RootModel]
+
+    val field1        = Focus[RootModel](_.field1)
+    val field2        = Focus[RootModel](_.field2)
+    val forcedUpper   = Focus[RootModel](_.forcedUpper)
+    val justAnInt     = Focus[RootModel](_.justAnInt)
+    val refinedInt    = Focus[RootModel](_.refinedInt)
+    val refinedOdd    = Focus[RootModel](_.refinedOdd)
+    val bigDecimal    = Focus[RootModel](_.bigDecimal)
+    val refinedBigDec = Focus[RootModel](_.refinedBigDec)
+    val ra            = Focus[RootModel](_.ra)
+    val dec           = Focus[RootModel](_.dec)
+    val epoch         = Focus[RootModel](_.epoch)
+    val optionalEpoch = Focus[RootModel](_.optionalEpoch)
   }
 
   implicit val propsReuse = Reusability.derive[Props]

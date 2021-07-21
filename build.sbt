@@ -3,8 +3,8 @@ import sbt._
 lazy val reactJS                = "17.0.2"
 lazy val FUILess                = "2.8.7"
 lazy val scalaJsReactVersion    = "2.0.0-RC2"
-lazy val lucumaCoreVersion      = "0.10.1"
-lazy val monocleVersion         = "2.1.0"
+lazy val lucumaCoreVersion      = "0.11.0"
+lazy val monocleVersion         = "3.0.0"
 lazy val crystalVersion         = "0.15.2"
 lazy val catsVersion            = "2.6.1"
 lazy val mouseVersion           = "1.0.4"
@@ -110,13 +110,14 @@ lazy val ui =
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"           % catsVersion,
         "com.github.japgolly.scalajs-react" %%% "core"                % scalaJsReactVersion,
-        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle2"  % scalaJsReactVersion,
+        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"  % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
         "eu.timepit"                        %%% "singleton-ops"       % singletonOpsVersion,
         "io.github.cquiroz.react"           %%% "common"              % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "cats"                % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "react-semantic-ui"   % reactSemanticUIVersion,
-        "com.github.julien-truffaut"        %%% "monocle-core"        % monocleVersion,
+        "dev.optics"                        %%% "monocle-core"        % monocleVersion,
+        "dev.optics"                        %%% "monocle-macro"       % monocleVersion,
         "com.rpiaggio"                      %%% "crystal"             % crystalVersion,
         "org.typelevel"                     %%% "mouse"               % mouseVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,

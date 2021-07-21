@@ -10,8 +10,8 @@ import cats.kernel.instances.sortedMap._
 import coulomb.Quantity
 import eu.timepit.refined.api.RefType
 import io.circe.Json
-import japgolly.scalajs.react.ReactCats._
 import japgolly.scalajs.react.Key
+import japgolly.scalajs.react.ReactCats._
 import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.facade.JsNumber
 import lucuma.core.data.EnumZipper

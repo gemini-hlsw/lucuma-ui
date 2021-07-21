@@ -42,42 +42,30 @@ abstract class ValidFormat[E, T, A] extends Serializable { self =>
     }
 
   /** Compose with another Validate. */
-  def composeValidFormat[B](f: ValidFormat[E, A, B]): ValidFormat[E, T, B] =
+  def andThen[B](f: ValidFormat[E, A, B]): ValidFormat[E, T, B] =
     ValidFormat[E, T, B](
       getValidated(_).fold(_.invalid, f.getValidated),
       reverseGet.compose(f.reverseGet)
     )
 
   /** Compose with a Format. */
-  def composeFormat[B](f: Format[A, B], error: E): ValidFormat[E, T, B] =
-    composeValidFormat(ValidFormat.fromFormat(f, error))
+  def andThen[B](f: Format[A, B], error: E): ValidFormat[E, T, B] =
+    andThen(ValidFormat.fromFormat(f, error))
 
   /** Compose with a Prism. */
-  def composePrism[B](f: Prism[A, B], error: E): ValidFormat[E, T, B] =
-    composeValidFormat(ValidFormat.fromPrism(f, error))
+  def andThen[B](f: Prism[A, B], error: E): ValidFormat[E, T, B] =
+    andThen(ValidFormat.fromPrism(f, error))
 
   /** Compose with an Iso. */
-  def composeIso[B](f: Iso[A, B]): ValidFormat[E, T, B] =
+  def andThen[B](f: Iso[A, B]): ValidFormat[E, T, B] =
     ValidFormat[E, T, B](
       getValidated(_).map(f.get),
       reverseGet.compose(f.reverseGet)
     )
 
   /** Compose with a SplitEpi. */
-  def composeSplitEpi[B](f: SplitEpi[A, B], error: E): ValidFormat[E, T, B] =
-    composeValidFormat(ValidFormat.fromFormat(f.asFormat, error))
-
-  // /** Alias to composeFormat. */
-  def ^<-*[B](f: Format[A, B], error: E): ValidFormat[E, T, B] =
-    composeFormat(f, error)
-
-  // /** Alias to composePrism. */
-  def ^<-?[B](f: Prism[A, B], error: E): ValidFormat[E, T, B] =
-    composePrism(f, error)
-
-  // /** Alias to composeIso. */
-  def ^<->[B](f: Iso[A, B]): ValidFormat[E, T, B] =
-    composeIso(f)
+  def andThen[B](f: SplitEpi[A, B], error: E): ValidFormat[E, T, B] =
+    andThen(ValidFormat.fromFormat(f.asFormat, error))
 
   // /** Format is an invariant functor over A. */
   def imapA[B](f: B => A, g: A => B): ValidFormat[E, T, B] =
