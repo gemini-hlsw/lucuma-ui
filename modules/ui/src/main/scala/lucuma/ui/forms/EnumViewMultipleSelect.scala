@@ -7,7 +7,7 @@ import cats.effect.SyncIO
 import crystal.ViewF
 import crystal.react.implicits._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated

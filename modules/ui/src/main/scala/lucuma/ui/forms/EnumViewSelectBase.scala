@@ -6,7 +6,7 @@ package lucuma.ui.forms
 import cats.syntax.all._
 import crystal.ViewF
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.syntax.all._
 import lucuma.core.util.Display

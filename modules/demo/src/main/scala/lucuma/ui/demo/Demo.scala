@@ -14,7 +14,7 @@ import eu.timepit.refined.auto._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.types.string.NonEmptyString
-import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._

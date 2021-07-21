@@ -1,15 +1,15 @@
 import sbt._
 
-lazy val reactJS                = "16.13.1"
+lazy val reactJS                = "17.0.2"
 lazy val FUILess                = "2.8.7"
-lazy val scalaJsReactVersion    = "1.7.7"
+lazy val scalaJsReactVersion    = "2.0.0-RC2"
 lazy val lucumaCoreVersion      = "0.10.1"
 lazy val monocleVersion         = "2.1.0"
-lazy val crystalVersion         = "0.15.1"
+lazy val crystalVersion         = "0.15.2"
 lazy val catsVersion            = "2.6.1"
 lazy val mouseVersion           = "1.0.4"
-lazy val reactCommonVersion     = "0.11.3"
-lazy val reactSemanticUIVersion = "0.10.8"
+lazy val reactCommonVersion     = "0.13.0"
+lazy val reactSemanticUIVersion = "0.11.1"
 lazy val kindProjectorVersion   = "0.13.0"
 lazy val singletonOpsVersion    = "0.5.2"
 
@@ -110,7 +110,7 @@ lazy val ui =
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"           % catsVersion,
         "com.github.japgolly.scalajs-react" %%% "core"                % scalaJsReactVersion,
-        "com.github.japgolly.scalajs-react" %%% "ext-monocle-cats"    % scalaJsReactVersion,
+        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle2"  % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
         "eu.timepit"                        %%% "singleton-ops"       % singletonOpsVersion,
         "io.github.cquiroz.react"           %%% "common"              % reactCommonVersion,
