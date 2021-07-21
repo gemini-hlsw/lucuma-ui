@@ -20,7 +20,8 @@ import lucuma.ui.optics.AuditResult
 import lucuma.ui.optics.ChangeAuditor
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.reusability._
-import monocle.macros.Lenses
+import monocle.Focus
+import monocle.Lens
 import org.scalajs.dom.document
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html
@@ -91,8 +92,7 @@ object FormInputEV {
   type Props[EV[_], A]   = FormInputEV[EV, A]
   type ChangeCallback[A] = A => Callback
 
-  @Lenses
-  final case class State(
+  final protected case class State(
     displayValue: String,
     modelValue:   String,
     cursor:       Option[(Int, Int)],
@@ -100,6 +100,14 @@ object FormInputEV {
     inputElement: Option[html.Input],
     errors:       Option[NonEmptyChain[NonEmptyString]]
   )
+  protected object State {
+    val displayValue: Lens[State, String]                          = Focus[State](_.displayValue)
+    val modelValue: Lens[State, String]                            = Focus[State](_.modelValue)
+    val cursor: Lens[State, Option[(Int, Int)]]                    = Focus[State](_.cursor)
+    val lastKeyCode: Lens[State, Int]                              = Focus[State](_.lastKeyCode)
+    val inputElement: Lens[State, Option[html.Input]]              = Focus[State](_.inputElement)
+    val errors: Lens[State, Option[NonEmptyChain[NonEmptyString]]] = Focus[State](_.errors)
+  }
 
   implicit val neChainReuse: Reusability[NonEmptyChain[NonEmptyString]] = Reusability.byEq
   implicit val stateReuse: Reusability[State]                           = Reusability.by(s => (s.displayValue, s.errors))

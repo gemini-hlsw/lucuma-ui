@@ -5,13 +5,14 @@ package lucuma.ui.forms
 
 import cats.syntax.all._
 import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.ReactEventFromInput
+import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.optics.InputFormat
-import monocle.macros.Lenses
+import monocle.Focus
+import monocle.Lens
 import react.common.ReactProps
 
 /**
@@ -43,8 +44,11 @@ object InputEV {
   type ChangeCallback[A] = A => Callback
   type Scope[EV[_], A]   = RenderScope[Props[EV, A], State, Unit]
 
-  @Lenses
-  final case class State(curValue: Option[String], prevValue: String)
+  final protected case class State(curValue: Option[String], prevValue: String)
+  protected object State {
+    val curValue: Lens[State, Option[String]] = Focus[State](_.curValue)
+    val prevValue: Lens[State, String]        = Focus[State](_.prevValue)
+  }
 
   sealed trait InputType    extends Product with Serializable
   case object TextInput     extends InputType
