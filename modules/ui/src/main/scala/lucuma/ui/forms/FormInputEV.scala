@@ -11,10 +11,10 @@ import cats.data.ValidatedNec
 import cats.syntax.all._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
-import japgolly.scalajs.react.CatsReact._
-import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.ReactCats._
+import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.optics.AuditResult
 import lucuma.ui.optics.ChangeAuditor
@@ -120,7 +120,7 @@ object FormInputEV {
       Option(document.querySelector(s"#${id.value}").asInstanceOf[html.Input])
 
     def getInputFromState: CallbackOption[html.Input] =
-      CallbackOption($.state.map(_.inputElement))
+      $.state.map(_.inputElement).asCBO
 
     def getCursor: CallbackTo[Option[(Int, Int)]] =
       getInputFromState.map(i => (i.selectionStart, i.selectionEnd)).asCallback

@@ -5,7 +5,7 @@ package lucuma.ui.forms
 
 import cats.syntax.all._
 import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.MonocleReact._
+import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.ReactEventFromInput
 import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope

@@ -10,10 +10,10 @@ import cats.kernel.instances.sortedMap._
 import coulomb.Quantity
 import eu.timepit.refined.api.RefType
 import io.circe.Json
-import japgolly.scalajs.react.CatsReact._
+import japgolly.scalajs.react.ReactCats._
 import japgolly.scalajs.react.Key
 import japgolly.scalajs.react.Reusability
-import japgolly.scalajs.react.raw.JsNumber
+import japgolly.scalajs.react.facade.JsNumber
 import lucuma.core.data.EnumZipper
 import lucuma.core.math._
 import lucuma.core.model._
