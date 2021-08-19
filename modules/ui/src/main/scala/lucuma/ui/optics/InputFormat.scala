@@ -8,8 +8,8 @@ import monocle.Iso
 import monocle.Prism
 
 /**
- * Convenience constructors for Prism to convert from A to String and optionally viceversa
- * It is meant to be used for Input widgets targeting some A
+ * Convenience constructors for Prism to convert from A to String and optionally viceversa It is
+ * meant to be used for Input widgets targeting some A
  */
 object InputFormat {
   val id: InputFormat[String] = fromIso(Iso.id[String])
