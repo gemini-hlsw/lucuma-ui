@@ -18,7 +18,8 @@ import mouse.all._
 import singleton.ops._
 
 /**
- * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[String]` and `T = String`.
+ * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[String]` and `T =
+ * String`.
  */
 object ValidFormatInput extends ValidFormatInputInstances {
 

@@ -82,15 +82,15 @@ object InputEV {
         val p = b.props
         val s = b.state
         <.input(
-          ^.`type` := (p.inputType match {
+          ^.`type`      := (p.inputType match {
             case TextInput     => "text"
             case PasswordInput => "password"
           }),
           ^.placeholder := p.placeholder,
-          ^.name := p.name,
-          ^.id := p.id,
-          ^.value := s.curValue.orEmpty,
-          ^.disabled := p.disabled,
+          ^.name        := p.name,
+          ^.id          := p.id,
+          ^.value       := s.curValue.orEmpty,
+          ^.disabled    := p.disabled,
           ^.onChange ==> onTextChange(b),
           ^.onBlur --> onBlur(b, p.onBlurC)
         )

@@ -14,16 +14,17 @@ import singleton.ops._
 import scala.annotation.unused
 
 /**
- * A wrapper around a Refined BigDecimal that is limited to a specified
- * number of decimals places.
+ * A wrapper around a Refined BigDecimal that is limited to a specified number of decimals places.
  *
- * The P type parameter is the refinement.
- * The Dec type parameter must be a Singleton Int > 0 and < 10, which is enforced
- *    by the compiler.
+ * The P type parameter is the refinement. The Dec type parameter must be a Singleton Int > 0 and <
+ * 10, which is enforced by the compiler.
  *
- * @param value The refined BigDecimal. It is guaranteed to have a scale of no more than Dec.
- * @param req Requirement that 0 < Dec < 10
- * @param vo Evidence that Dec is a Singleton type.
+ * @param value
+ *   The refined BigDecimal. It is guaranteed to have a scale of no more than Dec.
+ * @param req
+ *   Requirement that 0 < Dec < 10
+ * @param vo
+ *   Evidence that Dec is a Singleton type.
  */
 sealed abstract case class TruncatedRefinedBigDecimal[P, Dec <: XInt] private (
   value:                BigDecimal Refined P
@@ -45,20 +46,17 @@ object TruncatedRefinedBigDecimal {
   /**
    * Gets a SplitEpi for the TruncatedRefinedBigDecimal.
    *
-   * This is unsafe under some occassions. For instance, say P is
-   * Interval.Closed[1.23, 7.28] and 1 decimal place is specified
-   * via Dec. If the input value to get() is 1.23, it will get rounded
-   * down to 1.2, which is invalid and an exception is thrown. Since
-   * we are rounding up, an imput value of 7.28 will be rounded up
-   * to 7.3, which is also invalid (using FLOOR would be safe for the
-   * upper bound, but not the lower bound.).
+   * This is unsafe under some occassions. For instance, say P is Interval.Closed[1.23, 7.28] and 1
+   * decimal place is specified via Dec. If the input value to get() is 1.23, it will get rounded
+   * down to 1.2, which is invalid and an exception is thrown. Since we are rounding up, an imput
+   * value of 7.28 will be rounded up to 7.3, which is also invalid (using FLOOR would be safe for
+   * the upper bound, but not the lower bound.).
    *
-   * In general, you have to specify at least as many decimals for the
-   * rounding as the scale implicitly specified in the Interval bounds.
-   * For this example, Dec would need to be set to at least 2.
+   * In general, you have to specify at least as many decimals for the rounding as the scale
+   * implicitly specified in the Interval bounds. For this example, Dec would need to be set to at
+   * least 2.
    *
-   * Non Interval refinements can also be problematic, so use this with
-   * caution.
+   * Non Interval refinements can also be problematic, so use this with caution.
    */
   def unsafeRefinedBigDecimal[P, Dec <: XInt](implicit
     v:           RefinedValidate[BigDecimal, P],
