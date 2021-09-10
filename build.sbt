@@ -13,7 +13,7 @@ lazy val reactSemanticUIVersion = "0.11.1"
 lazy val kindProjectorVersion   = "0.13.2"
 lazy val singletonOpsVersion    = "0.5.2"
 
-Global / onChangedBuildSource := ReloadOnSourceChanges
+Global / onChangedBuildSource           := ReloadOnSourceChanges
 ThisBuild / ScalafixConfig / bspEnabled := false
 
 addCommandAlias(
@@ -23,8 +23,8 @@ addCommandAlias(
 
 inThisBuild(
   Seq(
-    homepage := Some(url("https://github.com/gemini-hlsw/lucuma-ui")),
-    scmInfo := Some(
+    homepage                 := Some(url("https://github.com/gemini-hlsw/lucuma-ui")),
+    scmInfo                  := Some(
       ScmInfo(
         url("https://github.com/gemini-hlsw/lucuma-ui"),
         "scm:git:git@github.com:gemini-hlsw/lucuma-ui.git"
@@ -33,7 +33,7 @@ inThisBuild(
     scalacOptions ++= Seq(
       "-Ymacro-annotations"
     ),
-    turbo := true,
+    turbo                    := true,
     Test / parallelExecution := false
   ) ++ lucumaPublishSettings
 )
@@ -50,23 +50,23 @@ lazy val demo =
     .in(file("modules/demo"))
     .enablePlugins(ScalaJSBundlerPlugin)
     .settings(
-      webpack / version := "4.44.1",
-      startWebpackDevServer / version := "3.11.0",
-      fastOptJS / webpackConfigFile := Some(
+      webpack / version                      := "4.44.1",
+      startWebpackDevServer / version        := "3.11.0",
+      fastOptJS / webpackConfigFile          := Some(
         baseDirectory.value / "webpack" / "dev.webpack.config.js"
       ),
-      fullOptJS / webpackConfigFile := Some(
+      fullOptJS / webpackConfigFile          := Some(
         baseDirectory.value / "webpack" / "prod.webpack.config.js"
       ),
       webpackMonitoredDirectories += (Compile / resourceDirectory).value,
-      webpackResources := (baseDirectory.value / "webpack") * "*.js",
-      Compile / includeFilter := "*",
-      useYarn := true,
-      fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(),
-      fullOptJS / webpackBundlingMode := BundlingMode.Application,
+      webpackResources                       := (baseDirectory.value / "webpack") * "*.js",
+      Compile / includeFilter                := "*",
+      useYarn                                := true,
+      fastOptJS / webpackBundlingMode        := BundlingMode.LibraryOnly(),
+      fullOptJS / webpackBundlingMode        := BundlingMode.Application,
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      test := {},
+      test                                   := {},
       libraryDependencies += "com.rpiaggio" %%% "log4cats-loglevel" % "0.3.0",
       // NPM libs for development, mostly to let webpack do its magic
       Compile / npmDevDependencies ++= Seq(
@@ -96,7 +96,7 @@ lazy val demo =
         "react-dom"        -> reactJS,
         "fomantic-ui-less" -> FUILess
       ),
-      publish / skip := true
+      publish / skip                         := true
     )
     .dependsOn(ui)
 
@@ -106,7 +106,7 @@ lazy val ui =
     .enablePlugins(ScalaJSPlugin)
     .settings(lucumaScalaJsSettings: _*)
     .settings(
-      name := "lucuma-ui",
+      name               := "lucuma-ui",
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"           % catsVersion,
         "com.github.japgolly.scalajs-react" %%% "core"                % scalaJsReactVersion,

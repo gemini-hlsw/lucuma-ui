@@ -33,35 +33,30 @@ object FilterMode {
 final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
 
   /**
-   * Converts a ChangeAuditor[A] into a ChangeAuditor[Option[A]].
-   * It unconditionally allows spaces. This is useful when using
-   * a ChangeAuditor made from a Format, but the model field is optional.
-   * Hint: If you're going to chain this together with another "modifier"
-   * like 'int', you want this one last.
+   * Converts a ChangeAuditor[A] into a ChangeAuditor[Option[A]]. It unconditionally allows spaces.
+   * This is useful when using a ChangeAuditor made from a Format, but the model field is optional.
+   * Hint: If you're going to chain this together with another "modifier" like 'int', you want this
+   * one last.
    */
   def optional: ChangeAuditor[Option[A]] = ChangeAuditor { (s, c) =>
     if (s == "") AuditResult.accept else self.audit(s, c)
   }
 
   /**
-   * Unconditionally allows the field to be empty.
-   * This is useful when using a ChangeAuditor made from a Format,
-   * but you want the user to be able to empty the field while editing,
-   * even if the Format won't accept it. This will often be used
-   * after the ".int" or ".decimal" methods so that a user will be
-   * able to make the field empty while editing, even if the Format
-   * doesn't interpret "" as zero.
-   * Hint: If you're going to chain this together with another "modifier"
-   * like 'int', you probably want this one last.
+   * Unconditionally allows the field to be empty. This is useful when using a ChangeAuditor made
+   * from a Format, but you want the user to be able to empty the field while editing, even if the
+   * Format won't accept it. This will often be used after the ".int" or ".decimal" methods so that
+   * a user will be able to make the field empty while editing, even if the Format doesn't interpret
+   * "" as zero. Hint: If you're going to chain this together with another "modifier" like 'int',
+   * you probably want this one last.
    */
   def allowEmpty: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
     if (s == "") AuditResult.accept else self.audit(s, c)
   }
 
   /**
-   * Unconditionally allows the field to be a minus sign.
-   * This is used by the `int` and `decimal` modifiers below, but
-   * could possibly be useful elsewhere.
+   * Unconditionally allows the field to be a minus sign. This is used by the `int` and `decimal`
+   * modifiers below, but could possibly be useful elsewhere.
    */
   def allowMinus: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
     if (s == "-") AuditResult.accept else self.audit(s, c)
@@ -70,17 +65,17 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
   /**
    * Reject if the string contains any of the strings in the parameters.
    *
-   * @param strs - The list of strings to check for.
+   * @param strs
+   *   - The list of strings to check for.
    */
   def deny(strs: String*): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
     if (strs.exists(s.contains)) AuditResult.reject else self.audit(s, c)
   }
 
   /**
-   * Validates the input against ChangeAuditor.int before passing
-   * the result on to the "original" ChangeAuditor.
-   * This is useful when using a ChangeAuditor made from a format
-   * to get better behavior for entering values.
+   * Validates the input against ChangeAuditor.int before passing the result on to the "original"
+   * ChangeAuditor. This is useful when using a ChangeAuditor made from a format to get better
+   * behavior for entering values.
    */
   def int: ChangeAuditor[A] = {
     // Check to see if negative values are allowed. If this causes
@@ -95,10 +90,9 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
   }
 
   /**
-   * Validates the input against ChangeAuditor.bigDecimal before passing
-   * the result on to the "original" ChangeAuditor.
-   * This is useful when using a ChangeAuditor made from a format
-   * to get better behavior for entering values.
+   * Validates the input against ChangeAuditor.bigDecimal before passing the result on to the
+   * "original" ChangeAuditor. This is useful when using a ChangeAuditor made from a format to get
+   * better behavior for entering values.
    */
   def decimal(decimals: Int Refined Positive): ChangeAuditor[A] = {
     // Check to see if negative values are allowed. If this causes
@@ -114,10 +108,10 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
   }
 
   /**
-   * Allows you to treat the current ChangeAuditor as though it is for a different
-   * type. Useful, for example, if you can't directly use a Format for a type because
-   * you have to allow interim invalid values while typing. You can use something
-   * like a BigDecimal auditor and then call this.
+   * Allows you to treat the current ChangeAuditor as though it is for a different type. Useful, for
+   * example, if you can't directly use a Format for a type because you have to allow interim
+   * invalid values while typing. You can use something like a BigDecimal auditor and then call
+   * this.
    */
   def as[B] = ChangeAuditor[B]((s, c) => self.audit(s, c))
 
@@ -153,21 +147,19 @@ object ChangeAuditor {
   }
 
   /**
-   * For a plain integer. Only allows entry of numeric values.
-   * ALlows the input to be empty or "-", etc. to make entry easier.
-   * It also strips leading zeros.
+   * For a plain integer. Only allows entry of numeric values. ALlows the input to be empty or "-",
+   * etc. to make entry easier. It also strips leading zeros.
    */
   def int: ChangeAuditor[Int] = ChangeAuditor { (str, cursorPos) =>
     processIntString(str, cursorPos)._1
   }
 
   /**
-   * For a big decimal.
-   * ALlows the input to be empty or "-", etc. to make entry easier.
-   * It also strips leading and trailing zeros (past the number of
-   * allowed decimals).
+   * For a big decimal. ALlows the input to be empty or "-", etc. to make entry easier. It also
+   * strips leading and trailing zeros (past the number of allowed decimals).
    *
-   * @param decimals - maximum number of allowed decimals.
+   * @param decimals
+   *   - maximum number of allowed decimals.
    */
   def bigDecimal(decimals: Int Refined Positive): ChangeAuditor[BigDecimal] = ChangeAuditor {
     (str, cursorPos) => processDecimalString(str, cursorPos, decimals)._1
@@ -176,17 +168,15 @@ object ChangeAuditor {
   /**
    * For Refined Ints. Only allows entry of numeric values.
    *
-   * @param filterMode - If Strict, it validates against the ValidFormatInput
-   *                     for the P. If Lax, it only validates that it is an
-   *                     Int. This can be useful in instances where the
-   *                     ValidFormatInstance makes it difficult to enter values,
-   *                     such as for Odd integers or other discontinuous ranges.
-   * NOTE: If the filter mode is Strict, the refined Int is tested to see
-   *       if it allows a value of -1. If it does not, minus signs are not
-   *       permitted to be entered. This WOULD cause a problem with discontinuous
-   *       ranges that exclude -1 but allow other negative numbers, EXCEPT that,
-   *       as noted above, Lax filter mode should be used for this type of refined
-   *       Int. This is required because scala, and refined, treat a -0 as a 0.
+   * @param filterMode
+   *   - If Strict, it validates against the ValidFormatInput for the P. If Lax, it only validates
+   *   that it is an Int. This can be useful in instances where the ValidFormatInstance makes it
+   *   difficult to enter values, such as for Odd integers or other discontinuous ranges. NOTE: If
+   *   the filter mode is Strict, the refined Int is tested to see if it allows a value of -1. If it
+   *   does not, minus signs are not permitted to be entered. This WOULD cause a problem with
+   *   discontinuous ranges that exclude -1 but allow other negative numbers, EXCEPT that, as noted
+   *   above, Lax filter mode should be used for this type of refined Int. This is required because
+   *   scala, and refined, treat a -0 as a 0.
    */
   def forRefinedInt[P](filterMode: FilterMode = FilterMode.Strict)(implicit
     v:                             RefinedValidate[Int, P]
@@ -212,12 +202,13 @@ object ChangeAuditor {
   /**
    * For Refined Strings.
    *
-   * @param filterMode - If Strict, it validates against the ValidFormatInput
-   *                     for the P. If Lax, it allows any string.
-   * @param formatFn - A formatting function, such as _.toUpperCase and forces
-   *                   the input to that format. If the length of the string
-   *                   is changed other than truncation, it could mean the
-   *                   cursor position might be off.
+   * @param filterMode
+   *   - If Strict, it validates against the ValidFormatInput for the P. If Lax, it allows any
+   *   string.
+   * @param formatFn
+   *   - A formatting function, such as _.toUpperCase and forces the input to that format. If the
+   *   length of the string is changed other than truncation, it could mean the cursor position
+   *   might be off.
    */
   def forRefinedString[P](
     filterMode: FilterMode = FilterMode.Strict,

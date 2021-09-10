@@ -10,12 +10,11 @@ import lucuma.core.optics.SplitEpi
 import spire.math.Rational
 
 /**
- * A wrapper for Declination that is rounded to 2
- * decimal places of precision. This is used for input in
- * the UI to allow for lawful ValidFormatInput instances.
+ * A wrapper for Declination that is rounded to 2 decimal places of precision. This is used for
+ * input in the UI to allow for lawful ValidFormatInput instances.
  *
- * @param dec The wrapped Declination. Guaranteed to have
- * no more than 2 digits of precision.
+ * @param dec
+ *   The wrapped Declination. Guaranteed to have no more than 2 digits of precision.
  */
 sealed abstract case class TruncatedDec private (dec: Declination)
 

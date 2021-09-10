@@ -10,12 +10,11 @@ import lucuma.core.optics.SplitEpi
 import spire.math.Rational
 
 /**
- * A wrapper for RightAscension that is rounded to 3
- * decimal places of precision. This is used for input in
- * the UI to allow for lawful ValidFormatInput instances.
+ * A wrapper for RightAscension that is rounded to 3 decimal places of precision. This is used for
+ * input in the UI to allow for lawful ValidFormatInput instances.
  *
- * @param ra The wrapped RightAscension. Guaranteed to have
- * no more than 3 decimals of precision.
+ * @param ra
+ *   The wrapped RightAscension. Guaranteed to have no more than 3 decimals of precision.
  */
 sealed abstract case class TruncatedRA private (ra: RightAscension)
 
