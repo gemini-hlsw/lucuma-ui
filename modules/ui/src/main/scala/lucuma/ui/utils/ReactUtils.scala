@@ -16,8 +16,7 @@ trait ReactUtils {
     }
 
   def linkOverride[A](f: => SyncIO[Unit]): (ReactMouseEvent, A) => Callback =
-    (e: ReactMouseEvent, _: A) => {
+    (e: ReactMouseEvent, _: A) =>
       (e.preventDefaultCB *> f)
         .unless_(e.ctrlKey || e.metaKey)
-    }
 }

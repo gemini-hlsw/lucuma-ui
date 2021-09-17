@@ -14,11 +14,11 @@ import monocle.Iso
 import monocle.Prism
 
 /**
- * A validating and normalizing optic. Behaves similarly to `Format`, but the getter returns
- * a `Validated[E, A]` instead of an `Option[A]`.
+ * A validating and normalizing optic. Behaves similarly to `Format`, but the getter returns a
+ * `Validated[E, A]` instead of an `Option[A]`.
  *
- * Laws are the same for `Format`, except that `coverage` allows no normalization to happen
- * as long as there are invalid inputs.
+ * Laws are the same for `Format`, except that `coverage` allows no normalization to happen as long
+ * as there are invalid inputs.
  *
  * Composition with `Format` or stronger optics (`Prism` and `Iso`) yields another `ValidFormat`,
  * and require providing an `E` instance for the invalid cases.
