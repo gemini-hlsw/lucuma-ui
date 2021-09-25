@@ -71,7 +71,7 @@ trait ValidFormatInputInstances {
     }
   )
 
-  val truncatedDec = ValidFormatInput[TruncatedDec](
+  val truncatedDec                                    = ValidFormatInput[TruncatedDec](
     s => {
       val otd = Declination.fromStringSignedDMS.getOption(s).map(TruncatedDec(_))
       Validated.fromOption(otd, NonEmptyChain("Invalid Declination"))
@@ -82,7 +82,7 @@ trait ValidFormatInputInstances {
     }
   )
 
-  private def fixIntString(str: String): String = str match {
+  private def fixIntString(str: String): String       = str match {
     case ""  => "0"
     case "-" => "-0"
     case _   => str

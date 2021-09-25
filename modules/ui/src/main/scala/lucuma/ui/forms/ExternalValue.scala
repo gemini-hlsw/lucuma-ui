@@ -20,7 +20,7 @@ trait ExternalValue[EV[_]] {
 }
 
 object ExternalValue {
-  implicit def externalValueSyncIOViewF: ExternalValue[ViewF[SyncIO, *]] =
+  implicit def externalValueSyncIOViewF: ExternalValue[ViewF[SyncIO, *]]       =
     new ExternalValue[ViewF[SyncIO, *]] {
       override def get[A](ev: ViewF[SyncIO, A]): Option[A] = ev.get.some
 
@@ -52,7 +52,7 @@ object ExternalValue {
         ev.set.andThen(_.runAsyncCB)
     }
 
-  implicit val externalValueStateSnapshot: ExternalValue[StateSnapshot] =
+  implicit val externalValueStateSnapshot: ExternalValue[StateSnapshot]        =
     new ExternalValue[StateSnapshot] {
       override def get[A](ev: StateSnapshot[A]): Option[A] = ev.value.some
 

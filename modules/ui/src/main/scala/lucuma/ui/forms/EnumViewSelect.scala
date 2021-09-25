@@ -26,8 +26,7 @@ import scalajs.js
 import scalajs.js.|
 
 /**
- * Produces a dropdown menu, similar to a combobox, for which the
- * value is required.
+ * Produces a dropdown menu, similar to a combobox, for which the value is required.
  */
 final case class EnumViewSelect[A](
   id:                   String,
@@ -122,5 +121,5 @@ final case class EnumViewSelect[A](
       .map(v => value.set(v))
       .orEmpty
 
-  override def getter = enum.tag(value.get)
+  override def getter                                                = enum.tag(value.get)
 }

@@ -30,13 +30,13 @@ import scala.collection.immutable.SortedSet
  * Instances of reusability for some utility types
  */
 trait UtilReusabilityInstances {
-  implicit def enumReuse[A: Enumerated]: Reusability[A] =
+  implicit def enumReuse[A: Enumerated]: Reusability[A]                    =
     Reusability.by(Enumerated[A].tag)
 
   implicit def enumZipperReuse[A: Reusability]: Reusability[EnumZipper[A]] =
     Reusability.by(z => (z.lefts, z.focus, z.rights))
 
-  implicit val jsonReuse: Reusability[Json] = Reusability.by_==
+  implicit val jsonReuse: Reusability[Json]                                = Reusability.by_==
 
   implicit def sortedSetReuse[A: Order]: Reusability[SortedSet[A]] = Reusability.byEq
 

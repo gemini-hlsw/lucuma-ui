@@ -19,7 +19,7 @@ trait ArbTruncatedRefinedBigDecimal {
 
   implicit val arbClosed: Arbitrary[BigOneToThree] = intervalClosedArbitrary
 
-  implicit val arbTruncRefinedBD = Arbitrary[TruncatedRefinedBigDecimal[OneToThree, 1]] {
+  implicit val arbTruncRefinedBD                                                   = Arbitrary[TruncatedRefinedBigDecimal[OneToThree, 1]] {
     arbitrary[BigOneToThree].map(TruncatedRefinedBigDecimal[OneToThree, 1](_).get)
   }
 

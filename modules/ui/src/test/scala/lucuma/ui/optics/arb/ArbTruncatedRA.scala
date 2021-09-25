@@ -15,7 +15,7 @@ trait ArbTruncatedRA {
   implicit val arbTruncatedRA: Arbitrary[TruncatedRA] =
     Arbitrary(arbitrary[RightAscension].map(TruncatedRA(_)))
 
-  implicit val cogTruncatedRA: Cogen[TruncatedRA] =
+  implicit val cogTruncatedRA: Cogen[TruncatedRA]     =
     Cogen[RightAscension].contramap(_.ra)
 }
 

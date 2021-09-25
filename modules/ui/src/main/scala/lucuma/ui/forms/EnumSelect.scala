@@ -34,7 +34,7 @@ object EnumSelect {
   implicit protected def propsReuse[A]: Reusability[Props[A]] =
     Reusability.by(p => (p.label, p.value.map(p.display.shortName), p.placeholder, p.disabled))
 
-  protected val component =
+  protected val component                                     =
     ScalaComponent
       .builder[Props[Any]]
       .stateless

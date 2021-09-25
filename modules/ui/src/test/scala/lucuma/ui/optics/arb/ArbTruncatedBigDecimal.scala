@@ -9,7 +9,7 @@ import org.scalacheck._
 
 trait ArbTruncatedBigDecimal {
 
-  implicit val arbTruncatedDecimal = Arbitrary[TruncatedBigDecimal[2]] {
+  implicit val arbTruncatedDecimal                                   = Arbitrary[TruncatedBigDecimal[2]] {
     arbitrary[BigDecimal].map(TruncatedBigDecimal[2](_))
   }
 

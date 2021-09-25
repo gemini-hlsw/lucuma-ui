@@ -110,7 +110,7 @@ object FormInputEV {
   }
 
   implicit val neChainReuse: Reusability[NonEmptyChain[NonEmptyString]] = Reusability.byEq
-  implicit val stateReuse: Reusability[State]                           = Reusability.by(s => (s.displayValue, s.errors))
+  implicit val stateReuse: Reusability[State] = Reusability.by(s => (s.displayValue, s.errors))
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
 
@@ -297,5 +297,5 @@ object FormInputEV {
       .build
   }
 
-  protected val component = buildComponent[Any, Any]
+  protected val component                = buildComponent[Any, Any]
 }

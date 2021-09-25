@@ -26,8 +26,7 @@ import scalajs.js
 import scalajs.js.|
 
 /**
- * Produces a dropdown menu, similar to a combobox, for which the
- * value is optional.
+ * Produces a dropdown menu, similar to a combobox, for which the value is optional.
  */
 final case class EnumViewOptionalSelect[A](
   id:                   String,

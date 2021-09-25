@@ -9,7 +9,7 @@ package fa {
   sealed trait Family extends Product with Serializable {
     val prefix: String
   }
-  object Family {
+  object Family   {
     implicit val enum: EnumValue[Family] = EnumValue.toLowerCaseString
     case object Solid   extends Family {
       val prefix = "fas"
@@ -33,7 +33,7 @@ package fa {
   }
 
   sealed trait Flip extends Product with Serializable
-  object Flip {
+  object Flip     {
     implicit val enum: EnumValue[Flip] = EnumValue.toLowerCaseString
     case object Horizontal extends Flip
     case object Vertical   extends Flip
@@ -73,7 +73,7 @@ package fa {
   }
 
   sealed trait Pull extends Product with Serializable
-  object Pull {
+  object Pull     {
     implicit val enum: EnumValue[Pull] = EnumValue.toLowerCaseString
     case object Left  extends Pull
     case object Right extends Pull

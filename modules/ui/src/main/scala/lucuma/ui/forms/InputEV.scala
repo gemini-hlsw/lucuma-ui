@@ -19,20 +19,20 @@ import react.common.ReactProps
  * Input component that uses an ExternalValue to share the content of the field
  */
 final case class InputEV[EV[_], A](
-  name:            String,
-  id:              String,
-  value:           EV[A],
-  format:          InputFormat[A] = InputFormat.id,
-  inputType:       InputEV.InputType = InputEV.TextInput,
-  placeholder:     String = "",
-  disabled:        Boolean = false,
-  onChange:        InputEV.ChangeCallback[A] =
+  name:        String,
+  id:          String,
+  value:       EV[A],
+  format:      InputFormat[A] = InputFormat.id,
+  inputType:   InputEV.InputType = InputEV.TextInput,
+  placeholder: String = "",
+  disabled:    Boolean = false,
+  onChange:    InputEV.ChangeCallback[A] =
     (_: A) => Callback.empty, // callback for parents of this component
   onBlur:          InputEV.ChangeCallback[A] = (_: A) => Callback.empty
 )(implicit val ev: ExternalValue[EV])
     extends ReactProps[InputEV[Any, Any]](InputEV.component) {
-  def valGet: String = ev.get(value).foldMap(format.reverseGet)
-  def valSet(s: String): Callback = format.getOption(s).map(ev.set(value)).getOrEmpty
+  def valGet: String                            = ev.get(value).foldMap(format.reverseGet)
+  def valSet(s: String): Callback               = format.getOption(s).map(ev.set(value)).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =
     (s: String) => format.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
@@ -50,7 +50,7 @@ object InputEV {
     val prevValue: Lens[State, String]        = Focus[State](_.prevValue)
   }
 
-  sealed trait InputType    extends Product with Serializable
+  sealed trait InputType extends Product with Serializable
   case object TextInput     extends InputType
   case object PasswordInput extends InputType
 
@@ -67,7 +67,7 @@ object InputEV {
   def onBlur[EV[_], A]($ : Scope[EV, A], c: ChangeCallback[String]): Callback =
     c($.state.curValue.orEmpty)
 
-  protected val component =
+  protected val component                                                     =
     ScalaComponent
       .builder[Props[Any, Any]]
       .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
@@ -82,15 +82,15 @@ object InputEV {
         val p = b.props
         val s = b.state
         <.input(
-          ^.`type` := (p.inputType match {
+          ^.`type`      := (p.inputType match {
             case TextInput     => "text"
             case PasswordInput => "password"
           }),
           ^.placeholder := p.placeholder,
-          ^.name := p.name,
-          ^.id := p.id,
-          ^.value := s.curValue.orEmpty,
-          ^.disabled := p.disabled,
+          ^.name        := p.name,
+          ^.id          := p.id,
+          ^.value       := s.curValue.orEmpty,
+          ^.disabled    := p.disabled,
           ^.onChange ==> onTextChange(b),
           ^.onBlur --> onBlur(b, p.onBlurC)
         )

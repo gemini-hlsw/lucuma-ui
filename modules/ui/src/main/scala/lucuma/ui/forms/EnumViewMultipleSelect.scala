@@ -25,8 +25,7 @@ import scalajs.js
 import scalajs.js.|
 
 /**
- * Produces a dropdown menu, similar to a combobox, for which
- * multiple values can be selected.
+ * Produces a dropdown menu, similar to a combobox, for which multiple values can be selected.
  */
 final case class EnumViewMultipleSelect[A](
   id:                   String,
@@ -123,5 +122,5 @@ final case class EnumViewMultipleSelect[A](
     value.set(enums)
   }
 
-  override def getter = value.get.map(i => enum.tag(i)).toJSArray
+  override def getter                                                = value.get.map(i => enum.tag(i)).toJSArray
 }

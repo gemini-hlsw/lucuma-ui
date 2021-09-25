@@ -15,7 +15,7 @@ trait ArbTruncatedDec {
   implicit val arbTruncatedDec: Arbitrary[TruncatedDec] =
     Arbitrary(arbitrary[Declination].map(TruncatedDec(_)))
 
-  implicit val cogTruncatedDec: Cogen[TruncatedDec] =
+  implicit val cogTruncatedDec: Cogen[TruncatedDec]     =
     Cogen[Declination].contramap(_.dec)
 }
 

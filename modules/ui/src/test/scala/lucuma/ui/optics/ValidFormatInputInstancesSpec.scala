@@ -23,7 +23,7 @@ final class ValidFormatInputInstancesSpec extends DisciplineSuite {
   import ArbTruncatedRA._
   import ArbTruncatedDec._
 
-  val genUpperNES: Gen[UpperNES] =
+  val genUpperNES: Gen[UpperNES]                =
     Gen.asciiStr.suchThat(_.nonEmpty).map(s => UpperNES.unsafeFrom(s.toUpperCase))
 
   implicit val arbUpperNES: Arbitrary[UpperNES] = Arbitrary(genUpperNES)
