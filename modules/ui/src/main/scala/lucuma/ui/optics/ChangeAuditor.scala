@@ -170,13 +170,13 @@ object ChangeAuditor {
    *
    * @param filterMode
    *   - If Strict, it validates against the ValidFormatInput for the P. If Lax, it only validates
-   *   that it is an Int. This can be useful in instances where the ValidFormatInstance makes it
-   *   difficult to enter values, such as for Odd integers or other discontinuous ranges. NOTE: If
-   *   the filter mode is Strict, the refined Int is tested to see if it allows a value of -1. If it
-   *   does not, minus signs are not permitted to be entered. This WOULD cause a problem with
-   *   discontinuous ranges that exclude -1 but allow other negative numbers, EXCEPT that, as noted
-   *   above, Lax filter mode should be used for this type of refined Int. This is required because
-   *   scala, and refined, treat a -0 as a 0.
+   *     that it is an Int. This can be useful in instances where the ValidFormatInstance makes it
+   *     difficult to enter values, such as for Odd integers or other discontinuous ranges. NOTE: If
+   *     the filter mode is Strict, the refined Int is tested to see if it allows a value of -1. If
+   *     it does not, minus signs are not permitted to be entered. This WOULD cause a problem with
+   *     discontinuous ranges that exclude -1 but allow other negative numbers, EXCEPT that, as
+   *     noted above, Lax filter mode should be used for this type of refined Int. This is required
+   *     because scala, and refined, treat a -0 as a 0.
    */
   def forRefinedInt[P](filterMode: FilterMode = FilterMode.Strict)(implicit
     v:                             RefinedValidate[Int, P]
@@ -204,11 +204,11 @@ object ChangeAuditor {
    *
    * @param filterMode
    *   - If Strict, it validates against the ValidFormatInput for the P. If Lax, it allows any
-   *   string.
+   *     string.
    * @param formatFn
    *   - A formatting function, such as _.toUpperCase and forces the input to that format. If the
-   *   length of the string is changed other than truncation, it could mean the cursor position
-   *   might be off.
+   *     length of the string is changed other than truncation, it could mean the cursor position
+   *     might be off.
    */
   def forRefinedString[P](
     filterMode: FilterMode = FilterMode.Strict,
