@@ -18,7 +18,8 @@ import mouse.all._
 import singleton.ops._
 
 /**
- * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[String]` and `T = String`.
+ * Convenience version of `ValidFormat` when the error type is `NonEmptyChain[String]` and `T =
+ * String`.
  */
 object ValidFormatInput extends ValidFormatInputInstances {
 
@@ -105,9 +106,9 @@ object ValidFormatInput extends ValidFormatInputInstances {
   def forRefinedTruncatedBigDecimal[P, Dec <: XInt](
     error: NonEmptyString = "Invalid format"
   )(implicit
-    v:     RefinedValidate[BigDecimal, P],
-    req:   Require[&&[Dec > 0, Dec < 10]],
-    vo:    ValueOf[Dec]
+    v:   RefinedValidate[BigDecimal, P],
+    req: Require[&&[Dec > 0, Dec < 10]],
+    vo:  ValueOf[Dec]
   ): ValidFormatInput[TruncatedRefinedBigDecimal[P, Dec]] = {
     val prism = ValidFormat.refinedPrism[BigDecimal, P]
     ValidFormatInput[TruncatedRefinedBigDecimal[P, Dec]](

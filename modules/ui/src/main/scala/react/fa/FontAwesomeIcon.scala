@@ -15,8 +15,8 @@ import scala.scalajs.js.annotation._
 import scala.scalajs.js.|
 
 /**
- * Facade for the react component for FontAwesomeIcons
- * See: https://fontawesome.com/v5.15/how-to-use/on-the-web/using-with/react
+ * Facade for the react component for FontAwesomeIcons See:
+ * https://fontawesome.com/v5.15/how-to-use/on-the-web/using-with/react
  */
 final case class FontAwesomeIcon(
   family:                 Family,
@@ -40,8 +40,8 @@ final case class FontAwesomeIcon(
   swapOpacity:            js.UndefOr[Boolean],
   override val modifiers: Seq[TagMod]
 ) extends GenericFnComponentPA[FontAwesomeIcon.Props, FontAwesomeIcon] {
-  override protected def cprops    = FontAwesomeIcon.props(this)
-  override protected val component = FontAwesomeIcon.component
+  override protected def cprops                     = FontAwesomeIcon.props(this)
+  override protected val component                  = FontAwesomeIcon.component
   override def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
 
   def size(size: IconSize): FontAwesomeIcon = copy(size = size)

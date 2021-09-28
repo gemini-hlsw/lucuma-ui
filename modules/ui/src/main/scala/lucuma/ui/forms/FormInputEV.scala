@@ -41,41 +41,41 @@ import scalajs.js.JSConverters._
  * FormInput component that uses an ExternalValue to share the content of the field
  */
 final case class FormInputEV[EV[_], A](
-  id:              NonEmptyString,
-  action:          js.UndefOr[ShorthandSB[VdomNode]] = js.undefined,
-  actionPosition:  js.UndefOr[ActionPosition] = js.undefined,
-  as:              js.UndefOr[AsC] = js.undefined,
-  className:       js.UndefOr[String] = js.undefined,
-  clazz:           js.UndefOr[Css] = js.undefined,
-  content:         js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
-  control:         js.UndefOr[String] = js.undefined,
-  disabled:        js.UndefOr[Boolean] = js.undefined,
-  error:           js.UndefOr[ShorthandB[NonEmptyString]] = js.undefined,
-  errorClazz:      js.UndefOr[Css] = js.undefined,
-  errorPointing:   js.UndefOr[LabelPointing] = js.undefined,
-  fluid:           js.UndefOr[Boolean] = js.undefined,
-  focus:           js.UndefOr[Boolean] = js.undefined,
-  icon:            js.UndefOr[ShorthandSB[Icon]] = js.undefined,
-  iconPosition:    js.UndefOr[IconPosition] = js.undefined,
-  inline:          js.UndefOr[Boolean] = js.undefined,
-  input:           js.UndefOr[VdomNode] = js.undefined,
-  inverted:        js.UndefOr[Boolean] = js.undefined,
-  label:           js.UndefOr[ShorthandS[Label]] = js.undefined,
-  labelPosition:   js.UndefOr[LabelPosition] = js.undefined,
-  loading:         js.UndefOr[Boolean] = js.undefined,
-  required:        js.UndefOr[Boolean] = js.undefined,
-  size:            js.UndefOr[SemanticSize] = js.undefined,
-  tabIndex:        js.UndefOr[String | JsNumber] = js.undefined,
-  tpe:             js.UndefOr[String] = js.undefined,
-  transparent:     js.UndefOr[Boolean] = js.undefined,
-  width:           js.UndefOr[SemanticWidth] = js.undefined,
-  value:           EV[A],
-  validFormat:     ValidFormatInput[A] = ValidFormatInput.id,
-  changeAuditor:   ChangeAuditor[A] = ChangeAuditor.accept[A],
-  modifiers:       Seq[TagMod] = Seq.empty,
-  onTextChange:    String => Callback = _ => Callback.empty,
-  onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
-  onBlur:          FormInputEV.ChangeCallback[ValidatedNec[NonEmptyString, A]] =
+  id:             NonEmptyString,
+  action:         js.UndefOr[ShorthandSB[VdomNode]] = js.undefined,
+  actionPosition: js.UndefOr[ActionPosition] = js.undefined,
+  as:             js.UndefOr[AsC] = js.undefined,
+  className:      js.UndefOr[String] = js.undefined,
+  clazz:          js.UndefOr[Css] = js.undefined,
+  content:        js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
+  control:        js.UndefOr[String] = js.undefined,
+  disabled:       js.UndefOr[Boolean] = js.undefined,
+  error:          js.UndefOr[ShorthandB[NonEmptyString]] = js.undefined,
+  errorClazz:     js.UndefOr[Css] = js.undefined,
+  errorPointing:  js.UndefOr[LabelPointing] = js.undefined,
+  fluid:          js.UndefOr[Boolean] = js.undefined,
+  focus:          js.UndefOr[Boolean] = js.undefined,
+  icon:           js.UndefOr[ShorthandSB[Icon]] = js.undefined,
+  iconPosition:   js.UndefOr[IconPosition] = js.undefined,
+  inline:         js.UndefOr[Boolean] = js.undefined,
+  input:          js.UndefOr[VdomNode] = js.undefined,
+  inverted:       js.UndefOr[Boolean] = js.undefined,
+  label:          js.UndefOr[ShorthandS[Label]] = js.undefined,
+  labelPosition:  js.UndefOr[LabelPosition] = js.undefined,
+  loading:        js.UndefOr[Boolean] = js.undefined,
+  required:       js.UndefOr[Boolean] = js.undefined,
+  size:           js.UndefOr[SemanticSize] = js.undefined,
+  tabIndex:       js.UndefOr[String | JsNumber] = js.undefined,
+  tpe:            js.UndefOr[String] = js.undefined,
+  transparent:    js.UndefOr[Boolean] = js.undefined,
+  width:          js.UndefOr[SemanticWidth] = js.undefined,
+  value:          EV[A],
+  validFormat:    ValidFormatInput[A] = ValidFormatInput.id,
+  changeAuditor:  ChangeAuditor[A] = ChangeAuditor.accept[A],
+  modifiers:      Seq[TagMod] = Seq.empty,
+  onTextChange:   String => Callback = _ => Callback.empty,
+  onValidChange:  FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
+  onBlur:         FormInputEV.ChangeCallback[ValidatedNec[NonEmptyString, A]] =
     // Only use for extra actions, setting should be done through value.set
     (_: ValidatedNec[NonEmptyString, A]) => Callback.empty
 )(implicit val ev: ExternalValue[EV], val eq: Eq[A])
@@ -110,7 +110,7 @@ object FormInputEV {
   }
 
   implicit val neChainReuse: Reusability[NonEmptyChain[NonEmptyString]] = Reusability.byEq
-  implicit val stateReuse: Reusability[State]                           = Reusability.by(s => (s.displayValue, s.errors))
+  implicit val stateReuse: Reusability[State] = Reusability.by(s => (s.displayValue, s.errors))
 
   class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
 
@@ -164,10 +164,10 @@ object FormInputEV {
         }
         .flatMap { c =>
           auditor.audit(value, c) match {
-            case AuditResult.Accept                  => clearStateCursor *> setDisplayValue(value)
+            case AuditResult.Accept => clearStateCursor *> setDisplayValue(value)
             case AuditResult.NewString(newS, offset) =>
               setStateCursorFromInput(offset) *> setDisplayValue(newS)
-            case AuditResult.Reject                  =>
+            case AuditResult.Reject =>
               cursorOffsetForReject.flatMap(setStateCursorFromInput _) *> CallbackTo(value)
           }
         }
@@ -189,11 +189,11 @@ object FormInputEV {
         state.displayValue,
         { validated =>
           val validatedCB = validated match {
-            case Valid(a)   =>
+            case Valid(a) =>
               implicit val eq = props.eq
               if (props.ev.get(props.value).exists(_ =!= a)) // Only set if resulting A changed.
                 props.valSet(a)
-              else                                           // A didn't change, but redisplay formatted string.
+              else // A didn't change, but redisplay formatted string.
                 $.setStateL(State.displayValue)(props.valGet)
             case Invalid(e) =>
               $.setStateL(State.errors)(e.some)
@@ -226,7 +226,7 @@ object FormInputEV {
         .flatMap[ShorthandB[Label]] {
           (_: Any) match {
             case b: Boolean => s.errors.map(errorLabel).getOrElse(b)
-            case e          => // We can't pattern match against NonEmptyString, but we know it is one.
+            case e => // We can't pattern match against NonEmptyString, but we know it is one.
               val nes = e.asInstanceOf[NonEmptyString]
               s.errors.map(ve => errorLabel(nes +: ve)).getOrElse(errorLabel(NonEmptyChain(nes)))
           }
@@ -281,7 +281,7 @@ object FormInputEV {
         // Force new value from props if the prop changes (or we are initializing).
         stateOpt match {
           case Some(state) if newValue === state.modelValue => state
-          case _                                            => State(newValue, newValue, none, 0, none, none)
+          case _ => State(newValue, newValue, none, 0, none, none)
         }
       }
       .renderBackend[Backend[EV, A]]

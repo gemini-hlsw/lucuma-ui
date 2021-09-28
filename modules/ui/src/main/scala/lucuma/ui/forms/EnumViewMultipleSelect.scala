@@ -25,8 +25,7 @@ import scalajs.js
 import scalajs.js.|
 
 /**
- * Produces a dropdown menu, similar to a combobox, for which
- * multiple values can be selected.
+ * Produces a dropdown menu, similar to a combobox, for which multiple values can be selected.
  */
 final case class EnumViewMultipleSelect[A](
   id:                   String,
@@ -101,8 +100,8 @@ final case class EnumViewMultipleSelect[A](
   exclude:              Set[A] = Set.empty[A],
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
-  val enum:             Enumerated[A],
-  val display:          Display[A]
+  val enum:    Enumerated[A],
+  val display: Display[A]
 ) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
     with EnumViewSelectBase {
 

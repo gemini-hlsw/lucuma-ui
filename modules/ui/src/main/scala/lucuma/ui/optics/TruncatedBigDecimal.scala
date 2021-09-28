@@ -10,19 +10,20 @@ import singleton.ops._
 import scala.annotation.unused
 
 /**
- * A wrapper around a BigDecimal that is limited to a specified
- * number of decimals places.
+ * A wrapper around a BigDecimal that is limited to a specified number of decimals places.
  *
- * The Dec type parameter must be a Singleton Int > 0 and < 10, which is enforced
- *    by the compiler.
+ * The Dec type parameter must be a Singleton Int > 0 and < 10, which is enforced by the compiler.
  *
- * @param value The BigDecimal. It is guaranteed to have a scale of no more than Dec.
- * @param req Requirement that 0 < Dec < 10
- * @param vo Evidence that Dec is a Singleton type.
+ * @param value
+ *   The BigDecimal. It is guaranteed to have a scale of no more than Dec.
+ * @param req
+ *   Requirement that 0 < Dec < 10
+ * @param vo
+ *   Evidence that Dec is a Singleton type.
  */
 sealed abstract case class TruncatedBigDecimal[Dec <: XInt] private (value: BigDecimal)(implicit
-  @unused req:                                                              Require[&&[Dec > 0, Dec < 10]],
-  vo:                                                                       ValueOf[Dec]
+  @unused req: Require[&&[Dec > 0, Dec < 10]],
+  vo:          ValueOf[Dec]
 ) { val decimals: Int = vo.value }
 
 object TruncatedBigDecimal {
@@ -35,8 +36,8 @@ object TruncatedBigDecimal {
     ) {}
 
   def bigDecimal[Dec <: XInt](implicit
-    req:          Require[&&[Dec > 0, Dec < 10]],
-    vo:           ValueOf[Dec]
+    req: Require[&&[Dec > 0, Dec < 10]],
+    vo:  ValueOf[Dec]
   ): SplitEpi[BigDecimal, TruncatedBigDecimal[Dec]] =
     SplitEpi(TruncatedBigDecimal(_), _.value)
 

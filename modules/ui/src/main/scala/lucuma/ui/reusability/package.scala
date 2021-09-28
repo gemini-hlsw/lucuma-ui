@@ -52,19 +52,18 @@ trait MathReusabilityInstances {
   // Reusability for coulomb quantities.
   implicit def quantityReuse[N: Reusability, U]: Reusability[Quantity[N, U]] =
     Reusability.by(_.value)
-  implicit val angleReuse: Reusability[Angle]                                =
-    Reusability.by(_.toMicroarcseconds)
-  implicit def raReuse: Reusability[RightAscension]                          = Reusability.byEq
-  implicit def decReuse: Reusability[Declination]                            = Reusability.byEq
-  implicit def coordinatesReuse: Reusability[Coordinates]                    = Reusability.byEq
-  implicit def epochReuse: Reusability[Epoch]                                = Reusability.byEq
-  implicit def pmReuse: Reusability[ProperMotion]                            = Reusability.byEq
-  implicit def rvReuse: Reusability[RadialVelocity]                          = Reusability.byEq
-  implicit def parallaxReuse: Reusability[Parallax]                          = Reusability.byEq
-  implicit val magnitudeValueReuse: Reusability[MagnitudeValue]              = Reusability.byEq
-  implicit val jsNumberReuse: Reusability[JsNumber]                          = Reusability.byEq
-  implicit val bigDecimalReuse: Reusability[BigDecimal]                      = Reusability.byEq
-  implicit val sizeReuse: Reusability[Size]                                  = Reusability.by(x => (x.height, x.width))
+  implicit val angleReuse: Reusability[Angle]             = Reusability.by(_.toMicroarcseconds)
+  implicit def raReuse: Reusability[RightAscension]       = Reusability.byEq
+  implicit def decReuse: Reusability[Declination]         = Reusability.byEq
+  implicit def coordinatesReuse: Reusability[Coordinates] = Reusability.byEq
+  implicit def epochReuse: Reusability[Epoch]             = Reusability.byEq
+  implicit def pmReuse: Reusability[ProperMotion]         = Reusability.byEq
+  implicit def rvReuse: Reusability[RadialVelocity]       = Reusability.byEq
+  implicit def parallaxReuse: Reusability[Parallax]       = Reusability.byEq
+  implicit val magnitudeValueReuse: Reusability[MagnitudeValue] = Reusability.byEq
+  implicit val jsNumberReuse: Reusability[JsNumber]             = Reusability.byEq
+  implicit val bigDecimalReuse: Reusability[BigDecimal]         = Reusability.byEq
+  implicit val sizeReuse: Reusability[Size] = Reusability.by(x => (x.height, x.width))
 }
 
 /**
@@ -72,7 +71,7 @@ trait MathReusabilityInstances {
  */
 trait TimeReusabilityInstances {
   implicit val durationReuse: Reusability[Duration] = Reusability.by(_.getSeconds)
-  implicit val instantReuse: Reusability[Instant]   =
+  implicit val instantReuse: Reusability[Instant] =
     Reusability.by(i => (i.getEpochSecond, i.getNano))
 }
 
@@ -93,13 +92,13 @@ trait ModelReusabiltyInstances
     extends RefinedReusabiltyInstances
     with UtilReusabilityInstances
     with MathReusabilityInstances {
-  implicit def idReuse[Id <: WithId#Id]: Reusability[Id]            = Reusability.by(_.value)
-  implicit val orcidIdReuse: Reusability[OrcidId]                   = Reusability.by(_.value.toString)
-  implicit val orcidProfileResuse: Reusability[OrcidProfile]        = Reusability.derive
-  implicit val partnerReuse: Reusability[Partner]                   = Reusability.derive
-  implicit val standardRoleReuse: Reusability[StandardRole]         = Reusability.derive
-  implicit val standardUserReuse: Reusability[StandardUser]         = Reusability.derive
-  implicit def catalogIdReuse: Reusability[CatalogId]               = Reusability.derive
+  implicit def idReuse[Id <: WithId#Id]: Reusability[Id]     = Reusability.by(_.value)
+  implicit val orcidIdReuse: Reusability[OrcidId]            = Reusability.by(_.value.toString)
+  implicit val orcidProfileResuse: Reusability[OrcidProfile] = Reusability.derive
+  implicit val partnerReuse: Reusability[Partner]            = Reusability.derive
+  implicit val standardRoleReuse: Reusability[StandardRole]  = Reusability.derive
+  implicit val standardUserReuse: Reusability[StandardUser]  = Reusability.derive
+  implicit def catalogIdReuse: Reusability[CatalogId]        = Reusability.derive
   implicit def siderealTrackingReuse: Reusability[SiderealTracking] = Reusability.derive
   implicit val magnitudeReuse: Reusability[Magnitude]               = Reusability.derive
   implicit val userReuse: Reusability[User]                         = Reusability.byEq
