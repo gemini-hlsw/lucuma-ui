@@ -24,8 +24,7 @@ import scalajs.js
 import scalajs.js.|
 
 /**
- * Produces a dropdown menu, similar to a combobox.
- * This is a base trait for various styles.
+ * Produces a dropdown menu, similar to a combobox. This is a base trait for various styles.
  */
 trait EnumViewSelectBase {
   type FF[_]

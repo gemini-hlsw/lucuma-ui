@@ -11,13 +11,13 @@ package fa {
   }
   object Family {
     implicit val enum: EnumValue[Family] = EnumValue.toLowerCaseString
-    case object Solid   extends Family {
+    case object Solid extends Family {
       val prefix = "fas"
     }
     case object Regular extends Family {
       val prefix = "far"
     }
-    case object Light   extends Family {
+    case object Light extends Family {
       val prefix = "fal"
     }
     case object Duotone extends Family {
@@ -57,7 +57,7 @@ package fa {
       case X9  => "9x"
       case X10 => "10x";
     }
-    case object XS extends IconSize
+    case object XS  extends IconSize
     case object LG  extends IconSize
     case object SM  extends IconSize
     case object X1  extends IconSize
