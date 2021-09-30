@@ -1,4 +1,5 @@
-val clueVersion = "0.18.1+10-ec070959+20210929-2013-SNAPSHOT"
+val clueVersion       = "0.18.1+10-ec070959+20210929-2013-SNAPSHOT"
+val lucumaCoreVersion = "0.13.2"
 
 inThisBuild(
   List(
@@ -10,9 +11,17 @@ inThisBuild(
   ) ++ lucumaPublishSettings
 )
 
-lazy val root = project
+val scala2Version = "2.13.6"
+val allVersions   = List(scala2Version)
+
+val dependencies = List(
+  "edu.gemini" %% "clue-core"   % clueVersion,
+  "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
+)
+
+lazy val root    = project
   .in(file("."))
-  .aggregate(lucumaDBClient)
+  .aggregate(lucumaDBClient.projectRefs: _*)
   .settings(
     publish / skip := true
   )
@@ -21,16 +30,16 @@ val templates =
   project
     .in(file("templates"))
     .settings(
-      publish / skip                      := true,
-      libraryDependencies += "edu.gemini" %% "clue-core" % clueVersion
+      publish / skip := true,
+      libraryDependencies ++= dependencies
     )
 
 val lucumaDBClient =
-  project
+  projectMatrix
     .in(file("lucuma-db-client"))
     .settings(
-      moduleName                          := "lucuma-db-client",
-      libraryDependencies += "edu.gemini" %% "clue-core" % clueVersion,
+      moduleName := "lucuma-db-client",
+      libraryDependencies ++= dependencies,
       Compile / sourceGenerators += Def.taskDyn {
         val root    = (ThisBuild / baseDirectory).value.toURI.toString
         val from    = (templates / Compile / sourceDirectory).value
@@ -43,5 +52,12 @@ val lucumaDBClient =
             .value
           (to ** "*.scala").get
         }
-      }.taskValue
+      }.taskValue,
+      // Include schema files from templates in jar.
+      Compile / unmanagedResourceDirectories += (templates / Compile / resourceDirectory).value
+    )
+    .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaPartialVersion(scala2Version))
+    .jvmPlatform(allVersions)
+    .jsPlatform(allVersions,
+                List(scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)))
     )
