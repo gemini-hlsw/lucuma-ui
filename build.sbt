@@ -1,4 +1,4 @@
-val clueVersion       = "0.18.1+10-ec070959+20210929-2013-SNAPSHOT"
+val clueVersion       = "0.18.2"
 val lucumaCoreVersion = "0.13.2"
 
 inThisBuild(
@@ -21,7 +21,7 @@ val dependencies = List(
 
 lazy val root    = project
   .in(file("."))
-  .aggregate(lucumaDBClient.projectRefs: _*)
+  .aggregate(lucumaSchemas.projectRefs: _*)
   .settings(
     publish / skip := true
   )
@@ -34,11 +34,11 @@ val templates =
       libraryDependencies ++= dependencies
     )
 
-val lucumaDBClient =
+val lucumaSchemas =
   projectMatrix
-    .in(file("lucuma-db-client"))
+    .in(file("lucuma-schemas"))
     .settings(
-      moduleName := "lucuma-db-client",
+      moduleName := "lucuma-schemas",
       libraryDependencies ++= dependencies,
       Compile / sourceGenerators += Def.taskDyn {
         val root    = (ThisBuild / baseDirectory).value.toURI.toString
