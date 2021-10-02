@@ -13,7 +13,7 @@ lazy val reactSemanticUIVersion = "0.12.0"
 lazy val kindProjectorVersion   = "0.13.2"
 lazy val singletonOpsVersion    = "0.5.2"
 
-Global / onChangedBuildSource := ReloadOnSourceChanges
+Global / onChangedBuildSource           := ReloadOnSourceChanges
 ThisBuild / ScalafixConfig / bspEnabled := false
 
 addCommandAlias(
@@ -33,7 +33,7 @@ inThisBuild(
     scalacOptions ++= Seq(
       "-Ymacro-annotations"
     ),
-    turbo := true,
+    turbo                    := true,
     Test / parallelExecution := false
   ) ++ lucumaPublishSettings
 )
@@ -50,7 +50,7 @@ lazy val demo =
     .in(file("modules/demo"))
     .enablePlugins(ScalaJSBundlerPlugin)
     .settings(
-      webpack / version := "4.44.1",
+      webpack / version               := "4.44.1",
       startWebpackDevServer / version := "3.11.0",
       fastOptJS / webpackConfigFile := Some(
         baseDirectory.value / "webpack" / "dev.webpack.config.js"
@@ -59,24 +59,24 @@ lazy val demo =
         baseDirectory.value / "webpack" / "prod.webpack.config.js"
       ),
       webpackMonitoredDirectories += (Compile / resourceDirectory).value,
-      webpackResources := (baseDirectory.value / "webpack") * "*.js",
-      Compile / includeFilter := "*",
-      useYarn := true,
+      webpackResources                := (baseDirectory.value / "webpack") * "*.js",
+      Compile / includeFilter         := "*",
+      useYarn                         := true,
       fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(),
       fullOptJS / webpackBundlingMode := BundlingMode.Application,
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      test := {},
+      test                                   := {},
       libraryDependencies += "com.rpiaggio" %%% "log4cats-loglevel" % "0.3.0",
       // NPM libs for development, mostly to let webpack do its magic
       Compile / npmDevDependencies ++= Seq(
-        "postcss"                       -> "8.1.1",
-        "postcss-loader"                -> "4.0.3",
-        "autoprefixer"                  -> "10.0.1",
-        "url-loader"                    -> "4.1.0",
-        "file-loader"                   -> "6.0.0",
-        "css-loader"                    -> "3.5.3",
-        "style-loader"                  -> "1.2.1",
+        "postcss"        -> "8.1.1",
+        "postcss-loader" -> "4.0.3",
+        "autoprefixer"   -> "10.0.1",
+        "url-loader"     -> "4.1.0",
+        "file-loader"    -> "6.0.0",
+        "css-loader"     -> "3.5.3",
+        "style-loader"   -> "1.2.1",
         // Don't upgrade less until https://github.com/less/less.js/issues/3434 is fixed
         "less"                          -> "3.9.0",
         "less-loader"                   -> "7.0.1",
