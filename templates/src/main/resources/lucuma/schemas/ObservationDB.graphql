@@ -35,109 +35,6 @@ type AirMassRange {
   max: BigDecimal!
 }
 
-# Collection of stars observed in a single observation
-type Asterism {
-  # Asterism ID
-  id: AsterismId!
-
-  # Whether the asterism is deleted or present
-  existence: Existence!
-
-  # Asterism name, if any.
-  name: NonEmptyString
-
-  # When set, overrides the default base position of the asterism
-  explicitBase: Coordinates
-
-  # All observations associated with the asterism.
-  observations(
-    # Program ID
-    programId: ProgramId
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): ObservationConnection!
-
-  # All asterism targets
-  targets(
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): TargetConnection!
-
-  # The programs associated with the asterism.
-  programs(
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): ProgramConnection!
-}
-
-# Asterisms in the current page
-type AsterismConnection {
-  # The nodes in all the edges from the current page
-  nodes: [Asterism!]!
-
-  # Edges in the current page
-  edges: [AsterismEdge!]!
-
-  # Count of all nodes in all pages
-  totalCount: Int!
-
-  # Paging information
-  pageInfo: PageInfo!
-}
-
-# An Asterism and its cursor
-type AsterismEdge {
-  # AsterismEdge element
-  node: Asterism!
-
-  # AsterismEdge element cursor
-  cursor: Cursor!
-}
-
-# Event sent when a new object is created or updated
-type AsterismEdit implements Event {
-  # Type of edit
-  editType: EditType!
-
-  # Edited object
-  value: Asterism!
-  id: Long!
-}
-
-# AsterismId id formatted as `a-([1-9a-f][0-9a-f]*)`
-scalar AsterismId
-
-# Asterism and the programs with which it is associated
-input AsterismProgramLinks {
-  asterismId: AsterismId!
-  programIds: [ProgramId!]!
-}
-
-# Asterism and the targets with which it is associated
-input AsterismTargetLinks {
-  asterismId: AsterismId!
-  targetIds: [TargetId!]!
-}
-
 # Sequence atom
 interface Atom {
   # Atom id
@@ -167,14 +64,46 @@ enum Breakpoint {
 
 # Input for bulk editing multiple observations
 input BulkEditConstraintSetInput {
-  constraintSet: EditConstraintSetInput!
-  observationIds: [ObservationId!]!
+  selectProgram: ProgramId
+  selectObservations: [ObservationId!]
+  edit: EditConstraintSetInput!
 }
 
 # Input for bulk editing multiple observations
 input BulkEditScienceRequirementsInput {
-  scienceRequirements: EditScienceRequirementsInput!
-  observationIds: [ObservationId!]!
+  selectProgram: ProgramId
+  selectObservations: [ObservationId!]
+  edit: EditScienceRequirementsInput!
+}
+
+# Target environment edit parameters
+input BulkEditTargetEnvironmentInput {
+  select: SelectTargetEnvironmentInput!
+
+  # The explicitBase field may be unset by assigning a null value, or ignored by skipping it altogether
+  explicitBase: CoordinatesInput
+}
+
+# Target editing parameters
+input BulkEditTargetInput {
+  select: SelectTargetEnvironmentInput
+  addSidereal: CreateSiderealInput
+  addNonsidereal: CreateNonsiderealInput
+  editSidereal: EditSiderealInput
+  editNonsidereal: EditNonsiderealInput
+  delete: SelectTargetInput
+}
+
+# Target editing parameters
+input BulkEditTargetListInput {
+  select: SelectTargetEnvironmentInput
+  edits: [EditTargetInput!]!
+}
+
+# Target list set/replace parameters
+input BulkReplaceTargetListInput {
+  select: SelectTargetEnvironmentInput!
+  replace: [CreateTargetInput!]!
 }
 
 type CatalogId {
@@ -227,6 +156,28 @@ enum CloudExtinction {
   THREE_POINT_ZERO
 }
 
+type CommonTarget implements TargetDescription {
+  # Target name.
+  name: NonEmptyString!
+
+  # Information required to find a target in the sky.
+  tracking: Tracking!
+
+  # Target magnitudes
+  magnitudes: [Magnitude!]!
+}
+
+type CommonTargetEnvironment {
+  # When set, overrides the default base position of the target group
+  explicitBase: Coordinates
+
+  # All science targets, if any
+  scienceTargets: [CommonTarget!]!
+
+  # First science target, if any
+  firstScienceTarget: CommonTarget
+}
+
 # Instrument configuration
 interface Config {
   # Instrument type
@@ -249,9 +200,6 @@ enum ConfigurationModeType {
 }
 
 type ConstraintSet {
-  # Constraint set name
-  name: NonEmptyString!
-
   # Image quality
   imageQuality: ImageQuality!
 
@@ -338,17 +286,8 @@ input CreateAirmassRangeInput {
   max: BigDecimal!
 }
 
-# Asterism parameters
-input CreateAsterismInput {
-  asterismId: AsterismId
-  name: NonEmptyString
-  programIds: [ProgramId!]!
-  explicitBase: CoordinatesInput
-}
-
 # Constraint set creation parameters
 input CreateConstraintSetInput {
-  name: NonEmptyString!
   imageQuality: ImageQuality!
   cloudExtinction: CloudExtinction!
   skyBackground: SkyBackground!
@@ -384,10 +323,8 @@ input CreateHourAngleRangeInput {
 
 # Nonsidereal target parameters
 input CreateNonsiderealInput {
-  targetId: TargetId
-  programIds: [ProgramId!]
   name: NonEmptyString!
-  key: EphemerisKeyType!
+  keyType: EphemerisKeyType!
   des: String!
   magnitudes: [MagnitudeCreateInput!]
 }
@@ -405,17 +342,20 @@ input CreateObservationInput {
   name: NonEmptyString
   status: ObsStatus
   activeStatus: ObsActiveStatus
-  asterismId: AsterismId
-  targetId: TargetId
+  targets: CreateTargetEnvironmentInput
   constraintSet: CreateConstraintSetInput
   scienceRequirements: ScienceRequirementsInput
   scienceConfiguration: CreateObservationConfigInput
 }
 
+# Program creation parameters
+input CreateProgramInput {
+  programId: ProgramId
+  name: NonEmptyString
+}
+
 # Sidereal target parameters
 input CreateSiderealInput {
-  targetId: TargetId
-  programIds: [ProgramId!]
   name: NonEmptyString!
   catalogId: CatalogIdInput
   ra: RightAscensionInput!
@@ -425,6 +365,19 @@ input CreateSiderealInput {
   radialVelocity: RadialVelocityInput
   parallax: ParallaxModelInput
   magnitudes: [MagnitudeCreateInput!]
+}
+
+# Target environment creation input parameters
+input CreateTargetEnvironmentInput {
+  targetEnvironmentId: TargetEnvironmentId
+  explicitBase: CoordinatesInput
+  science: [CreateTargetInput!]
+}
+
+# Target creation parameters
+input CreateTargetInput {
+  nonsidereal: CreateNonsiderealInput
+  sidereal: CreateSiderealInput
 }
 
 # Opaque object cursor
@@ -590,25 +543,8 @@ type Duration {
   hours: BigDecimal!
 }
 
-# Asterism edit
-input EditAsterismInput {
-  asterismId: AsterismId!
-
-  # The existence field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  existence: Existence
-
-  # The name field may be unset by assigning a null value, or ignored by skipping it altogether
-  name: NonEmptyString
-
-  # The explicitBase field may be unset by assigning a null value, or ignored by skipping it altogether
-  explicitBase: CoordinatesInput
-}
-
 # Edit constraint set
 input EditConstraintSetInput {
-  # The name field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  name: NonEmptyString
-
   # The imageQuality field must be either specified or skipped altogether.  It cannot be unset with a null value.
   imageQuality: ImageQuality
 
@@ -649,6 +585,17 @@ input EditGmosSouthLongSlit {
   slitWidth: SlitWidthInput
 }
 
+# Nonsidereal target edit parameters
+input EditNonsiderealInput {
+  select: SelectTargetInput!
+
+  # The name field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  name: NonEmptyString
+
+  # The key field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  key: EphemerisKey
+}
+
 # Edit observation
 input EditObservationInput {
   observationId: ObservationId!
@@ -665,27 +612,25 @@ input EditObservationInput {
   # The activeStatus field must be either specified or skipped altogether.  It cannot be unset with a null value.
   activeStatus: ObsActiveStatus
 
-  # The asterismId field may be unset by assigning a null value, or ignored by skipping it altogether
-  asterismId: AsterismId
-
-  # The targetId field may be unset by assigning a null value, or ignored by skipping it altogether
-  targetId: TargetId
+  # The constraintSet field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  constraintSet: EditConstraintSetInput
 
   # The scienceRequirements field may be unset by assigning a null value, or ignored by skipping it altogether
   scienceRequirements: EditScienceRequirementsInput
-
-  # The constraintSet field may be unset by assigning a null value, or ignored by skipping it altogether
-  constraintSet: EditConstraintSetInput
 
   # The scienceConfiguration field may be unset by assigning a null value, or ignored by skipping it altogether
   scienceConfiguration: EditScienceConfigurationInput
 }
 
-# Edit the target or asterism for a set of observations
-input EditObservationPointingInput {
-  observationIds: [ObservationId!]!
-  asterismId: AsterismId
-  targetId: TargetId
+# Edit program
+input EditProgramInput {
+  programId: ProgramId!
+
+  # The existence field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  existence: Existence
+
+  # The name field may be unset by assigning a null value, or ignored by skipping it altogether
+  name: NonEmptyString
 }
 
 # Edit observation configuration
@@ -717,16 +662,13 @@ input EditScienceRequirementsInput {
 
 # Sidereal target edit parameters
 input EditSiderealInput {
-  targetId: TargetId!
+  select: SelectTargetInput!
 
   # Edit magnitudes
   magnitudes: MagnitudeEditList
 
-  # The existence field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  existence: Existence
-
   # The name field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  name: String
+  name: NonEmptyString
 
   # The catalogId field may be unset by assigning a null value, or ignored by skipping it altogether
   catalogId: CatalogIdInput
@@ -750,6 +692,15 @@ input EditSiderealInput {
   parallax: ParallaxModelInput
 }
 
+# Single target edit options
+input EditTargetInput {
+  addSidereal: CreateSiderealInput
+  addNonsidereal: CreateNonsiderealInput
+  editSidereal: EditSiderealInput
+  editNonsidereal: EditNonsiderealInput
+  delete: SelectTargetInput
+}
+
 # Type of edit that triggered an event
 enum EditType {
   # EditType Created
@@ -761,6 +712,9 @@ enum EditType {
 
 # Either airmass range or elevation range
 union ElevationRange = AirMassRange | HourAngleRange
+
+# Horizons ID in format '[Comet|AsteroidNew|AsteroidOld|MajorBody]_des'
+scalar EphemerisKey
 
 # Ephemeris key type options
 enum EphemerisKeyType {
@@ -952,15 +906,6 @@ input FocalPlaneAngleInput {
   arcseconds: BigDecimal
 }
 
-# Gaussian source angle in appropriate units
-input GaussianSourceAngleInput {
-  microarcseconds: Long
-  milliarcseconds: BigDecimal
-  arcseconds: BigDecimal
-  fromLong: SpatialProfileLongInput
-  fromDecimal: SpatialProfileDecimalInput
-}
-
 # GCAL calibration step (flat / arc)
 type Gcal implements StepConfig {
   # GCAL continuum, present if no arcs are used
@@ -1135,15 +1080,6 @@ enum GmosCustomSlitWidth {
   CUSTOM_WIDTH_5_00
 }
 
-# Detector type
-enum GmosDetector {
-  # GmosDetector E2V
-  E2_V
-
-  # GmosDetector HAMAMATSU
-  HAMAMATSU
-}
-
 # GMOS disperser order
 enum GmosDisperserOrder {
   # GmosDisperserOrder Zero
@@ -1261,6 +1197,15 @@ type GmosNorthConfig implements Config {
 
   # Estimated setup time
   setupTime: Duration!
+}
+
+# GmosNorth Detector type
+enum GmosNorthDetector {
+  # GmosNorthDetector E2V
+  E2_V
+
+  # GmosNorthDetector HAMAMATSU
+  HAMAMATSU
 }
 
 # GMOS North Disperser
@@ -1463,14 +1408,14 @@ enum GmosNorthFpu {
   # GmosNorthFpu LongSlit_5_00
   LONG_SLIT_5_00
 
-  # GmosNorthFpu Ifu1
-  IFU1
+  # GmosNorthFpu Ifu2Slits
+  IFU2_SLITS
 
-  # GmosNorthFpu Ifu2
-  IFU2
+  # GmosNorthFpu IfuBlue
+  IFU_BLUE
 
-  # GmosNorthFpu Ifu3
-  IFU3
+  # GmosNorthFpu IfuRed
+  IFU_RED
 }
 
 # Either custom mask or builtin-FPU
@@ -1536,7 +1481,7 @@ type GmosNorthStatic {
   stageMode: GmosNorthStageMode!
 
   # Detector in use (always HAMAMATSU for recent and new observations)
-  detector: GmosDetector!
+  detector: GmosNorthDetector!
 
   # Is MOS Pre-Imaging Observation
   mosPreImaging: MosPreImaging!
@@ -1627,6 +1572,15 @@ type GmosSouthConfig implements Config {
 
   # Estimated setup time
   setupTime: Duration!
+}
+
+# GmosSouth Detector type
+enum GmosSouthDetector {
+  # GmosSouthDetector E2V
+  E2_V
+
+  # GmosSouthDetector HAMAMATSU
+  HAMAMATSU
 }
 
 # GMOS South Disperser
@@ -1829,23 +1783,23 @@ enum GmosSouthFpu {
   # GmosSouthFpu LongSlit_5_00
   LONG_SLIT_5_00
 
-  # GmosSouthFpu Ifu1
-  IFU1
+  # GmosSouthFpu Ifu2Slits
+  IFU2_SLITS
 
-  # GmosSouthFpu Ifu2
-  IFU2
+  # GmosSouthFpu IfuBlue
+  IFU_BLUE
 
-  # GmosSouthFpu Ifu3
-  IFU3
+  # GmosSouthFpu IfuRed
+  IFU_RED
 
-  # GmosSouthFpu IfuN
-  IFU_N
+  # GmosSouthFpu IfuNS2Slits
+  IFU_NS2_SLITS
 
-  # GmosSouthFpu IfuNB
-  IFU_NB
+  # GmosSouthFpu IfuNSBlue
+  IFU_NS_BLUE
 
-  # GmosSouthFpu IfuNR
-  IFU_NR
+  # GmosSouthFpu IfuNSRed
+  IFU_NS_RED
 }
 
 # Either custom mask or builtin-FPU
@@ -1911,7 +1865,7 @@ type GmosSouthStatic {
   stageMode: GmosSouthStageMode!
 
   # Detector in use (always HAMAMATSU for recent and new observations)
-  detector: GmosDetector!
+  detector: GmosSouthDetector!
 
   # Is MOS Pre-Imaging Observation
   mosPreImaging: MosPreImaging!
@@ -1963,6 +1917,48 @@ enum GmosYBinning {
 
   # GmosYBinning Four
   FOUR
+}
+
+type GroupByTarget {
+  # IDs of target environments that share the common value
+  targetEnvironmentIds: [TargetEnvironmentId!]!
+
+  # IDs of observations that share the common value
+  observationIds: [ObservationId!]!
+
+  # Target environments that share the common value
+  targetEnvironments: [TargetEnvironment!]!
+
+  # Commonly held value across the target environments
+  commonTarget: CommonTarget!
+}
+
+type GroupByTargetEnvironment {
+  # IDs of target environments that share the common value
+  targetEnvironmentIds: [TargetEnvironmentId!]!
+
+  # IDs of observations that share the common value
+  observationIds: [ObservationId!]!
+
+  # Target environments that share the common value
+  targetEnvironments: [TargetEnvironment!]!
+
+  # Commonly held value across the target environments
+  commonTargetEnvironment: CommonTargetEnvironment!
+}
+
+type GroupByTargetList {
+  # IDs of target environments that share the common value
+  targetEnvironmentIds: [TargetEnvironmentId!]!
+
+  # IDs of observations that share the common value
+  observationIds: [ObservationId!]!
+
+  # Target environments that share the common value
+  targetEnvironments: [TargetEnvironment!]!
+
+  # Commonly held value across the target environments
+  commonTargetList: [CommonTarget!]!
 }
 
 # Target right ascension coordinate in format 'HH:MM:SS.sss'
@@ -2192,6 +2188,15 @@ enum MagnitudeSystem {
 
   # MagnitudeSystem Jy
   JY
+
+  # MagnitudeSystem Watts
+  WATTS
+
+  # MagnitudeSystem ErgsWavelength
+  ERGS_WAVELENGTH
+
+  # MagnitudeSystem ErgsFrequency
+  ERGS_FREQUENCY
 }
 
 # MOS pre-imaging observation
@@ -2204,22 +2209,14 @@ enum MosPreImaging {
 }
 
 type Mutation {
-  createAsterism(
-    # Asterism description
-    input: CreateAsterismInput!
-  ): Asterism
-  updateAsterism(
-    # Edit default asterism
-    input: EditAsterismInput!
-  ): Asterism!
-  deleteAsterism(
-    # Asterism ID
-    asterismId: AsterismId!
-  ): Asterism!
-  undeleteAsterism(
-    # Asterism ID
-    asterismId: AsterismId!
-  ): Asterism!
+  createProgram(
+    # Program description
+    input: CreateProgramInput!
+  ): Program
+  updateProgram(
+    # Edit program
+    input: EditProgramInput!
+  ): Program!
   createObservation(
     # Observation description
     input: CreateObservationInput!
@@ -2228,10 +2225,6 @@ type Mutation {
     # Edit observation
     input: EditObservationInput!
   ): Observation!
-  updatePointing(
-    # Edit observation asterism / target
-    input: EditObservationPointingInput!
-  ): [Observation!]!
   updateConstraintSet(
     # Bulk edit constraintSet
     input: BulkEditConstraintSetInput!
@@ -2248,58 +2241,31 @@ type Mutation {
     # Observation ID
     observationId: ObservationId!
   ): Observation!
-  createNonsiderealTarget(
-    # Nonsidereal target description
-    input: CreateNonsiderealInput!
-  ): Target
-  createSiderealTarget(
-    # Sidereal target description
-    input: CreateSiderealInput!
-  ): Target
-  updateSiderealTarget(
-    # Sidereal target edit
-    input: EditSiderealInput!
-  ): Target!
-  deleteTarget(
-    # Target ID
-    targetId: TargetId!
-  ): Target!
-  undeleteTarget(
-    # Target ID
-    targetId: TargetId!
-  ): Target!
-  shareAsterismWithPrograms(
-    # Asterism / program links
-    input: AsterismProgramLinks!
-  ): Asterism!
-  unshareAsterismWithPrograms(
-    # Asterism / program links
-    input: AsterismProgramLinks!
-  ): Asterism!
-  shareAsterismWithTargets(
-    # Asterism / target links
-    input: AsterismTargetLinks!
-  ): Asterism!
-  unshareAsterismWithTargets(
-    # Asterism / target links
-    input: AsterismTargetLinks!
-  ): Asterism!
-  shareTargetWithAsterisms(
-    # Target / asterism links
-    input: TargetAsterismLinks!
-  ): Target!
-  unshareTargetWithAsterisms(
-    # Target / asterism links
-    input: TargetAsterismLinks!
-  ): Target!
-  shareTargetWithPrograms(
-    # Target / program links
-    input: TargetProgramLinks!
-  ): Target!
-  unshareTargetWithPrograms(
-    # Target / program links
-    input: TargetProgramLinks!
-  ): Target!
+
+  # Creates a new target environment unaffiliated with any observation
+  createTargetEnvironment(
+    # Program ID
+    programId: ProgramId!
+
+    # Parameters for creating a new target environment
+    input: CreateTargetEnvironmentInput!
+  ): TargetEnvironment!
+  updateScienceTarget(
+    # Editing input for a single science target
+    input: BulkEditTargetInput!
+  ): [TargetListEditDesc!]!
+  updateScienceTargetList(
+    # Editing input for multiple science targets
+    input: BulkEditTargetListInput!
+  ): [TargetListEditDesc!]!
+  replaceScienceTargetList(
+    # Editing input for replacing or setting science target lists
+    input: BulkReplaceTargetListInput!
+  ): [TargetListEditDesc!]!
+  updateTargetEnvironment(
+    # Editing input for editing target environment properties
+    input: BulkEditTargetEnvironmentInput!
+  ): [TargetEnvironmentContext!]!
   addSequenceEvent(
     # Sequence event description
     input: AddSequenceEventInput!
@@ -2359,6 +2325,9 @@ type Observation {
     includeDeleted: Boolean! = false
   ): Program!
 
+  # The observation's target(s)
+  targets: TargetEnvironment
+
   # The constraint set for the observation
   constraintSet: ConstraintSet!
 
@@ -2373,24 +2342,6 @@ type Observation {
     # Set to true to include deleted values
     includeDeleted: Boolean! = false
   ): ScienceConfiguration
-
-  # The observation's asterism or target (see also `asterism` and `target` fields)
-  observationTarget(
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): ObservationTarget
-
-  # The observation's asterism, if a multi-target observation
-  asterism(
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): Asterism
-
-  # The observation's target, if a single-target observation
-  target(
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): Target
 
   # Manual instrument configuration
   manualConfig: Config
@@ -2435,9 +2386,6 @@ type ObservationEdit implements Event {
 
 # ObservationId id formatted as `o-([1-9a-f][0-9a-f]*)`
 scalar ObservationId
-
-# Either asterism or target
-union ObservationTarget = Asterism | Target
 
 # Observation status options
 enum ObsStatus {
@@ -2588,18 +2536,6 @@ type Program {
   # Program name
   name: NonEmptyString
 
-  # All asterisms associated with the program (needs pagination).
-  asterisms(
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): AsterismConnection!
-
   # All observations associated with the program (needs pagination).
   observations(
     # Retrieve `first` values after the given cursor
@@ -2611,18 +2547,6 @@ type Program {
     # Set to true to include deleted values
     includeDeleted: Boolean! = false
   ): ObservationConnection!
-
-  # All targets associated with the program (needs pagination).
-  targets(
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): TargetConnection!
 
   # Program planned time calculation.
   plannedTime(
@@ -2745,34 +2669,6 @@ type q {
 }
 
 type Query {
-  # Returns all asterisms associated with the given program.
-  asterisms(
-    # Program ID
-    programId: ProgramId!
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): AsterismConnection!
-
-  # Returns the asterism with the given id, if any.
-  asterism(
-    # Asterism ID
-    asterismId: AsterismId!
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): Asterism
-  spectroscopy(
-    # Configuraton alternatives search parameters.
-    input: QueryConfigurationAlternativeSearchInput!
-  ): Int!
-
   # Returns all observations associated with the given ids or program, or all observations if neither is specified.
   observations(
     # (Optional) listing of specific observations to retrieve
@@ -2854,56 +2750,59 @@ type Query {
     includeDeleted: Boolean! = false
   ): Program
 
-  # Return all targets associated with the given program.
-  targets(
+  # The first (or only) science target (if any) for the given observation (or environment)
+  scienceTarget(
+    # Observation ID
+    observationId: ObservationId
+
+    # Target environment ID
+    targetEnvironmentId: TargetEnvironmentId
+  ): Target
+
+  # All science targets (if any) for the given observation (or environment)
+  scienceTargetList(
+    # Observation ID
+    observationId: ObservationId
+
+    # Target environment ID
+    targetEnvironmentId: TargetEnvironmentId
+  ): [Target!]!
+
+  # Target environment for the given observation (or environment id)
+  targetEnvironment(
+    # Observation ID
+    observationId: ObservationId
+
+    # Target environment ID
+    targetEnvironmentId: TargetEnvironmentId
+  ): TargetEnvironment
+
+  # Target environments grouped by those that share the same target
+  scienceTargetGroup(
     # Program ID
     programId: ProgramId!
 
-    # Retrieve `first` values after the given cursor
-    first: Int
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): [GroupByTarget!]!
 
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
+  # Target environments grouped by those that share the same collection of targets
+  scienceTargetListGroup(
+    # Program ID
+    programId: ProgramId!
 
     # Set to true to include deleted values
     includeDeleted: Boolean! = false
-  ): TargetConnection!
+  ): [GroupByTargetList!]!
 
-  # Returns the target with the given id, if any.
-  target(
-    # Target ID
-    targetId: TargetId!
+  # Target environments grouped by those that share the same properties and targets
+  targetEnvironmentGroup(
+    # Program ID
+    programId: ProgramId!
 
     # Set to true to include deleted values
     includeDeleted: Boolean! = false
-  ): Target
-}
-
-# Configuration alternatives query
-input QueryConfigurationAlternativeSearchInput {
-  # Observing wavelength.
-  wavelength: WavelengthModelInput
-
-  # Minimum desired simultaneous wavelength coverage.
-  simultaneousCoverage: WavelengthModelInput
-
-  # Minimum desired resolution.
-  resolution: PosInt
-
-  # Minimum desired signal-to-noise ratio.
-  signalToNoise: PosInt
-
-  # Spatial profile PointSource/UniformSource/GaussianSource.
-  spatialProfile: SpatialProfileModelInput
-
-  # Spectral distribution variant BlacBode/PowerLaw/Stellar/NonStellar.
-  spectralDistribution: SpctralDistribution
-
-  # Target magnitude/system/band.
-  magnitude: MagnitudeCreateInput
-
-  # Target redshift.
-  redshift: BigDecimal
+  ): [GroupByTargetEnvironment!]!
 }
 
 type RadialVelocity {
@@ -3095,6 +2994,20 @@ input ScienceRequirementsInput {
   spectroscopyRequirements: SpectroscopyScienceRequirementsInput!
 }
 
+# Target environment selection parameters. Choose at least one option.
+input SelectTargetEnvironmentInput {
+  all: ProgramId
+  program: ProgramId
+  observations: [ObservationId!]
+  targetEnvironments: [TargetEnvironmentId!]
+}
+
+# Target selection parameters.  Choose at least one of `names` or `targetIds`.
+input SelectTargetInput {
+  names: [NonEmptyString!]
+  targetIds: [TargetId!]
+}
+
 # Sequence-level command
 enum SequenceCommand {
   # SequenceCommand ABORT
@@ -3196,73 +3109,6 @@ input SlitWidthInput {
   arcseconds: BigDecimal
 }
 
-# Decimal value in SpatialProfile
-input SpatialProfileDecimalInput {
-  # decimal value in associated units
-  value: BigDecimal!
-
-  # units for associated value
-  units: SpatialProfileUnits!
-}
-
-# Integral value in SpatialProfile
-input SpatialProfileLongInput {
-  # integral value in associated units
-  value: Long!
-
-  # units for associated value
-  units: SpatialProfileUnits!
-}
-
-# Spatial profile PointSource/UniformSource/GaussianSource
-input SpatialProfileModelInput {
-  # Spatial profile type: Point/Uniform/Gaussian
-  sourceType: SpatialProfileType!
-
-  # Full width half maximum (including seeing) in suitable units. Required for the
-  # Gaussian spatial profile, ignored otherwise.
-  fwhm: GaussianSourceAngleInput
-}
-
-# Spatial profile type: Point/Uniform/Gaussian
-enum SpatialProfileType {
-  # SpatialProfileType PointSource
-  POINT_SOURCE
-
-  # SpatialProfileType UniformSource
-  UNIFORM_SOURCE
-
-  # SpatialProfileType GaussianSource
-  GAUSSIAN_SOURCE
-}
-
-# Spatial profial gaussian units
-enum SpatialProfileUnits {
-  # SpatialProfileUnits Microarcseconds
-  MICROARCSECONDS
-
-  # SpatialProfileUnits Milliarcseconds
-  MILLIARCSECONDS
-
-  # SpatialProfileUnits Arcseconds
-  ARCSECONDS
-}
-
-# Spectral distribution variant
-enum SpctralDistribution {
-  # SpctralDistribution BlackBody
-  BLACK_BODY
-
-  # SpctralDistribution PowerLaw
-  POWER_LAW
-
-  # SpctralDistribution Stellar
-  STELLAR
-
-  # SpctralDistribution NonStellar
-  NON_STELLAR
-}
-
 # Spectroscopy capabilities Nod&Shuffle/Polarimetry/Corongraphy
 enum SpectroscopyCapabilities {
   # SpectroscopyCapabilities NodAndShuffle
@@ -3289,7 +3135,7 @@ type SpectroscopyScienceRequirements {
   signalToNoiseAt: Wavelength
 
   # Wavelength range
-  wavelengthRange: Wavelength
+  wavelengthCoverage: Wavelength
 
   # Focal plane choice
   focalPlane: FocalPlane
@@ -3307,7 +3153,7 @@ input SpectroscopyScienceRequirementsInput {
   resolution: PosInt
   signalToNoise: PosBigDecimal
   signalToNoiseAt: WavelengthModelInput
-  wavelengthRange: WavelengthModelInput
+  wavelengthCoverage: WavelengthModelInput
   focalPlane: FocalPlane
   focalPlaneAngle: FocalPlaneAngleInput
   capabilities: SpectroscopyCapabilities
@@ -3423,21 +3269,6 @@ enum StepType {
 
 type Subscription {
   #
-  # Subscribes to an event that is generated whenever a(n) asterism is
-  # created or updated.  If a(n) asterism id is provided, the event is only
-  # generated for edits to that particular asterism.  If a program id is
-  # provided then the event must correspond to a(n) asterism referenced by
-  # that program.
-  #
-  asterismEdit(
-    # Asterism ID
-    asterismId: AsterismId
-
-    # Program ID
-    programId: ProgramId
-  ): AsterismEdit!
-
-  #
   # Subscribes to an event that is generated whenever a(n) observation is
   # created or updated.  If a(n) observation id is provided, the event is only
   # generated for edits to that particular observation.  If a program id is
@@ -3453,6 +3284,21 @@ type Subscription {
   ): ObservationEdit!
 
   #
+  # Subscribes to an event that is generated whenever a(n) targetEnvironment is
+  # created or updated.  If a(n) targetEnvironment id is provided, the event is only
+  # generated for edits to that particular targetEnvironment.  If a program id is
+  # provided then the event must correspond to a(n) targetEnvironment referenced by
+  # that program.
+  #
+  targetEnvironmentEdit(
+    # Target environment ID
+    targetEnvironmentId: TargetEnvironmentId
+
+    # Program ID
+    programId: ProgramId
+  ): TargetEnvironmentEdit!
+
+  #
   # Subscribes to an event that is generated whenever a program is created
   # or edited. A particular program id may be provided to limit events to
   # that program.
@@ -3461,71 +3307,23 @@ type Subscription {
     # Program ID
     programId: ProgramId
   ): ProgramEdit!
-
-  #
-  # Subscribes to an event that is generated whenever a(n) target is
-  # created or updated.  If a(n) target id is provided, the event is only
-  # generated for edits to that particular target.  If a program id is
-  # provided then the event must correspond to a(n) target referenced by
-  # that program.
-  #
-  targetEdit(
-    # Target ID
-    targetId: TargetId
-
-    # Program ID
-    programId: ProgramId
-  ): TargetEdit!
 }
 
-type Target {
-  # Target id.
+type Target implements TargetDescription {
+  # Target ID
   id: TargetId!
 
-  # Deleted or Present
-  existence: Existence!
+  # Target environment ID
+  targetEnvironmentId: TargetEnvironmentId!
 
-  # The asterisms associated with the target.
-  asterisms(
-    # Program ID
-    programId: ProgramId
+  # Target environment that houses this target
+  targetEnvironment: TargetEnvironment!
 
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
+  # Observation that references this target, if any.
+  observation(
     # Set to true to include deleted values
     includeDeleted: Boolean! = false
-  ): AsterismConnection!
-
-  # The observations associated with the target.
-  observations(
-    # Program ID
-    programId: ProgramId
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): ObservationConnection!
-
-  # The programs associated with the target.
-  programs(
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): ProgramConnection!
+  ): Observation
 
   # Target name.
   name: NonEmptyString!
@@ -3537,53 +3335,97 @@ type Target {
   magnitudes: [Magnitude!]!
 }
 
-# Target and the asterisms with which it is associated
-input TargetAsterismLinks {
-  targetId: TargetId!
-  asterismIds: [AsterismId!]!
+# Target data fields
+interface TargetDescription {
+  # Target name.
+  name: NonEmptyString!
+
+  # Information required to find a target in the sky.
+  tracking: Tracking!
+
+  # Target magnitudes
+  magnitudes: [Magnitude!]!
 }
 
-# Targets in the current page
-type TargetConnection {
-  # The nodes in all the edges from the current page
-  nodes: [Target!]!
+type TargetEditDesc {
+  # Which operation was performed
+  op: TargetEditDescOp!
 
-  # Edges in the current page
-  edges: [TargetEdge!]!
-
-  # Count of all nodes in all pages
-  totalCount: Int!
-
-  # Paging information
-  pageInfo: PageInfo!
+  # Target that was edited
+  target: Target!
 }
 
-# A Target and its cursor
-type TargetEdge {
-  # TargetEdge element
-  node: Target!
+# The target edit that was performed
+enum TargetEditDescOp {
+  # TargetEditDescOp Create
+  CREATE
 
-  # TargetEdge element cursor
-  cursor: Cursor!
+  # TargetEditDescOp Edit
+  EDIT
+
+  # TargetEditDescOp Delete
+  DELETE
+}
+
+type TargetEnvironment {
+  # Target environment id
+  id: TargetEnvironmentId!
+
+  # When set, overrides the default base position of the target group
+  explicitBase: Coordinates
+
+  # All science targets, if any
+  scienceTargets: [Target!]!
+
+  # First science target, if any
+  firstScienceTarget: Target
+
+  # Observation housing this environment, if any
+  observation(
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): Observation
+}
+
+type TargetEnvironmentContext {
+  # Target environment that was edited
+  targetEnvironment: TargetEnvironment!
+
+  # Observation that houses the target environment, if any
+  observation: Observation
+
+  # Program that houses the target environment
+  program: Program!
 }
 
 # Event sent when a new object is created or updated
-type TargetEdit implements Event {
+type TargetEnvironmentEdit implements Event {
   # Type of edit
   editType: EditType!
 
   # Edited object
-  value: Target!
+  value: TargetEnvironment!
   id: Long!
 }
+
+# TargetEnvironmentId id formatted as `v-([1-9a-f][0-9a-f]*)`
+scalar TargetEnvironmentId
 
 # TargetId id formatted as `t-([1-9a-f][0-9a-f]*)`
 scalar TargetId
 
-# Target and the programs with which it is associated
-input TargetProgramLinks {
-  targetId: TargetId!
-  programIds: [ProgramId!]!
+type TargetListEditDesc {
+  # Target environment that was edited
+  targetEnvironment: TargetEnvironment!
+
+  # Observation that houses the target environment, if any
+  observation: Observation
+
+  # Program that houses the target environment
+  program: Program!
+
+  # Details any edits that were performed
+  edits: [TargetEditDesc!]!
 }
 
 # Either Nonsidereal ephemeris lookup key or Sidereal proper motion.
@@ -3660,4 +3502,3 @@ enum WavelengthUnits {
   # WavelengthUnits Micrometers
   MICROMETERS
 }
-
