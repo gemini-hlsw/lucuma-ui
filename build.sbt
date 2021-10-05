@@ -20,7 +20,7 @@ val dependencies = List(
   "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
 )
 
-lazy val root    = project
+lazy val root = project
   .in(file("."))
   .aggregate(lucumaSchemas.projectRefs: _*)
   .settings(
