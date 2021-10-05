@@ -5,38 +5,37 @@ package lucuma.schemas
 
 import clue.annotation.GraphQLSchema
 import lucuma.core.enum
-import lucuma.core.model.Asterism
-import lucuma.core.model.Atom
-import lucuma.core.model.Observation
-import lucuma.core.model.Step
-import lucuma.core.model.Target
+import lucuma.core.model
+import lucuma.core.model._
 // gql: import io.circe.refined._
 
 @GraphQLSchema
 trait ObservationDB {
   object Scalars {
     // Ids
-    type AsterismId       = Asterism.Id
-    type AtomId           = Atom.Id
-    type ObservationId    = Observation.Id
-    type ProgramId        = String
-    type StepId           = Step.Id
-    type TargetId         = Target.Id
-    type ExecutionEventId = String
+    type AsterismId          = Asterism.Id
+    type AtomId              = Atom.Id
+    type ExecutionEventId    = ExecutionEvent.Id
+    type ObservationId       = Observation.Id
+    type ProgramId           = String
+    type StepId              = Step.Id
+    type TargetId            = Target.Id
+    type TargetEnvironmentId = TargetEnvironment.Id
     // Basic types
-    type BigDecimal       = scala.BigDecimal
-    type Long             = scala.Long
+    type BigDecimal          = scala.BigDecimal
+    type Long                = scala.Long
     // Formatted strings
-    type DmsString        = String
-    type EpochString      = String
-    type HmsString        = String
-    type DatasetFilename  = String
+    type DatasetFilename     = String
+    type DmsString           = String
+    type EphemerisKey        = model.EphemerisKey
+    type EpochString         = String
+    type HmsString           = String
     // Refined
-    type NonEmptyString   = eu.timepit.refined.types.string.NonEmptyString
-    type PosInt           = eu.timepit.refined.types.numeric.PosInt
-    type PosBigDecimal    = eu.timepit.refined.types.numeric.PosBigDecimal
+    type NonEmptyString      = eu.timepit.refined.types.string.NonEmptyString
+    type PosBigDecimal       = eu.timepit.refined.types.numeric.PosBigDecimal
+    type PosInt              = eu.timepit.refined.types.numeric.PosInt
     // Time
-    type Instant          = java.time.Instant
+    type Instant             = java.time.Instant
   }
 
   object Enums {
