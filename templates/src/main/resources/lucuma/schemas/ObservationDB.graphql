@@ -2326,7 +2326,7 @@ type Observation {
   ): Program!
 
   # The observation's target(s)
-  targets: TargetEnvironment
+  targets: TargetEnvironment!
 
   # The constraint set for the observation
   constraintSet: ConstraintSet!
@@ -3502,3 +3502,4 @@ enum WavelengthUnits {
   # WavelengthUnits Micrometers
   MICROMETERS
 }
+
