@@ -3,7 +3,7 @@ import sbt._
 lazy val reactJS                = "17.0.2"
 lazy val FUILess                = "2.8.7"
 lazy val scalaJsReactVersion    = "2.0.0-RC3"
-lazy val lucumaCoreVersion      = "0.13.4"
+lazy val lucumaCoreVersion      = "0.14.0"
 lazy val monocleVersion         = "3.1.0"
 lazy val crystalVersion         = "0.16.0"
 lazy val catsVersion            = "2.6.1"
