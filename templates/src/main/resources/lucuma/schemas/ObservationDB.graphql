@@ -157,6 +157,9 @@ enum CloudExtinction {
 }
 
 type CommonTarget implements TargetDescription {
+  # Target IDs that share the common target information
+  ids: [TargetId!]!
+
   # Target name.
   name: NonEmptyString!
 
