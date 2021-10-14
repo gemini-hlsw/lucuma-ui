@@ -13,7 +13,6 @@ import lucuma.core.model._
 trait ObservationDB {
   object Scalars {
     // Ids
-    type AsterismId          = Asterism.Id
     type AtomId              = Atom.Id
     type ExecutionEventId    = ExecutionEvent.Id
     type ObservationId       = Observation.Id
