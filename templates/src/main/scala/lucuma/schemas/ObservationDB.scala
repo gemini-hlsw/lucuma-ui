@@ -38,9 +38,12 @@ trait ObservationDB {
   }
 
   object Enums {
+    type Breakpoint               = enum.Breakpoint
     type CatalogName              = enum.CatalogName
     type CloudExtinction          = enum.CloudExtinction
+    type DatasetStage             = enum.DatasetStage
     type EphemerisKeyType         = enum.EphemerisKeyType
+    type FocalPlane               = enum.FocalPlane
     type GcalArc                  = enum.GcalArc
     type GcalContinuum            = enum.GcalContinuum
     type GcalDiffuser             = enum.GcalDiffuser
@@ -49,14 +52,16 @@ trait ObservationDB {
     type GmosAmpCount             = enum.GmosAmpCount
     type GmosAmpReadMode          = enum.GmosAmpReadMode
     type GmosCustomSlitWidth      = enum.GmosCustomSlitWidth
-    type GmosDetector             = enum.GmosNorthDetector // FIXME when API reflects new model
+    type GmosDisperserOrder       = enum.GmosDisperserOrder
     type GmosDtax                 = enum.GmosDtax
     type GmosEOffsetting          = enum.GmosEOffsetting
+    type GmosNorthDetector        = enum.GmosNorthDetector
     type GmosNorthDisperser       = enum.GmosNorthDisperser
     type GmosNorthFilter          = enum.GmosNorthFilter
     type GmosNorthFpu             = enum.GmosNorthFpu
     type GmosNorthStageMode       = enum.GmosNorthStageMode
     type GmosRoi                  = enum.GmosRoi
+    type GmosSouthDetector        = enum.GmosSouthDetector
     type GmosSouthDisperser       = enum.GmosSouthDisperser
     type GmosSouthFilter          = enum.GmosSouthFilter
     type GmosSouthFpu             = enum.GmosSouthFpu
@@ -68,14 +73,15 @@ trait ObservationDB {
     type MagnitudeBand            = enum.MagnitudeBand
     type MagnitudeSystem          = enum.MagnitudeSystem
     type MosPreImaging            = enum.MosPreImaging
-    type ObsStatus                = enum.ObsStatus
     type ObsActiveStatus          = enum.ObsActiveStatus
+    type ObsStatus                = enum.ObsStatus
+    type ScienceMode              = enum.ScienceMode
+    type SequenceCommand          = enum.SequenceCommand
     type SkyBackground            = enum.SkyBackground
+    type SpectroscopyCapabilities = enum.SpectroscopyCapabilities
+    type StepStage                = enum.StepStage
     type StepType                 = enum.StepType
     type WaterVapor               = enum.WaterVapor
-    type ScienceMode              = enum.ScienceMode
-    type FocalPlane               = enum.FocalPlane
-    type SpectroscopyCapabilities = enum.SpectroscopyCapabilities
   }
 
   object Types {
