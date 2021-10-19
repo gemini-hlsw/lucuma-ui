@@ -7,6 +7,7 @@ import clue.annotation.GraphQLSchema
 import lucuma.core.enum
 import lucuma.core.model
 import lucuma.core.model._
+import lucuma.core.math
 // gql: import io.circe.refined._
 
 @GraphQLSchema
@@ -85,6 +86,18 @@ trait ObservationDB {
   }
 
   object Types {
-    type Duration = java.time.Duration
+    type Coordinates             = math.Coordinates
+    type Declination             = math.Declination
+    type Duration                = java.time.Duration
+    type Magnitude               = model.Magnitude
+    type Parallax                = math.Parallax
+    type ProperMotion            = math.ProperMotion
+    type ProperMotionDeclination = math.ProperMotion.Dec
+    type ProperMotionRA          = math.ProperMotion.RA
+    type RadialVelocity          = math.RadialVelocity
+    type RightAscension          = math.RightAscension
+    type Sidereal                = model.SiderealTracking
+    type Wavelength              = math.Wavelength
+
   }
 }
