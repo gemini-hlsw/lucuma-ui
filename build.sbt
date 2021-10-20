@@ -1,4 +1,4 @@
-val clueVersion       = "0.18.4"
+val clueVersion       = "0.18.6"
 val lucumaCoreVersion = "0.14.2"
 
 inThisBuild(
