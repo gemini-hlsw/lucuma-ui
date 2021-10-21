@@ -3,9 +3,10 @@
 
 package lucuma.schemas
 
-import cats.syntax.all.none
+import cats.syntax.all._
 import coulomb._
 import eu.timepit.refined.types.numeric.PosInt
+import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.{ Decoder, DecodingFailure, HCursor }
 import io.circe.generic.semiauto
 import io.circe.refined._
@@ -23,10 +24,18 @@ import lucuma.core.math.{
   Wavelength
 }
 import lucuma.core.math.units.CentimetersPerSecond
-import lucuma.core.model.{ Magnitude, SiderealTracking }
+import lucuma.core.model.{
+  EphemerisKey,
+  Magnitude,
+  NonsiderealTarget,
+  SiderealTarget,
+  SiderealTracking,
+  Target
+}
 
 import java.time.Duration
 import java.time.temporal.ChronoUnit
+import scala.collection.immutable.SortedMap
 
 object decoders {
   implicit val epochDecoder: Decoder[Epoch] =
@@ -134,5 +143,33 @@ object decoders {
   implicit val wavelengthDecoder: Decoder[Wavelength] = Decoder.instance(
     _.downField("picometers").as[PosInt].map(Wavelength.apply)
   )
+
+  implicit val ephemerisKeyDecoder: Decoder[EphemerisKey] = semiauto.deriveDecoder
+
+  implicit val siderealTargetDecoder: Decoder[SiderealTarget] = Decoder.instance(c =>
+    for {
+      name       <- c.downField("name").as[NonEmptyString]
+      tracking   <- c.downField("tracking").as[SiderealTracking]
+      magnitudes <- c.downField("magnitudes")
+                      .as[List[Magnitude]]
+                      .map(mags => SortedMap(mags.map(mag => mag.band -> mag): _*))
+    } yield SiderealTarget(name, tracking, magnitudes)
+  )
+
+  implicit val nonsiderealTargetDecoder: Decoder[NonsiderealTarget] = Decoder.instance(c =>
+    for {
+      name         <- c.downField("name").as[NonEmptyString]
+      ephemerisKey <- c.downField("ephemerisKey").as[EphemerisKey]
+      magnitudes   <- c.downField("magnitudes")
+                        .as[List[Magnitude]]
+                        .map(mags => SortedMap(mags.map(mag => mag.band -> mag): _*))
+    } yield NonsiderealTarget(name, ephemerisKey, magnitudes)
+  )
+
+  implicit val targetDecoder: Decoder[Target] =
+    List[Decoder[Target]](
+      Decoder[SiderealTarget].widen,
+      Decoder[NonsiderealTarget].widen
+    ).reduceLeft(_ or _)
 
 }
