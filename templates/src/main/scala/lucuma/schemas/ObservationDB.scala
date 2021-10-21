@@ -51,6 +51,7 @@ trait ObservationDB {
     type GcalFilter               = enum.GcalFilter
     type GcalShutter              = enum.GcalShutter
     type GmosAmpCount             = enum.GmosAmpCount
+    type GmosAmpGain              = enum.GmosAmpGain
     type GmosAmpReadMode          = enum.GmosAmpReadMode
     type GmosCustomSlitWidth      = enum.GmosCustomSlitWidth
     type GmosDisperserOrder       = enum.GmosDisperserOrder
