@@ -130,8 +130,9 @@ object decoders {
       for {
         v <- c.downField("value").as[MagnitudeValue]
         b <- c.downField("band").as[MagnitudeBand]
+        e <- c.downField("error").as[Option[MagnitudeValue]]
         s <- c.downField("system").as[MagnitudeSystem]
-      } yield Magnitude(v, b, s)
+      } yield Magnitude(v, b, e, s)
   }
 
   implicit val durationDecoder: Decoder[Duration] = Decoder.instance(
