@@ -18,6 +18,7 @@ import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.callback.CallbackCats._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math.Declination
@@ -42,7 +43,7 @@ import react.semanticui.elements.label.LabelPointing
 
 import scala.scalajs.js.annotation._
 
-final case class FormComponent(root: ViewF[SyncIO, FormComponent.RootModel])
+final case class FormComponent(root: ViewF[CallbackTo, FormComponent.RootModel])
     extends ReactProps[FormComponent](FormComponent.component)
 
 object FormComponent {
@@ -274,7 +275,7 @@ object FormComponent {
 trait AppMain extends IOApp.Simple {
   import FormComponent._
 
-  protected def rootComponent(view: ViewF[SyncIO, RootModel]): VdomElement
+  protected def rootComponent(view: ViewF[CallbackTo, RootModel]): VdomElement
 
   @JSExport
   def runIOApp(): Unit = main(Array.empty)
@@ -305,9 +306,9 @@ trait AppMain extends IOApp.Simple {
       elem
     }
 
-    val StateProvider = StateProviderSyncIO(initialModel)
+    val AppStateProvider = StateProvider(initialModel)
 
-    (StateProvider((rootComponent _).reuseAlways)).renderIntoDOM(container)
+    (AppStateProvider((rootComponent _).reuseAlways)).renderIntoDOM(container)
 
     ()
   }
@@ -316,7 +317,7 @@ trait AppMain extends IOApp.Simple {
 @JSExportTopLevel("Demo")
 object Demo extends AppMain {
   override protected def rootComponent(
-    rootView: ViewF[SyncIO, FormComponent.RootModel]
+    rootView: ViewF[CallbackTo, FormComponent.RootModel]
   ): VdomElement =
     FormComponent(rootView)
 }
