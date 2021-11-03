@@ -6,7 +6,7 @@ lazy val FUILess = "2.8.7"
 lazy val scalaJsReactVersion    = "2.0.0-RC5"
 lazy val lucumaCoreVersion      = "0.14.3"
 lazy val monocleVersion         = "3.1.0"
-lazy val crystalVersion         = "0.16.2"
+lazy val crystalVersion         = "0.17.0"
 lazy val catsVersion            = "2.6.1"
 lazy val mouseVersion           = "1.0.7"
 lazy val reactCommonVersion     = "0.14.6"
@@ -67,8 +67,11 @@ lazy val demo =
       fullOptJS / webpackBundlingMode := BundlingMode.Application,
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      test                                   := {},
-      libraryDependencies += "com.rpiaggio" %%% "log4cats-loglevel" % "0.3.0",
+      test := {},
+      libraryDependencies ++= List(
+        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats" % scalaJsReactVersion,
+        "com.rpiaggio"                      %%% "log4cats-loglevel" % "0.3.0"
+      ),
       // NPM libs for development, mostly to let webpack do its magic
       Compile / npmDevDependencies ++= Seq(
         "postcss"        -> "8.1.1",
@@ -110,7 +113,7 @@ lazy val ui =
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"           % catsVersion,
-        "com.github.japgolly.scalajs-react" %%% "core"                % scalaJsReactVersion,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"   % scalaJsReactVersion,
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"  % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
         "eu.timepit"                        %%% "singleton-ops"       % singletonOpsVersion,

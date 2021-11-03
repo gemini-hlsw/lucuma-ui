@@ -3,12 +3,12 @@
 
 package lucuma.ui.forms
 
-import cats.effect.SyncIO
+import cats.Monoid
 import cats.syntax.all._
 import crystal.ViewF
-import crystal.react.implicits._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.JsNumber
+import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
@@ -30,7 +30,7 @@ import scalajs.js.|
  */
 final case class EnumViewOptionalSelect[A](
   id:                   String,
-  value:                ViewF[SyncIO, Option[A]],
+  value:                ViewF[DefaultS, Option[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
@@ -103,13 +103,14 @@ final case class EnumViewOptionalSelect[A](
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
   val enum:    Enumerated[A],
-  val display: Display[A]
+  val display: Display[A],
+  val monoid:  Monoid[DefaultS[Unit]]
 ) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
     with EnumViewSelectBase {
 
   type AA    = A
   type GG[X] = Option[X]
-  type FF[X] = SyncIO[X]
+  type FF[X] = DefaultS[X]
 
   override val multiple = false
 

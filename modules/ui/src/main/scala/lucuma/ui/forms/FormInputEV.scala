@@ -11,7 +11,6 @@ import cats.data.ValidatedNec
 import cats.syntax.all._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
-import japgolly.scalajs.react.ReactCats._
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.JsNumber

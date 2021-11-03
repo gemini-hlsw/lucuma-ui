@@ -3,19 +3,18 @@
 
 package lucuma.ui.utils
 
-import cats.effect.SyncIO
-import crystal.react.implicits._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.ReactMouseEvent
+import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
 
 trait ReactUtils {
-  def linkOverride(f: => SyncIO[Unit]): ReactMouseEvent => Callback =
+  def linkOverride(f: => DefaultS[Unit]): ReactMouseEvent => Callback =
     e => {
       val forward = linkOverride[Unit](f)
       forward(e, ())
     }
 
-  def linkOverride[A](f: => SyncIO[Unit]): (ReactMouseEvent, A) => Callback =
+  def linkOverride[A](f: => DefaultS[Unit]): (ReactMouseEvent, A) => Callback =
     (e: ReactMouseEvent, _: A) =>
       (e.preventDefaultCB *> f)
         .unless_(e.ctrlKey || e.metaKey)
