@@ -18,7 +18,6 @@ import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.Reusability._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.callback.CallbackCats._
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math.Declination
