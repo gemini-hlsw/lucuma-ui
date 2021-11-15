@@ -99,8 +99,8 @@ final case class EnumViewMultipleSelect[A](
   exclude:              Set[A] = Set.empty[A],
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
-  val enum:    Enumerated[A],
-  val display: Display[A]
+  val enumerated: Enumerated[A],
+  val display:    Display[A]
 ) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
     with EnumViewSelectBase {
 
@@ -117,9 +117,9 @@ final case class EnumViewMultipleSelect[A](
     val enums = ddp.value
       .asInstanceOf[js.Array[String]]
       .toSet
-      .flatMap(v => enum.fromTag(v))
+      .flatMap(v => enumerated.fromTag(v))
     value.set(enums)
   }
 
-  override def getter = value.get.map(i => enum.tag(i)).toJSArray
+  override def getter = value.get.map(i => enumerated.tag(i)).toJSArray
 }
