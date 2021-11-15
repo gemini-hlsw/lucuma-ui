@@ -102,9 +102,9 @@ final case class EnumViewOptionalSelect[A](
   exclude:              Set[A] = Set.empty[A],
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
-  val enum:    Enumerated[A],
-  val display: Display[A],
-  val monoid:  Monoid[DefaultS[Unit]]
+  val enumerated: Enumerated[A],
+  val display:    Display[A],
+  val monoid:     Monoid[DefaultS[Unit]]
 ) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
     with EnumViewSelectBase {
 
@@ -118,9 +118,9 @@ final case class EnumViewOptionalSelect[A](
 
   override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
     ddp.value.toOption
-      .map(v => value.set(enum.fromTag(v.asInstanceOf[String])))
+      .map(v => value.set(enumerated.fromTag(v.asInstanceOf[String])))
       .orEmpty
 
   // sets the value of the underlying select from the ViewF[F, B]
-  override def getter = value.get.map(i => enum.tag(i)).orUndefined
+  override def getter = value.get.map(i => enumerated.tag(i)).orUndefined
 }

@@ -24,8 +24,8 @@ final case class EnumSelect[A](
   disabled:    Boolean,
   onChange:    A => Callback = (_: A) => Callback.empty
 )(implicit
-  val enum:    Enumerated[A],
-  val display: Display[A]
+  val enumerated: Enumerated[A],
+  val display:    Display[A]
 ) extends ReactProps[EnumSelect[Any]](EnumSelect.component)
 
 object EnumSelect {
@@ -48,12 +48,12 @@ object EnumSelect {
             placeholder = p.placeholder,
             fluid = true,
             disabled = p.disabled,
-            value = p.value.map(i => p.enum.tag(i)).orUndefined,
-            options = p.enum.all
-              .map(i => DropdownItem(text = i.shortName, value = p.enum.tag(i))),
+            value = p.value.map(i => p.enumerated.tag(i)).orUndefined,
+            options = p.enumerated.all
+              .map(i => DropdownItem(text = i.shortName, value = p.enumerated.tag(i))),
             onChange = (ddp: Dropdown.DropdownProps) =>
               ddp.value.toOption
-                .flatMap(v => p.enum.fromTag(v.asInstanceOf[String]))
+                .flatMap(v => p.enumerated.fromTag(v.asInstanceOf[String]))
                 .map(v => p.onChange(v))
                 .getOrEmpty
           )

@@ -104,7 +104,7 @@ trait EnumViewSelectBase {
   val wrapSelection: js.UndefOr[Boolean]
   val exclude: Set[AA]
   val modifiers: Seq[TagMod]
-  val enum: Enumerated[AA]
+  val enumerated: Enumerated[AA]
   val display: Display[AA]
 
   // set the value in the View from the Select
@@ -189,9 +189,9 @@ object EnumViewSelectBase {
           p.onSearchChangeE,
           p.open,
           p.openOnFocus,
-          options = p.enum.all
+          options = p.enumerated.all
             .filter(v => !p.exclude.contains(v))
-            .map(i => DropdownItem(text = i.shortName, value = p.enum.tag(i))),
+            .map(i => DropdownItem(text = i.shortName, value = p.enumerated.tag(i))),
           p.placeholder,
           p.pointing,
           p.renderLabel,
