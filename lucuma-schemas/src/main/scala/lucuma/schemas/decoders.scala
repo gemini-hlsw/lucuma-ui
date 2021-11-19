@@ -25,6 +25,7 @@ import lucuma.core.math.{
 }
 import lucuma.core.math.units.CentimetersPerSecond
 import lucuma.core.model.{
+  AngularSize,
   EphemerisKey,
   Magnitude,
   NonsiderealTarget,
@@ -61,29 +62,24 @@ object decoders {
       c.downField("microarcseconds").as[Parallax](pxµasDecoder)
   }
 
-  val raµasDecoder: Decoder[RightAscension] =
-    Decoder.decodeLong
-      .map(
-        (RightAscension.fromAngleExact.getOption _).compose(Angle.fromMicroarcseconds _)
+  implicit val angleDecoder: Decoder[Angle] = Decoder.instance(
+    _.downField("microarcseconds").as[Long].map(Angle.microarcseconds.reverseGet)
+  )
+
+  implicit val raDecoder: Decoder[RightAscension] =
+    Decoder.instance(
+      _.as[Angle].map(
+        (RightAscension.fromAngleExact.getOption _).map(_.getOrElse(RightAscension.Zero))
       )
-      .map(_.getOrElse(RightAscension.Zero))
+    )
 
-  implicit val raDecoder: Decoder[RightAscension] = new Decoder[RightAscension] {
-    final def apply(c: HCursor): Decoder.Result[RightAscension] =
-      c.downField("microarcseconds").as[RightAscension](raµasDecoder)
-  }
-
-  val decµasDecoder: Decoder[Declination] =
-    Decoder.decodeLong
-      .map(
-        (Declination.fromAngle.getOption _).compose(Angle.fromMicroarcseconds _)
+  implicit val decDecoder: Decoder[Declination] =
+    Decoder
+      .instance(
+        _.as[Angle]
+          .map(Declination.fromAngle.getOption _)
       )
       .emap(_.toRight("Invalid µarcsec value for declination"))
-
-  implicit val decDecoder: Decoder[Declination] = new Decoder[Declination] {
-    final def apply(c: HCursor): Decoder.Result[Declination] =
-      c.downField("microarcseconds").as[Declination](decµasDecoder)
-  }
 
   implicit val coordDecoder: Decoder[Coordinates] = semiauto.deriveDecoder[Coordinates]
 
@@ -147,6 +143,8 @@ object decoders {
 
   implicit val ephemerisKeyDecoder: Decoder[EphemerisKey] = semiauto.deriveDecoder
 
+  implicit val angularSizeDecoder: Decoder[AngularSize] = semiauto.deriveDecoder
+
   implicit val siderealTargetDecoder: Decoder[SiderealTarget] = Decoder.instance(c =>
     for {
       name       <- c.downField("name").as[NonEmptyString]
@@ -154,7 +152,8 @@ object decoders {
       magnitudes <- c.downField("magnitudes")
                       .as[List[Magnitude]]
                       .map(mags => SortedMap(mags.map(mag => mag.band -> mag): _*))
-    } yield SiderealTarget(name, tracking, magnitudes)
+      angSize    <- c.downField("angularSize").as[Option[AngularSize]]
+    } yield SiderealTarget(name, tracking, magnitudes, angSize)
   )
 
   implicit val nonsiderealTargetDecoder: Decoder[NonsiderealTarget] = Decoder.instance(c =>
@@ -164,7 +163,8 @@ object decoders {
       magnitudes   <- c.downField("magnitudes")
                         .as[List[Magnitude]]
                         .map(mags => SortedMap(mags.map(mag => mag.band -> mag): _*))
-    } yield NonsiderealTarget(name, ephemerisKey, magnitudes)
+      angSize      <- c.downField("angularSize").as[Option[AngularSize]]
+    } yield NonsiderealTarget(name, ephemerisKey, magnitudes, angSize)
   )
 
   implicit val targetDecoder: Decoder[Target] =
