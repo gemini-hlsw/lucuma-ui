@@ -4,7 +4,6 @@
 package lucuma.ui.forms
 
 import cats.effect.Async
-import cats.effect.std.Dispatcher
 import cats.implicits._
 import crystal.ViewF
 import crystal.ViewOptF
@@ -12,6 +11,7 @@ import crystal.react.implicits._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
+import japgolly.scalajs.react.util.Effect
 import org.typelevel.log4cats.Logger
 
 trait ExternalValue[EV[_]] {
@@ -34,7 +34,7 @@ object ExternalValue {
       override def set[A](ev: ViewOptF[DefaultS, A]): A => Callback = a => ev.set(a)
     }
 
-  implicit def externalValueAsyncViewF[F[_]: Async: Dispatcher: Logger]
+  implicit def externalValueAsyncViewF[F[_]: Async: Effect.Dispatch: Logger]
     : ExternalValue[ViewF[F, *]] =
     new ExternalValue[ViewF[F, *]] {
       override def get[A](ev: ViewF[F, A]): Option[A] = ev.get.some
@@ -43,7 +43,7 @@ object ExternalValue {
         ev.set.andThen(_.runAsync)
     }
 
-  implicit def externalValueAsyncViewOptF[F[_]: Async: Dispatcher: Logger]
+  implicit def externalValueAsyncViewOptF[F[_]: Async: Effect.Dispatch: Logger]
     : ExternalValue[ViewOptF[F, *]] =
     new ExternalValue[ViewOptF[F, *]] {
       override def get[A](ev: ViewOptF[F, A]): Option[A] = ev.get
