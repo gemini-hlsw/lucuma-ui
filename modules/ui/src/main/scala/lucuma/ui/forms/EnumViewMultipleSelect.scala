@@ -3,7 +3,6 @@
 
 package lucuma.ui.forms
 
-import crystal.ViewF
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
@@ -26,9 +25,9 @@ import scalajs.js.|
 /**
  * Produces a dropdown menu, similar to a combobox, for which multiple values can be selected.
  */
-final case class EnumViewMultipleSelect[A](
+final case class EnumViewMultipleSelect[EV[_], A](
   id:                   String,
-  value:                ViewF[DefaultS, Set[A]],
+  value:                EV[Set[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
@@ -100,9 +99,10 @@ final case class EnumViewMultipleSelect[A](
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
   val enumerated: Enumerated[A],
-  val display:    Display[A]
-) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
-    with EnumViewSelectBase {
+  val display:    Display[A],
+  val ev:         ExternalValue[EV]
+) extends ReactProps[EnumViewSelectBase[EV]](EnumViewSelectBase.buildComponent[EV])
+    with EnumViewSelectBase[EV] {
 
   type AA    = A
   type GG[X] = Set[X]
@@ -111,15 +111,15 @@ final case class EnumViewMultipleSelect[A](
   override val clearable = false
   override val multiple  = true
 
-  def withMods(mods: TagMod*): EnumViewMultipleSelect[A] = copy(modifiers = modifiers ++ mods)
+  def withMods(mods: TagMod*): EnumViewMultipleSelect[EV, A] = copy(modifiers = modifiers ++ mods)
 
   override def setter(ddp: FormDropdown.FormDropdownProps): Callback = {
     val enums = ddp.value
       .asInstanceOf[js.Array[String]]
       .toSet
       .flatMap(v => enumerated.fromTag(v))
-    value.set(enums)
+    ev.set(value)(enums)
   }
 
-  override def getter = value.get.map(i => enumerated.tag(i)).toJSArray
+  override def getter = ev.get(value).map(_.map(enumerated.tag).toJSArray).orUndefined
 }

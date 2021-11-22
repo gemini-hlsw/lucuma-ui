@@ -4,7 +4,6 @@
 package lucuma.ui.forms
 
 import cats.syntax.all._
-import crystal.ViewF
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
@@ -26,13 +25,12 @@ import scalajs.js.|
 /**
  * Produces a dropdown menu, similar to a combobox. This is a base trait for various styles.
  */
-trait EnumViewSelectBase {
-  type FF[_]
+trait EnumViewSelectBase[EV[_]] {
   type AA
   type GG[_]
 
   val id: String
-  val value: ViewF[FF, GG[AA]]
+  val value: EV[GG[AA]]
   val as: js.UndefOr[AsC]
   val basic: js.UndefOr[Boolean]
   val button: js.UndefOr[Boolean]
@@ -112,14 +110,18 @@ trait EnumViewSelectBase {
 
   // get the value from the View for setting the Select
   def getter: js.UndefOr[Dropdown.Value]
+
+  val ev: ExternalValue[EV]
 }
 
 object EnumViewSelectBase {
-  type Props = EnumViewSelectBase
+  type Props[EV[_]] = EnumViewSelectBase[EV]
 
-  private[forms] val component =
+  private[forms] val component = buildComponent[Any]
+
+  private[forms] def buildComponent[EV[_]] =
     ScalaComponent
-      .builder[Props]
+      .builder[Props[EV]]
       .stateless
       .render_P { p =>
         implicit val display = p.display
