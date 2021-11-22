@@ -19,7 +19,7 @@ trait ExternalValue[EV[_]] {
   def set[A](ev: EV[A]): A => Callback
 }
 
-object ExternalValue {
+trait ExternalValueImplicits {
   implicit def externalValueViewF: ExternalValue[ViewF[DefaultS, *]] =
     new ExternalValue[ViewF[DefaultS, *]] {
       override def get[A](ev: ViewF[DefaultS, A]): Option[A] = ev.get.some
@@ -59,3 +59,5 @@ object ExternalValue {
       override def set[A](ev: StateSnapshot[A]): A => Callback = ev.setState
     }
 }
+
+object ExternalValue extends ExternalValueImplicits

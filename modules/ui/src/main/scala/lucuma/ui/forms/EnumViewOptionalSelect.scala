@@ -5,7 +5,6 @@ package lucuma.ui.forms
 
 import cats.Monoid
 import cats.syntax.all._
-import crystal.ViewF
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
@@ -28,9 +27,9 @@ import scalajs.js.|
 /**
  * Produces a dropdown menu, similar to a combobox, for which the value is optional.
  */
-final case class EnumViewOptionalSelect[A](
+final case class EnumViewOptionalSelect[EV[_], A](
   id:                   String,
-  value:                ViewF[DefaultS, Option[A]],
+  value:                EV[Option[A]],
   as:                   js.UndefOr[AsC] = js.undefined,
   basic:                js.UndefOr[Boolean] = js.undefined,
   button:               js.UndefOr[Boolean] = js.undefined,
@@ -104,9 +103,10 @@ final case class EnumViewOptionalSelect[A](
 )(implicit
   val enumerated: Enumerated[A],
   val display:    Display[A],
-  val monoid:     Monoid[DefaultS[Unit]]
-) extends ReactProps[EnumViewSelectBase](EnumViewSelectBase.component)
-    with EnumViewSelectBase {
+  val monoid:     Monoid[DefaultS[Unit]],
+  val ev:         ExternalValue[EV]
+) extends ReactProps[EnumViewSelectBase[EV]](EnumViewSelectBase.buildComponent[EV])
+    with EnumViewSelectBase[EV] {
 
   type AA    = A
   type GG[X] = Option[X]
@@ -114,13 +114,14 @@ final case class EnumViewOptionalSelect[A](
 
   override val multiple = false
 
-  def withMods(mods: TagMod*): EnumViewOptionalSelect[A] = copy(modifiers = modifiers ++ mods)
+  def withMods(mods: TagMod*): EnumViewOptionalSelect[EV, A] = copy(modifiers = modifiers ++ mods)
 
   override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
     ddp.value.toOption
-      .map(v => value.set(enumerated.fromTag(v.asInstanceOf[String])))
+      .map(v => ev.set(value)(enumerated.fromTag(v.asInstanceOf[String])))
       .orEmpty
 
-  // sets the value of the underlying select from the ViewF[F, B]
-  override def getter = value.get.map(i => enumerated.tag(i)).orUndefined
+  override def getter =
+    ev.get(value).flatMap(_.map(enumerated.tag)).orUndefined
+
 }
