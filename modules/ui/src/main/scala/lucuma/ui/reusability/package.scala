@@ -60,9 +60,9 @@ trait MathReusabilityInstances {
   implicit def pmReuse: Reusability[ProperMotion]         = Reusability.byEq
   implicit def rvReuse: Reusability[RadialVelocity]       = Reusability.byEq
   implicit def parallaxReuse: Reusability[Parallax]       = Reusability.byEq
-  implicit val magnitudeValueReuse: Reusability[MagnitudeValue] = Reusability.byEq
-  implicit val jsNumberReuse: Reusability[JsNumber]             = Reusability.byEq
-  implicit val bigDecimalReuse: Reusability[BigDecimal]         = Reusability.byEq
+  implicit val brightnessValueReuse: Reusability[BrightnessValue] = Reusability.byEq
+  implicit val jsNumberReuse: Reusability[JsNumber]               = Reusability.byEq
+  implicit val bigDecimalReuse: Reusability[BigDecimal]           = Reusability.byEq
   implicit val sizeReuse: Reusability[Size] = Reusability.by(x => (x.height, x.width))
 }
 
@@ -100,7 +100,8 @@ trait ModelReusabiltyInstances
   implicit val standardUserReuse: Reusability[StandardUser]  = Reusability.derive
   implicit def catalogIdReuse: Reusability[CatalogId]        = Reusability.derive
   implicit def siderealTrackingReuse: Reusability[SiderealTracking] = Reusability.derive
-  implicit val magnitudeReuse: Reusability[Magnitude]               = Reusability.derive
+  implicit val unormalizedSEDReuse: Reusability[UnnormalizedSED]    = Reusability.byEq
+  implicit val sourceProfileReuse: Reusability[SourceProfile]       = Reusability.byEq
   implicit val userReuse: Reusability[User]                         = Reusability.byEq
   implicit val offsetReuse: Reusability[Offset]                     = Reusability.byEq
   implicit val wavelengthReuse: Reusability[Wavelength]             = Reusability.byEq
