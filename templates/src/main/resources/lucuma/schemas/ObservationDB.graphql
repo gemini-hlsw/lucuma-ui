@@ -35,6 +35,50 @@ type AirMassRange {
   max: BigDecimal!
 }
 
+type AsterismGroup {
+  # IDs of observations that use the same constraints
+  observationIds: [ObservationId!]!
+
+  # Observations that use this constraint set
+  observations(
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): ObservationConnection!
+
+  # Commonly held value across the observations
+  asterism: [Target!]!
+}
+
+# Observations grouped by common properties
+type AsterismGroupConnection {
+  # The nodes in all the edges from the current page
+  nodes: [AsterismGroup!]!
+
+  # Edges in the current page
+  edges: [AsterismGroupEdge!]!
+
+  # Count of all nodes in all pages
+  totalCount: Int!
+
+  # Paging information
+  pageInfo: PageInfo!
+}
+
+# An observation group and its cursor
+type AsterismGroupEdge {
+  # AsterismGroupEdge element
+  node: AsterismGroup!
+
+  # AsterismGroupEdge element cursor
+  cursor: Cursor!
+}
+
 # Sequence atom
 interface Atom {
   # Atom id
@@ -63,6 +107,13 @@ enum Breakpoint {
 }
 
 # Input for bulk editing multiple observations
+input BulkEditAsterismInput {
+  selectProgram: ProgramId
+  selectObservations: [ObservationId!]
+  edit: [EditAsterismInput!]!
+}
+
+# Input for bulk editing multiple observations
 input BulkEditConstraintSetInput {
   selectProgram: ProgramId
   selectObservations: [ObservationId!]
@@ -76,34 +127,11 @@ input BulkEditScienceRequirementsInput {
   edit: EditScienceRequirementsInput!
 }
 
-# Target environment edit parameters
+# Input for bulk editing multiple observations
 input BulkEditTargetEnvironmentInput {
-  select: SelectTargetEnvironmentInput!
-
-  # The explicitBase field may be unset by assigning a null value, or ignored by skipping it altogether
-  explicitBase: CoordinatesInput
-}
-
-# Target editing parameters
-input BulkEditTargetInput {
-  select: SelectTargetEnvironmentInput
-  addSidereal: CreateSiderealInput
-  addNonsidereal: CreateNonsiderealInput
-  editSidereal: EditSiderealInput
-  editNonsidereal: EditNonsiderealInput
-  delete: SelectTargetInput
-}
-
-# Target editing parameters
-input BulkEditTargetListInput {
-  select: SelectTargetEnvironmentInput
-  edits: [EditTargetInput!]!
-}
-
-# Target list set/replace parameters
-input BulkReplaceTargetListInput {
-  select: SelectTargetEnvironmentInput!
-  replace: [CreateTargetInput!]!
+  selectProgram: ProgramId
+  selectObservations: [ObservationId!]
+  edit: EditTargetEnvironmentInput!
 }
 
 type CatalogId {
@@ -154,31 +182,6 @@ enum CloudExtinction {
 
   # CloudExtinction ThreePointZero
   THREE_POINT_ZERO
-}
-
-type CommonTarget implements TargetDescription {
-  # Target IDs that share the common target information
-  ids: [TargetId!]!
-
-  # Target name.
-  name: NonEmptyString!
-
-  # Information required to find a target in the sky.
-  tracking: Tracking!
-
-  # Target magnitudes
-  magnitudes: [Magnitude!]!
-}
-
-type CommonTargetEnvironment {
-  # When set, overrides the default base position of the target group
-  explicitBase: Coordinates
-
-  # All science targets, if any
-  scienceTargets: [CommonTarget!]!
-
-  # First science target, if any
-  firstScienceTarget: CommonTarget
 }
 
 # Instrument configuration
@@ -372,15 +375,16 @@ input CreateSiderealInput {
 
 # Target environment creation input parameters
 input CreateTargetEnvironmentInput {
-  targetEnvironmentId: TargetEnvironmentId
+  asterism: [TargetId!]
   explicitBase: CoordinatesInput
-  science: [CreateTargetInput!]
 }
 
 # Target creation parameters
 input CreateTargetInput {
-  nonsidereal: CreateNonsiderealInput
+  targetId: TargetId
+  programId: ProgramId!
   sidereal: CreateSiderealInput
+  nonsidereal: CreateNonsiderealInput
 }
 
 # Opaque object cursor
@@ -546,6 +550,12 @@ type Duration {
   hours: BigDecimal!
 }
 
+# Add or delete targets in an asterism
+input EditAsterismInput {
+  add: TargetId
+  delete: TargetId
+}
+
 # Edit constraint set
 input EditConstraintSetInput {
   # The imageQuality field must be either specified or skipped altogether.  It cannot be unset with a null value.
@@ -590,11 +600,6 @@ input EditGmosSouthLongSlit {
 
 # Nonsidereal target edit parameters
 input EditNonsiderealInput {
-  select: SelectTargetInput!
-
-  # The name field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  name: NonEmptyString
-
   # The key field must be either specified or skipped altogether.  It cannot be unset with a null value.
   key: EphemerisKey
 }
@@ -614,6 +619,9 @@ input EditObservationInput {
 
   # The activeStatus field must be either specified or skipped altogether.  It cannot be unset with a null value.
   activeStatus: ObsActiveStatus
+
+  # The targetEnvironment field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  targetEnvironment: EditTargetEnvironmentInput
 
   # The constraintSet field must be either specified or skipped altogether.  It cannot be unset with a null value.
   constraintSet: EditConstraintSetInput
@@ -665,13 +673,8 @@ input EditScienceRequirementsInput {
 
 # Sidereal target edit parameters
 input EditSiderealInput {
-  select: SelectTargetInput!
-
   # Edit magnitudes
   magnitudes: MagnitudeEditList
-
-  # The name field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  name: NonEmptyString
 
   # The catalogId field may be unset by assigning a null value, or ignored by skipping it altogether
   catalogId: CatalogIdInput
@@ -695,13 +698,20 @@ input EditSiderealInput {
   parallax: ParallaxModelInput
 }
 
+# Target environment editing parameters
+input EditTargetEnvironmentInput {
+  # The explicitBase field may be unset by assigning a null value, or ignored by skipping it altogether
+  explicitBase: CoordinatesInput
+  asterism: [TargetId!]
+}
+
 # Single target edit options
 input EditTargetInput {
-  addSidereal: CreateSiderealInput
-  addNonsidereal: CreateNonsiderealInput
-  editSidereal: EditSiderealInput
-  editNonsidereal: EditNonsiderealInput
-  delete: SelectTargetInput
+  targetId: TargetId!
+  existence: Existence
+  name: NonEmptyString
+  sidereal: EditSiderealInput
+  nonSidereal: EditNonsiderealInput
 }
 
 # Type of edit that triggered an event
@@ -1931,48 +1941,6 @@ enum GmosYBinning {
   FOUR
 }
 
-type GroupByTarget {
-  # IDs of target environments that share the common value
-  targetEnvironmentIds: [TargetEnvironmentId!]!
-
-  # IDs of observations that share the common value
-  observationIds: [ObservationId!]!
-
-  # Target environments that share the common value
-  targetEnvironments: [TargetEnvironment!]!
-
-  # Commonly held value across the target environments
-  commonTarget: CommonTarget!
-}
-
-type GroupByTargetEnvironment {
-  # IDs of target environments that share the common value
-  targetEnvironmentIds: [TargetEnvironmentId!]!
-
-  # IDs of observations that share the common value
-  observationIds: [ObservationId!]!
-
-  # Target environments that share the common value
-  targetEnvironments: [TargetEnvironment!]!
-
-  # Commonly held value across the target environments
-  commonTargetEnvironment: CommonTargetEnvironment!
-}
-
-type GroupByTargetList {
-  # IDs of target environments that share the common value
-  targetEnvironmentIds: [TargetEnvironmentId!]!
-
-  # IDs of observations that share the common value
-  observationIds: [ObservationId!]!
-
-  # Target environments that share the common value
-  targetEnvironments: [TargetEnvironment!]!
-
-  # Commonly held value across the target environments
-  commonTargetList: [CommonTarget!]!
-}
-
 # Target right ascension coordinate in format 'HH:MM:SS.sss'
 scalar HmsString
 
@@ -2240,6 +2208,14 @@ type Mutation {
     # Edit observation
     input: EditObservationInput!
   ): Observation!
+  updateAsterism(
+    # Bulk edit asterism
+    input: BulkEditAsterismInput!
+  ): [Observation!]!
+  updateTargetEnvironment(
+    # Bulk edit targetEnvironment
+    input: BulkEditTargetEnvironmentInput!
+  ): [Observation!]!
   updateConstraintSet(
     # Bulk edit constraintSet
     input: BulkEditConstraintSetInput!
@@ -2257,30 +2233,43 @@ type Mutation {
     observationId: ObservationId!
   ): Observation!
 
-  # Creates a new target environment unaffiliated with any observation
-  createTargetEnvironment(
-    # Program ID
-    programId: ProgramId!
+  # Creates a new target according to the provided parameters.  Only one of sidereal or nonsidereal may be specified.
+  createTarget(
+    # Target description.  One (and only one) of sidereal or nonsidereal must be specified.
+    input: CreateTargetInput!
+  ): Target!
 
-    # Parameters for creating a new target environment
-    input: CreateTargetEnvironmentInput!
-  ): TargetEnvironment!
-  updateScienceTarget(
-    # Editing input for a single science target
-    input: BulkEditTargetInput!
-  ): [TargetListEditDesc!]!
-  updateScienceTargetList(
-    # Editing input for multiple science targets
-    input: BulkEditTargetListInput!
-  ): [TargetListEditDesc!]!
-  replaceScienceTargetList(
-    # Editing input for replacing or setting science target lists
-    input: BulkReplaceTargetListInput!
-  ): [TargetListEditDesc!]!
-  updateTargetEnvironment(
-    # Editing input for editing target environment properties
-    input: BulkEditTargetEnvironmentInput!
-  ): [TargetEnvironmentContext!]!
+  # Makes a copy of an existing target, setting it to unobserved and to PRESENT. 
+  # If observationIds is specified, the clone will replace the existing target in
+  # those observations
+  cloneTarget(
+    # The existing target's id
+    existingTargetId: TargetId!
+
+    # The new target clone's id (will be generated if not supplied)
+    suggestedCloneId: TargetId
+
+    # Observation IDs
+    observationIds: [ObservationId!]
+  ): Target!
+
+  # Edits an existing target
+  updateTarget(
+    # Parameters for editing an existing target. Nonsidereal edits are ignored for sidereal targets and vice versa.
+    input: EditTargetInput!
+  ): Target!
+
+  # Marks the target as DELETED.  Use undeleteTarget to retrieve it.
+  deleteTarget(
+    # Target ID
+    targetId: TargetId!
+  ): Target!
+
+  # Marks the target as PRESENT.
+  undeleteTarget(
+    # Target ID
+    targetId: TargetId!
+  ): Target!
   addSequenceEvent(
     # Sequence event description
     input: AddSequenceEventInput!
@@ -2319,7 +2308,7 @@ type Observation {
   # Observation ID
   id: ObservationId!
 
-  # Deleted or Present
+  # DELETED or PRESENT
   existence: Existence!
 
   # Observation name
@@ -2545,7 +2534,7 @@ type Program {
   # Program ID
   id: ProgramId!
 
-  # Deleted or Present
+  # DELETED or PRESENT
   existence: Existence!
 
   # Program name
@@ -2711,6 +2700,51 @@ type Query {
     includeDeleted: Boolean! = false
   ): Observation
 
+  # Observations grouped by commonly held targets
+  targetGroup(
+    # Program ID
+    programId: ProgramId!
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): TargetGroupConnection!
+
+  # Observations grouped by commonly held science asterisms
+  asterismGroup(
+    # Program ID
+    programId: ProgramId!
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): AsterismGroupConnection!
+
+  # Observations grouped by common target environment
+  targetEnvironmentGroup(
+    # Program ID
+    programId: ProgramId!
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): TargetEnvironmentGroupConnection!
+
   # Observations grouped by commonly held constraints
   constraintSetGroup(
     # Program ID
@@ -2765,59 +2799,55 @@ type Query {
     includeDeleted: Boolean! = false
   ): Program
 
-  # The first (or only) science target (if any) for the given observation (or environment)
-  scienceTarget(
-    # Observation ID
-    observationId: ObservationId
+  # Retrieves the target with the given id, if it exists
+  target(
+    # Target ID
+    targetId: TargetId!
 
-    # Target environment ID
-    targetEnvironmentId: TargetEnvironmentId
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): Target
+
+  # All the science targets that are used by one or more observations in the given program
+  referencedScienceTargets(
+    # Program ID
+    programId: ProgramId!
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): TargetConnection!
+
+  # The first (or only) science target (if any) for the given observation.  This
+  # will essentially pick a random target from the observation's asterism and is
+  # meant as a convenience when there is only one target.
+  firstScienceTarget(
+    # Observation ID
+    observationId: ObservationId!
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
   ): Target
 
   # All science targets (if any) for the given observation (or environment)
-  scienceTargetList(
+  asterism(
     # Observation ID
-    observationId: ObservationId
+    observationId: ObservationId!
 
-    # Target environment ID
-    targetEnvironmentId: TargetEnvironmentId
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
   ): [Target!]!
 
   # Target environment for the given observation (or environment id)
   targetEnvironment(
     # Observation ID
-    observationId: ObservationId
-
-    # Target environment ID
-    targetEnvironmentId: TargetEnvironmentId
+    observationId: ObservationId!
   ): TargetEnvironment
-
-  # Target environments grouped by those that share the same target
-  scienceTargetGroup(
-    # Program ID
-    programId: ProgramId!
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): [GroupByTarget!]!
-
-  # Target environments grouped by those that share the same collection of targets
-  scienceTargetListGroup(
-    # Program ID
-    programId: ProgramId!
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): [GroupByTargetList!]!
-
-  # Target environments grouped by those that share the same properties and targets
-  targetEnvironmentGroup(
-    # Program ID
-    programId: ProgramId!
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): [GroupByTargetEnvironment!]!
 }
 
 type RadialVelocity {
@@ -3007,20 +3037,6 @@ type ScienceRequirementsGroupEdge {
 input ScienceRequirementsInput {
   mode: ScienceMode!
   spectroscopyRequirements: SpectroscopyScienceRequirementsInput!
-}
-
-# Target environment selection parameters. Choose at least one option.
-input SelectTargetEnvironmentInput {
-  all: ProgramId
-  program: ProgramId
-  observations: [ObservationId!]
-  targetEnvironments: [TargetEnvironmentId!]
-}
-
-# Target selection parameters.  Choose at least one of `names` or `targetIds`.
-input SelectTargetInput {
-  names: [NonEmptyString!]
-  targetIds: [TargetId!]
 }
 
 # Sequence-level command
@@ -3299,19 +3315,19 @@ type Subscription {
   ): ObservationEdit!
 
   #
-  # Subscribes to an event that is generated whenever a(n) targetEnvironment is
-  # created or updated.  If a(n) targetEnvironment id is provided, the event is only
-  # generated for edits to that particular targetEnvironment.  If a program id is
-  # provided then the event must correspond to a(n) targetEnvironment referenced by
+  # Subscribes to an event that is generated whenever a(n) target is
+  # created or updated.  If a(n) target id is provided, the event is only
+  # generated for edits to that particular target.  If a program id is
+  # provided then the event must correspond to a(n) target referenced by
   # that program.
   #
-  targetEnvironmentEdit(
-    # Target environment ID
-    targetEnvironmentId: TargetEnvironmentId
+  targetEdit(
+    # Target ID
+    targetId: TargetId
 
     # Program ID
     programId: ProgramId
-  ): TargetEnvironmentEdit!
+  ): TargetEdit!
 
   #
   # Subscribes to an event that is generated whenever a program is created
@@ -3324,24 +3340,21 @@ type Subscription {
   ): ProgramEdit!
 }
 
-type Target implements TargetDescription {
+type Target {
   # Target ID
   id: TargetId!
 
-  # Target environment ID
-  targetEnvironmentId: TargetEnvironmentId!
-
-  # Target environment that houses this target
-  targetEnvironment: TargetEnvironment!
-
-  # Observation that references this target, if any.
-  observation(
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): Observation
+  # DELETED or PRESENT
+  existence: Existence!
 
   # Target name.
   name: NonEmptyString!
+
+  # Program that contains this target
+  program(
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): Program!
 
   # Information required to find a target in the sky.
   tracking: Tracking!
@@ -3350,98 +3363,147 @@ type Target implements TargetDescription {
   magnitudes: [Magnitude!]!
 }
 
-# Target data fields
-interface TargetDescription {
-  # Target name.
-  name: NonEmptyString!
+# Targets in the current page
+type TargetConnection {
+  # The nodes in all the edges from the current page
+  nodes: [Target!]!
 
-  # Information required to find a target in the sky.
-  tracking: Tracking!
+  # Edges in the current page
+  edges: [TargetEdge!]!
 
-  # Target magnitudes
-  magnitudes: [Magnitude!]!
+  # Count of all nodes in all pages
+  totalCount: Int!
+
+  # Paging information
+  pageInfo: PageInfo!
 }
 
-type TargetEditDesc {
-  # Which operation was performed
-  op: TargetEditDescOp!
+# A Target and its cursor
+type TargetEdge {
+  # TargetEdge element
+  node: Target!
 
-  # Target that was edited
-  target: Target!
-}
-
-# The target edit that was performed
-enum TargetEditDescOp {
-  # TargetEditDescOp Create
-  CREATE
-
-  # TargetEditDescOp Edit
-  EDIT
-
-  # TargetEditDescOp Delete
-  DELETE
-}
-
-type TargetEnvironment {
-  # Target environment id
-  id: TargetEnvironmentId!
-
-  # When set, overrides the default base position of the target group
-  explicitBase: Coordinates
-
-  # All science targets, if any
-  scienceTargets: [Target!]!
-
-  # First science target, if any
-  firstScienceTarget: Target
-
-  # Observation housing this environment, if any
-  observation(
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): Observation
-}
-
-type TargetEnvironmentContext {
-  # Target environment that was edited
-  targetEnvironment: TargetEnvironment!
-
-  # Observation that houses the target environment, if any
-  observation: Observation
-
-  # Program that houses the target environment
-  program: Program!
+  # TargetEdge element cursor
+  cursor: Cursor!
 }
 
 # Event sent when a new object is created or updated
-type TargetEnvironmentEdit implements Event {
+type TargetEdit implements Event {
   # Type of edit
   editType: EditType!
 
   # Edited object
-  value: TargetEnvironment!
+  value: Target!
   id: Long!
 }
 
-# TargetEnvironmentId id formatted as `v-([1-9a-f][0-9a-f]*)`
-scalar TargetEnvironmentId
+type TargetEnvironment {
+  # All the observation's science targets, if any
+  asterism(
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): [Target!]!
+
+  # First, perhaps only, science target in the asterism
+  firstScienceTarget(
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): Target
+
+  # When set, overrides the default base position of the target group
+  explicitBase: Coordinates
+}
+
+type TargetEnvironmentGroup {
+  # IDs of observations that use the same constraints
+  observationIds: [ObservationId!]!
+
+  # Observations that use this constraint set
+  observations(
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): ObservationConnection!
+
+  # Commonly held value across the observations
+  targetEnvironment: TargetEnvironment!
+}
+
+# Observations grouped by common properties
+type TargetEnvironmentGroupConnection {
+  # The nodes in all the edges from the current page
+  nodes: [TargetEnvironmentGroup!]!
+
+  # Edges in the current page
+  edges: [TargetEnvironmentGroupEdge!]!
+
+  # Count of all nodes in all pages
+  totalCount: Int!
+
+  # Paging information
+  pageInfo: PageInfo!
+}
+
+# An observation group and its cursor
+type TargetEnvironmentGroupEdge {
+  # TargetEnvironmentGroupEdge element
+  node: TargetEnvironmentGroup!
+
+  # TargetEnvironmentGroupEdge element cursor
+  cursor: Cursor!
+}
+
+type TargetGroup {
+  # IDs of observations that use the same constraints
+  observationIds: [ObservationId!]!
+
+  # Observations that use this constraint set
+  observations(
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): ObservationConnection!
+
+  # Commonly held value across the observations
+  target: Target!
+}
+
+# Observations grouped by common properties
+type TargetGroupConnection {
+  # The nodes in all the edges from the current page
+  nodes: [TargetGroup!]!
+
+  # Edges in the current page
+  edges: [TargetGroupEdge!]!
+
+  # Count of all nodes in all pages
+  totalCount: Int!
+
+  # Paging information
+  pageInfo: PageInfo!
+}
+
+# An observation group and its cursor
+type TargetGroupEdge {
+  # TargetGroupEdge element
+  node: TargetGroup!
+
+  # TargetGroupEdge element cursor
+  cursor: Cursor!
+}
 
 # TargetId id formatted as `t-([1-9a-f][0-9a-f]*)`
 scalar TargetId
-
-type TargetListEditDesc {
-  # Target environment that was edited
-  targetEnvironment: TargetEnvironment!
-
-  # Observation that houses the target environment, if any
-  observation: Observation
-
-  # Program that houses the target environment
-  program: Program!
-
-  # Details any edits that were performed
-  edits: [TargetEditDesc!]!
-}
 
 # Either Nonsidereal ephemeris lookup key or Sidereal proper motion.
 union Tracking = Nonsidereal | Sidereal
