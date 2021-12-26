@@ -98,7 +98,7 @@ trait ModelReusabiltyInstances
   implicit val partnerReuse: Reusability[Partner]            = Reusability.derive
   implicit val standardRoleReuse: Reusability[StandardRole]  = Reusability.derive
   implicit val standardUserReuse: Reusability[StandardUser]  = Reusability.derive
-  implicit def catalogIdReuse: Reusability[CatalogId]        = Reusability.derive
+  implicit def catalogIdReuse: Reusability[CatalogInfo]      = Reusability.derive
   implicit def siderealTrackingReuse: Reusability[SiderealTracking] = Reusability.derive
   implicit val unormalizedSEDReuse: Reusability[UnnormalizedSED]    = Reusability.byEq
   implicit val sourceProfileReuse: Reusability[SourceProfile]       = Reusability.byEq
