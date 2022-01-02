@@ -242,7 +242,7 @@ object ChangeAuditor {
             isValidNDigitInt(hours, 2, 23) && isValidNDigitInt(minutes, 2, 59)
           case hours :: minutes :: seconds :: Nil =>
             isValidNDigitInt(hours, 2, 23) && isValidNDigitInt(minutes, 2, 59) &&
-              isValidSeconds(seconds, 3)
+            isValidSeconds(seconds, 3)
           case _ => false
         }
 
@@ -270,7 +270,7 @@ object ChangeAuditor {
             isValidNDigitInt(degrees, 2, 90) && isValidNDigitInt(minutes, 2, 59)
           case degrees :: minutes :: seconds :: Nil =>
             isValidNDigitInt(degrees, 2, 90) && isValidNDigitInt(minutes, 2, 59) &&
-              isValidSeconds(seconds, 2)
+            isValidSeconds(seconds, 2)
           case _ => false
         }
 
