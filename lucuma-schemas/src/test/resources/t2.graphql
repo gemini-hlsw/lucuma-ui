@@ -1,0 +1,65 @@
+# Query to API that results in t2.json
+
+query {
+  target(targetId: "t-2") {
+    id
+    name
+    tracking {
+      ... on Sidereal {
+        coordinates {
+          ra {
+            microarcseconds
+          }
+          dec {
+            microarcseconds
+            dms
+          }
+        }
+        epoch
+        properMotion {
+          ra {
+            microarcsecondsPerYear
+          }
+          dec {
+            microarcsecondsPerYear
+          }
+        }
+        radialVelocity {
+          centimetersPerSecond
+        }
+        parallax {
+          microarcseconds
+        }
+      }
+    }
+    sourceProfile {
+      ... on PointSource {
+        spectralDefinition {
+          ... on BandNormalizedIntegrated {
+            sed {
+              ... on StellarLibrary {
+                librarySpectrum: spectrum
+              }
+              ... on Galaxy {
+                galaxySpectrum: spectrum
+              }
+            }
+            brightnesses {
+              band
+              magnitude {
+                value
+                units
+              }
+              error
+            }
+          }
+        }
+      }
+    }
+    catalogInfo {
+      id
+      name
+      objectType
+    }
+  }
+}

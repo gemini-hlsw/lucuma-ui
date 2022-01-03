@@ -1,5 +1,7 @@
-val clueVersion       = "0.19.1"
-val lucumaCoreVersion = "0.15.1"
+val clueVersion            = "0.19.1"
+val lucumaCoreVersion      = "0.22.0"
+val munitVersion           = "0.7.29"
+val munitCatsEffectVersion = "1.0.7"
 
 inThisBuild(
   List(
@@ -11,12 +13,17 @@ inThisBuild(
   ) ++ lucumaPublishSettings
 )
 
-val scala2Version = "2.13.6"
+val scala2Version = "2.13.7"
 val allVersions   = List(scala2Version)
 
-val dependencies = List(
+val coreDependencies = List(
   "edu.gemini" %% "clue-core"   % clueVersion,
   "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
+)
+
+val schemasDependencies = List(
+  "org.scalameta" %% "munit"               % munitVersion           % Test,
+  "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectVersion % Test
 )
 
 lazy val root = project
@@ -31,7 +38,7 @@ val templates =
     .in(file("templates"))
     .settings(
       publish / skip := true,
-      libraryDependencies ++= dependencies
+      libraryDependencies ++= coreDependencies
     )
 
 val lucumaSchemas =
@@ -39,7 +46,8 @@ val lucumaSchemas =
     .in(file("lucuma-schemas"))
     .settings(
       moduleName := "lucuma-schemas",
-      libraryDependencies ++= dependencies,
+      libraryDependencies ++= coreDependencies,
+      libraryDependencies ++= schemasDependencies,
       Compile / sourceGenerators += Def.taskDyn {
         val root    = (ThisBuild / baseDirectory).value.toURI.toString
         val from    = (templates / Compile / sourceDirectory).value
