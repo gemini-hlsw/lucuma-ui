@@ -35,6 +35,38 @@ type AirMassRange {
   max: BigDecimal!
 }
 
+type Angle {
+  # Angle in µas
+  microarcseconds: Long!
+
+  # Angle in µs
+  microseconds: BigDecimal!
+
+  # Angle in mas
+  milliarcseconds: BigDecimal!
+
+  # Angle in ms
+  milliseconds: BigDecimal!
+
+  # Angle in asec
+  arcseconds: BigDecimal!
+
+  # Angle in sec
+  seconds: BigDecimal!
+
+  # Angle in amin
+  arcminutes: BigDecimal!
+
+  # Angle in min
+  minutes: BigDecimal!
+
+  # Angle in deg
+  degrees: BigDecimal!
+
+  # Angle in hrs
+  hours: BigDecimal!
+}
+
 type AsterismGroup {
   # IDs of observations that use the same constraints
   observationIds: [ObservationId!]!
@@ -88,6 +120,109 @@ interface Atom {
 # AtomId id formatted as `m-([1-9a-f][0-9a-f]*)`
 scalar AtomId
 
+# Magnitude bands
+enum Band {
+  # Band SloanU
+  SLOAN_U
+
+  # Band SloanG
+  SLOAN_G
+
+  # Band SloanR
+  SLOAN_R
+
+  # Band SloanI
+  SLOAN_I
+
+  # Band SloanZ
+  SLOAN_Z
+
+  # Band U
+  U
+
+  # Band B
+  B
+
+  # Band V
+  V
+
+  # Band Uc
+  UC
+
+  # Band R
+  R
+
+  # Band I
+  I
+
+  # Band Y
+  Y
+
+  # Band J
+  J
+
+  # Band H
+  H
+
+  # Band K
+  K
+
+  # Band L
+  L
+
+  # Band M
+  M
+
+  # Band N
+  N
+
+  # Band Q
+  Q
+
+  # Band Ap
+  AP
+}
+
+type BandBrightnessIntegrated {
+  magnitude: BrightnessIntegrated!
+
+  # Magnitude band
+  band: Band!
+
+  # Error, if any
+  error: BigDecimal
+}
+
+type BandBrightnessSurface {
+  magnitude: BrightnessSurface!
+
+  # Magnitude band
+  band: Band!
+
+  # Error, if any
+  error: BigDecimal
+}
+
+# Band normalized common interface
+interface BandNormalized {
+  # Un-normalized spectral energy distribution
+  sed: UnnormalizedSed!
+}
+
+type BandNormalizedIntegrated implements BandNormalized {
+  brightnesses: [BandBrightnessIntegrated!]!
+
+  # Un-normalized spectral energy distribution
+  sed: UnnormalizedSed!
+}
+
+type BandNormalizedSurface implements BandNormalized {
+  brightnesses: [BandBrightnessSurface!]!
+
+  # Un-normalized spectral energy distribution
+  sed: UnnormalizedSed!
+}
+
 # Bias calibration step
 type Bias implements StepConfig {
   # Step type
@@ -97,6 +232,12 @@ type Bias implements StepConfig {
 # The `BigDecimal` scalar type represents signed fractional values with arbitrary precision.
 scalar BigDecimal
 
+# Black body SED
+type BlackBody {
+  # Kelvin
+  temperature: BigDecimal!
+}
+
 # Stopping point in a series of steps
 enum Breakpoint {
   # Breakpoint Enabled
@@ -104,6 +245,58 @@ enum Breakpoint {
 
   # Breakpoint Disabled
   DISABLED
+}
+
+type BrightnessIntegrated {
+  value: BigDecimal!
+  units: BrightnessIntegratedUnits!
+}
+
+# Brightness integrated units
+enum BrightnessIntegratedUnits {
+  # Vega mag
+  VEGA_MAGNITUDE
+
+  # AB mag
+  AB_MAGNITUDE
+
+  # Jy
+  JANSKY
+
+  # W/m²/µm
+  W_PER_M_SQUARED_PER_UM
+
+  # erg/s/cm²/Å
+  ERG_PER_S_PER_CM_SQUARED_PER_A
+
+  # erg/s/cm²/Hz
+  ERG_PER_S_PER_CM_SQUARED_PER_HZ
+}
+
+type BrightnessSurface {
+  value: BigDecimal!
+  units: BrightnessSurfaceUnits!
+}
+
+# Brightness surface units
+enum BrightnessSurfaceUnits {
+  # Vega mag/arcsec²
+  VEGA_MAG_PER_ARCSEC_SQUARED
+
+  # AB mag/arcsec²
+  AB_MAG_PER_ARCSEC_SQUARED
+
+  # Jy/arcsec²
+  JY_PER_ARCSEC_SQUARED
+
+  # W/m²/µm/arcsec²
+  W_PER_M_SQUARED_PER_UM_PER_ARCSEC_SQUARED
+
+  # erg/s/cm²/Å/arcsec²
+  ERG_PER_S_PER_CM_SQUARED_PER_A_PER_ARCSEC_SQUARED
+
+  # erg/s/cm²/Hz/arcsec²
+  ERG_PER_S_PER_CM_SQUARED_PER_HZ_PER_ARCSEC_SQUARED
 }
 
 # Input for bulk editing multiple observations
@@ -140,6 +333,9 @@ type CatalogId {
 
   # Catalog id string
   id: String!
+
+  # Catalog description of object morphology
+  objectType: String
 }
 
 # Catalog id consisting of catalog name and string identifier
@@ -272,6 +468,12 @@ type ConstraintSetGroupEdge {
   cursor: Cursor!
 }
 
+# Cool star model SED
+type CoolStarModel {
+  # Kelvin
+  temperature: BigDecimal!
+}
+
 type Coordinates {
   # Right Ascension
   ra: RightAscension!
@@ -332,7 +534,6 @@ input CreateNonsiderealInput {
   name: NonEmptyString!
   keyType: EphemerisKeyType!
   des: String!
-  magnitudes: [MagnitudeCreateInput!]
 }
 
 # Create observation configuration
@@ -363,14 +564,13 @@ input CreateProgramInput {
 # Sidereal target parameters
 input CreateSiderealInput {
   name: NonEmptyString!
-  catalogId: CatalogIdInput
+  catalogInfo: CatalogIdInput
   ra: RightAscensionInput!
   dec: DeclinationInput!
   epoch: EpochString
   properMotion: ProperMotionInput
   radialVelocity: RadialVelocityInput
   parallax: ParallaxModelInput
-  magnitudes: [MagnitudeCreateInput!]
 }
 
 # Target environment creation input parameters
@@ -673,9 +873,6 @@ input EditScienceRequirementsInput {
 
 # Sidereal target edit parameters
 input EditSiderealInput {
-  # Edit magnitudes
-  magnitudes: MagnitudeEditList
-
   # The catalogId field may be unset by assigning a null value, or ignored by skipping it altogether
   catalogId: CatalogIdInput
 
@@ -725,6 +922,32 @@ enum EditType {
 
 # Either airmass range or elevation range
 union ElevationRange = AirMassRange | HourAngleRange
+
+type EmissionLineIntegrated {
+  wavelength: Wavelength!
+
+  # km/s
+  lineWidth: BigDecimal!
+  lineFlux: LineFluxIntegrated!
+}
+
+type EmissionLinesIntegrated {
+  lines: [EmissionLineIntegrated!]!
+  fluxDensityContinuum: FluxDensityContinuumIntegrated!
+}
+
+type EmissionLinesSurface {
+  lines: [EmissionLineSurface!]!
+  fluxDensityContinuum: FluxDensityContinuumSurface!
+}
+
+type EmissionLineSurface {
+  wavelength: Wavelength!
+
+  # km/s
+  lineWidth: BigDecimal!
+  lineFlux: LineFluxSurface!
+}
 
 # Horizons ID in format '[Comet|AsteroidNew|AsteroidOld|MajorBody]_des'
 scalar EphemerisKey
@@ -889,6 +1112,39 @@ enum Existence {
   DELETED
 }
 
+type FluxDensityContinuumIntegrated {
+  value: BigDecimal!
+  units: FluxDensityContinuumIntegratedUnits!
+}
+
+# Flux density continuum integrated units
+enum FluxDensityContinuumIntegratedUnits {
+  # W/m²/µm
+  W_PER_M_SQUARED_PER_UM
+
+  # erg/s/cm²/Å
+  ERG_PER_S_PER_CM_SQUARED_PER_A
+}
+
+type FluxDensityContinuumSurface {
+  value: BigDecimal!
+  units: FluxDensityContinuumSurfaceUnits!
+}
+
+# Flux density continuum surface units
+enum FluxDensityContinuumSurfaceUnits {
+  # W/m²/µm/arcsec²
+  W_PER_M_SQUARED_PER_UM_PER_ARCSEC_SQUARED
+
+  # erg/s/cm²/Å/arcsec²
+  ERG_PER_S_PER_CM_SQUARED_PER_A_PER_ARCSEC_SQUARED
+}
+
+type FluxDensityEntry {
+  wavelength: Wavelength!
+  value: BigDecimal!
+}
+
 # Focal plane Single/Multi/IFU
 enum FocalPlane {
   # FocalPlane SingleSlit
@@ -917,6 +1173,27 @@ input FocalPlaneAngleInput {
   microarcseconds: Long
   milliarcseconds: BigDecimal
   arcseconds: BigDecimal
+}
+
+type Galaxy {
+  spectrum: GalaxySpectrum!
+}
+
+# Galaxy spectrum
+enum GalaxySpectrum {
+  # GalaxySpectrum Elliptical
+  ELLIPTICAL
+
+  # GalaxySpectrum Spiral
+  SPIRAL
+}
+
+type GaussianSource {
+  # full width at half maximum
+  fwhm: Angle!
+
+  # Gaussian source
+  spectralDefinition: SpectralDefinitionIntegrated!
 }
 
 # GCAL calibration step (flat / arc)
@@ -1941,6 +2218,16 @@ enum GmosYBinning {
   FOUR
 }
 
+type HiiRegion {
+  spectrum: HiiRegionSpectrum!
+}
+
+# HII Region spectrum
+enum HiiRegionSpectrum {
+  # HiiRegionSpectrum OrionNebula
+  ORION_NEBULA
+}
+
 # Target right ascension coordinate in format 'HH:MM:SS.sss'
 scalar HmsString
 
@@ -2045,142 +2332,37 @@ enum InstrumentType {
   ZORRO
 }
 
+type LineFluxIntegrated {
+  value: BigDecimal!
+  units: LineFluxIntegratedUnits!
+}
+
+# Line flux integrated units
+enum LineFluxIntegratedUnits {
+  # W/m²
+  W_PER_M_SQUARED
+
+  # erg/s/cm²
+  ERG_PER_S_PER_CM_SQUARED
+}
+
+type LineFluxSurface {
+  value: BigDecimal!
+  units: LineFluxSurfaceUnits!
+}
+
+# Line flux surface units
+enum LineFluxSurfaceUnits {
+  # W/m²/arcsec²
+  W_PER_M_SQUARED_PER_ARCSEC_SQUARED
+
+  # erg/s/cm²/arcsec²
+  ERG_PER_S_PER_CM_SQUARED_PER_ARCSEC_SQUARED
+}
+
 # The `Long` scalar type represents non-fractional signed whole numeric values.
 # Long can represent values between -(2^63) and 2^63 - 1.
 scalar Long
-
-type Magnitude {
-  # Magnitude value (unitless)
-  value: BigDecimal!
-
-  # Magnitude band
-  band: MagnitudeBand!
-
-  # Magnitude System
-  system: MagnitudeSystem!
-
-  # Magnitude error (unitless)
-  error: BigDecimal
-}
-
-# Magnitude band
-enum MagnitudeBand {
-  # MagnitudeBand SloanU
-  SLOAN_U
-
-  # MagnitudeBand SloanG
-  SLOAN_G
-
-  # MagnitudeBand SloanR
-  SLOAN_R
-
-  # MagnitudeBand SloanI
-  SLOAN_I
-
-  # MagnitudeBand SloanZ
-  SLOAN_Z
-
-  # MagnitudeBand U
-  U
-
-  # MagnitudeBand B
-  B
-
-  # MagnitudeBand V
-  V
-
-  # MagnitudeBand Uc
-  UC
-
-  # MagnitudeBand R
-  R
-
-  # MagnitudeBand I
-  I
-
-  # MagnitudeBand Y
-  Y
-
-  # MagnitudeBand J
-  J
-
-  # MagnitudeBand H
-  H
-
-  # MagnitudeBand K
-  K
-
-  # MagnitudeBand L
-  L
-
-  # MagnitudeBand M
-  M
-
-  # MagnitudeBand N
-  N
-
-  # MagnitudeBand Q
-  Q
-
-  # MagnitudeBand Ap
-  AP
-}
-
-# Magnitude creation parameters
-input MagnitudeCreateInput {
-  band: MagnitudeBand!
-  value: BigDecimal!
-  error: BigDecimal
-  system: MagnitudeSystem = VEGA
-}
-
-# Magnitude edit action (choose one option only)
-input MagnitudeEditAction {
-  add: MagnitudeCreateInput
-  delete: MagnitudeBand
-  edit: MagnitudeEditInput
-}
-
-# Magnitude editing parameters
-input MagnitudeEditInput {
-  band: MagnitudeBand!
-
-  # The value field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  value: BigDecimal
-
-  # The system field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  system: MagnitudeSystem
-
-  # The error field may be unset by assigning a null value, or ignored by skipping it altogether
-  error: BigDecimal
-}
-
-# Magnitude list editing (choose one option only)
-input MagnitudeEditList {
-  replaceList: [MagnitudeCreateInput!]
-  editList: [MagnitudeEditAction!]
-}
-
-# Magnitude system
-enum MagnitudeSystem {
-  # MagnitudeSystem Vega
-  VEGA
-
-  # MagnitudeSystem AB
-  AB
-
-  # MagnitudeSystem Jy
-  JY
-
-  # MagnitudeSystem Watts
-  WATTS
-
-  # MagnitudeSystem ErgsWavelength
-  ERGS_WAVELENGTH
-
-  # MagnitudeSystem ErgsFrequency
-  ERGS_FREQUENCY
-}
 
 # MOS pre-imaging observation
 enum MosPreImaging {
@@ -2492,6 +2674,41 @@ enum ParallaxUnits {
   MILLIARCSECONDS
 }
 
+type Planet {
+  spectrum: PlanetSpectrum!
+}
+
+type PlanetaryNebula {
+  spectrum: PlanetaryNebulaSpectrum!
+}
+
+# Planetary nebula spectrum
+enum PlanetaryNebulaSpectrum {
+  # PlanetaryNebulaSpectrum NGC7009
+  NGC7009
+
+  # PlanetaryNebulaSpectrum IC5117
+  IC5117
+}
+
+# Planet spectrum
+enum PlanetSpectrum {
+  # PlanetSpectrum Mars
+  MARS
+
+  # PlanetSpectrum Jupiter
+  JUPITER
+
+  # PlanetSpectrum Saturn
+  SATURN
+
+  # PlanetSpectrum Uranus
+  URANUS
+
+  # PlanetSpectrum Neptune
+  NEPTUNE
+}
+
 # Time estimates for executing this configuration
 type PlannedTime {
   # Estimated setup time
@@ -2524,11 +2741,21 @@ type PlannedTimeSummary {
   execution: Duration!
 }
 
+type PointSource {
+  # Point source
+  spectralDefinition: SpectralDefinitionIntegrated!
+}
+
 # A `BigDecimal` greater than 0
 scalar PosBigDecimal
 
 # An `Int` in the range from 1 to `Int.MaxValue`
 scalar PosInt
+
+# Power law SED
+type PowerLaw {
+  index: BigDecimal!
+}
 
 type Program {
   # Program ID
@@ -2670,6 +2897,19 @@ type q {
 
   # q offset in arcsec
   arcseconds: BigDecimal!
+}
+
+type Quasar {
+  spectrum: QuasarSpectrum!
+}
+
+# Quasar spectrum
+enum QuasarSpectrum {
+  # QuasarSpectrum QS0
+  QS0
+
+  # QuasarSpectrum QS02
+  QS02
 }
 
 type Query {
@@ -2848,6 +3088,9 @@ type Query {
     # Observation ID
     observationId: ObservationId!
   ): TargetEnvironment
+
+  # test source profile
+  testSourceProfile: SourceProfile!
 }
 
 type RadialVelocity {
@@ -3088,9 +3331,6 @@ enum SequenceType {
 }
 
 type Sidereal {
-  # Catalog id, if any, describing from where the information in this target was obtained
-  catalogId: CatalogId
-
   # Coordinates at epoch
   coordinates: Coordinates!
 
@@ -3140,6 +3380,15 @@ input SlitWidthInput {
   arcseconds: BigDecimal
 }
 
+# source profile
+union SourceProfile = PointSource | UniformSource | GaussianSource
+
+# Spectral definition integrated
+union SpectralDefinitionIntegrated = BandNormalizedIntegrated | EmissionLinesIntegrated
+
+# Spectral definition surface
+union SpectralDefinitionSurface = BandNormalizedSurface | EmissionLinesSurface
+
 # Spectroscopy capabilities Nod&Shuffle/Polarimetry/Corongraphy
 enum SpectroscopyCapabilities {
   # SpectroscopyCapabilities NodAndShuffle
@@ -3188,6 +3437,163 @@ input SpectroscopyScienceRequirementsInput {
   focalPlane: FocalPlane
   focalPlaneAngle: FocalPlaneAngleInput
   capabilities: SpectroscopyCapabilities
+}
+
+type StellarLibrary {
+  spectrum: StellarLibrarySpectrum!
+}
+
+# Stellar library spectrum
+enum StellarLibrarySpectrum {
+  # StellarLibrarySpectrum O5V
+  O5_V
+
+  # StellarLibrarySpectrum O8III
+  O8_III
+
+  # StellarLibrarySpectrum B0V
+  B0_V
+
+  # StellarLibrarySpectrum B5_7V
+  B5_7_V
+
+  # StellarLibrarySpectrum B5III
+  B5_III
+
+  # StellarLibrarySpectrum B5I
+  B5_I
+
+  # StellarLibrarySpectrum A0V
+  A0_V
+
+  # StellarLibrarySpectrum A0III
+  A0_III
+
+  # StellarLibrarySpectrum A0I
+  A0_I
+
+  # StellarLibrarySpectrum A5V
+  A5_V
+
+  # StellarLibrarySpectrum A5III
+  A5_III
+
+  # StellarLibrarySpectrum F0V
+  F0_V
+
+  # StellarLibrarySpectrum F0III
+  F0_III
+
+  # StellarLibrarySpectrum F0I
+  F0_I
+
+  # StellarLibrarySpectrum F5V
+  F5_V
+
+  # StellarLibrarySpectrum F5V_w
+  F5_V_W
+
+  # StellarLibrarySpectrum F6V_r
+  F6_V_R
+
+  # StellarLibrarySpectrum F5III
+  F5_III
+
+  # StellarLibrarySpectrum F5I
+  F5_I
+
+  # StellarLibrarySpectrum G0V
+  G0_V
+
+  # StellarLibrarySpectrum G0V_w
+  G0_V_W
+
+  # StellarLibrarySpectrum G0V_r
+  G0_V_R
+
+  # StellarLibrarySpectrum G0III
+  G0_III
+
+  # StellarLibrarySpectrum G0I
+  G0_I
+
+  # StellarLibrarySpectrum G2V
+  G2_V
+
+  # StellarLibrarySpectrum G5V
+  G5_V
+
+  # StellarLibrarySpectrum G5V_w
+  G5_V_W
+
+  # StellarLibrarySpectrum G5V_r
+  G5_V_R
+
+  # StellarLibrarySpectrum G5III
+  G5_III
+
+  # StellarLibrarySpectrum G5III_w
+  G5_III_W
+
+  # StellarLibrarySpectrum G5III_r
+  G5_III_R
+
+  # StellarLibrarySpectrum G5I
+  G5_I
+
+  # StellarLibrarySpectrum K0V
+  K0_V
+
+  # StellarLibrarySpectrum K0V_r
+  K0_V_R
+
+  # StellarLibrarySpectrum K0III
+  K0_III
+
+  # StellarLibrarySpectrum K0III_w
+  K0_III_W
+
+  # StellarLibrarySpectrum K0III_r
+  K0_III_R
+
+  # StellarLibrarySpectrum K0_1II
+  K0_1_II
+
+  # StellarLibrarySpectrum K4V
+  K4_V
+
+  # StellarLibrarySpectrum K4III
+  K4_III
+
+  # StellarLibrarySpectrum K4III_w
+  K4_III_W
+
+  # StellarLibrarySpectrum K4III_r
+  K4_III_R
+
+  # StellarLibrarySpectrum K4I
+  K4_I
+
+  # StellarLibrarySpectrum M0V
+  M0_V
+
+  # StellarLibrarySpectrum M0III
+  M0_III
+
+  # StellarLibrarySpectrum M3V
+  M3_V
+
+  # StellarLibrarySpectrum M3III
+  M3_III
+
+  # StellarLibrarySpectrum M6V
+  M6_V
+
+  # StellarLibrarySpectrum M6III
+  M6_III
+
+  # StellarLibrarySpectrum M9III
+  M9_III
 }
 
 # Sequence step
@@ -3356,11 +3762,14 @@ type Target {
     includeDeleted: Boolean! = false
   ): Program!
 
+  # Catalog id, if any, describing from where the information in this target was obtained
+  catalogInfo: CatalogId
+
   # Information required to find a target in the sky.
   tracking: Tracking!
 
-  # Target magnitudes
-  magnitudes: [Magnitude!]!
+  # source profile
+  sourceProfile: SourceProfile!
 }
 
 # Targets in the current page
@@ -3507,6 +3916,19 @@ scalar TargetId
 
 # Either Nonsidereal ephemeris lookup key or Sidereal proper motion.
 union Tracking = Nonsidereal | Sidereal
+
+type UniformSource {
+  # Uniform source
+  spectralDefinition: SpectralDefinitionSurface!
+}
+
+# Un-normalized spectral energy distribution
+union UnnormalizedSed = StellarLibrary | CoolStarModel | Galaxy | Planet | Quasar | HiiRegion | PlanetaryNebula | PowerLaw | BlackBody | UserDefined
+
+# User defined SED
+type UserDefined {
+  fluxDensities: [FluxDensityEntry!]!
+}
 
 # Water vapor
 enum WaterVapor {

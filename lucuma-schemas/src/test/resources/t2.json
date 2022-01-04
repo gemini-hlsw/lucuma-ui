@@ -1,0 +1,115 @@
+{
+  "data": {
+    "target": {
+      "id": "t-2",
+      "name": "NGC 5949",
+      "tracking": {
+        "coordinates": {
+          "ra": {
+            "microarcseconds": 835210020000
+          },
+          "dec": {
+            "microarcseconds": 233147400000
+          }
+        },
+        "epoch": "J2000.000",
+        "properMotion": {
+          "ra": {
+            "microarcsecondsPerYear": 0
+          },
+          "dec": {
+            "microarcsecondsPerYear": 0
+          }
+        },
+        "radialVelocity": {
+          "centimetersPerSecond": 42360700
+        },
+        "parallax": {
+          "microarcseconds": 0
+        }
+      },
+      "sourceProfile": {
+        "spectralDefinition": {
+          "sed": {
+            "galaxySpectrum": "SPIRAL"
+          },
+          "brightnesses": [
+            {
+              "band": "SLOAN_U",
+              "magnitude": {
+                "value": 14.147,
+                "units": "AB_MAGNITUDE"
+              },
+              "error": 0.005
+            },
+            {
+              "band": "SLOAN_G",
+              "magnitude": {
+                "value": 12.924,
+                "units": "AB_MAGNITUDE"
+              },
+              "error": 0.002
+            },
+            {
+              "band": "SLOAN_R",
+              "magnitude": {
+                "value": 12.252,
+                "units": "AB_MAGNITUDE"
+              },
+              "error": 0.002
+            },
+            {
+              "band": "SLOAN_I",
+              "magnitude": {
+                "value": 11.888,
+                "units": "AB_MAGNITUDE"
+              },
+              "error": 0.002
+            },
+            {
+              "band": "SLOAN_Z",
+              "magnitude": {
+                "value": 11.636,
+                "units": "AB_MAGNITUDE"
+              },
+              "error": 0.002
+            },
+            {
+              "band": "B",
+              "magnitude": {
+                "value": 12.7,
+                "units": "VEGA_MAGNITUDE"
+              },
+              "error": null
+            },
+            {
+              "band": "J",
+              "magnitude": {
+                "value": 10.279,
+                "units": "VEGA_MAGNITUDE"
+              },
+              "error": 0.001
+            },
+            {
+              "band": "H",
+              "magnitude": {
+                "value": 9.649,
+                "units": "VEGA_MAGNITUDE"
+              },
+              "error": 0.012
+            },
+            {
+              "band": "K",
+              "magnitude": {
+                "value": 9.425,
+                "units": "VEGA_MAGNITUDE"
+              },
+              "error": 0.017
+            }
+          ]
+        }
+      },
+      "catalogInfo": null
+    }
+  }
+}
