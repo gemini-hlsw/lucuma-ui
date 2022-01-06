@@ -100,8 +100,6 @@ trait ObservationDB {
   }
 
   object Types {
-    type BandBrightnessIntegrated       = model.BandBrightness[Integrated]
-    type BandBrightnessSurface          = model.BandBrightness[Surface]
     type BandNormalizedIntegrated       = model.SpectralDefinition.BandNormalized[Integrated]
     type BandNormalizedSurface          = model.SpectralDefinition.BandNormalized[Surface]
     type BrightnessIntegrated           = Measure[BigDecimal] Of Brightness[Integrated]

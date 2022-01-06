@@ -1,5 +1,5 @@
-val clueVersion            = "0.19.1"
-val lucumaCoreVersion      = "0.22.0"
+val clueVersion            = "0.20.0"
+val lucumaCoreVersion      = "0.23.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 
@@ -9,7 +9,9 @@ inThisBuild(
     Global / onChangedBuildSource                            := ReloadOnSourceChanges,
     scalafixDependencies += "edu.gemini"                     %% "clue-generator" % clueVersion,
     scalafixScalaBinaryVersion                               := "2.13",
-    ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
+    ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false,
+    semanticdbEnabled                                        := true,
+    semanticdbVersion                                        := scalafixSemanticdb.revision
   ) ++ lucumaPublishSettings
 )
 
