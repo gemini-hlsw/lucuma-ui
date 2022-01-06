@@ -9,7 +9,9 @@ inThisBuild(
     Global / onChangedBuildSource                            := ReloadOnSourceChanges,
     scalafixDependencies += "edu.gemini"                     %% "clue-generator" % clueVersion,
     scalafixScalaBinaryVersion                               := "2.13",
-    ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
+    ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false,
+    semanticdbEnabled                                        := true,
+    semanticdbVersion                                        := scalafixSemanticdb.revision
   ) ++ lucumaPublishSettings
 )
 
