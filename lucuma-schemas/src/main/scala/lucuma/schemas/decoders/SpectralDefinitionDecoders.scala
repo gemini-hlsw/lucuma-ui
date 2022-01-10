@@ -15,7 +15,6 @@ import lucuma.core.math.BrightnessValue
 import lucuma.core.math.Wavelength
 import lucuma.core.math.dimensional._
 import lucuma.core.math.units._
-// import lucuma.core.model.BandBrightness
 import lucuma.core.model.EmissionLine
 import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.UnnormalizedSED
@@ -33,8 +32,8 @@ trait SpectralDefinitionDecoders {
     implicit val brightnessEntryDecoder: Decoder[(Band, BrightnessMeasure[T])] =
       Decoder.instance(c =>
         for {
+          v <- c.as[BrightnessMeasure[T]]
           b <- c.downField("band").as[Band]
-          v <- c.downField("magnitude").as[BrightnessMeasure[T]]
           e <- c.downField("error").as[Option[BrightnessValue]]
         } yield (b, Measure.errorTagged.replace(e)(v))
       )

@@ -67,6 +67,57 @@ type Angle {
   hours: BigDecimal!
 }
 
+# Create an angle from a signed value.  Choose exactly one of the available units.
+input AngleInput {
+  microarcseconds: Long
+  microseconds: BigDecimal
+  milliarcseconds: BigDecimal
+  milliseconds: BigDecimal
+  arcseconds: BigDecimal
+  seconds: BigDecimal
+  arcminutes: BigDecimal
+  minutes: BigDecimal
+  degrees: BigDecimal
+  hours: BigDecimal
+  dms: String
+  hms: String
+  fromLong: LongAngleInput
+  fromDecimal: DecimalAngleInput
+}
+
+# Angle units
+enum AngleUnits {
+  # AngleUnits Microarcseconds
+  MICROARCSECONDS
+
+  # AngleUnits Microseconds
+  MICROSECONDS
+
+  # AngleUnits Milliarcseconds
+  MILLIARCSECONDS
+
+  # AngleUnits Milliseconds
+  MILLISECONDS
+
+  # AngleUnits Arcseconds
+  ARCSECONDS
+
+  # AngleUnits Seconds
+  SECONDS
+
+  # AngleUnits Arcminutes
+  ARCMINUTES
+
+  # AngleUnits Minutes
+  MINUTES
+
+  # AngleUnits Degrees
+  DEGREES
+
+  # AngleUnits Hours
+  HOURS
+}
+
 type AsterismGroup {
   # IDs of observations that use the same constraints
   observationIds: [ObservationId!]!
@@ -120,7 +171,7 @@ interface Atom {
 # AtomId id formatted as `m-([1-9a-f][0-9a-f]*)`
 scalar AtomId
 
-# Magnitude bands
+# Brightness bands
 enum Band {
   # Band SloanU
   SLOAN_U
@@ -184,20 +235,20 @@ enum Band {
 }
 
 type BandBrightnessIntegrated {
-  magnitude: BrightnessIntegrated!
-
   # Magnitude band
   band: Band!
+  value: BigDecimal!
+  units: BrightnessIntegratedUnits!
 
   # Error, if any
   error: BigDecimal
 }
 
 type BandBrightnessSurface {
-  magnitude: BrightnessSurface!
-
   # Magnitude band
   band: Band!
+  value: BigDecimal!
+  units: BrightnessSurfaceUnits!
 
   # Error, if any
   error: BigDecimal
@@ -247,11 +298,6 @@ enum Breakpoint {
   DISABLED
 }
 
-type BrightnessIntegrated {
-  value: BigDecimal!
-  units: BrightnessIntegratedUnits!
-}
-
 # Brightness integrated units
 enum BrightnessIntegratedUnits {
   # Vega mag
@@ -271,11 +317,6 @@ enum BrightnessIntegratedUnits {
 
   # erg/s/cm²/Hz
   ERG_PER_S_PER_CM_SQUARED_PER_HZ
-}
-
-type BrightnessSurface {
-  value: BigDecimal!
-  units: BrightnessSurfaceUnits!
 }
 
 # Brightness surface units
@@ -468,10 +509,53 @@ type ConstraintSetGroupEdge {
   cursor: Cursor!
 }
 
-# Cool star model SED
 type CoolStarModel {
-  # Kelvin
-  temperature: BigDecimal!
+  temperature: CoolStarTemperature!
+}
+
+# Cool star temperature options
+enum CoolStarTemperature {
+  # 400 K
+  T400_K
+
+  # 600 K
+  T600_K
+
+  # 800 K
+  T800_K
+
+  # 900 K
+  T900_K
+
+  # 1000 K
+  T1000_K
+
+  # 1200 K
+  T1200_K
+
+  # 1400 K
+  T1400_K
+
+  # 1600 K
+  T1600_K
+
+  # 1800 K
+  T1800_K
+
+  # 2000 K
+  T2000_K
+
+  # 2200 K
+  T2200_K
+
+  # 2400 K
+  T2400_K
+
+  # 2600 K
+  T2600_K
+
+  # 2800 K
+  T2800_K
 }
 
 type Coordinates {
@@ -494,6 +578,34 @@ input CreateAirmassRangeInput {
   max: BigDecimal!
 }
 
+# Create a band brightness value with integrated magnitude units
+input CreateBandBrightnessIntegrated {
+  band: Band!
+  value: BigDecimal!
+  units: BrightnessIntegratedUnits!
+  error: BigDecimal
+}
+
+# Create a band brightness value with surface magnitude units
+input CreateBandBrightnessSurface {
+  band: Band!
+  value: BigDecimal!
+  units: BrightnessSurfaceUnits!
+  error: BigDecimal
+}
+
+# Create a band normalized value with integrated magnitude units
+input CreateBandNormalizedIntegrated {
+  sed: UnnormalizedSedInput!
+  brightnesses: [CreateBandBrightnessIntegrated!]!
+}
+
+# Create a band normalized value with surface magnitude units
+input CreateBandNormalizedSurface {
+  sed: UnnormalizedSedInput!
+  brightnesses: [CreateBandBrightnessSurface!]!
+}
+
 # Constraint set creation parameters
 input CreateConstraintSetInput {
   imageQuality: ImageQuality!
@@ -507,6 +619,50 @@ input CreateConstraintSetInput {
 input CreateElevationRangeInput {
   airmassRange: CreateAirmassRangeInput
   hourAngleRange: CreateHourAngleRangeInput
+}
+
+# Create an emission line with integrated line flux units
+input CreateEmissionLineIntegrated {
+  wavelength: WavelengthInput!
+  lineWidth: BigDecimal!
+  lineFlux: CreateLineFluxIntegrated!
+}
+
+# Create an emission lines with integrated line flux and flux density continuum units
+input CreateEmissionLinesIntegrated {
+  lines: [CreateEmissionLineIntegrated!]!
+  fluxDensityContinuum: CreateFluxDensityContinuumIntegrated!
+}
+
+# Create an emission lines with surface line flux and flux density continuum units
+input CreateEmissionLinesSurface {
+  lines: [CreateEmissionLineSurface!]!
+  fluxDensityContinuum: CreateFluxDensityContinuumSurface!
+}
+
+# Create an emission line with surface line flux units
+input CreateEmissionLineSurface {
+  wavelength: WavelengthInput!
+  lineWidth: BigDecimal!
+  lineFlux: CreateLineFluxSurface!
+}
+
+# Create a flux density continuum value with integrated units
+input CreateFluxDensityContinuumIntegrated {
+  value: BigDecimal!
+  units: FluxDensityContinuumIntegratedUnits!
+}
+
+# Create a flux density continuum value with surface units
+input CreateFluxDensityContinuumSurface {
+  value: BigDecimal!
+  units: FluxDensityContinuumSurfaceUnits!
+}
+
+# Create a gaussian source
+input CreateGaussian {
+  fwhm: AngleInput!
+  spectralDefinition: CreateSpectralDefinitionIntegrated!
 }
 
 # Create a configuration for a GMOS North Long Slit observation
@@ -529,11 +685,24 @@ input CreateHourAngleRangeInput {
   maxHours: BigDecimal!
 }
 
+# Create a line flux value with integrated units
+input CreateLineFluxIntegrated {
+  value: BigDecimal!
+  units: LineFluxIntegratedUnits!
+}
+
+# Create a line flux value with surface units
+input CreateLineFluxSurface {
+  value: BigDecimal!
+  units: LineFluxSurfaceUnits!
+}
+
 # Nonsidereal target parameters
 input CreateNonsiderealInput {
   name: NonEmptyString!
   keyType: EphemerisKeyType!
   des: String!
+  sourceProfile: CreateSourceProfile!
 }
 
 # Create observation configuration
@@ -571,6 +740,26 @@ input CreateSiderealInput {
   properMotion: ProperMotionInput
   radialVelocity: RadialVelocityInput
   parallax: ParallaxModelInput
+  sourceProfile: CreateSourceProfile!
+}
+
+# Create a source profile
+input CreateSourceProfile {
+  point: CreateSpectralDefinitionIntegrated
+  uniform: CreateSpectralDefinitionSurface
+  gaussian: CreateGaussian
+}
+
+# Create a spectral definition with integrated units
+input CreateSpectralDefinitionIntegrated {
+  bandNormalized: CreateBandNormalizedIntegrated
+  emissionLines: CreateEmissionLinesIntegrated
+}
+
+# Create a spectral definition with surface units
+input CreateSpectralDefinitionSurface {
+  bandNormalized: CreateBandNormalizedSurface
+  emissionLines: CreateEmissionLinesSurface
 }
 
 # Target environment creation input parameters
@@ -680,6 +869,12 @@ enum DatasetStage {
 
   # DatasetStage START_WRITE
   START_WRITE
+}
+
+# Create an angle from a signed decimal value and its units.
+input DecimalAngleInput {
+  value: BigDecimal!
+  units: AngleUnits!
 }
 
 type Declination {
@@ -1112,6 +1307,12 @@ enum Existence {
   DELETED
 }
 
+# Flux density entry
+input FluxDensity {
+  wavelength: WavelengthInput!
+  density: BigDecimal!
+}
+
 type FluxDensityContinuumIntegrated {
   value: BigDecimal!
   units: FluxDensityContinuumIntegratedUnits!
@@ -1188,11 +1389,12 @@ enum GalaxySpectrum {
   SPIRAL
 }
 
+# Gaussian source
 type GaussianSource {
   # full width at half maximum
   fwhm: Angle!
 
-  # Gaussian source
+  # Integrated units
   spectralDefinition: SpectralDefinitionIntegrated!
 }
 
@@ -2364,6 +2566,12 @@ enum LineFluxSurfaceUnits {
 # Long can represent values between -(2^63) and 2^63 - 1.
 scalar Long
 
+# Create an angle from a signed integral value and its units.
+input LongAngleInput {
+  value: Long!
+  units: AngleUnits!
+}
+
 # MOS pre-imaging observation
 enum MosPreImaging {
   # MosPreImaging IsMosPreImaging
@@ -2741,8 +2949,9 @@ type PlannedTimeSummary {
   execution: Duration!
 }
 
+# Point source
 type PointSource {
-  # Point source
+  # Integrated units
   spectralDefinition: SpectralDefinitionIntegrated!
 }
 
@@ -3048,10 +3257,13 @@ type Query {
     includeDeleted: Boolean! = false
   ): Target
 
-  # All the science targets that are used by one or more observations in the given program
-  referencedScienceTargets(
+  # All the science targets associated with a given program or specific observations
+  scienceTargets(
     # Program ID
-    programId: ProgramId!
+    programId: ProgramId
+
+    # Observation IDs
+    observationIds: [ObservationId!]
 
     # Retrieve `first` values after the given cursor
     first: Int
@@ -3090,7 +3302,10 @@ type Query {
   ): TargetEnvironment
 
   # test source profile
-  testSourceProfile: SourceProfile!
+  testSourceProfile(
+    # magnitude
+    mag: CreateBandNormalizedIntegrated!
+  ): SourceProfile!
 }
 
 type RadialVelocity {
@@ -3429,11 +3644,11 @@ type SpectroscopyScienceRequirements {
 
 # Spectroscopy science requirements create params
 input SpectroscopyScienceRequirementsInput {
-  wavelength: WavelengthModelInput
+  wavelength: WavelengthInput
   resolution: PosInt
   signalToNoise: PosBigDecimal
-  signalToNoiseAt: WavelengthModelInput
-  wavelengthCoverage: WavelengthModelInput
+  signalToNoiseAt: WavelengthInput
+  wavelengthCoverage: WavelengthInput
   focalPlane: FocalPlane
   focalPlaneAngle: FocalPlaneAngleInput
   capabilities: SpectroscopyCapabilities
@@ -3917,13 +4132,28 @@ scalar TargetId
 # Either Nonsidereal ephemeris lookup key or Sidereal proper motion.
 union Tracking = Nonsidereal | Sidereal
 
+# Uniform source
 type UniformSource {
-  # Uniform source
+  # Surface units
   spectralDefinition: SpectralDefinitionSurface!
 }
 
 # Un-normalized spectral energy distribution
 union UnnormalizedSed = StellarLibrary | CoolStarModel | Galaxy | Planet | Quasar | HiiRegion | PlanetaryNebula | PowerLaw | BlackBody | UserDefined
+
+# Un-normalized SED input parameters.  Define one value only.
+input UnnormalizedSedInput {
+  stellarLibrary: StellarLibrarySpectrum
+  coolStar: CoolStarTemperature
+  galaxy: GalaxySpectrum
+  planet: PlanetSpectrum
+  quasar: QuasarSpectrum
+  hiiRegion: HiiRegionSpectrum
+  planetaryNebula: PlanetaryNebulaSpectrum
+  powerLaw: BigDecimal
+  blackBodyTempK: BigDecimal
+  fluxDensities: [FluxDensity!]
+}
 
 # User defined SED
 type UserDefined {
@@ -3968,6 +4198,16 @@ input WavelengthDecimalInput {
   units: WavelengthUnits!
 }
 
+# Wavelength, choose one of the available units
+input WavelengthInput {
+  picometers: Long
+  angstroms: BigDecimal
+  nanometers: BigDecimal
+  micrometers: BigDecimal
+  fromLong: WavelengthLongInput
+  fromDecimal: WavelengthDecimalInput
+}
+
 # Integral value in Wavelength
 input WavelengthLongInput {
   # integral value in associated units
@@ -3975,16 +4215,6 @@ input WavelengthLongInput {
 
   # units for associated value
   units: WavelengthUnits!
-}
-
-# Wavelength, choose one of the available units
-input WavelengthModelInput {
-  picometers: Long
-  angstroms: BigDecimal
-  nanometers: BigDecimal
-  micrometers: BigDecimal
-  fromLong: WavelengthLongInput
-  fromDecimal: WavelengthDecimalInput
 }
 
 # Wavelength units
