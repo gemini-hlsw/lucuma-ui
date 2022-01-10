@@ -36,74 +36,56 @@
           "brightnesses": [
             {
               "band": "SLOAN_U",
-              "magnitude": {
-                "value": 14.147,
-                "units": "AB_MAGNITUDE"
-              },
+              "value": 14.147,
+              "units": "AB_MAGNITUDE",
               "error": 0.005
             },
             {
               "band": "SLOAN_G",
-              "magnitude": {
-                "value": 12.924,
-                "units": "AB_MAGNITUDE"
-              },
+              "value": 12.924,
+              "units": "AB_MAGNITUDE",
               "error": 0.002
             },
             {
               "band": "SLOAN_R",
-              "magnitude": {
-                "value": 12.252,
-                "units": "AB_MAGNITUDE"
-              },
+              "value": 12.252,
+              "units": "AB_MAGNITUDE",
               "error": 0.002
             },
             {
               "band": "SLOAN_I",
-              "magnitude": {
-                "value": 11.888,
-                "units": "AB_MAGNITUDE"
-              },
+              "value": 11.888,
+              "units": "AB_MAGNITUDE",
               "error": 0.002
             },
             {
               "band": "SLOAN_Z",
-              "magnitude": {
-                "value": 11.636,
-                "units": "AB_MAGNITUDE"
-              },
+              "value": 11.636,
+              "units": "AB_MAGNITUDE",
               "error": 0.002
             },
             {
               "band": "B",
-              "magnitude": {
-                "value": 12.7,
-                "units": "VEGA_MAGNITUDE"
-              },
+              "value": 12.7,
+              "units": "VEGA_MAGNITUDE",
               "error": null
             },
             {
               "band": "J",
-              "magnitude": {
-                "value": 10.279,
-                "units": "VEGA_MAGNITUDE"
-              },
+              "value": 10.279,
+              "units": "VEGA_MAGNITUDE",
               "error": 0.001
             },
             {
               "band": "H",
-              "magnitude": {
-                "value": 9.649,
-                "units": "VEGA_MAGNITUDE"
-              },
+              "value": 9.649,
+              "units": "VEGA_MAGNITUDE",
               "error": 0.012
             },
             {
               "band": "K",
-              "magnitude": {
-                "value": 9.425,
-                "units": "VEGA_MAGNITUDE"
-              },
+              "value": 9.425,
+              "units": "VEGA_MAGNITUDE",
               "error": 0.017
             }
           ]
