@@ -283,12 +283,6 @@ type Bias implements StepConfig {
 # The `BigDecimal` scalar type represents signed fractional values with arbitrary precision.
 scalar BigDecimal
 
-# Black body SED
-type BlackBody {
-  # Kelvin
-  temperature: BigDecimal!
-}
-
 # Stopping point in a series of steps
 enum Breakpoint {
   # Breakpoint Enabled
@@ -507,10 +501,6 @@ type ConstraintSetGroupEdge {
 
   # ConstraintSetGroupEdge element cursor
   cursor: Cursor!
-}
-
-type CoolStarModel {
-  temperature: CoolStarTemperature!
 }
 
 # Cool star temperature options
@@ -1343,7 +1333,7 @@ enum FluxDensityContinuumSurfaceUnits {
 
 type FluxDensityEntry {
   wavelength: Wavelength!
-  value: BigDecimal!
+  density: BigDecimal!
 }
 
 # Focal plane Single/Multi/IFU
@@ -1376,10 +1366,6 @@ input FocalPlaneAngleInput {
   arcseconds: BigDecimal
 }
 
-type Galaxy {
-  spectrum: GalaxySpectrum!
-}
-
 # Galaxy spectrum
 enum GalaxySpectrum {
   # GalaxySpectrum Elliptical
@@ -1389,13 +1375,16 @@ enum GalaxySpectrum {
   SPIRAL
 }
 
-# Gaussian source
+# Gaussian source, one of bandNormalized and emissionLines will be defined.
 type GaussianSource {
   # full width at half maximum
   fwhm: Angle!
 
-  # Integrated units
-  spectralDefinition: SpectralDefinitionIntegrated!
+  # Band normalized spectral definition
+  bandNormalized: BandNormalizedIntegrated
+
+  # Emission lines spectral definition
+  emissionLines: EmissionLinesIntegrated
 }
 
 # GCAL calibration step (flat / arc)
@@ -2420,10 +2409,6 @@ enum GmosYBinning {
   FOUR
 }
 
-type HiiRegion {
-  spectrum: HiiRegionSpectrum!
-}
-
 # HII Region spectrum
 enum HiiRegionSpectrum {
   # HiiRegionSpectrum OrionNebula
@@ -2882,14 +2867,6 @@ enum ParallaxUnits {
   MILLIARCSECONDS
 }
 
-type Planet {
-  spectrum: PlanetSpectrum!
-}
-
-type PlanetaryNebula {
-  spectrum: PlanetaryNebulaSpectrum!
-}
-
 # Planetary nebula spectrum
 enum PlanetaryNebulaSpectrum {
   # PlanetaryNebulaSpectrum NGC7009
@@ -2949,22 +2926,11 @@ type PlannedTimeSummary {
   execution: Duration!
 }
 
-# Point source
-type PointSource {
-  # Integrated units
-  spectralDefinition: SpectralDefinitionIntegrated!
-}
-
 # A `BigDecimal` greater than 0
 scalar PosBigDecimal
 
 # An `Int` in the range from 1 to `Int.MaxValue`
 scalar PosInt
-
-# Power law SED
-type PowerLaw {
-  index: BigDecimal!
-}
 
 type Program {
   # Program ID
@@ -3106,10 +3072,6 @@ type q {
 
   # q offset in arcsec
   arcseconds: BigDecimal!
-}
-
-type Quasar {
-  spectrum: QuasarSpectrum!
 }
 
 # Quasar spectrum
@@ -3595,14 +3557,35 @@ input SlitWidthInput {
   arcseconds: BigDecimal
 }
 
-# source profile
-union SourceProfile = PointSource | UniformSource | GaussianSource
+# Source profile, exactly one of the fields will be defined
+type SourceProfile {
+  # point source, integrated units
+  point: SpectralDefinitionIntegrated
 
-# Spectral definition integrated
-union SpectralDefinitionIntegrated = BandNormalizedIntegrated | EmissionLinesIntegrated
+  # uniform source, surface units
+  uniform: SpectralDefinitionSurface
 
-# Spectral definition surface
-union SpectralDefinitionSurface = BandNormalizedSurface | EmissionLinesSurface
+  # gaussian source, integrated units
+  gaussian: GaussianSource
+}
+
+# Spectral definition integrated.  Exactly one of the fields will be defined.
+type SpectralDefinitionIntegrated {
+  # Band normalized spectral definition
+  bandNormalized: BandNormalizedIntegrated
+
+  # Emission lines spectral definition
+  emissionLines: EmissionLinesIntegrated
+}
+
+# Spectral definition surface.  Exactly one of the fields will be defined.
+type SpectralDefinitionSurface {
+  # Band normalized spectral definition
+  bandNormalized: BandNormalizedSurface
+
+  # Emission lines spectral definition
+  emissionLines: EmissionLinesSurface
+}
 
 # Spectroscopy capabilities Nod&Shuffle/Polarimetry/Corongraphy
 enum SpectroscopyCapabilities {
@@ -3652,10 +3635,6 @@ input SpectroscopyScienceRequirementsInput {
   focalPlane: FocalPlane
   focalPlaneAngle: FocalPlaneAngleInput
   capabilities: SpectroscopyCapabilities
-}
-
-type StellarLibrary {
-  spectrum: StellarLibrarySpectrum!
 }
 
 # Stellar library spectrum
@@ -4132,14 +4111,19 @@ scalar TargetId
 # Either Nonsidereal ephemeris lookup key or Sidereal proper motion.
 union Tracking = Nonsidereal | Sidereal
 
-# Uniform source
-type UniformSource {
-  # Surface units
-  spectralDefinition: SpectralDefinitionSurface!
+# Un-normalized spectral energy distribution.  Exactly one of the definitions will be non-null.
+type UnnormalizedSed {
+  stellarLibrary: StellarLibrarySpectrum
+  coolStar: CoolStarTemperature
+  galaxy: GalaxySpectrum
+  planet: PlanetSpectrum
+  quasar: QuasarSpectrum
+  hiiRegion: HiiRegionSpectrum
+  planetaryNebula: PlanetaryNebulaSpectrum
+  powerLaw: BigDecimal
+  blackBodyTempK: BigDecimal
+  fluxDensities: [FluxDensityEntry!]
 }
-
-# Un-normalized spectral energy distribution
-union UnnormalizedSed = StellarLibrary | CoolStarModel | Galaxy | Planet | Quasar | HiiRegion | PlanetaryNebula | PowerLaw | BlackBody | UserDefined
 
 # Un-normalized SED input parameters.  Define one value only.
 input UnnormalizedSedInput {
@@ -4153,11 +4137,6 @@ input UnnormalizedSedInput {
   powerLaw: BigDecimal
   blackBodyTempK: BigDecimal
   fluxDensities: [FluxDensity!]
-}
-
-# User defined SED
-type UserDefined {
-  fluxDensities: [FluxDensityEntry!]!
 }
 
 # Water vapor

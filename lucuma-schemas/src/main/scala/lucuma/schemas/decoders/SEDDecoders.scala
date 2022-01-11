@@ -6,43 +6,89 @@ package lucuma.schemas.decoders
 import cats.Order._
 import cats.data.NonEmptyMap
 import cats.syntax.all._
+import coulomb._
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import io.circe.Decoder
-import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.math.Wavelength
 import lucuma.core.model.UnnormalizedSED
 
 import scala.collection.immutable.SortedMap
+import lucuma.core.enum._
+import coulomb.si.Kelvin
 
 trait SEDDecoders {
 
   implicit val stellarLibraryDecoder: Decoder[UnnormalizedSED.StellarLibrary] =
-    semiauto.deriveDecoder
+    Decoder.instance(
+      _.downField("stellarLibrary")
+        .as[StellarLibrarySpectrum]
+        .map(UnnormalizedSED.StellarLibrary.apply)
+    )
 
-  implicit val coolStarModelDecoder: Decoder[UnnormalizedSED.CoolStarModel] = semiauto.deriveDecoder
+  implicit val coolStarModelDecoder: Decoder[UnnormalizedSED.CoolStarModel] =
+    Decoder.instance(
+      _.downField("coolStar")
+        .as[CoolStarTemperature]
+        .map(UnnormalizedSED.CoolStarModel.apply)
+    )
 
-  implicit val galaxyDecoder: Decoder[UnnormalizedSED.Galaxy] = semiauto.deriveDecoder
+  implicit val galaxyDecoder: Decoder[UnnormalizedSED.Galaxy] =
+    Decoder.instance(
+      _.downField("galaxy")
+        .as[GalaxySpectrum]
+        .map(UnnormalizedSED.Galaxy.apply)
+    )
 
-  implicit val planetDecoder: Decoder[UnnormalizedSED.Planet] = semiauto.deriveDecoder
+  implicit val planetDecoder: Decoder[UnnormalizedSED.Planet] =
+    Decoder.instance(
+      _.downField("planet")
+        .as[PlanetSpectrum]
+        .map(UnnormalizedSED.Planet.apply)
+    )
 
-  implicit val quasarDecoder: Decoder[UnnormalizedSED.Quasar] = semiauto.deriveDecoder
+  implicit val quasarDecoder: Decoder[UnnormalizedSED.Quasar] =
+    Decoder.instance(
+      _.downField("quasar")
+        .as[QuasarSpectrum]
+        .map(UnnormalizedSED.Quasar.apply)
+    )
 
-  implicit val hiiRegionDecoder: Decoder[UnnormalizedSED.HIIRegion] = semiauto.deriveDecoder
+  implicit val hiiRegionDecoder: Decoder[UnnormalizedSED.HIIRegion] =
+    Decoder.instance(
+      _.downField("hiiRegion")
+        .as[HIIRegionSpectrum]
+        .map(UnnormalizedSED.HIIRegion.apply)
+    )
 
   implicit val planetaryNebulaDecoder: Decoder[UnnormalizedSED.PlanetaryNebula] =
-    semiauto.deriveDecoder
+    Decoder.instance(
+      _.downField("planetaryNebula")
+        .as[PlanetaryNebulaSpectrum]
+        .map(UnnormalizedSED.PlanetaryNebula.apply)
+    )
 
-  implicit val powerLawDecoder: Decoder[UnnormalizedSED.PowerLaw] = semiauto.deriveDecoder
+  implicit val powerLawDecoder: Decoder[UnnormalizedSED.PowerLaw] =
+    Decoder.instance(
+      _.downField("powerLaw")
+        .as[BigDecimal]
+        .map(UnnormalizedSED.PowerLaw.apply)
+    )
 
-  implicit val blackBodyDecoder: Decoder[UnnormalizedSED.BlackBody] = semiauto.deriveDecoder
+  implicit val blackBodyDecoder: Decoder[UnnormalizedSED.BlackBody] =
+    Decoder.instance(
+      _.downField("blackBodyTempK")
+        .as[PosBigDecimal]
+        .map(_.withUnit[Kelvin])
+        .map(UnnormalizedSED.BlackBody.apply)
+    )
 
   implicit val userDefinedDecoder: Decoder[UnnormalizedSED.UserDefined] = Decoder.instance { c =>
     implicit val fluxDensityDecoder: Decoder[(Wavelength, PosBigDecimal)] =
       Decoder.instance(c =>
         for {
           w <- c.downField("wavelength").as[Wavelength]
-          v <- c.downField("value").as[PosBigDecimal]
+          v <- c.downField("density").as[PosBigDecimal]
         } yield (w, v)
       )
 

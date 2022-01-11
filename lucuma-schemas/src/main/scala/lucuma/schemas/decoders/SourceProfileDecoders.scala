@@ -9,19 +9,20 @@ import lucuma.core.math.Angle
 import lucuma.core.math.BrightnessUnits._
 import lucuma.core.model.SourceProfile
 import lucuma.core.model.SpectralDefinition
+import io.circe.HCursor
 
 trait SourceProfileDecoders {
 
   implicit val pointSourceProfileDecoder: Decoder[SourceProfile.Point] =
     Decoder.instance(
-      _.downField("spectralDefinition")
+      _.downField("point")
         .as[SpectralDefinition[Integrated]]
         .map(SourceProfile.Point.apply)
     )
 
   implicit val uniformSourceProfileDecoder: Decoder[SourceProfile.Uniform] =
     Decoder.instance(
-      _.downField("spectralDefinition")
+      _.downField("surface")
         .as[SpectralDefinition[Surface]]
         .map(SourceProfile.Uniform.apply)
     )
@@ -29,8 +30,9 @@ trait SourceProfileDecoders {
   implicit val gaussianSourceProfileDecoder: Decoder[SourceProfile.Gaussian] =
     Decoder.instance(c =>
       for {
-        fwhm <- c.downField("fwhm").as[Angle]
-        s    <- c.downField("spectralDefinition").as[SpectralDefinition[Integrated]]
+        g    <- c.downField("gaussian").as[HCursor]
+        fwhm <- g.downField("fwhm").as[Angle]
+        s    <- g.as[SpectralDefinition[Integrated]]
       } yield SourceProfile.Gaussian(fwhm, s)
     )
 

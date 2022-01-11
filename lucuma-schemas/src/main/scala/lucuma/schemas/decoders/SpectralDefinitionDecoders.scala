@@ -20,6 +20,7 @@ import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.UnnormalizedSED
 
 import scala.collection.immutable.SortedMap
+import io.circe.HCursor
 
 trait SpectralDefinitionDecoders {
 
@@ -40,8 +41,9 @@ trait SpectralDefinitionDecoders {
 
     Decoder.instance(c =>
       for {
-        sed          <- c.downField("sed").as[UnnormalizedSED]
-        brightnesses <- c.downField("brightnesses").as[List[(Band, BrightnessMeasure[T])]]
+        bn           <- c.downField("bandNormalized").as[HCursor]
+        sed          <- bn.downField("sed").as[UnnormalizedSED]
+        brightnesses <- bn.downField("brightnesses").as[List[(Band, BrightnessMeasure[T])]]
       } yield SpectralDefinition.BandNormalized(sed, SortedMap.from(brightnesses))
     )
   }
@@ -69,9 +71,10 @@ trait SpectralDefinitionDecoders {
       )
 
     for {
-      ls  <- c.downField("lines").as[List[(Wavelength, EmissionLine[T])]]
+      el  <- c.downField("emissionLines").as[HCursor]
+      ls  <- el.downField("lines").as[List[(Wavelength, EmissionLine[T])]]
       fdc <-
-        c.downField("fluxDensityContinuum").as[Measure[PosBigDecimal] Of FluxDensityContinuum[T]]
+        el.downField("fluxDensityContinuum").as[Measure[PosBigDecimal] Of FluxDensityContinuum[T]]
     } yield SpectralDefinition.EmissionLines(SortedMap.from(ls), fdc)
   }
 
