@@ -47,6 +47,7 @@ trait ObservationDB {
     type BrightnessSurfaceUnits              = Units Of Brightness[Surface]
     type CatalogName                         = enum.CatalogName
     type CloudExtinction                     = enum.CloudExtinction
+    type CoolStarTemperature                 = enum.CoolStarTemperature
     type DatasetStage                        = enum.DatasetStage
     type EphemerisKeyType                    = enum.EphemerisKeyType
     type FluxDensityContinuumIntegratedUnits = Units Of FluxDensityContinuum[Integrated]
