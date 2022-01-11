@@ -32,23 +32,30 @@ query {
       }
     }
     sourceProfile {
-      ... on PointSource {
-        spectralDefinition {
-          ... on BandNormalizedIntegrated {
-            sed {
-              ... on StellarLibrary {
-                librarySpectrum: spectrum
+      point {
+        bandNormalized {
+          sed {
+            stellarLibrary
+            coolStar
+            galaxy
+            planet
+            quasar
+            hiiRegion
+            planetaryNebula
+            powerLaw
+            blackBodyTempK
+            fluxDensities {
+              wavelength {
+                picometers
               }
-              ... on Galaxy {
-                galaxySpectrum: spectrum
-              }
+              density
             }
-            brightnesses {
-              band
-              value
-              units
-              error
-            }
+          }
+          brightnesses {
+            band
+            value
+            units
+            error
           }
         }
       }
