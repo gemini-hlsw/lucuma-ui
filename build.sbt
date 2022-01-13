@@ -15,7 +15,7 @@ inThisBuild(
   ) ++ lucumaPublishSettings
 )
 
-val scala2Version = "2.13.7"
+val scala2Version = "2.13.8"
 val allVersions   = List(scala2Version)
 
 val coreDependencies = List(
