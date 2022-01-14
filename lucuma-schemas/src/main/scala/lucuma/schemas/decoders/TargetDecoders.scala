@@ -6,6 +6,7 @@ package lucuma.schemas.decoders
 import cats.syntax.all._
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
+import io.circe.HCursor
 import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.math.Coordinates
@@ -26,7 +27,7 @@ trait TargetDecoders {
 
   implicit val siderealTrackingDecoder: Decoder[SiderealTracking] = Decoder.instance(c =>
     for {
-      bc  <- c.downField("coordinates").as[Coordinates]
+      bc  <- c.as[Coordinates]
       ep  <- c.downField("epoch").as[Epoch]
       pm  <- c.downField("properMotion").as[Option[ProperMotion]]
       rv  <- c.downField("radialVelocity").as[Option[RadialVelocity]]
@@ -41,9 +42,10 @@ trait TargetDecoders {
   implicit val siderealTargetDecoder: Decoder[Target.Sidereal] = Decoder.instance(c =>
     for {
       name          <- c.downField("name").as[NonEmptyString]
-      tracking      <- c.downField("tracking").as[SiderealTracking]
       sourceProfile <- c.downField("sourceProfile").as[SourceProfile]
-      catalogInfo   <- c.downField("catalogInfo").as[Option[CatalogInfo]]
+      s             <- c.downField("sidereal").as[HCursor]
+      tracking      <- s.as[SiderealTracking]
+      catalogInfo   <- s.downField("catalogInfo").as[Option[CatalogInfo]]
       angSize       <- c.downField("angularSize").as[Option[AngularSize]]
     } yield Target.Sidereal(name, tracking, sourceProfile, catalogInfo, angSize)
   )
@@ -51,7 +53,7 @@ trait TargetDecoders {
   implicit val nonsiderealTargetDecoder: Decoder[Target.Nonsidereal] = Decoder.instance(c =>
     for {
       name          <- c.downField("name").as[NonEmptyString]
-      ephemerisKey  <- c.downField("ephemerisKey").as[EphemerisKey]
+      ephemerisKey  <- c.downField("nonsidereal").downField("keyType").as[EphemerisKey]
       sourceProfile <- c.downField("sourceProfile").as[SourceProfile]
       angSize       <- c.downField("angularSize").as[Option[AngularSize]]
     } yield Target.Nonsidereal(name, ephemerisKey, sourceProfile, angSize)

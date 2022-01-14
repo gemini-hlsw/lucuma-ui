@@ -3,14 +3,12 @@
     "target": {
       "id": "t-2",
       "name": "NGC 5949",
-      "tracking": {
-        "coordinates": {
-          "ra": {
-            "microarcseconds": 835210020000
-          },
-          "dec": {
-            "microarcseconds": 233147400000
-          }
+      "sidereal": {
+        "ra": {
+          "microarcseconds": 835210020000
+        },
+        "dec": {
+          "microarcseconds": 233147400000
         },
         "epoch": "J2000.000",
         "properMotion": {
@@ -26,14 +24,23 @@
         },
         "parallax": {
           "microarcseconds": 0
-        }
+        },
+        "catalogInfo": null
       },
       "sourceProfile": {
         "point": {
           "bandNormalized": {
             "sed": {
               "stellarLibrary": null,
-              "galaxy": "SPIRAL"
+              "coolStar": null,
+              "galaxy": "SPIRAL",
+              "planet": null,
+              "quasar": null,
+              "hiiRegion": null,
+              "planetaryNebula": null,
+              "powerLaw": null,
+              "blackBodyTempK": null,
+              "fluxDensities": null
             },
             "brightnesses": [
               {
@@ -93,8 +100,7 @@
             ]
           }
         }
-      },
-      "catalogInfo": null
+      }
     }
   }
 }
