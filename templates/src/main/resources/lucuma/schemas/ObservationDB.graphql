@@ -118,6 +118,17 @@ enum AngleUnits {
   HOURS
 }
 
+type AngularSize {
+  majorAxis: Angle!
+  minorAxis: Angle!
+}
+
+# Angular size inputs
+input AngularSizeInput {
+  majorAxis: AngleInput
+  minorAxis: AngleInput
+}
+
 type AsterismGroup {
   # IDs of observations that use the same constraints
   observationIds: [ObservationId!]!
@@ -362,7 +373,7 @@ input BulkEditTargetEnvironmentInput {
   edit: EditTargetEnvironmentInput!
 }
 
-type CatalogId {
+type CatalogInfo {
   # Catalog name option
   name: CatalogName!
 
@@ -373,10 +384,16 @@ type CatalogId {
   objectType: String
 }
 
-# Catalog id consisting of catalog name and string identifier
-input CatalogIdInput {
-  name: CatalogName!
-  id: String!
+# Catalog id consisting of catalog name, string identifier and an optional object type
+input CatalogInfoInput {
+  # The name field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  name: CatalogName
+
+  # The id field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  id: NonEmptyString
+
+  # The objectType field may be unset by assigning a null value, or ignored by skipping it altogether
+  objectType: NonEmptyString
 }
 
 # Catalog name values
@@ -689,10 +706,8 @@ input CreateLineFluxSurface {
 
 # Nonsidereal target parameters
 input CreateNonsiderealInput {
-  name: NonEmptyString!
   keyType: EphemerisKeyType!
   des: String!
-  sourceProfile: CreateSourceProfile!
 }
 
 # Create observation configuration
@@ -722,15 +737,13 @@ input CreateProgramInput {
 
 # Sidereal target parameters
 input CreateSiderealInput {
-  name: NonEmptyString!
-  catalogInfo: CatalogIdInput
+  catalogInfo: CatalogInfoInput
   ra: RightAscensionInput!
   dec: DeclinationInput!
   epoch: EpochString
   properMotion: ProperMotionInput
   radialVelocity: RadialVelocityInput
   parallax: ParallaxModelInput
-  sourceProfile: CreateSourceProfile!
 }
 
 # Create a source profile
@@ -761,9 +774,11 @@ input CreateTargetEnvironmentInput {
 # Target creation parameters
 input CreateTargetInput {
   targetId: TargetId
-  programId: ProgramId!
+  name: NonEmptyString!
+  sourceProfile: CreateSourceProfile!
   sidereal: CreateSiderealInput
   nonsidereal: CreateNonsiderealInput
+  angularSize: AngularSizeInput
 }
 
 # Opaque object cursor
@@ -1058,8 +1073,8 @@ input EditScienceRequirementsInput {
 
 # Sidereal target edit parameters
 input EditSiderealInput {
-  # The catalogId field may be unset by assigning a null value, or ignored by skipping it altogether
-  catalogId: CatalogIdInput
+  # The catalogInfo field may be unset by assigning a null value, or ignored by skipping it altogether
+  catalogInfo: CatalogInfoInput
 
   # The ra field must be either specified or skipped altogether.  It cannot be unset with a null value.
   ra: RightAscensionInput
@@ -1094,6 +1109,7 @@ input EditTargetInput {
   name: NonEmptyString
   sidereal: EditSiderealInput
   nonSidereal: EditNonsiderealInput
+  angularSize: AngularSizeInput
 }
 
 # Type of edit that triggered an event
@@ -2610,6 +2626,9 @@ type Mutation {
 
   # Creates a new target according to the provided parameters.  Only one of sidereal or nonsidereal may be specified.
   createTarget(
+    # Program ID
+    programId: ProgramId!
+
     # Target description.  One (and only one) of sidereal or nonsidereal must be specified.
     input: CreateTargetInput!
   ): Target!
@@ -3508,8 +3527,14 @@ enum SequenceType {
 }
 
 type Sidereal {
-  # Coordinates at epoch
-  coordinates: Coordinates!
+  # Catalog info, if any, describing from where the information in this target was obtained
+  catalogInfo: CatalogInfo
+
+  # Right ascension at epoch
+  ra: RightAscension!
+
+  # Declination at epoch
+  dec: Declination!
 
   # Epoch, time of base observation
   epoch: EpochString!
@@ -3940,6 +3965,7 @@ type Subscription {
   ): ProgramEdit!
 }
 
+# Target description
 type Target {
   # Target ID
   id: TargetId!
@@ -3956,14 +3982,15 @@ type Target {
     includeDeleted: Boolean! = false
   ): Program!
 
-  # Catalog id, if any, describing from where the information in this target was obtained
-  catalogInfo: CatalogId
-
-  # Information required to find a target in the sky.
-  tracking: Tracking!
-
   # source profile
   sourceProfile: SourceProfile!
+
+  # Sidereal tracking information, if this is a sidereal target
+  sidereal: Sidereal
+
+  # Nonsidereal tracking information, if this is a nonsidereal target
+  nonsidereal: Nonsidereal
+  angularSize: AngularSize
 }
 
 # Targets in the current page
@@ -4107,9 +4134,6 @@ type TargetGroupEdge {
 
 # TargetId id formatted as `t-([1-9a-f][0-9a-f]*)`
 scalar TargetId
-
-# Either Nonsidereal ephemeris lookup key or Sidereal proper motion.
-union Tracking = Nonsidereal | Sidereal
 
 # Un-normalized spectral energy distribution.  Exactly one of the definitions will be non-null.
 type UnnormalizedSed {
