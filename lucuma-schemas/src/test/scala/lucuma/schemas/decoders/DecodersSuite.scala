@@ -32,6 +32,8 @@ import scala.collection.immutable.SortedMap
 import lucuma.core.math.units._
 import lucuma.core.math.BrightnessValue
 import eu.timepit.refined.types.numeric.PosLong
+import lucuma.core.model.CatalogInfo
+import lucuma.core.enum.CatalogName
 
 class DecodersSuite extends CatsEffectSuite {
 
@@ -105,8 +107,7 @@ class DecodersSuite extends CatsEffectSuite {
             )
           )
         ),
-        none,
-        none
+        CatalogInfo(CatalogName.Simbad, NonEmptyString("M   1"), NonEmptyString("SNR").some).some
       )
 
     val jsonFile = "/t2.json"

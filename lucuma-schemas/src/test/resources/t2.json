@@ -25,7 +25,11 @@
         "parallax": {
           "microarcseconds": 0
         },
-        "catalogInfo": null
+        "catalogInfo": {
+          "name": "SIMBAD",
+          "id": "M   1",
+          "objectType": "SNR"
+        }
       },
       "sourceProfile": {
         "point": {
