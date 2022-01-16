@@ -27,8 +27,8 @@ query {
         microarcseconds
       }
       catalogInfo {
-        id
         name
+        id
         objectType
       }
     }

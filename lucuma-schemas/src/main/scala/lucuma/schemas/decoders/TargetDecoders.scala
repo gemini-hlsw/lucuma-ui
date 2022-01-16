@@ -9,12 +9,12 @@ import io.circe.Decoder
 import io.circe.HCursor
 import io.circe.generic.semiauto
 import io.circe.refined._
+import lucuma.core.enum.CatalogName
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Epoch
 import lucuma.core.math.Parallax
 import lucuma.core.math.ProperMotion
 import lucuma.core.math.RadialVelocity
-import lucuma.core.model.AngularSize
 import lucuma.core.model.CatalogInfo
 import lucuma.core.model.EphemerisKey
 import lucuma.core.model.SiderealTracking
@@ -35,9 +35,13 @@ trait TargetDecoders {
     } yield SiderealTracking(bc, ep, pm, rv, par)
   )
 
-  implicit val catalogInfoeDecoder: Decoder[CatalogInfo] = semiauto.deriveDecoder
-
-  implicit val angularSizeDecoder: Decoder[AngularSize] = semiauto.deriveDecoder
+  implicit val catalogInfoeDecoder: Decoder[CatalogInfo] = Decoder.instance(c =>
+    for {
+      name <- c.downField("name").as[CatalogName]
+      id   <- c.downField("id").as[NonEmptyString]
+      ot   <- c.downField("objectType").as[Option[NonEmptyString]]
+    } yield CatalogInfo(name, id, ot)
+  )
 
   implicit val siderealTargetDecoder: Decoder[Target.Sidereal] = Decoder.instance(c =>
     for {
@@ -46,22 +50,20 @@ trait TargetDecoders {
       s             <- c.downField("sidereal").as[HCursor]
       tracking      <- s.as[SiderealTracking]
       catalogInfo   <- s.downField("catalogInfo").as[Option[CatalogInfo]]
-      angSize       <- c.downField("angularSize").as[Option[AngularSize]]
-    } yield Target.Sidereal(name, tracking, sourceProfile, catalogInfo, angSize)
+    } yield Target.Sidereal(name, tracking, sourceProfile, catalogInfo)
   )
 
   implicit val nonsiderealTargetDecoder: Decoder[Target.Nonsidereal] = Decoder.instance(c =>
     for {
       name          <- c.downField("name").as[NonEmptyString]
-      ephemerisKey  <- c.downField("nonsidereal").downField("keyType").as[EphemerisKey]
+      ephemerisKey  <- c.downField("nonsidereal").as[EphemerisKey]
       sourceProfile <- c.downField("sourceProfile").as[SourceProfile]
-      angSize       <- c.downField("angularSize").as[Option[AngularSize]]
-    } yield Target.Nonsidereal(name, ephemerisKey, sourceProfile, angSize)
+    } yield Target.Nonsidereal(name, ephemerisKey, sourceProfile)
   )
 
   implicit val targetDecoder: Decoder[Target] =
     List[Decoder[Target]](
-      Decoder[Target.Sidereal].widen,
-      Decoder[Target.Nonsidereal].widen
+      Decoder[Target.Sidereal].widen
+      // Decoder[Target.Nonsidereal].widen
     ).reduceLeft(_ or _)
 }
