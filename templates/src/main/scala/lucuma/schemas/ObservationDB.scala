@@ -29,7 +29,6 @@ trait ObservationDB {
     // Formatted strings
     type DatasetFilename     = String
     type DmsString           = String
-    type EphemerisKey        = model.EphemerisKey
     type EpochString         = String
     type HmsString           = String
     // Refined

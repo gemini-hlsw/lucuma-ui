@@ -118,17 +118,6 @@ enum AngleUnits {
   HOURS
 }
 
-type AngularSize {
-  majorAxis: Angle!
-  minorAxis: Angle!
-}
-
-# Angular size inputs
-input AngularSizeInput {
-  majorAxis: AngleInput
-  minorAxis: AngleInput
-}
-
 type AsterismGroup {
   # IDs of observations that use the same constraints
   observationIds: [ObservationId!]!
@@ -207,9 +196,6 @@ enum Band {
 
   # Band V
   V
-
-  # Band Uc
-  UC
 
   # Band R
   R
@@ -704,12 +690,6 @@ input CreateLineFluxSurface {
   units: LineFluxSurfaceUnits!
 }
 
-# Nonsidereal target parameters
-input CreateNonsiderealInput {
-  keyType: EphemerisKeyType!
-  des: String!
-}
-
 # Create observation configuration
 input CreateObservationConfigInput {
   gmosNorthLongSlit: CreateGmosNorthLongSlit
@@ -733,17 +713,6 @@ input CreateObservationInput {
 input CreateProgramInput {
   programId: ProgramId
   name: NonEmptyString
-}
-
-# Sidereal target parameters
-input CreateSiderealInput {
-  catalogInfo: CatalogInfoInput
-  ra: RightAscensionInput!
-  dec: DeclinationInput!
-  epoch: EpochString
-  properMotion: ProperMotionInput
-  radialVelocity: RadialVelocityInput
-  parallax: ParallaxModelInput
 }
 
 # Create a source profile
@@ -775,10 +744,9 @@ input CreateTargetEnvironmentInput {
 input CreateTargetInput {
   targetId: TargetId
   name: NonEmptyString!
+  sidereal: SiderealInput
+  nonsidereal: NonsiderealInput
   sourceProfile: CreateSourceProfile!
-  sidereal: CreateSiderealInput
-  nonsidereal: CreateNonsiderealInput
-  angularSize: AngularSizeInput
 }
 
 # Opaque object cursor
@@ -998,12 +966,6 @@ input EditGmosSouthLongSlit {
   slitWidth: SlitWidthInput
 }
 
-# Nonsidereal target edit parameters
-input EditNonsiderealInput {
-  # The key field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  key: EphemerisKey
-}
-
 # Edit observation
 input EditObservationInput {
   observationId: ObservationId!
@@ -1071,30 +1033,6 @@ input EditScienceRequirementsInput {
   spectroscopyRequirements: SpectroscopyScienceRequirementsInput
 }
 
-# Sidereal target edit parameters
-input EditSiderealInput {
-  # The catalogInfo field may be unset by assigning a null value, or ignored by skipping it altogether
-  catalogInfo: CatalogInfoInput
-
-  # The ra field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  ra: RightAscensionInput
-
-  # The dec field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  dec: DeclinationInput
-
-  # The epoch field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  epoch: EpochString
-
-  # The properMotion field may be unset by assigning a null value, or ignored by skipping it altogether
-  properMotion: ProperMotionInput
-
-  # The radialVelocity field may be unset by assigning a null value, or ignored by skipping it altogether
-  radialVelocity: RadialVelocityInput
-
-  # The parallax field may be unset by assigning a null value, or ignored by skipping it altogether
-  parallax: ParallaxModelInput
-}
-
 # Target environment editing parameters
 input EditTargetEnvironmentInput {
   # The explicitBase field may be unset by assigning a null value, or ignored by skipping it altogether
@@ -1107,9 +1045,8 @@ input EditTargetInput {
   targetId: TargetId!
   existence: Existence
   name: NonEmptyString
-  sidereal: EditSiderealInput
-  nonSidereal: EditNonsiderealInput
-  angularSize: AngularSizeInput
+  sidereal: SiderealInput
+  nonsidereal: NonsiderealInput
 }
 
 # Type of edit that triggered an event
@@ -1149,9 +1086,6 @@ type EmissionLineSurface {
   lineWidth: BigDecimal!
   lineFlux: LineFluxSurface!
 }
-
-# Horizons ID in format '[Comet|AsteroidNew|AsteroidOld|MajorBody]_des'
-scalar EphemerisKey
 
 # Ephemeris key type options
 enum EphemerisKeyType {
@@ -2687,6 +2621,21 @@ type Nonsidereal {
 
   # Nonsidereal target lookup type.
   keyType: EphemerisKeyType!
+
+  # Synthesis of `keyType` and `des`
+  key: String!
+}
+
+# Nonsidereal target parameters.  Supply `keyType` and `des` or `key`
+input NonsiderealInput {
+  # The keyType field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  keyType: EphemerisKeyType
+
+  # The des field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  des: NonEmptyString
+
+  # The key field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  key: NonEmptyString
 }
 
 # Observation operational/active status options
@@ -3527,9 +3476,6 @@ enum SequenceType {
 }
 
 type Sidereal {
-  # Catalog info, if any, describing from where the information in this target was obtained
-  catalogInfo: CatalogInfo
-
   # Right ascension at epoch
   ra: RightAscension!
 
@@ -3547,6 +3493,33 @@ type Sidereal {
 
   # Parallax
   parallax: Parallax
+
+  # Catalog info, if any, describing from where the information in this target was obtained
+  catalogInfo: CatalogInfo
+}
+
+# Sidereal target edit parameters
+input SiderealInput {
+  # The ra field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  ra: RightAscensionInput
+
+  # The dec field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  dec: DeclinationInput
+
+  # The epoch field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  epoch: EpochString
+
+  # The properMotion field may be unset by assigning a null value, or ignored by skipping it altogether
+  properMotion: ProperMotionInput
+
+  # The radialVelocity field may be unset by assigning a null value, or ignored by skipping it altogether
+  radialVelocity: RadialVelocityInput
+
+  # The parallax field may be unset by assigning a null value, or ignored by skipping it altogether
+  parallax: ParallaxModelInput
+
+  # The catalogInfo field may be unset by assigning a null value, or ignored by skipping it altogether
+  catalogInfo: CatalogInfoInput
 }
 
 # Sky background
@@ -3990,7 +3963,6 @@ type Target {
 
   # Nonsidereal tracking information, if this is a nonsidereal target
   nonsidereal: Nonsidereal
-  angularSize: AngularSize
 }
 
 # Targets in the current page

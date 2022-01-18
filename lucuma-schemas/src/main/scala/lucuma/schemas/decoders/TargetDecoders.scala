@@ -7,7 +7,6 @@ import cats.syntax.all._
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
 import io.circe.HCursor
-import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.enum.CatalogName
 import lucuma.core.math.Coordinates
@@ -22,8 +21,6 @@ import lucuma.core.model.SourceProfile
 import lucuma.core.model.Target
 
 trait TargetDecoders {
-
-  implicit val ephemerisKeyDecoder: Decoder[EphemerisKey] = semiauto.deriveDecoder
 
   implicit val siderealTrackingDecoder: Decoder[SiderealTracking] = Decoder.instance(c =>
     for {
@@ -56,14 +53,14 @@ trait TargetDecoders {
   implicit val nonsiderealTargetDecoder: Decoder[Target.Nonsidereal] = Decoder.instance(c =>
     for {
       name          <- c.downField("name").as[NonEmptyString]
-      ephemerisKey  <- c.downField("nonsidereal").as[EphemerisKey]
+      ephemerisKey  <- c.downField("nonsidereal").downField("key").as[EphemerisKey]
       sourceProfile <- c.downField("sourceProfile").as[SourceProfile]
     } yield Target.Nonsidereal(name, ephemerisKey, sourceProfile)
   )
 
   implicit val targetDecoder: Decoder[Target] =
     List[Decoder[Target]](
-      Decoder[Target.Sidereal].widen
-      // Decoder[Target.Nonsidereal].widen
+      Decoder[Target.Sidereal].widen,
+      Decoder[Target.Nonsidereal].widen
     ).reduceLeft(_ or _)
 }
