@@ -3,17 +3,13 @@ val lucumaCoreVersion      = "0.24.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 
-inThisBuild(
-  List(
-    homepage                                                 := Some(url("https://github.com/gemini-hlsw/lucuma-schemas")),
-    Global / onChangedBuildSource                            := ReloadOnSourceChanges,
-    scalafixDependencies += "edu.gemini"                     %% "clue-generator" % clueVersion,
-    scalafixScalaBinaryVersion                               := "2.13",
-    ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false,
-    semanticdbEnabled                                        := true,
-    semanticdbVersion                                        := scalafixSemanticdb.revision
-  ) ++ lucumaPublishSettings
-)
+ThisBuild / tlBaseVersion       := "0.11"
+ThisBuild / tlCiReleaseBranches := Seq("main")
+
+Global / onChangedBuildSource                                        := ReloadOnSourceChanges
+ThisBuild / scalafixDependencies += "edu.gemini"                     %% "clue-generator" % clueVersion
+ThisBuild / scalafixScalaBinaryVersion                               := "2.13"
+ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
 val scala2Version = "2.13.8"
 val allVersions   = List(scala2Version)
@@ -28,18 +24,13 @@ val schemasDependencies = List(
   "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectVersion % Test
 )
 
-lazy val root = project
-  .in(file("."))
-  .aggregate(lucumaSchemas.projectRefs: _*)
-  .settings(
-    publish / skip := true
-  )
+lazy val root = tlCrossRootProject.aggregate(lucumaSchemas)
 
 val templates =
   project
     .in(file("templates"))
+    .enablePlugins(NoPublishPlugin)
     .settings(
-      publish / skip := true,
       libraryDependencies ++= coreDependencies
     )
 
@@ -68,6 +59,4 @@ val lucumaSchemas =
     )
     .defaultAxes(VirtualAxis.jvm, VirtualAxis.scalaPartialVersion(scala2Version))
     .jvmPlatform(allVersions)
-    .jsPlatform(allVersions,
-                List(scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)))
-    )
+    .jsPlatform(allVersions)
