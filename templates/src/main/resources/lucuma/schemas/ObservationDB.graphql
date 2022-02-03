@@ -809,57 +809,6 @@ type GmosNorthExecutionSequence {
   possibleFuture: [GmosNorthAtom!]!
 }
 
-"""GMOS North FPU"""
-enum GmosNorthFpu {
-  """GmosNorthFpu Ns0"""
-  NS0
-
-  """GmosNorthFpu Ns1"""
-  NS1
-
-  """GmosNorthFpu Ns2"""
-  NS2
-
-  """GmosNorthFpu Ns3"""
-  NS3
-
-  """GmosNorthFpu Ns4"""
-  NS4
-
-  """GmosNorthFpu Ns5"""
-  NS5
-
-  """GmosNorthFpu LongSlit_0_25"""
-  LONG_SLIT_0_25
-
-  """GmosNorthFpu LongSlit_0_50"""
-  LONG_SLIT_0_50
-
-  """GmosNorthFpu LongSlit_0_75"""
-  LONG_SLIT_0_75
-
-  """GmosNorthFpu LongSlit_1_00"""
-  LONG_SLIT_1_00
-
-  """GmosNorthFpu LongSlit_1_50"""
-  LONG_SLIT_1_50
-
-  """GmosNorthFpu LongSlit_2_00"""
-  LONG_SLIT_2_00
-
-  """GmosNorthFpu LongSlit_5_00"""
-  LONG_SLIT_5_00
-
-  """GmosNorthFpu Ifu2Slits"""
-  IFU2_SLITS
-
-  """GmosNorthFpu IfuBlue"""
-  IFU_BLUE
-
-  """GmosNorthFpu IfuRed"""
-  IFU_RED
-}
-
 """Either custom mask or builtin-FPU"""
 union GmosNorthFpuUnion = GmosCustomMask | GmosNorthBuiltinFpu
 
@@ -886,6 +835,11 @@ input GmosNorthLongSlitInput {
   The disperser field must be either specified or skipped altogether.  It cannot be unset with a null value.
   """
   disperser: GmosNorthDisperser
+
+  """
+  The fpu field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  """
+  fpu: GmosNorthFpu
 
   """
   The slitWidth field must be either specified or skipped altogether.  It cannot be unset with a null value.
@@ -1075,66 +1029,6 @@ type GmosSouthExecutionSequence {
   possibleFuture: [GmosSouthAtom!]!
 }
 
-"""GMOS South FPU"""
-enum GmosSouthFpu {
-  """GmosSouthFpu Bhros"""
-  BHROS
-
-  """GmosSouthFpu Ns1"""
-  NS1
-
-  """GmosSouthFpu Ns2"""
-  NS2
-
-  """GmosSouthFpu Ns3"""
-  NS3
-
-  """GmosSouthFpu Ns4"""
-  NS4
-
-  """GmosSouthFpu Ns5"""
-  NS5
-
-  """GmosSouthFpu LongSlit_0_25"""
-  LONG_SLIT_0_25
-
-  """GmosSouthFpu LongSlit_0_50"""
-  LONG_SLIT_0_50
-
-  """GmosSouthFpu LongSlit_0_75"""
-  LONG_SLIT_0_75
-
-  """GmosSouthFpu LongSlit_1_00"""
-  LONG_SLIT_1_00
-
-  """GmosSouthFpu LongSlit_1_50"""
-  LONG_SLIT_1_50
-
-  """GmosSouthFpu LongSlit_2_00"""
-  LONG_SLIT_2_00
-
-  """GmosSouthFpu LongSlit_5_00"""
-  LONG_SLIT_5_00
-
-  """GmosSouthFpu Ifu2Slits"""
-  IFU2_SLITS
-
-  """GmosSouthFpu IfuBlue"""
-  IFU_BLUE
-
-  """GmosSouthFpu IfuRed"""
-  IFU_RED
-
-  """GmosSouthFpu IfuNS2Slits"""
-  IFU_NS2_SLITS
-
-  """GmosSouthFpu IfuNSBlue"""
-  IFU_NS_BLUE
-
-  """GmosSouthFpu IfuNSRed"""
-  IFU_NS_RED
-}
-
 """Either custom mask or builtin-FPU"""
 union GmosSouthFpuUnion = GmosCustomMask | GmosSouthBuiltinFpu
 
@@ -1161,6 +1055,11 @@ input GmosSouthLongSlitInput {
   The disperser field must be either specified or skipped altogether.  It cannot be unset with a null value.
   """
   disperser: GmosSouthDisperser
+
+  """
+  The fpu field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  """
+  fpu: GmosSouthFpu
 
   """
   The slitWidth field must be either specified or skipped altogether.  It cannot be unset with a null value.
@@ -2879,6 +2778,57 @@ enum GmosNorthFilter {
   U_PRIME
 }
 
+"""GMOS North FPU"""
+enum GmosNorthFpu {
+  """GmosNorthFpu Ns0"""
+  NS0
+
+  """GmosNorthFpu Ns1"""
+  NS1
+
+  """GmosNorthFpu Ns2"""
+  NS2
+
+  """GmosNorthFpu Ns3"""
+  NS3
+
+  """GmosNorthFpu Ns4"""
+  NS4
+
+  """GmosNorthFpu Ns5"""
+  NS5
+
+  """GmosNorthFpu LongSlit_0_25"""
+  LONG_SLIT_0_25
+
+  """GmosNorthFpu LongSlit_0_50"""
+  LONG_SLIT_0_50
+
+  """GmosNorthFpu LongSlit_0_75"""
+  LONG_SLIT_0_75
+
+  """GmosNorthFpu LongSlit_1_00"""
+  LONG_SLIT_1_00
+
+  """GmosNorthFpu LongSlit_1_50"""
+  LONG_SLIT_1_50
+
+  """GmosNorthFpu LongSlit_2_00"""
+  LONG_SLIT_2_00
+
+  """GmosNorthFpu LongSlit_5_00"""
+  LONG_SLIT_5_00
+
+  """GmosNorthFpu Ifu2Slits"""
+  IFU2_SLITS
+
+  """GmosNorthFpu IfuBlue"""
+  IFU_BLUE
+
+  """GmosNorthFpu IfuRed"""
+  IFU_RED
+}
+
 """Basic configuration for GMOS North Long Slit"""
 type GmosNorthLongSlit {
   """GMOS North Filter"""
@@ -2886,6 +2836,9 @@ type GmosNorthLongSlit {
 
   """GMOS North Disperser"""
   disperser: GmosNorthDisperser!
+
+  """GMOS North FPU"""
+  fpu: GmosNorthFpu!
 
   """Slit width in appropriate units"""
   slitWidth: slitWidth!
@@ -3002,6 +2955,66 @@ enum GmosSouthFilter {
   LYA395
 }
 
+"""GMOS South FPU"""
+enum GmosSouthFpu {
+  """GmosSouthFpu Bhros"""
+  BHROS
+
+  """GmosSouthFpu Ns1"""
+  NS1
+
+  """GmosSouthFpu Ns2"""
+  NS2
+
+  """GmosSouthFpu Ns3"""
+  NS3
+
+  """GmosSouthFpu Ns4"""
+  NS4
+
+  """GmosSouthFpu Ns5"""
+  NS5
+
+  """GmosSouthFpu LongSlit_0_25"""
+  LONG_SLIT_0_25
+
+  """GmosSouthFpu LongSlit_0_50"""
+  LONG_SLIT_0_50
+
+  """GmosSouthFpu LongSlit_0_75"""
+  LONG_SLIT_0_75
+
+  """GmosSouthFpu LongSlit_1_00"""
+  LONG_SLIT_1_00
+
+  """GmosSouthFpu LongSlit_1_50"""
+  LONG_SLIT_1_50
+
+  """GmosSouthFpu LongSlit_2_00"""
+  LONG_SLIT_2_00
+
+  """GmosSouthFpu LongSlit_5_00"""
+  LONG_SLIT_5_00
+
+  """GmosSouthFpu Ifu2Slits"""
+  IFU2_SLITS
+
+  """GmosSouthFpu IfuBlue"""
+  IFU_BLUE
+
+  """GmosSouthFpu IfuRed"""
+  IFU_RED
+
+  """GmosSouthFpu IfuNS2Slits"""
+  IFU_NS2_SLITS
+
+  """GmosSouthFpu IfuNSBlue"""
+  IFU_NS_BLUE
+
+  """GmosSouthFpu IfuNSRed"""
+  IFU_NS_RED
+}
+
 """Basic configuration for GMOS South Long Slit"""
 type GmosSouthLongSlit {
   """GMOS South Filter"""
@@ -3009,6 +3022,9 @@ type GmosSouthLongSlit {
 
   """GMOS South Disperser"""
   disperser: GmosSouthDisperser!
+
+  """GMOS South  FPU"""
+  fpu: GmosSouthFpu!
 
   """Slit width in appropriate units"""
   slitWidth: slitWidth!
