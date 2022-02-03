@@ -9,8 +9,6 @@ Global / onChangedBuildSource                                        := ReloadOn
 ThisBuild / scalafixDependencies += "edu.gemini"                     %% "clue-generator" % clueVersion
 ThisBuild / scalafixScalaBinaryVersion                               := "2.13"
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
-ThisBuild / semanticdbEnabled                                        := true
-ThisBuild / semanticdbVersion                                        := scalafixSemanticdb.revision
 
 val scala2Version = "2.13.8"
 val allVersions   = List(scala2Version)
