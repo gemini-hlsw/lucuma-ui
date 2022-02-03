@@ -4,6 +4,7 @@ val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 
 ThisBuild / tlBaseVersion := "0.11"
+ThisBuild / tlCiReleaseBranches := Seq("main")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
 ThisBuild / scalafixDependencies += "edu.gemini"                     %% "clue-generator" % clueVersion
