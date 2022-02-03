@@ -28,8 +28,8 @@ lazy val root = tlCrossRootProject.aggregate(lucumaSchemas)
 val templates =
   project
     .in(file("templates"))
+    .enablePlugins(NoPublishPlugin)
     .settings(
-      publish / skip := true,
       libraryDependencies ++= coreDependencies
     )
 
