@@ -98,9 +98,9 @@ final case class EnumViewMultipleSelect[EV[_], A](
   exclude:              Set[A] = Set.empty[A],
   modifiers:            Seq[TagMod] = Seq.empty
 )(implicit
-  val enumerated: Enumerated[A],
-  val display:    Display[A],
-  val ev:         ExternalValue[EV]
+  val enumerated:       Enumerated[A],
+  val display:          Display[A],
+  val ev:               ExternalValue[EV]
 ) extends ReactProps[EnumViewSelectBase[EV]](EnumViewSelectBase.buildComponent[EV])
     with EnumViewSelectBase[EV] {
 

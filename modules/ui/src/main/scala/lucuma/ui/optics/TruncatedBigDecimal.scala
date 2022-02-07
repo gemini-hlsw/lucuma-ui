@@ -22,8 +22,8 @@ import scala.annotation.unused
  *   Evidence that Dec is a Singleton type.
  */
 sealed abstract case class TruncatedBigDecimal[Dec <: XInt] private (value: BigDecimal)(implicit
-  @unused req: Require[&&[Dec > 0, Dec < 10]],
-  vo:          ValueOf[Dec]
+  @unused req:                                                              Require[&&[Dec > 0, Dec < 10]],
+  vo:                                                                       ValueOf[Dec]
 ) { val decimals: Int = vo.value }
 
 object TruncatedBigDecimal {

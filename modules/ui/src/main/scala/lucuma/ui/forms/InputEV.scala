@@ -19,21 +19,21 @@ import react.common.ReactProps
  * Input component that uses an ExternalValue to share the content of the field
  */
 final case class InputEV[EV[_], A](
-  name:        String,
-  id:          String,
-  value:       EV[A],
-  format:      InputFormat[A] = InputFormat.id,
-  inputType:   InputEV.InputType = InputEV.TextInput,
-  placeholder: String = "",
-  disabled:    Boolean = false,
-  onChange: InputEV.ChangeCallback[A] =
+  name:            String,
+  id:              String,
+  value:           EV[A],
+  format:          InputFormat[A] = InputFormat.id,
+  inputType:       InputEV.InputType = InputEV.TextInput,
+  placeholder:     String = "",
+  disabled:        Boolean = false,
+  onChange:        InputEV.ChangeCallback[A] =
     (_: A) => Callback.empty, // callback for parents of this component
   onBlur:          InputEV.ChangeCallback[A] = (_: A) => Callback.empty
 )(implicit val ev: ExternalValue[EV])
     extends ReactProps[InputEV[Any, Any]](InputEV.component) {
-  def valGet: String              = ev.get(value).foldMap(format.reverseGet)
-  def valSet(s: String): Callback = format.getOption(s).map(ev.set(value)).getOrEmpty
-  val onBlurC: InputEV.ChangeCallback[String] =
+  def valGet: String                            = ev.get(value).foldMap(format.reverseGet)
+  def valSet(s: String): Callback               = format.getOption(s).map(ev.set(value)).getOrEmpty
+  val onBlurC: InputEV.ChangeCallback[String]   =
     (s: String) => format.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
     (s: String) => format.getOption(s).map(onChange).getOrEmpty
@@ -82,7 +82,7 @@ object InputEV {
         val p = b.props
         val s = b.state
         <.input(
-          ^.`type` := (p.inputType match {
+          ^.`type`      := (p.inputType match {
             case TextInput     => "text"
             case PasswordInput => "password"
           }),

@@ -18,11 +18,11 @@ import scala.scalajs.js.JSConverters._
  * Produces a dropdown menu, similar to a combobox
  */
 final case class EnumSelect[A](
-  label:       String,
-  value:       Option[A],
-  placeholder: String,
-  disabled:    Boolean,
-  onChange:    A => Callback = (_: A) => Callback.empty
+  label:          String,
+  value:          Option[A],
+  placeholder:    String,
+  disabled:       Boolean,
+  onChange:       A => Callback = (_: A) => Callback.empty
 )(implicit
   val enumerated: Enumerated[A],
   val display:    Display[A]
