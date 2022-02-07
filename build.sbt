@@ -1,4 +1,4 @@
-import sbt._
+ThisBuild / tlBaseVersion := "0.24"
 
 lazy val reactJS = "17.0.2"
 lazy val FUILess = "2.8.7"
@@ -22,24 +22,14 @@ addCommandAlias(
   "; scalafix OrganizeImports; Test/scalafix OrganizeImports; scalafmtAll"
 )
 
-inThisBuild(
-  Seq(
-    homepage := Some(url("https://github.com/gemini-hlsw/lucuma-ui")),
-    scmInfo := Some(
-      ScmInfo(
-        url("https://github.com/gemini-hlsw/lucuma-ui"),
-        "scm:git:git@github.com:gemini-hlsw/lucuma-ui.git"
-      )
-    ),
-    scalacOptions ++= Seq(
-      "-Ymacro-annotations"
-    ),
-    turbo                    := true,
-    Test / parallelExecution := false
-  ) ++ lucumaPublishSettings
+ThisBuild / scalacOptions ++= Seq(
+  "-Ymacro-annotations"
 )
 
-publish / skip := true
+ThisBuild / turbo                    := true
+ThisBuild / Test / parallelExecution := false
+
+enablePlugins(NoPublishPlugin)
 
 addCommandAlias(
   "restartWDS",
@@ -49,14 +39,14 @@ addCommandAlias(
 lazy val demo =
   project
     .in(file("modules/demo"))
-    .enablePlugins(ScalaJSBundlerPlugin)
+    .enablePlugins(ScalaJSBundlerPlugin, NoPublishPlugin)
     .settings(
       webpack / version               := "4.44.1",
       startWebpackDevServer / version := "3.11.0",
-      fastOptJS / webpackConfigFile := Some(
+      fastOptJS / webpackConfigFile   := Some(
         baseDirectory.value / "webpack" / "dev.webpack.config.js"
       ),
-      fullOptJS / webpackConfigFile := Some(
+      fullOptJS / webpackConfigFile   := Some(
         baseDirectory.value / "webpack" / "prod.webpack.config.js"
       ),
       webpackMonitoredDirectories += (Compile / resourceDirectory).value,
@@ -67,20 +57,20 @@ lazy val demo =
       fullOptJS / webpackBundlingMode := BundlingMode.Application,
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      test := {},
+      test                            := {},
       libraryDependencies ++= List(
         "com.github.japgolly.scalajs-react" %%% "callback-ext-cats" % scalaJsReactVersion,
         "com.rpiaggio"                      %%% "log4cats-loglevel" % "0.3.0"
       ),
       // NPM libs for development, mostly to let webpack do its magic
       Compile / npmDevDependencies ++= Seq(
-        "postcss"        -> "8.1.1",
-        "postcss-loader" -> "4.0.3",
-        "autoprefixer"   -> "10.0.1",
-        "url-loader"     -> "4.1.0",
-        "file-loader"    -> "6.0.0",
-        "css-loader"     -> "3.5.3",
-        "style-loader"   -> "1.2.1",
+        "postcss"                       -> "8.1.1",
+        "postcss-loader"                -> "4.0.3",
+        "autoprefixer"                  -> "10.0.1",
+        "url-loader"                    -> "4.1.0",
+        "file-loader"                   -> "6.0.0",
+        "css-loader"                    -> "3.5.3",
+        "style-loader"                  -> "1.2.1",
         // Don't upgrade less until https://github.com/less/less.js/issues/3434 is fixed
         "less"                          -> "3.9.0",
         "less-loader"                   -> "7.0.1",
@@ -99,8 +89,7 @@ lazy val demo =
         "react"            -> reactJS,
         "react-dom"        -> reactJS,
         "fomantic-ui-less" -> FUILess
-      ),
-      publish / skip := true
+      )
     )
     .dependsOn(ui)
 
@@ -108,7 +97,6 @@ lazy val ui =
   project
     .in(file("modules/ui"))
     .enablePlugins(ScalaJSPlugin)
-    .settings(lucumaScalaJsSettings: _*)
     .settings(
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
@@ -127,10 +115,5 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
         "org.scalameta"                     %%% "munit"               % "0.7.29"          % Test,
         "org.typelevel"                     %%% "discipline-munit"    % "1.0.9"           % Test
-      ),
-      addCompilerPlugin(
-        ("org.typelevel" %% "kind-projector" % kindProjectorVersion).cross(CrossVersion.full)
-      ),
-      scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule)),
-      testFrameworks += new TestFramework("munit.Framework")
+      )
     )
