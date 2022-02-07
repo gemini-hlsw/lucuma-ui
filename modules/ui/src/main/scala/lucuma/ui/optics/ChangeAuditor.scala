@@ -18,8 +18,8 @@ object AuditResult {
   case object Accept                                    extends AuditResult
   case class NewString(newS: String, cursorOffset: Int) extends AuditResult
 
-  def reject: AuditResult = Reject
-  def accept: AuditResult = Accept
+  def reject: AuditResult                                         = Reject
+  def accept: AuditResult                                         = Accept
   def newString(newS: String, cursorOffset: Int = 0): AuditResult =
     NewString(newS, cursorOffset)
 }
@@ -184,7 +184,7 @@ object ChangeAuditor {
 
     val auditor: ChangeAuditor[Int Refined P] = ChangeAuditor { (str, cursorPos) =>
       val (formatStr, newStr, offset) = fixIntString(str, cursorPos)
-      val validFormat = filterMode match {
+      val validFormat                 = filterMode match {
         case Strict => ValidFormatInput.forRefinedInt[P]()
         case Lax    => ValidFormatInput.intValidFormat()
       }
@@ -214,10 +214,10 @@ object ChangeAuditor {
     filterMode: FilterMode = FilterMode.Strict,
     formatFn:   String => String = identity
   )(implicit
-    v: RefinedValidate[String, P]
+    v:          RefinedValidate[String, P]
   ): ChangeAuditor[String Refined P] = ChangeAuditor { (s, _) =>
     val newStr = formatFn(s)
-    val valid = filterMode match {
+    val valid  = filterMode match {
       case Strict => ValidFormatInput.forRefinedString[P]().getValidated(newStr)
       case Lax    => newStr.validNec[String]
     }
@@ -233,17 +233,17 @@ object ChangeAuditor {
   val truncatedRA: ChangeAuditor[TruncatedRA] =
     ChangeAuditor { (str, _) =>
       val stripped = stripZerosPastNPlaces(str, 3)
-      val isValid =
+      val isValid  =
         stripped.split(":").toList match {
-          case Nil => true // it's just one or more ":"
-          case hours :: Nil =>
+          case Nil                                => true // it's just one or more ":"
+          case hours :: Nil                       =>
             isValidNDigitInt(hours, 2, 23)
-          case hours :: minutes :: Nil =>
+          case hours :: minutes :: Nil            =>
             isValidNDigitInt(hours, 2, 23) && isValidNDigitInt(minutes, 2, 59)
           case hours :: minutes :: seconds :: Nil =>
             isValidNDigitInt(hours, 2, 23) && isValidNDigitInt(minutes, 2, 59) &&
             isValidSeconds(seconds, 3)
-          case _ => false
+          case _                                  => false
         }
 
       if (isValid)
@@ -259,19 +259,19 @@ object ChangeAuditor {
     ChangeAuditor { (str, _) =>
       val (sign, noSign) =
         if (str.startsWith("+") || str.startsWith("-")) (str.head, str.tail) else ("", str)
-      val stripped = stripZerosPastNPlaces(noSign, 2)
+      val stripped       = stripZerosPastNPlaces(noSign, 2)
 
       val isValid =
         stripped.split(":").toList match {
-          case Nil => true // it's just one or more ":"
-          case degrees :: Nil =>
+          case Nil                                  => true // it's just one or more ":"
+          case degrees :: Nil                       =>
             isValidNDigitInt(degrees, 2, 90)
-          case degrees :: minutes :: Nil =>
+          case degrees :: minutes :: Nil            =>
             isValidNDigitInt(degrees, 2, 90) && isValidNDigitInt(minutes, 2, 59)
           case degrees :: minutes :: seconds :: Nil =>
             isValidNDigitInt(degrees, 2, 90) && isValidNDigitInt(minutes, 2, 59) &&
             isValidSeconds(seconds, 2)
-          case _ => false
+          case _                                    => false
         }
 
       if (isValid)
@@ -343,7 +343,7 @@ object ChangeAuditor {
       case "-"  => ("-0", postStripped, 0)
       case "0-" => ("0", "-", -1)
       case "."  => ("0.0", "0.", 1)
-      case _ =>
+      case _    =>
         val dp = postStripped.indexOf(".")
         val n  = if (dp < 0) cursorPos else math.min(dp, cursorPos)
         stripZerosBeforeN(postStripped, n)
@@ -363,12 +363,12 @@ object ChangeAuditor {
       if (str.startsWith("-")) ("-", str.substring(1), n - 1) else ("", str, n)
     if (newPos > 0) {
       // We actually only want to strip zeros if there is another digit to the right
-      val regex = s"0{0,$newPos}(\\d+)".r
+      val regex    = s"0{0,$newPos}(\\d+)".r
       val stripped = newStr match {
         case regex(remainder) => remainder
         case _                => newStr
       }
-      val s = s"$minus$stripped"
+      val s        = s"$minus$stripped"
       (s, s, s.length - str.length)
     } else {
       (str, str, 0)

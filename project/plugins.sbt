@@ -1,6 +1,7 @@
-addSbtPlugin("org.scala-js"              % "sbt-scalajs"         % "1.8.0")
-addSbtPlugin("ch.epfl.scala"             % "sbt-scalajs-bundler" % "0.20.0")
-addSbtPlugin("com.github.sbt"            % "sbt-ci-release"      % "1.5.10")
-addSbtPlugin("edu.gemini"                % "sbt-lucuma"          % "0.4.3")
-addSbtPlugin("org.scalameta"             % "sbt-scalafmt"        % "2.4.6")
-addSbtPlugin("io.github.davidgregory084" % "sbt-tpolecat"        % "0.1.20")
+resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers += "sonatype-s01-snapshots".at(
+  "https://s01.oss.sonatype.org/content/repositories/snapshots"
+)
+
+addSbtPlugin("ch.epfl.scala" % "sbt-scalajs-bundler" % "0.20.0")
+addSbtPlugin("edu.gemini"    % "sbt-lucuma-lib"      % "0.6-cde3ac9-SNAPSHOT")
