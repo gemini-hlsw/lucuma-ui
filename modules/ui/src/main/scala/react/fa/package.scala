@@ -43,9 +43,12 @@ package fa {
   sealed trait IconSize extends Product with Serializable
   object IconSize {
     implicit val enumValue: EnumValue[IconSize] = EnumValue.instance {
+      case XS2 => "2xs"
       case XS  => "xs"
-      case LG  => "lg"
       case SM  => "sm"
+      case LG  => "lg"
+      case XL  => "xl"
+      case XL2 => "2xl"
       case X1  => "1x"
       case X2  => "2x"
       case X3  => "3x"
@@ -57,9 +60,12 @@ package fa {
       case X9  => "9x"
       case X10 => "10x";
     }
-    case object XS extends IconSize
-    case object LG  extends IconSize
+    case object XS2 extends IconSize
+    case object XS  extends IconSize
     case object SM  extends IconSize
+    case object LG  extends IconSize
+    case object XL  extends IconSize
+    case object XL2 extends IconSize
     case object X1  extends IconSize
     case object X2  extends IconSize
     case object X3  extends IconSize
