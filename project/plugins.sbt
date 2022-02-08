@@ -1,4 +1,6 @@
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers += "sonatype-legacy-snapshots".at(
+  "https://oss.sonatype.org/content/repositories/snapshots"
+)
 resolvers += "sonatype-s01-snapshots".at(
   "https://s01.oss.sonatype.org/content/repositories/snapshots"
 )
