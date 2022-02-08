@@ -23,9 +23,11 @@ final case class FontAwesomeIcon(
   icon:                   js.UndefOr[react.fa.FontAwesomeIcon.Icon],
   clazz:                  js.UndefOr[Css],
   color:                  js.UndefOr[String],
-  spin:                   js.UndefOr[Boolean],
   pulse:                  js.UndefOr[Boolean],
+  beat:                   js.UndefOr[Boolean],
   border:                 js.UndefOr[Boolean],
+  fade:                   js.UndefOr[Boolean],
+  flash:                  js.UndefOr[Boolean],
   fixedWidth:             js.UndefOr[Boolean],
   inverse:                js.UndefOr[Boolean],
   listItem:               js.UndefOr[Boolean],
@@ -35,6 +37,9 @@ final case class FontAwesomeIcon(
   rotation:               js.UndefOr[Rotation],
   transform:              js.UndefOr[String | Transform],
   tabIndex:               js.UndefOr[Int],
+  spin:                   js.UndefOr[Boolean],
+  spinPulse:              js.UndefOr[Boolean],
+  spinReverse:            js.UndefOr[Boolean],
   style:                  js.UndefOr[Style],
   title:                  js.UndefOr[String],
   swapOpacity:            js.UndefOr[Boolean],
@@ -113,9 +118,11 @@ object FontAwesomeIcon {
     faIcon:      FAIcon,
     clazz:       js.UndefOr[Css] = js.undefined,
     color:       js.UndefOr[String] = js.undefined,
-    spin:        js.UndefOr[Boolean] = js.undefined,
     pulse:       js.UndefOr[Boolean] = js.undefined,
+    beat:        js.UndefOr[Boolean] = js.undefined,
     border:      js.UndefOr[Boolean] = js.undefined,
+    fade:        js.UndefOr[Boolean] = js.undefined,
+    flash:       js.UndefOr[Boolean] = js.undefined,
     fixedWidth:  js.UndefOr[Boolean] = js.undefined,
     inverse:     js.UndefOr[Boolean] = js.undefined,
     listItem:    js.UndefOr[Boolean] = js.undefined,
@@ -125,6 +132,9 @@ object FontAwesomeIcon {
     rotation:    js.UndefOr[Rotation] = js.undefined,
     transform:   js.UndefOr[String | Transform] = js.undefined,
     tabIndex:    js.UndefOr[Int] = js.undefined,
+    spin:        js.UndefOr[Boolean] = js.undefined,
+    spinPulse:   js.UndefOr[Boolean] = js.undefined,
+    spinReverse: js.UndefOr[Boolean] = js.undefined,
     style:       js.UndefOr[Style] = js.undefined,
     title:       js.UndefOr[String] = js.undefined,
     swapOpacity: js.UndefOr[Boolean] = js.undefined,
@@ -134,9 +144,11 @@ object FontAwesomeIcon {
     faIcon.iconName,
     clazz,
     color,
-    spin,
     pulse,
+    beat,
     border,
+    fade,
+    flash,
     fixedWidth,
     inverse,
     listItem,
@@ -146,6 +158,9 @@ object FontAwesomeIcon {
     rotation,
     transform,
     tabIndex,
+    spin,
+    spinPulse,
+    spinReverse,
     style,
     title,
     swapOpacity,
@@ -169,9 +184,11 @@ object FontAwesomeIcon {
     // mask?: IconProp
     var className: js.UndefOr[String]
     var color: js.UndefOr[String]
-    var spin: js.UndefOr[Boolean]
     var pulse: js.UndefOr[Boolean]
+    var beat: js.UndefOr[Boolean]
     var border: js.UndefOr[Boolean]
+    var fade: js.UndefOr[Boolean]
+    var flash: js.UndefOr[Boolean]
     var fixedWidth: js.UndefOr[Boolean]
     var inverse: js.UndefOr[Boolean]
     var listItem: js.UndefOr[Boolean]
@@ -181,6 +198,9 @@ object FontAwesomeIcon {
     var rotation: js.UndefOr[Int]
     var transform: js.UndefOr[String | Transform]
     // symbol?: FaSymbol
+    var spin: js.UndefOr[Boolean];
+    var spinPulse: js.UndefOr[Boolean];
+    var spinReverse: js.UndefOr[Boolean];
     var style: js.UndefOr[js.Object]
     var tabIndex: js.UndefOr[Int]
     var title: js.UndefOr[String]
@@ -193,9 +213,11 @@ object FontAwesomeIcon {
       p.icon,
       p.clazz,
       p.color,
-      p.spin,
       p.pulse,
+      p.beat,
       p.border,
+      p.fade,
+      p.flash,
       p.fixedWidth,
       p.inverse,
       p.listItem,
@@ -205,6 +227,9 @@ object FontAwesomeIcon {
       p.rotation,
       p.transform,
       p.tabIndex,
+      p.spin,
+      p.spinPulse,
+      p.spinReverse,
       p.style,
       p.title,
       p.swapOpacity
@@ -215,9 +240,11 @@ object FontAwesomeIcon {
     icon:        js.UndefOr[Icon],
     clazz:       js.UndefOr[Css],
     color:       js.UndefOr[String],
-    spin:        js.UndefOr[Boolean],
     pulse:       js.UndefOr[Boolean],
+    beat:        js.UndefOr[Boolean],
     border:      js.UndefOr[Boolean],
+    fade:        js.UndefOr[Boolean],
+    flash:       js.UndefOr[Boolean],
     fixedWidth:  js.UndefOr[Boolean],
     inverse:     js.UndefOr[Boolean],
     listItem:    js.UndefOr[Boolean],
@@ -227,6 +254,9 @@ object FontAwesomeIcon {
     rotation:    js.UndefOr[Rotation],
     transform:   js.UndefOr[String | Transform],
     tabIndex:    js.UndefOr[Int],
+    spin:        js.UndefOr[Boolean],
+    spinPulse:   js.UndefOr[Boolean],
+    spinReverse: js.UndefOr[Boolean],
     style:       js.UndefOr[Style],
     title:       js.UndefOr[String],
     swapOpacity: js.UndefOr[Boolean]
@@ -240,9 +270,11 @@ object FontAwesomeIcon {
     }
     clazz.foreach(v => p.className = v.htmlClass)
     color.foreach(v => p.color = v)
-    spin.foreach(v => p.spin = v)
     pulse.foreach(v => p.pulse = v)
+    beat.foreach(v => p.beat = v)
     border.foreach(v => p.border = v)
+    fade.foreach(v => p.fade = v)
+    flash.foreach(v => p.flash = v)
     fixedWidth.foreach(v => p.fixedWidth = v)
     inverse.foreach(v => p.inverse = v)
     listItem.foreach(v => p.listItem = v)
@@ -258,6 +290,9 @@ object FontAwesomeIcon {
     )
     transform.foreach(v => p.transform = v)
     tabIndex.foreach(v => p.tabIndex = v)
+    spin.foreach(v => p.spin = v)
+    spinPulse.foreach(v => p.spinPulse = v)
+    spinReverse.foreach(v => p.spinReverse = v)
     style.foreach(v => p.style = v.toJsObject)
     title.foreach(v => p.title = v)
     swapOpacity.foreach(v => p.swapOpacity = v)
