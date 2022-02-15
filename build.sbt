@@ -52,7 +52,6 @@ lazy val demo =
       ),
       webpackMonitoredDirectories += (Compile / resourceDirectory).value,
       webpackResources                := (baseDirectory.value / "webpack") * "*.js",
-      Compile / includeFilter         := "*",
       useYarn                         := true,
       fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(),
       fullOptJS / webpackBundlingMode := BundlingMode.Application,
