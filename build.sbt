@@ -42,22 +42,23 @@ lazy val demo =
     .in(file("modules/demo"))
     .enablePlugins(ScalaJSBundlerPlugin, NoPublishPlugin)
     .settings(
-      webpack / version               := "4.44.1",
-      startWebpackDevServer / version := "3.11.0",
-      fastOptJS / webpackConfigFile   := Some(
+      webpack / version                     := "4.44.1",
+      startWebpackDevServer / version       := "3.11.0",
+      fastOptJS / webpackConfigFile         := Some(
         baseDirectory.value / "webpack" / "dev.webpack.config.js"
       ),
-      fullOptJS / webpackConfigFile   := Some(
+      fullOptJS / webpackConfigFile         := Some(
         baseDirectory.value / "webpack" / "prod.webpack.config.js"
       ),
       webpackMonitoredDirectories += (Compile / resourceDirectory).value,
-      webpackResources                := (baseDirectory.value / "webpack") * "*.js",
-      useYarn                         := true,
-      fastOptJS / webpackBundlingMode := BundlingMode.LibraryOnly(),
-      fullOptJS / webpackBundlingMode := BundlingMode.Application,
+      webpackResources                      := (baseDirectory.value / "webpack") * "*.js",
+      webpackMonitoredFiles / includeFilter := "*",
+      useYarn                               := true,
+      fastOptJS / webpackBundlingMode       := BundlingMode.LibraryOnly(),
+      fullOptJS / webpackBundlingMode       := BundlingMode.Application,
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      test                            := {},
+      test                                  := {},
       libraryDependencies ++= List(
         "com.github.japgolly.scalajs-react" %%% "callback-ext-cats" % scalaJsReactVersion,
         "com.rpiaggio"                      %%% "log4cats-loglevel" % "0.3.0"
