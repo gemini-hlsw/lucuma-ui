@@ -44,7 +44,7 @@ class DecodersSuite extends CatsEffectSuite {
       IO.blocking(inStream.close()).handleErrorWith(_ => IO.unit) // release
     }
 
-  test("Target decoder") {
+  test("Target decoder - Point") {
     val expectedId     = Target.Id(PosLong(2))
     val expectedTarget =
       Target.Sidereal(
@@ -126,4 +126,69 @@ class DecodersSuite extends CatsEffectSuite {
       } yield assertEquals(obtained, (expectedId, expectedTarget))
     }
   }
+
+  test("Target decoder - Uniform") {
+    val expectedId     = Target.Id(PosLong(4))
+    val expectedTarget =
+      Target.Sidereal(
+        NonEmptyString("NGC 3312"),
+        SiderealTracking(
+          Coordinates(RightAscension.fromStringHMS.getOption("10:37:02.549").get,
+                      Declination.fromStringSignedDMS.getOption("-27:33:54.17").get
+          ),
+          Epoch.J2000,
+          ProperMotion.Zero.some,
+          RadialVelocity.fromMetersPerSecond.getOption(BigDecimal(2826483)),
+          Parallax.Zero.some
+        ),
+        SourceProfile.Uniform(
+          SpectralDefinition.BandNormalized(
+            UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral),
+            SortedMap(
+              Band.B -> BrightnessValue
+                .fromDouble(12.63)
+                .withUnit[VegaMagnitudePerArcsec2]
+                .toMeasureTagged,
+              Band.V -> BrightnessValue
+                .fromDouble(13.96)
+                .withUnit[VegaMagnitudePerArcsec2]
+                .toMeasureTagged,
+              Band.J -> BrightnessValue
+                .fromDouble(9.552)
+                .withUnit[VegaMagnitudePerArcsec2]
+                .toMeasureTagged
+                .withError(BrightnessValue.fromDouble(0.016)),
+              Band.H -> BrightnessValue
+                .fromDouble(8.907)
+                .withUnit[VegaMagnitudePerArcsec2]
+                .toMeasureTagged
+                .withError(BrightnessValue.fromDouble(0.017)),
+              Band.K -> BrightnessValue
+                .fromDouble(8.665)
+                .withUnit[VegaMagnitudePerArcsec2]
+                .toMeasureTagged
+                .withError(BrightnessValue.fromDouble(0.028))
+            )
+          )
+        ),
+        none
+      )
+
+    val jsonFile = "/t4.json"
+    val url      = getClass().getResource(jsonFile)
+    val file     = Paths.get(url.toURI()).toFile()
+    inputStream(file).use { inStream =>
+      for {
+        str      <- IO.blocking(scala.io.Source.fromInputStream(inStream).mkString)
+        decoded   = for {
+                      json   <- parse(str)
+                      c       = json.hcursor.downField("data").downField("target")
+                      id     <- c.downField("id").as[Target.Id]
+                      target <- c.as[Target]
+                    } yield (id, target)
+        obtained <- IO.fromEither(decoded)
+      } yield assertEquals(obtained, (expectedId, expectedTarget))
+    }
+  }
+
 }

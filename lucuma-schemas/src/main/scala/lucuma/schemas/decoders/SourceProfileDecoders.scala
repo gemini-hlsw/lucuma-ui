@@ -22,7 +22,7 @@ trait SourceProfileDecoders {
 
   implicit val uniformSourceProfileDecoder: Decoder[SourceProfile.Uniform] =
     Decoder.instance(
-      _.downField("surface")
+      _.downField("uniform")
         .as[SpectralDefinition[Surface]]
         .map(SourceProfile.Uniform.apply)
     )
