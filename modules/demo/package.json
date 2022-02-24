@@ -9,7 +9,7 @@
     "postcss-loader": "^4.0.3",
     "less": "^3.9.0",
     "file-loader": "^6.0.0",
-    "webpack-merge": "^4.2.2",
+    "webpack-merge": "^5.8.0",
     "favicons-webpack-plugin": "^4.2.0",
     "style-loader": "^1.2.1",
     "less-loader": "^7.0.1",
