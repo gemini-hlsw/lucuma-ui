@@ -8,6 +8,7 @@ import cats.data.NonEmptyMap
 import cats.syntax.all._
 import coulomb._
 import eu.timepit.refined.types.numeric.PosBigDecimal
+import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
 import io.circe.refined._
 import lucuma.core.math.Wavelength
@@ -78,7 +79,7 @@ trait SEDDecoders {
   implicit val blackBodyDecoder: Decoder[UnnormalizedSED.BlackBody] =
     Decoder.instance(
       _.downField("blackBodyTempK")
-        .as[PosBigDecimal]
+        .as[PosInt]
         .map(_.withUnit[Kelvin])
         .map(UnnormalizedSED.BlackBody.apply)
     )
