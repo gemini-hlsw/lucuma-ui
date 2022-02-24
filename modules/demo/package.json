@@ -1,0 +1,33 @@
+{
+  "dependencies": {
+    "react-dom": "^17.0.2",
+    "react": "^17.0.2",
+    "fomantic-ui-less": "^2.8.7"
+  },
+  "devDependencies": {
+    "source-map-loader": "^0.2.3",
+    "postcss-loader": "^4.0.3",
+    "less": "^3.9.0",
+    "file-loader": "^6.0.0",
+    "webpack-merge": "^4.2.2",
+    "favicons-webpack-plugin": "^4.2.0",
+    "style-loader": "^1.2.1",
+    "less-loader": "^7.0.1",
+    "css-minimizer-webpack-plugin": "^1.1.5",
+    "webpack": "^4.44.1",
+    "concat-with-sourcemaps": "^1.0.7",
+    "sass": "^1.26.11",
+    "cssnano": "^4.1.10",
+    "html-webpack-plugin": "^4.3.0",
+    "sass-loader": "^9.0.2",
+    "autoprefixer": "^10.0.1",
+    "url-loader": "^4.1.0",
+    "webpack-dev-server-status-bar": "^1.1.2",
+    "webpack-cli": "^3.3.2",
+    "postcss": "^8.1.1",
+    "mini-css-extract-plugin": "^0.9.0",
+    "webpack-dev-server": "^3.11.0",
+    "css-loader": "^3.5.3",
+    "terser-webpack-plugin": "^4.2.2"
+  }
+}
