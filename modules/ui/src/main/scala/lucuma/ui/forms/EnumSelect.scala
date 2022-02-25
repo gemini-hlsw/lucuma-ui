@@ -20,9 +20,10 @@ import scala.scalajs.js.JSConverters._
 final case class EnumSelect[A](
   label:          String,
   value:          Option[A],
-  placeholder:    String,
-  disabled:       Boolean,
-  onChange:       A => Callback = (_: A) => Callback.empty
+  placeholder:    String = "",
+  disabled:       Boolean = false,
+  onChange:       A => Callback = (_: A) => Callback.empty,
+  disabledItems:  Set[A] = Set.empty[A]
 )(implicit
   val enumerated: Enumerated[A],
   val display:    Display[A]
@@ -50,7 +51,13 @@ object EnumSelect {
             disabled = p.disabled,
             value = p.value.map(i => p.enumerated.tag(i)).orUndefined,
             options = p.enumerated.all
-              .map(i => DropdownItem(text = i.shortName, value = p.enumerated.tag(i))),
+              .map(i =>
+                DropdownItem(
+                  text = i.shortName,
+                  value = p.enumerated.tag(i),
+                  disabled = p.disabledItems.contains(i)
+                )
+              ),
             onChange = (ddp: Dropdown.DropdownProps) =>
               ddp.value.toOption
                 .flatMap(v => p.enumerated.fromTag(v.asInstanceOf[String]))

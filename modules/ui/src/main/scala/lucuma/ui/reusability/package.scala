@@ -6,6 +6,7 @@ package lucuma.ui
 import cats.Eq
 import cats.Order
 import cats.data.NonEmptyList
+import cats.data.NonEmptySet
 import cats.kernel.instances.sortedMap._
 import coulomb.Quantity
 import eu.timepit.refined.api.RefType
@@ -16,6 +17,7 @@ import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.facade.JsNumber
 import lucuma.core.data.EnumZipper
 import lucuma.core.math._
+import lucuma.core.math.dimensional._
 import lucuma.core.model._
 import lucuma.core.util.Enumerated
 import react.common.Size
@@ -23,6 +25,7 @@ import react.common.implicits._
 
 import java.time.Duration
 import java.time.Instant
+import scala.annotation.nowarn
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.SortedSet
 
@@ -38,11 +41,15 @@ trait UtilReusabilityInstances {
 
   implicit val jsonReuse: Reusability[Json] = Reusability.by_==
 
-  implicit def sortedSetReuse[A: Order]: Reusability[SortedSet[A]] = Reusability.byEq
-
+  implicit def sortedSetReuse[A: Order]: Reusability[SortedSet[A]]    = Reusability.byEq
   implicit def sortedMapReuse[K, V: Eq]: Reusability[SortedMap[K, V]] = Reusability.byEq
-  implicit def nelReuse[A: Reusability]: Reusability[NonEmptyList[A]] =
+
+  implicit def nonEmptyListReuse[A: Reusability]: Reusability[NonEmptyList[A]] =
     Reusability.by(nel => (nel.head, nel.tail))
+  implicit def nonEmptySetReuse[A]: Reusability[NonEmptySet[A]]                =
+    Reusability.by(_.toSortedSet.unsorted)
+
+  implicit val keyReuse: Reusability[Key] = Reusability.by_==
 }
 
 /**
@@ -64,10 +71,13 @@ trait MathReusabilityInstances {
   implicit val jsNumberReuse: Reusability[JsNumber]                          = Reusability.byEq
   implicit val bigDecimalReuse: Reusability[BigDecimal]                      = Reusability.byEq
   implicit val sizeReuse: Reusability[Size]                                  = Reusability.by(x => (x.height, x.width))
+  implicit val unitsReuse: Reusability[Units]                                = Reusability.byEq
+  @nowarn // Reusability context bound is required but the compiler emits a warning anyway.
+  implicit def measureReuse[N: Reusability]: Reusability[Measure[N]] = Reusability.derive
 }
 
 /**
- * reusability of timme types
+ * reusability of time types
  */
 trait TimeReusabilityInstances {
   implicit val durationReuse: Reusability[Duration] = Reusability.by(_.getSeconds)
@@ -92,20 +102,25 @@ trait ModelReusabiltyInstances
     extends RefinedReusabiltyInstances
     with UtilReusabilityInstances
     with MathReusabilityInstances {
-  implicit def idReuse[Id <: WithId#Id]: Reusability[Id]            = Reusability.by(_.value)
-  implicit val orcidIdReuse: Reusability[OrcidId]                   = Reusability.by(_.value.toString)
-  implicit val orcidProfileResuse: Reusability[OrcidProfile]        = Reusability.derive
-  implicit val partnerReuse: Reusability[Partner]                   = Reusability.derive
-  implicit val standardRoleReuse: Reusability[StandardRole]         = Reusability.derive
-  implicit val standardUserReuse: Reusability[StandardUser]         = Reusability.derive
-  implicit def catalogInfoReuse: Reusability[CatalogInfo]           = Reusability.derive
-  implicit def siderealTrackingReuse: Reusability[SiderealTracking] = Reusability.derive
-  implicit val unormalizedSEDReuse: Reusability[UnnormalizedSED]    = Reusability.byEq
-  implicit val sourceProfileReuse: Reusability[SourceProfile]       = Reusability.byEq
-  implicit val userReuse: Reusability[User]                         = Reusability.byEq
-  implicit val offsetReuse: Reusability[Offset]                     = Reusability.byEq
-  implicit val wavelengthReuse: Reusability[Wavelength]             = Reusability.byEq
-  implicit val keyReuse: Reusability[Key]                           = Reusability.by_==
+  implicit def idReuse[Id <: WithId#Id]: Reusability[Id]                      = Reusability.by(_.value)
+  implicit val orcidIdReuse: Reusability[OrcidId]                             = Reusability.by(_.value.toString)
+  implicit val orcidProfileResuse: Reusability[OrcidProfile]                  = Reusability.derive
+  implicit val partnerReuse: Reusability[Partner]                             = Reusability.derive
+  implicit val standardRoleReuse: Reusability[StandardRole]                   = Reusability.derive
+  implicit val standardUserReuse: Reusability[StandardUser]                   = Reusability.derive
+  implicit def catalogInfoReuse: Reusability[CatalogInfo]                     = Reusability.derive
+  implicit def siderealTrackingReuse: Reusability[SiderealTracking]           = Reusability.derive
+  implicit val unormalizedSEDReuse: Reusability[UnnormalizedSED]              = Reusability.byEq
+  implicit val sourceProfileReuse: Reusability[SourceProfile]                 = Reusability.byEq
+  implicit val userReuse: Reusability[User]                                   = Reusability.byEq
+  implicit val offsetReuse: Reusability[Offset]                               = Reusability.byEq
+  implicit val wavelengthReuse: Reusability[Wavelength]                       = Reusability.byEq
+  implicit def spectralDefinitionReuse[T]: Reusability[SpectralDefinition[T]] = Reusability.derive
+  implicit val semesterReuse: Reusability[Semester]                           = Reusability.derive
+  implicit val ephemerisKeyReuse: Reusability[EphemerisKey]                   = Reusability.derive
+  implicit val siderealTargetReuse: Reusability[Target.Sidereal]              = Reusability.derive
+  implicit val nonsiderealTargetReuse: Reusability[Target.Nonsidereal]        = Reusability.derive
+  implicit val targetReuse: Reusability[Target]                               = Reusability.derive
 }
 
 package object reusability
