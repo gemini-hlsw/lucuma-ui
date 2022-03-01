@@ -3,6 +3,7 @@
 
 package lucuma.ui.forms
 
+import crystal.react.reuse._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.syntax.all._
@@ -22,22 +23,25 @@ final case class EnumSelect[A](
   value:          Option[A],
   placeholder:    String = "",
   disabled:       Boolean = false,
-  onChange:       A => Callback = (_: A) => Callback.empty,
+  onChange:       A ==> Callback = ((_: A) => Callback.empty).reuseAlways,
   disabledItems:  Set[A] = Set.empty[A]
 )(implicit
   val enumerated: Enumerated[A],
-  val display:    Display[A]
-) extends ReactProps[EnumSelect[Any]](EnumSelect.component)
+  val display:    Display[A],
+  val reuse:      Reusability[A]
+) extends ReactProps[EnumSelect[Any]](EnumSelect.component) {
+  implicit protected val propsReuse: Reusability[EnumSelect[A]] = Reusability.derive
+}
 
 object EnumSelect {
   type Props[A] = EnumSelect[A]
 
   implicit protected def propsReuse[A]: Reusability[Props[A]] =
-    Reusability.by(p => (p.label, p.value.map(p.display.shortName), p.placeholder, p.disabled))
+    Reusability((a, b) => a.propsReuse.test(a, b))
 
-  protected val component =
+  protected def componentBuilder[A] =
     ScalaComponent
-      .builder[Props[Any]]
+      .builder[Props[A]]
       .stateless
       .render_P { p =>
         implicit val display = p.display
@@ -68,4 +72,6 @@ object EnumSelect {
       }
       .configure(Reusability.shouldComponentUpdate)
       .build
+
+  val component = componentBuilder[Any]
 }
