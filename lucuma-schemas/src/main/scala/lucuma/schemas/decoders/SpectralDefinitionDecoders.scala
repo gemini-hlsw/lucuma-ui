@@ -8,6 +8,7 @@ import cats.syntax.all._
 import coulomb._
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import io.circe.Decoder
+import io.circe.HCursor
 import io.circe.refined._
 import lucuma.core.enum.Band
 import lucuma.core.math.BrightnessUnits._
@@ -20,7 +21,6 @@ import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.UnnormalizedSED
 
 import scala.collection.immutable.SortedMap
-import io.circe.HCursor
 
 trait SpectralDefinitionDecoders {
 
@@ -66,7 +66,7 @@ trait SpectralDefinitionDecoders {
       Decoder.instance(c =>
         for {
           w <- c.downField("wavelength").as[Wavelength]
-          v <- c.downField("value").as[EmissionLine[T]]
+          v <- c.as[EmissionLine[T]]
         } yield (w, v)
       )
 

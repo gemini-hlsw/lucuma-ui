@@ -5,11 +5,11 @@ package lucuma.schemas.decoders
 
 import cats.syntax.all._
 import io.circe.Decoder
+import io.circe.HCursor
 import lucuma.core.math.Angle
 import lucuma.core.math.BrightnessUnits._
 import lucuma.core.model.SourceProfile
 import lucuma.core.model.SpectralDefinition
-import io.circe.HCursor
 
 trait SourceProfileDecoders {
 

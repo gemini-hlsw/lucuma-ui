@@ -7,16 +7,16 @@ import cats.Order._
 import cats.data.NonEmptyMap
 import cats.syntax.all._
 import coulomb._
+import coulomb.si.Kelvin
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
 import io.circe.refined._
+import lucuma.core.enum._
 import lucuma.core.math.Wavelength
 import lucuma.core.model.UnnormalizedSED
 
 import scala.collection.immutable.SortedMap
-import lucuma.core.enum._
-import coulomb.si.Kelvin
 
 trait SEDDecoders {
 
