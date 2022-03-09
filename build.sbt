@@ -15,8 +15,8 @@ lazy val reactSemanticUIVersion = "0.13.1"
 lazy val kindProjectorVersion   = "0.13.2"
 lazy val singletonOpsVersion    = "0.5.2"
 
-Global / onChangedBuildSource           := ReloadOnSourceChanges
-ThisBuild / ScalafixConfig / bspEnabled := false
+Global / onChangedBuildSource                                        := ReloadOnSourceChanges
+ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
 addCommandAlias(
   "fixImports",
