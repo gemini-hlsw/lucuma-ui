@@ -36,14 +36,14 @@ trait ValidFormatInputInstances {
     _.toString
   )
 
-  // does not, and cannot, format to a particular number of decimal places. For that
+  // Does not, and cannot, format to a particular number of decimal places. For that
   // you need a TruncatedBigDecimal.
   def bigDecimalValidFormat(errorMessage: NonEmptyString = "Must be a number") =
     ValidFormatInput[BigDecimal](
       s =>
         fixDecimalString(s).parseBigDecimalOption
           .fold(errorMessage.invalidNec[BigDecimal])(_.validNec),
-      _.toString
+      _.toString.toLowerCase.replace("+", "") // Strip + sign from exponent.
     )
 
   def truncatedBigDecimalValidFormat[Dec <: XInt](
