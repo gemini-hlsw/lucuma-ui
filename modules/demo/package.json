@@ -15,7 +15,7 @@
     "less-loader": "^7.0.1",
     "css-minimizer-webpack-plugin": "^1.1.5",
     "webpack": "^4.44.1",
-    "concat-with-sourcemaps": "^1.0.7",
+    "concat-with-sourcemaps": "^1.1.0",
     "sass": "^1.26.11",
     "cssnano": "^5.1.0",
     "html-webpack-plugin": "^4.3.0",
