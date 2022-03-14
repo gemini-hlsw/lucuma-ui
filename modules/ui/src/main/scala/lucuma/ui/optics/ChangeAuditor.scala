@@ -47,8 +47,8 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
   /**
    * Accept if the string meets the condition.
    *
-   * @param strs
-   *   - The list of strings to check for.
+   * @param cond
+   *   - Condition to check for.
    */
   def allow(cond: String => Boolean): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
     if (cond(s)) AuditResult.accept else self.audit(s, c)
@@ -57,8 +57,8 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
   /**
    * Reject if the string meets the condition.
    *
-   * @param strs
-   *   - The list of strings to check for.
+   * @param cond
+   *   - Condition to check for.
    */
   def deny(cond: String => Boolean): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
     if (cond(s)) AuditResult.reject else self.audit(s, c)
