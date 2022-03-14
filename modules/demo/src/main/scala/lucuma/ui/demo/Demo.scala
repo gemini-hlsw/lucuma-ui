@@ -42,7 +42,7 @@ import react.semanticui.elements.label.LabelPointing
 
 import scala.scalajs.js.annotation._
 
-final case class FormComponent(root: ViewF[CallbackTo, FormComponent.RootModel])
+final case class FormComponent(root: View[FormComponent.RootModel])
     extends ReactProps[FormComponent](FormComponent.component)
 
 object FormComponent {
@@ -60,7 +60,8 @@ object FormComponent {
     ra:            Boolean = true,
     dec:           Boolean = true,
     epoch:         Boolean = true,
-    optionalEpoch: Boolean = true
+    optionalEpoch: Boolean = true,
+    scientific:    Boolean = true
   )
   object State {
     val valid1        = Focus[State](_.valid1)
@@ -75,6 +76,7 @@ object FormComponent {
     val dec           = Focus[State](_.dec)
     val epoch         = Focus[State](_.epoch)
     val optionalEpoch = Focus[State](_.optionalEpoch)
+    val scientific    = Focus[State](_.scientific)
   }
 
   val OneBD   = BigDecimal(1.0)
@@ -94,7 +96,8 @@ object FormComponent {
     ra:            RightAscension,
     dec:           Declination,
     epoch:         Epoch,
-    optionalEpoch: Option[Epoch]
+    optionalEpoch: Option[Epoch],
+    scientific:    BigDecimal
   )
 
   object RootModel {
@@ -112,6 +115,7 @@ object FormComponent {
     val dec           = Focus[RootModel](_.dec)
     val epoch         = Focus[RootModel](_.epoch)
     val optionalEpoch = Focus[RootModel](_.optionalEpoch)
+    val scientific    = Focus[RootModel](_.scientific)
   }
 
   implicit val propsReuse = Reusability.derive[Props]
@@ -259,10 +263,20 @@ object FormComponent {
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat =
-                ValidFormatInput.fromFormatOptional(Epoch.fromStringNoScheme, "Must be a number"),
+                ValidFormatInput.fromFormat(Epoch.fromStringNoScheme, "Must be a number").optional,
               changeAuditor =
                 ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3).optional,
               onValidChange = v => $.setStateL(State.epoch)(v)
+            ),
+            FormInputEV(
+              id = "scientific",
+              label = "Scientific Notation",
+              value = $.props.root.zoom(RootModel.scientific),
+              errorClazz = Css("error-label"),
+              errorPointing = LabelPointing.Below,
+              validFormat = ValidFormatInput.forScientificNotationBigDecimal(),
+              changeAuditor = ChangeAuditor.scientificNotation(),
+              onValidChange = v => $.setStateL(State.scientific)(v)
             )
           )
         )
@@ -295,7 +309,8 @@ trait AppMain extends IOApp.Simple {
         RightAscension.fromStringHMS.getOption("12:34:56.789876").get,
         Declination.fromStringSignedDMS.getOption("-11:22:33.987654").get,
         Epoch.J2000,
-        None
+        None,
+        BigDecimal(1.234e-19)
       )
 
     val container = Option(dom.document.getElementById("root")).getOrElse {

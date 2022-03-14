@@ -7,7 +7,11 @@ import cats.data.Validated._
 import cats.syntax.all._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{ Validate => RefinedValidate }
-import eu.timepit.refined.numeric.Positive
+import eu.timepit.refined.auto._
+import eu.timepit.refined.types.numeric.PosBigDecimal
+import eu.timepit.refined.types.numeric.PosInt
+import lucuma.core.optics._
+import lucuma.ui.optics.FormatUtils._
 import lucuma.ui.optics.TruncatedDec
 import lucuma.ui.optics.TruncatedRA
 import mouse.all._
@@ -33,13 +37,31 @@ object FilterMode {
 final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
 
   /**
-   * Converts a ChangeAuditor[A] into a ChangeAuditor[Option[A]]. It unconditionally allows spaces.
-   * This is useful when using a ChangeAuditor made from a Format, but the model field is optional.
-   * Hint: If you're going to chain this together with another "modifier" like 'int', you want this
-   * one last.
+   * Allows you to treat the current ChangeAuditor as though it is for a different type. Useful, for
+   * example, if you can't directly use a Format for a type because you have to allow interim
+   * invalid values while typing. You can use something like a BigDecimal auditor and then call
+   * this.
    */
-  def optional: ChangeAuditor[Option[A]] = ChangeAuditor { (s, c) =>
-    if (s == "") AuditResult.accept else self.audit(s, c)
+  def as[B] = ChangeAuditor[B]((s, c) => self.audit(s, c))
+
+  /**
+   * Accept if the string meets the condition.
+   *
+   * @param cond
+   *   - Condition to check for.
+   */
+  def allow(cond: String => Boolean): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+    if (cond(s)) AuditResult.accept else self.audit(s, c)
+  }
+
+  /**
+   * Reject if the string meets the condition.
+   *
+   * @param cond
+   *   - Condition to check for.
+   */
+  def deny(cond: String => Boolean): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+    if (cond(s)) AuditResult.reject else self.audit(s, c)
   }
 
   /**
@@ -50,26 +72,54 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * "" as zero. Hint: If you're going to chain this together with another "modifier" like 'int',
    * you probably want this one last.
    */
-  def allowEmpty: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
-    if (s == "") AuditResult.accept else self.audit(s, c)
-  }
+  def allowEmpty: ChangeAuditor[A] = allow(_.isEmpty)
 
   /**
-   * Unconditionally allows the field to be a minus sign. This is used by the `int` and `decimal`
-   * modifiers below, but could possibly be useful elsewhere.
+   * Converts a ChangeAuditor[A] into a ChangeAuditor[Option[A]]. It unconditionally allows spaces.
+   * This is useful when using a ChangeAuditor made from a Format, but the model field is optional.
+   * Hint: If you're going to chain this together with another "modifier" like 'int', you want this
+   * one last.
    */
-  def allowMinus: ChangeAuditor[A] = ChangeAuditor { (s, c) =>
-    if (s == "-") AuditResult.accept else self.audit(s, c)
-  }
+  def optional: ChangeAuditor[Option[A]] = allowEmpty.as[Option[A]]
 
   /**
-   * Reject if the string contains any of the strings in the parameters.
-   *
-   * @param strs
-   *   - The list of strings to check for.
+   * Unconditionally allows the field to start with minus sign. This is used by the `int` and
+   * `decimal` modifiers below, but could possibly be useful elsewhere.
    */
-  def deny(strs: String*): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
-    if (strs.exists(s.contains)) AuditResult.reject else self.audit(s, c)
+  def allowNeg: ChangeAuditor[A] = allow(_.startsWith("-"))
+
+  /**
+   * Unconditionally prevents the field from starting with minus sign. This is used by the `int` and
+   * `decimal` modifiers below, but could possibly be useful elsewhere.
+   */
+  def denyNeg: ChangeAuditor[A] = deny(_.startsWith("-"))
+
+  /**
+   * Allows a numeric field to have an exponential part (ie.: e10, e+10 or e-10). Numeric fields
+   * don't allow this unless explicitly enabled with this method.
+   */
+  def allowExp(digits: PosInt = 2): ChangeAuditor[A] = {
+    val SplitExp = s"^([^e]*)((?:e[\\+-]?)?)((?:[1-9]\\d{0,${digits.value - 1}})?)$$".r
+
+    ChangeAuditor { (s, c) =>
+      s match {
+        case SplitExp(base, e, exp) =>
+          val expAudit = ChangeAuditor.int.audit(exp, c - base.length - e.length)
+          self.audit(base, c.max(base.length)) match {
+            case AuditResult.Accept                       => expAudit
+            case AuditResult.NewString(newString, cursor) =>
+              expAudit match {
+                case AuditResult.Accept                     => AuditResult.NewString(newString + e + exp, cursor)
+                case AuditResult.NewString(newExpString, _) =>
+                  AuditResult.NewString(newString + e + newExpString, cursor)
+                case _                                      => AuditResult.reject
+              }
+            case _                                        => AuditResult.reject
+          }
+        case _                      =>
+          AuditResult.reject
+      }
+    }
   }
 
   /**
@@ -86,7 +136,7 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
       val (result, newS, newC) = ChangeAuditor.processIntString(s, c)
       self.checkAgainstSelf(newS, newC, result)
     }
-    if (allowNeg) auditor.allowMinus else auditor.deny("-")
+    if (allowNeg) auditor.allowNeg else auditor.denyNeg
   }
 
   /**
@@ -94,7 +144,7 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * "original" ChangeAuditor. This is useful when using a ChangeAuditor made from a format to get
    * better behavior for entering values.
    */
-  def decimal(decimals: Int Refined Positive): ChangeAuditor[A] = {
+  def decimal(decimals: PosInt): ChangeAuditor[A] = {
     // Check to see if negative values are allowed. If this causes
     // problems, we may need to make the check optional.
     val negStr   = "-0." + "0" * (decimals.value - 1) + "1"
@@ -104,16 +154,8 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
       val (result, newS, newC) = ChangeAuditor.processDecimalString(s, c, decimals)
       self.checkAgainstSelf(newS, newC, result)
     }
-    if (allowNeg) auditor.allowMinus else auditor.deny("-")
+    if (allowNeg) auditor.allowNeg else auditor.denyNeg
   }
-
-  /**
-   * Allows you to treat the current ChangeAuditor as though it is for a different type. Useful, for
-   * example, if you can't directly use a Format for a type because you have to allow interim
-   * invalid values while typing. You can use something like a BigDecimal auditor and then call
-   * this.
-   */
-  def as[B] = ChangeAuditor[B]((s, c) => self.audit(s, c))
 
   private def checkAgainstSelf(str: String, cursor: Int, result: AuditResult): AuditResult = {
     def rejectOrPassOn(s: String, c: Int) = audit(s, c) match {
@@ -142,7 +184,7 @@ object ChangeAuditor {
   /**
    * For a string. Simply limits the length of the input string.
    */
-  def maxLength(max: Int Refined Positive): ChangeAuditor[String] = ChangeAuditor { (str, _) =>
+  def maxLength(max: PosInt): ChangeAuditor[String] = ChangeAuditor { (str, _) =>
     if (str.length > max.value) AuditResult.reject else AuditResult.accept
   }
 
@@ -150,20 +192,116 @@ object ChangeAuditor {
    * For a plain integer. Only allows entry of numeric values. ALlows the input to be empty or "-",
    * etc. to make entry easier. It also strips leading zeros.
    */
-  def int: ChangeAuditor[Int] = ChangeAuditor { (str, cursorPos) =>
+  val int: ChangeAuditor[Int] = ChangeAuditor { (str, cursorPos) =>
     processIntString(str, cursorPos)._1
   }
 
   /**
-   * For a big decimal. ALlows the input to be empty or "-", etc. to make entry easier. It also
+   * For a plain positive integer. Only allows entry of numeric values. ALlows the input to be
+   * empty, etc. to make entry easier. It also strips leading zeros.
+   */
+  val posInt: ChangeAuditor[PosInt] = int.denyNeg.as[PosInt]
+
+  /**
+   * For a big decimal. Allows the input to be empty or "-", etc. to make entry easier. It also
    * strips leading and trailing zeros (past the number of allowed decimals).
+   *
+   * @param integers
+   *   - maximum number of allowed integer digits, or None for unbounded
+   * @param decimals
+   *   - maximum number of allowed decimals.
+   */
+  protected def bigDecimal(integers: Option[PosInt], decimals: PosInt): ChangeAuditor[BigDecimal] =
+    ChangeAuditor { (str, cursorPos) =>
+      val (result, formatStr, _) = processDecimalString(str, cursorPos, decimals)
+      result match {
+        case AuditResult.Accept                           =>
+          checkIntegerDigits(formatStr, integers)
+        case newString @ AuditResult.NewString(newStr, _) =>
+          checkIntegerDigits(newStr, integers) match {
+            case AuditResult.Accept => newString
+            case other              => other
+          }
+        case reject @ AuditResult.Reject                  => reject
+      }
+    }
+
+  /**
+   * For a big decimal. Allows the input to be empty or "-", etc. to make entry easier. It also
+   * strips leading and trailing zeros (past the number of allowed decimals). Allows an unbounded
+   * number of integer digits.
    *
    * @param decimals
    *   - maximum number of allowed decimals.
    */
-  def bigDecimal(decimals: Int Refined Positive): ChangeAuditor[BigDecimal] = ChangeAuditor {
-    (str, cursorPos) => processDecimalString(str, cursorPos, decimals)._1
-  }
+  @inline
+  def bigDecimal(decimals: PosInt = 3): ChangeAuditor[BigDecimal] =
+    bigDecimal(none, decimals)
+
+  /**
+   * For a big decimal. Allows the input to be empty or "-", etc. to make entry easier. It also
+   * strips leading and trailing zeros (past the number of allowed decimals).
+   *
+   * @param integers
+   *   - maximum number of allowed integer digits
+   * @param decimals
+   *   - maximum number of allowed decimals.
+   */
+  @inline
+  def bigDecimal(integers: PosInt, decimals: PosInt): ChangeAuditor[BigDecimal] =
+    bigDecimal(integers.some, decimals)
+
+  /**
+   * For a big decimal. Allows the input to be empty, etc. to make entry easier. It also strips
+   * leading and trailing zeros (past the number of allowed decimals).
+   *
+   * @param integers
+   *   - maximum number of allowed integer digits, or None for unbounded
+   * @param decimals
+   *   - maximum number of allowed decimals.
+   */
+
+  @inline
+  def posBigDecimal(integers: Option[PosInt], decimals: PosInt): ChangeAuditor[PosBigDecimal] =
+    bigDecimal(integers, decimals).denyNeg.as[PosBigDecimal]
+
+  /**
+   * For a big decimal. Allows the input to be empty, etc. to make entry easier. It also strips
+   * leading and trailing zeros (past the number of allowed decimals). Allows an unbounded number of
+   * integer digits.
+   *
+   * @param decimals
+   *   - maximum number of allowed decimals.
+   */
+  @inline
+  def posBigDecimal(decimals: PosInt = 3): ChangeAuditor[PosBigDecimal] =
+    posBigDecimal(none, decimals)
+
+  /**
+   * For a positive big decimal. Allows the input to be empty, etc. to make entry easier. It also
+   * strips leading and trailing zeros (past the number of allowed decimals).
+   *
+   * @param integers
+   *   - maximum number of allowed integer digits, or None for unbounded
+   * @param decimals
+   *   - maximum number of allowed decimals.
+   */
+  @inline
+  def posBigDecimal(integers: PosInt, decimals: PosInt): ChangeAuditor[PosBigDecimal] =
+    posBigDecimal(integers.some, decimals)
+
+  def scientificNotation(
+    decimals:       PosInt = 3,
+    exponentDigits: PosInt = 2
+  ): ChangeAuditor[BigDecimal] =
+    bigDecimal(1, decimals).allowExp(exponentDigits)
+
+  @inline
+  def posScientificNotation(
+    decimals:       PosInt = 3,
+    exponentDigits: PosInt = 2
+  ): ChangeAuditor[PosBigDecimal] =
+    scientificNotation(decimals, exponentDigits).denyNeg.as[PosBigDecimal]
 
   /**
    * For Refined Ints. Only allows entry of numeric values.
@@ -195,8 +333,8 @@ object ChangeAuditor {
       }
     }
 
-    if (filterMode == Lax || ValidFormat.refinedPrism[Int, P].getOption(-1).isDefined) auditor
-    else auditor.deny("-")
+    if (filterMode == Lax || refinedPrism[Int, P].getOption(-1).isDefined) auditor
+    else auditor.denyNeg
   }
 
   /**
@@ -316,9 +454,9 @@ object ChangeAuditor {
   private def processDecimalString(
     str:       String,
     cursorPos: Int,
-    decimals:  Int Refined Positive
+    decimals:  PosInt
   ): (AuditResult, String, Int) = {
-    val (formatStr, newStr, offset) = fixDecimalString(str, cursorPos, decimals.value)
+    val (formatStr, newStr, offset) = fixDecimalString(str, cursorPos, decimals)
 
     val result =
       if (hasNDecimalsOrFewer(newStr, decimals.value))
@@ -335,7 +473,7 @@ object ChangeAuditor {
   private def fixDecimalString(
     str:       String,
     cursorPos: Int,
-    decimals:  Int
+    decimals:  PosInt
   ): (String, String, Int) = {
     val postStripped = stripZerosPastNPlaces(str, decimals)
     postStripped match {
@@ -347,14 +485,6 @@ object ChangeAuditor {
         val dp = postStripped.indexOf(".")
         val n  = if (dp < 0) cursorPos else math.min(dp, cursorPos)
         stripZerosBeforeN(postStripped, n)
-    }
-  }
-
-  private def stripZerosPastNPlaces(str: String, n: Int): String = {
-    val regex = s"(.*\\.\\d{0,$n}[1-9]*)+0*".r
-    str match {
-      case regex(base) => base
-      case _           => str
     }
   }
 
@@ -385,6 +515,20 @@ object ChangeAuditor {
     else
       str.length <= maxDigits && str.parseIntOption
         .exists(i => 0 <= i && i <= maxValue)
+
+  private def integerDigits(str: String): Int = {
+    val Integers = "-?(\\d*).*".r
+    str match {
+      case Integers(digits) => digits.length
+      case _                => 0
+    }
+  }
+
+  private def checkIntegerDigits(str: String, digitsOpt: Option[PosInt]): AuditResult =
+    digitsOpt.fold(AuditResult.accept)(digits =>
+      if (integerDigits(str) <= digits.value) AuditResult.accept
+      else AuditResult.reject
+    )
 
   private def isValidSeconds(str: String, decimals: Int): Boolean =
     if (str == "") true

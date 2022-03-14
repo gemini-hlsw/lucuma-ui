@@ -5,6 +5,8 @@ package lucuma.ui
 
 import cats.data.NonEmptyChain
 import cats.data.NonEmptyList
+import cats.data.Validated
+import cats.syntax.all._
 import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.optics.Format
 
@@ -13,4 +15,18 @@ package object optics {
   type ValidFormatNec[E, T, A] = ValidFormat[NonEmptyChain[E], T, A]
   type ValidFormatNel[E, T, A] = ValidFormat[NonEmptyList[E], T, A]
   type ValidFormatInput[A]     = ValidFormatNec[NonEmptyString, String, A]
+
+  /**
+   * Build `ValidFormatInput` from another one, but allow empty values to become `None`
+   */
+  implicit class ValidFormatInputOps[A](val self: ValidFormatInput[A]) extends AnyVal {
+    def optional: ValidFormatInput[Option[A]] =
+      ValidFormatInput(
+        (a: String) =>
+          if (a.isEmpty) Validated.validNec(None)
+          else
+            self.getValidated(a).map(_.some),
+        (a: Option[A]) => a.foldMap(self.reverseGet)
+      )
+  }
 }

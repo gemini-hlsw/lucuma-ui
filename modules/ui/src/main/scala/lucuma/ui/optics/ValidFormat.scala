@@ -7,9 +7,7 @@ import cats.data.Validated
 import cats.syntax.all._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{ Validate => RefinedValidate }
-import eu.timepit.refined.refineV
-import lucuma.core.optics.Format
-import lucuma.core.optics.SplitEpi
+import lucuma.core.optics._
 import monocle.Iso
 import monocle.Prism
 
@@ -123,7 +121,4 @@ object ValidFormat {
     v:                           RefinedValidate[A, P]
   ): ValidFormat[E, A, A Refined P] =
     fromPrism(refinedPrism[A, P], error)
-
-  def refinedPrism[A, P](implicit v: RefinedValidate[A, P]): Prism[A, A Refined P] =
-    Prism[A, A Refined P](i => refineV[P](i).toOption)(_.value)
 }
