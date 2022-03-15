@@ -9,3 +9,4 @@ package object decoders
     with SpectralDefinitionDecoders
     with SourceProfileDecoders
     with TargetDecoders
+    with ConstraintSetDecoders

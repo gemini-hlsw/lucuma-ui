@@ -4,13 +4,11 @@
 package lucuma.schemas.decoders
 
 import cats.Order._
-import cats.effect._
 import cats.syntax.all._
 import coulomb._
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosLong
 import eu.timepit.refined.types.string.NonEmptyString
-import io.circe.parser._
 import lucuma.core.enum.Band
 import lucuma.core.enum.CatalogName
 import lucuma.core.enum.GalaxySpectrum
@@ -33,30 +31,29 @@ import lucuma.core.model.SourceProfile
 import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.Target
 import lucuma.core.model.UnnormalizedSED
-import munit._
 
-import java.io.File
-import java.io.FileInputStream
-import java.nio.file.Paths
 import scala.collection.immutable.SortedMap
+import io.circe.Decoder
 
-class DecodersSuite extends CatsEffectSuite {
+class DecodersSuite extends InputStreamSuite {
 
-  protected def inputStream(f: File): Resource[IO, FileInputStream] =
-    Resource.make {
-      IO.blocking(new FileInputStream(f)) // build
-    } { inStream =>
-      IO.blocking(inStream.close()).handleErrorWith(_ => IO.unit) // release
-    }
+  implicit val decoderIdTarget: Decoder[(Target.Id, Target)] = Decoder.instance { c =>
+    val root = c.downField("data").downField("target")
+    for {
+      id     <- root.downField("id").as[Target.Id]
+      target <- root.as[Target]
+    } yield (id, target)
+  }
 
   test("Target decoder - Point - BandNormalized") {
-    val expectedId     = Target.Id(PosLong(2))
-    val expectedTarget =
+    val expectedId: Target.Id  = Target.Id(PosLong(2))
+    val expectedTarget: Target =
       Target.Sidereal(
         NonEmptyString("NGC 5949"),
         SiderealTracking(
-          Coordinates(RightAscension.fromStringHMS.getOption("15:28:00.668").get,
-                      Declination.fromStringSignedDMS.getOption("+64:45:47.4").get
+          Coordinates(
+            RightAscension.fromStringHMS.getOption("15:28:00.668").get,
+            Declination.fromStringSignedDMS.getOption("+64:45:47.4").get
           ),
           Epoch.J2000,
           ProperMotion.Zero.some,
@@ -115,31 +112,18 @@ class DecodersSuite extends CatsEffectSuite {
         CatalogInfo(CatalogName.Simbad, NonEmptyString("M   1"), NonEmptyString("SNR").some).some
       )
 
-    val jsonFile = "/t2.json"
-    val url      = getClass().getResource(jsonFile)
-    val file     = Paths.get(url.toURI()).toFile()
-    inputStream(file).use { inStream =>
-      for {
-        str      <- IO.blocking(scala.io.Source.fromInputStream(inStream).mkString)
-        decoded   = for {
-                      json   <- parse(str)
-                      c       = json.hcursor.downField("data").downField("target")
-                      id     <- c.downField("id").as[Target.Id]
-                      target <- c.as[Target]
-                    } yield (id, target)
-        obtained <- IO.fromEither(decoded)
-      } yield assertEquals(obtained, (expectedId, expectedTarget))
-    }
+    assertParsedStreamEquals("/t2.json", (expectedId, expectedTarget))
   }
 
   test("Target decoder - Point - EmissionLines") {
-    val expectedId     = Target.Id(PosLong(3))
-    val expectedTarget =
+    val expectedId: Target.Id  = Target.Id(PosLong(3))
+    val expectedTarget: Target =
       Target.Sidereal(
         NonEmptyString("NGC 5949"),
         SiderealTracking(
-          Coordinates(RightAscension.fromStringHMS.getOption("15:28:00.668").get,
-                      Declination.fromStringSignedDMS.getOption("+64:45:47.4").get
+          Coordinates(
+            RightAscension.fromStringHMS.getOption("15:28:00.668").get,
+            Declination.fromStringSignedDMS.getOption("+64:45:47.4").get
           ),
           Epoch.J2000,
           ProperMotion.Zero.some,
@@ -166,31 +150,18 @@ class DecodersSuite extends CatsEffectSuite {
         none
       )
 
-    val jsonFile = "/t3.json"
-    val url      = getClass().getResource(jsonFile)
-    val file     = Paths.get(url.toURI()).toFile()
-    inputStream(file).use { inStream =>
-      for {
-        str      <- IO.blocking(scala.io.Source.fromInputStream(inStream).mkString)
-        decoded   = for {
-                      json   <- parse(str)
-                      c       = json.hcursor.downField("data").downField("target")
-                      id     <- c.downField("id").as[Target.Id]
-                      target <- c.as[Target]
-                    } yield (id, target)
-        obtained <- IO.fromEither(decoded)
-      } yield assertEquals(obtained, (expectedId, expectedTarget))
-    }
+    assertParsedStreamEquals("/t3.json", (expectedId, expectedTarget))
   }
 
   test("Target decoder - Uniform - BandNormalized") {
-    val expectedId     = Target.Id(PosLong(4))
-    val expectedTarget =
+    val expectedId: Target.Id  = Target.Id(PosLong(4))
+    val expectedTarget: Target =
       Target.Sidereal(
         NonEmptyString("NGC 3312"),
         SiderealTracking(
-          Coordinates(RightAscension.fromStringHMS.getOption("10:37:02.549").get,
-                      Declination.fromStringSignedDMS.getOption("-27:33:54.17").get
+          Coordinates(
+            RightAscension.fromStringHMS.getOption("10:37:02.549").get,
+            Declination.fromStringSignedDMS.getOption("-27:33:54.17").get
           ),
           Epoch.J2000,
           ProperMotion.Zero.some,
@@ -230,21 +201,6 @@ class DecodersSuite extends CatsEffectSuite {
         none
       )
 
-    val jsonFile = "/t4.json"
-    val url      = getClass().getResource(jsonFile)
-    val file     = Paths.get(url.toURI()).toFile()
-    inputStream(file).use { inStream =>
-      for {
-        str      <- IO.blocking(scala.io.Source.fromInputStream(inStream).mkString)
-        decoded   = for {
-                      json   <- parse(str)
-                      c       = json.hcursor.downField("data").downField("target")
-                      id     <- c.downField("id").as[Target.Id]
-                      target <- c.as[Target]
-                    } yield (id, target)
-        obtained <- IO.fromEither(decoded)
-      } yield assertEquals(obtained, (expectedId, expectedTarget))
-    }
+    assertParsedStreamEquals("/t4.json", (expectedId, expectedTarget))
   }
-
 }
