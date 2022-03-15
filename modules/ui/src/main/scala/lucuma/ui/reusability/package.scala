@@ -121,6 +121,10 @@ trait ModelReusabiltyInstances
   implicit val siderealTargetReuse: Reusability[Target.Sidereal]              = Reusability.derive
   implicit val nonsiderealTargetReuse: Reusability[Target.Nonsidereal]        = Reusability.derive
   implicit val targetReuse: Reusability[Target]                               = Reusability.derive
+  implicit val airMassRangeReuse: Reusability[ElevationRange.AirMass]         = Reusability.derive
+  implicit val hourAngleRangeReuse: Reusability[ElevationRange.HourAngle]     = Reusability.derive
+  implicit val elevationRangeReuse: Reusability[ElevationRange]               = Reusability.derive
+  implicit val constraintsSetReuse: Reusability[ConstraintSet]                = Reusability.derive
 }
 
 package object reusability
