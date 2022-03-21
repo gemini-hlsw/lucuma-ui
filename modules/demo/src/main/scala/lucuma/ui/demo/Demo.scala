@@ -7,7 +7,6 @@ import cats.effect._
 import cats.syntax.all._
 import crystal.ViewF
 import crystal.react._
-import crystal.react.implicits._
 import crystal.react.reuse._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.auto._
@@ -42,7 +41,7 @@ import react.semanticui.elements.label.LabelPointing
 
 import scala.scalajs.js.annotation._
 
-final case class FormComponent(root: View[FormComponent.RootModel])
+final case class FormComponent(root: Reuse[ViewF[CallbackTo, FormComponent.RootModel]])
     extends ReactProps[FormComponent](FormComponent.component)
 
 object FormComponent {
@@ -131,7 +130,7 @@ object FormComponent {
           <.br,
           s"STATE: ${$.state}",
           Form(
-            FormInputEV(
+            FormInputEV[ReuseView, UpperNES](
               id = "field1",
               label = "field1 - uppercased on blur, can't be empty",
               value = $.props.root.zoom(RootModel.field1),
@@ -140,7 +139,7 @@ object FormComponent {
               validFormat = ValidFormatInput.upperNESValidFormat,
               onValidChange = v => $.setStateL(State.valid1)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, String](
               id = "field2",
               label = "field2 - can't be empty",
               value = $.props.root.zoom(RootModel.field2),
@@ -157,7 +156,7 @@ object FormComponent {
               ),
               onValidChange = v => $.setStateL(State.valid2)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, String Refined UpperNEPred](
               id = "forced-upper",
               label = "forced uppercase",
               value = $.props.root.zoom(RootModel.forcedUpper),
@@ -170,7 +169,7 @@ object FormComponent {
               ),
               onValidChange = v => $.setStateL(State.forcedUpper)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, Int](
               id = "just-an-int",
               label = "Just An Int",
               value = $.props.root.zoom(RootModel.justAnInt),
@@ -180,7 +179,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.int,
               onValidChange = v => $.setStateL(State.validJaI)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, Int Refined Interval.Closed[0, 2048]](
               id = "refined-int",
               label = "refined Int - 0 to 2048, input constrained",
               value = $.props.root.zoom(RootModel.refinedInt),
@@ -190,7 +189,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.forRefinedInt[ZeroTo2048](),
               onValidChange = v => $.setStateL(State.refinedInt)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, Int Refined Odd](
               id = "odd-int",
               label = "odd Int - validated on blur",
               value = $.props.root.zoom(RootModel.refinedOdd),
@@ -200,7 +199,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.forRefinedInt[Odd](filterMode = FilterMode.Lax),
               onValidChange = v => $.setStateL(State.refinedOdd)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, BigDecimal](
               id = "big-decimal",
               label = "Big Decimal, 4 decimal places",
               value = $.props.root.zoom(RootModel.bigDecimal),
@@ -210,7 +209,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.bigDecimal(4),
               onValidChange = v => $.setStateL(State.bigDecimal)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, TruncatedRefinedBigDecimal[OneToThree, 1]](
               id = "refined-big-decimal",
               label = "Refined Big Decimal - 1 decimal place",
               value = $.props.root
@@ -225,7 +224,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.accept.decimal(1),
               onValidChange = v => $.setStateL(State.refinedBigDec)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, TruncatedRA](
               id = "ra",
               label = "RA",
               value = $.props.root.zoom(RootModel.ra).zoomSplitEpi(TruncatedRA.rightAscension),
@@ -235,7 +234,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.truncatedRA,
               onValidChange = v => $.setStateL(State.ra)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, TruncatedDec](
               id = "dec",
               label = "Dec",
               value = $.props.root.zoom(RootModel.dec).zoomSplitEpi(TruncatedDec.declination),
@@ -245,7 +244,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.truncatedDec,
               onValidChange = v => $.setStateL(State.dec)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, Epoch](
               id = "epoch",
               label = "Epoch",
               value = $.props.root.zoom(RootModel.epoch),
@@ -256,7 +255,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3),
               onValidChange = v => $.setStateL(State.epoch)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, Option[Epoch]](
               id = "opt-epoch",
               label = "Optional Epoch",
               value = $.props.root.zoom(RootModel.optionalEpoch),
@@ -268,7 +267,7 @@ object FormComponent {
                 ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3).optional,
               onValidChange = v => $.setStateL(State.epoch)(v)
             ),
-            FormInputEV(
+            FormInputEV[ReuseView, BigDecimal](
               id = "scientific",
               label = "Scientific Notation",
               value = $.props.root.zoom(RootModel.scientific),
@@ -288,7 +287,7 @@ object FormComponent {
 trait AppMain extends IOApp.Simple {
   import FormComponent._
 
-  protected def rootComponent(view: ViewF[CallbackTo, RootModel]): VdomElement
+  protected def rootComponent(view: Reuse[ViewF[CallbackTo, RootModel]]): VdomElement
 
   @JSExport
   def runIOApp(): Unit = main(Array.empty)
@@ -331,7 +330,7 @@ trait AppMain extends IOApp.Simple {
 @JSExportTopLevel("Demo")
 object Demo extends AppMain {
   override protected def rootComponent(
-    rootView: ViewF[CallbackTo, FormComponent.RootModel]
+    rootView: Reuse[ViewF[CallbackTo, FormComponent.RootModel]]
   ): VdomElement =
     FormComponent(rootView)
 }
