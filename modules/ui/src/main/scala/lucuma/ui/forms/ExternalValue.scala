@@ -58,30 +58,24 @@ trait ExternalValueImplicits {
 
   implicit def externalValueReuseViewF: ExternalValue[RV[DefaultS, *]] =
     new ExternalValue[RV[DefaultS, *]] {
-      // override def get[A](ev: Reuse[ViewF[DefaultS, A]]): Option[A] = ev.get.some
-      override def get[A](ev: RV[DefaultS, A]): Option[A] = ev.get.some
+      override def get[A](ev: Reuse[ViewF[DefaultS, A]]): Option[A] = ev.get.some
 
-      // override def set[A](ev: Reuse[ViewF[DefaultS, A]]): A => Callback = a => ev.set(a)
-      override def set[A](ev: RV[DefaultS, A]): A => Callback = a => ev.set(a)
+      override def set[A](ev: Reuse[ViewF[DefaultS, A]]): A => Callback = a => ev.set(a)
     }
 
   implicit def externalValueReuseViewOptF: ExternalValue[RVO[DefaultS, *]] =
     new ExternalValue[RVO[DefaultS, *]] {
-      // override def get[A](ev: Reuse[ViewOptF[DefaultS, A]]): Option[A] = ev.get
-      override def get[A](ev: RVO[DefaultS, A]): Option[A] = ev.get
+      override def get[A](ev: Reuse[ViewOptF[DefaultS, A]]): Option[A] = ev.get
 
-      // override def set[A](ev: Reuse[ViewOptF[DefaultS, A]]): A => Callback = a => ev.set(a)
-      override def set[A](ev: RVO[DefaultS, A]): A => Callback = a => ev.set(a)
+      override def set[A](ev: Reuse[ViewOptF[DefaultS, A]]): A => Callback = a => ev.set(a)
     }
 
   implicit def externalValueAsyncReuseViewF[F[_]: Async: Effect.Dispatch: Logger]
     : ExternalValue[RV[F, *]] =
     new ExternalValue[RV[F, *]] {
-      // override def get[A](ev: Reuse[ViewF[F, A]]): Option[A] = ev.get.some
-      override def get[A](ev: RV[F, A]): Option[A] = ev.get.some
+      override def get[A](ev: Reuse[ViewF[F, A]]): Option[A] = ev.get.some
 
-      // override def set[A](ev: Reuse[ViewF[F, A]]): A => Callback =
-      override def set[A](ev: RV[F, A]): A => Callback =
+      override def set[A](ev: Reuse[ViewF[F, A]]): A => Callback =
         ev.set.andThen(_.runAsync)
     }
 
