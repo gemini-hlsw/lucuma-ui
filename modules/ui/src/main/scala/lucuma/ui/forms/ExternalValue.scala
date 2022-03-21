@@ -7,7 +7,7 @@ import cats.effect.Async
 import cats.implicits._
 import crystal.ViewF
 import crystal.ViewOptF
-import crystal.react.reuse.Reuse
+import crystal.react._
 import crystal.react.implicits._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.extra.StateSnapshot
@@ -53,38 +53,35 @@ trait ExternalValueImplicits {
         ev.set.andThen(_.runAsync)
     }
 
-  type RV[F[_], A]  = Reuse[ViewF[F, A]]
-  type RVO[F[_], A] = Reuse[ViewOptF[F, A]]
+  implicit def externalValueReuseViewF: ExternalValue[ReuseViewF[DefaultS, *]] =
+    new ExternalValue[ReuseViewF[DefaultS, *]] {
+      override def get[A](ev: ReuseViewF[DefaultS, A]): Option[A] = ev.get.some
 
-  implicit def externalValueReuseViewF: ExternalValue[RV[DefaultS, *]] =
-    new ExternalValue[RV[DefaultS, *]] {
-      override def get[A](ev: Reuse[ViewF[DefaultS, A]]): Option[A] = ev.get.some
-
-      override def set[A](ev: Reuse[ViewF[DefaultS, A]]): A => Callback = a => ev.set(a)
+      override def set[A](ev: ReuseViewF[DefaultS, A]): A => Callback = a => ev.set(a)
     }
 
-  implicit def externalValueReuseViewOptF: ExternalValue[RVO[DefaultS, *]] =
-    new ExternalValue[RVO[DefaultS, *]] {
-      override def get[A](ev: Reuse[ViewOptF[DefaultS, A]]): Option[A] = ev.get
+  implicit def externalValueReuseViewOptF: ExternalValue[ReuseViewOptF[DefaultS, *]] =
+    new ExternalValue[ReuseViewOptF[DefaultS, *]] {
+      override def get[A](ev: ReuseViewOptF[DefaultS, A]): Option[A] = ev.get
 
-      override def set[A](ev: Reuse[ViewOptF[DefaultS, A]]): A => Callback = a => ev.set(a)
+      override def set[A](ev: ReuseViewOptF[DefaultS, A]): A => Callback = a => ev.set(a)
     }
 
   implicit def externalValueAsyncReuseViewF[F[_]: Async: Effect.Dispatch: Logger]
-    : ExternalValue[RV[F, *]] =
-    new ExternalValue[RV[F, *]] {
-      override def get[A](ev: Reuse[ViewF[F, A]]): Option[A] = ev.get.some
+    : ExternalValue[ReuseViewF[F, *]] =
+    new ExternalValue[ReuseViewF[F, *]] {
+      override def get[A](ev: ReuseViewF[F, A]): Option[A] = ev.get.some
 
-      override def set[A](ev: Reuse[ViewF[F, A]]): A => Callback =
+      override def set[A](ev: ReuseViewF[F, A]): A => Callback =
         ev.set.andThen(_.runAsync)
     }
 
   implicit def externalValueAsyncReuseViewOptF[F[_]: Async: Effect.Dispatch: Logger]
-    : ExternalValue[RVO[F, *]] =
-    new ExternalValue[RVO[F, *]] {
-      override def get[A](ev: Reuse[ViewOptF[F, A]]): Option[A] = ev.get
+    : ExternalValue[ReuseViewOptF[F, *]] =
+    new ExternalValue[ReuseViewOptF[F, *]] {
+      override def get[A](ev: ReuseViewOptF[F, A]): Option[A] = ev.get
 
-      override def set[A](ev: Reuse[ViewOptF[F, A]]): A => Callback =
+      override def set[A](ev: ReuseViewOptF[F, A]): A => Callback =
         ev.set.andThen(_.runAsync)
     }
 
