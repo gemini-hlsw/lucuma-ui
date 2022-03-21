@@ -7,7 +7,6 @@ import cats.effect._
 import cats.syntax.all._
 import crystal.ViewF
 import crystal.react._
-import crystal.react.implicits._
 import crystal.react.reuse._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.auto._
@@ -42,7 +41,7 @@ import react.semanticui.elements.label.LabelPointing
 
 import scala.scalajs.js.annotation._
 
-final case class FormComponent(root: View[FormComponent.RootModel])
+final case class FormComponent(root: Reuse[ViewF[CallbackTo, FormComponent.RootModel]])
     extends ReactProps[FormComponent](FormComponent.component)
 
 object FormComponent {
@@ -126,6 +125,22 @@ object FormComponent {
       .builder[Props]
       .initialState(State())
       .render { $ =>
+        def testMethod[EV[_], A](value: EV[A])(implicit ev: ExternalValue[EV]): String = {
+          val x = ev.get(value)
+          println(s"x: $x")
+          x.toString
+        }
+
+        // This works
+        testMethod($.props.root.zoom(RootModel.field2).value)
+
+        // This doesn't - "Can't find implicit value"
+        // testMethod($.props.root.zoom(RootModel.field2))
+
+        // These don't either "type mismatch - expected ExternalValue[Reuse]"
+        // import lucuma.ui.forms.ExternalValue._
+        // testMethod($.props.root.zoom(RootModel.field2))(externalValueReuseViewF)
+
         <.div(^.paddingTop := "20px")(
           s"MODEL: ${$.props.root.get}",
           <.br,
@@ -134,7 +149,7 @@ object FormComponent {
             FormInputEV(
               id = "field1",
               label = "field1 - uppercased on blur, can't be empty",
-              value = $.props.root.zoom(RootModel.field1),
+              value = $.props.root.zoom(RootModel.field1).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.upperNESValidFormat,
@@ -143,7 +158,7 @@ object FormComponent {
             FormInputEV(
               id = "field2",
               label = "field2 - can't be empty",
-              value = $.props.root.zoom(RootModel.field2),
+              value = $.props.root.zoom(RootModel.field2).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               error = NonEmptyString("This is another error"),
@@ -160,7 +175,7 @@ object FormComponent {
             FormInputEV(
               id = "forced-upper",
               label = "forced uppercase",
-              value = $.props.root.zoom(RootModel.forcedUpper),
+              value = $.props.root.zoom(RootModel.forcedUpper).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.forRefinedString[UpperNEPred]("Can't be empty"),
@@ -173,7 +188,7 @@ object FormComponent {
             FormInputEV(
               id = "just-an-int",
               label = "Just An Int",
-              value = $.props.root.zoom(RootModel.justAnInt),
+              value = $.props.root.zoom(RootModel.justAnInt).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.intValidFormat(),
@@ -183,7 +198,7 @@ object FormComponent {
             FormInputEV(
               id = "refined-int",
               label = "refined Int - 0 to 2048, input constrained",
-              value = $.props.root.zoom(RootModel.refinedInt),
+              value = $.props.root.zoom(RootModel.refinedInt).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.forRefinedInt[ZeroTo2048]("Must be in range 0-2048"),
@@ -193,7 +208,7 @@ object FormComponent {
             FormInputEV(
               id = "odd-int",
               label = "odd Int - validated on blur",
-              value = $.props.root.zoom(RootModel.refinedOdd),
+              value = $.props.root.zoom(RootModel.refinedOdd).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.forRefinedInt[Odd]("Must be an odd integer"),
@@ -203,7 +218,7 @@ object FormComponent {
             FormInputEV(
               id = "big-decimal",
               label = "Big Decimal, 4 decimal places",
-              value = $.props.root.zoom(RootModel.bigDecimal),
+              value = $.props.root.zoom(RootModel.bigDecimal).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.bigDecimalValidFormat(),
@@ -217,7 +232,8 @@ object FormComponent {
                 .zoom(RootModel.refinedBigDec)
                 .zoomSplitEpi(
                   TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree, 1]
-                ),
+                )
+                .value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput
@@ -228,7 +244,8 @@ object FormComponent {
             FormInputEV(
               id = "ra",
               label = "RA",
-              value = $.props.root.zoom(RootModel.ra).zoomSplitEpi(TruncatedRA.rightAscension),
+              value =
+                $.props.root.zoom(RootModel.ra).zoomSplitEpi(TruncatedRA.rightAscension).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.truncatedRA,
@@ -238,7 +255,7 @@ object FormComponent {
             FormInputEV(
               id = "dec",
               label = "Dec",
-              value = $.props.root.zoom(RootModel.dec).zoomSplitEpi(TruncatedDec.declination),
+              value = $.props.root.zoom(RootModel.dec).zoomSplitEpi(TruncatedDec.declination).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.truncatedDec,
@@ -248,7 +265,7 @@ object FormComponent {
             FormInputEV(
               id = "epoch",
               label = "Epoch",
-              value = $.props.root.zoom(RootModel.epoch),
+              value = $.props.root.zoom(RootModel.epoch).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat =
@@ -259,7 +276,7 @@ object FormComponent {
             FormInputEV(
               id = "opt-epoch",
               label = "Optional Epoch",
-              value = $.props.root.zoom(RootModel.optionalEpoch),
+              value = $.props.root.zoom(RootModel.optionalEpoch).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat =
@@ -271,7 +288,7 @@ object FormComponent {
             FormInputEV(
               id = "scientific",
               label = "Scientific Notation",
-              value = $.props.root.zoom(RootModel.scientific),
+              value = $.props.root.zoom(RootModel.scientific).value,
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.forScientificNotationBigDecimal(),
@@ -288,7 +305,7 @@ object FormComponent {
 trait AppMain extends IOApp.Simple {
   import FormComponent._
 
-  protected def rootComponent(view: ViewF[CallbackTo, RootModel]): VdomElement
+  protected def rootComponent(view: Reuse[ViewF[CallbackTo, RootModel]]): VdomElement
 
   @JSExport
   def runIOApp(): Unit = main(Array.empty)
@@ -331,7 +348,7 @@ trait AppMain extends IOApp.Simple {
 @JSExportTopLevel("Demo")
 object Demo extends AppMain {
   override protected def rootComponent(
-    rootView: ViewF[CallbackTo, FormComponent.RootModel]
+    rootView: Reuse[ViewF[CallbackTo, FormComponent.RootModel]]
   ): VdomElement =
     FormComponent(rootView)
 }
