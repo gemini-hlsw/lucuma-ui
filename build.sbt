@@ -7,13 +7,14 @@ lazy val FUILess = "2.8.7"
 lazy val scalaJsReactVersion    = "2.0.1"
 lazy val lucumaCoreVersion      = "0.28.0"
 lazy val monocleVersion         = "3.1.0"
-lazy val crystalVersion         = "0.22.2"
+lazy val crystalVersion         = "0.23.0"
 lazy val catsVersion            = "2.7.0"
 lazy val mouseVersion           = "1.0.10"
 lazy val reactCommonVersion     = "0.14.8"
 lazy val reactSemanticUIVersion = "0.13.1"
-lazy val kindProjectorVersion   = "0.13.2"
-lazy val singletonOpsVersion    = "0.5.2"
+
+lazy val kindProjectorVersion = "0.13.2"
+lazy val singletonOpsVersion  = "0.5.2"
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
