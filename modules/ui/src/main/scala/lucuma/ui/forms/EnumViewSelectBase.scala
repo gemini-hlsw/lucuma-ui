@@ -5,7 +5,6 @@ package lucuma.ui.forms
 
 import cats.syntax.all._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.syntax.all._
 import lucuma.core.util.Display
@@ -44,7 +43,7 @@ trait EnumViewSelectBase[EV[_]] {
   val deburr: js.UndefOr[Boolean]
   val defaultOpen: js.UndefOr[Boolean]
   val defaultSearchQuery: js.UndefOr[String]
-  val defaultSelectedLabel: js.UndefOr[JsNumber | String]
+  val defaultSelectedLabel: js.UndefOr[Double | String]
   val defaultUpward: js.UndefOr[Boolean]
   val direction: js.UndefOr[Direction]
   val disabled: js.UndefOr[Boolean]
@@ -58,7 +57,7 @@ trait EnumViewSelectBase[EV[_]] {
   val label: js.UndefOr[ShorthandS[Label]]
   val labeled: js.UndefOr[Boolean]
   val loading: js.UndefOr[Boolean]
-  val minCharacters: js.UndefOr[JsNumber]
+  val minCharacters: js.UndefOr[Int]
   val multiple: js.UndefOr[Boolean]
   val noResultsMessage: js.UndefOr[ShorthandS[VdomNode]]
   val onBlur: js.UndefOr[Callback]
@@ -91,9 +90,9 @@ trait EnumViewSelectBase[EV[_]] {
   val searchQuery: js.UndefOr[String]
   val selectOnBlur: js.UndefOr[Boolean]
   val selectOnNavigation: js.UndefOr[Boolean]
-  val selectedLabel: js.UndefOr[JsNumber | String]
+  val selectedLabel: js.UndefOr[Double | String]
   val simple: js.UndefOr[Boolean]
-  val tabIndex: js.UndefOr[String | JsNumber]
+  val tabIndex: js.UndefOr[String | Int]
   val text: js.UndefOr[String]
   val tpe: js.UndefOr[String]
   val trigger: js.UndefOr[VdomNode]
