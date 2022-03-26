@@ -7,7 +7,6 @@ import cats.Id
 import cats.Monoid
 import cats.syntax.all._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
@@ -43,7 +42,7 @@ final case class EnumViewSelect[EV[_], A](
   deburr:               js.UndefOr[Boolean] = js.undefined,
   defaultOpen:          js.UndefOr[Boolean] = js.undefined,
   defaultSearchQuery:   js.UndefOr[String] = js.undefined,
-  defaultSelectedLabel: js.UndefOr[JsNumber | String] = js.undefined,
+  defaultSelectedLabel: js.UndefOr[Double | String] = js.undefined,
   defaultUpward:        js.UndefOr[Boolean] = js.undefined,
   direction:            js.UndefOr[Direction] = js.undefined,
   disabled:             js.UndefOr[Boolean] = js.undefined,
@@ -57,7 +56,7 @@ final case class EnumViewSelect[EV[_], A](
   label:                js.UndefOr[ShorthandS[Label]] = js.undefined,
   labeled:              js.UndefOr[Boolean] = js.undefined,
   loading:              js.UndefOr[Boolean] = js.undefined,
-  minCharacters:        js.UndefOr[JsNumber] = js.undefined,
+  minCharacters:        js.UndefOr[Int] = js.undefined,
   noResultsMessage:     js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
   onBlur:               js.UndefOr[Callback] = js.undefined,
   onBlurE:              js.UndefOr[OnBlur] = js.undefined,
@@ -88,9 +87,9 @@ final case class EnumViewSelect[EV[_], A](
   searchQuery:          js.UndefOr[String] = js.undefined,
   selectOnBlur:         js.UndefOr[Boolean] = js.undefined,
   selectOnNavigation:   js.UndefOr[Boolean] = js.undefined,
-  selectedLabel:        js.UndefOr[JsNumber | String] = js.undefined,
+  selectedLabel:        js.UndefOr[Double | String] = js.undefined,
   simple:               js.UndefOr[Boolean] = js.undefined,
-  tabIndex:             js.UndefOr[String | JsNumber] = js.undefined,
+  tabIndex:             js.UndefOr[String | Int] = js.undefined,
   text:                 js.UndefOr[String] = js.undefined,
   tpe:                  js.UndefOr[String] = js.undefined,
   trigger:              js.UndefOr[VdomNode] = js.undefined,

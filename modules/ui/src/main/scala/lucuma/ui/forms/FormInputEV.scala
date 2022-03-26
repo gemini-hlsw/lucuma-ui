@@ -13,7 +13,6 @@ import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.facade.JsNumber
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.optics.AuditResult
 import lucuma.ui.optics.ChangeAuditor
@@ -64,7 +63,7 @@ final case class FormInputEV[EV[_], A](
   loading:         js.UndefOr[Boolean] = js.undefined,
   required:        js.UndefOr[Boolean] = js.undefined,
   size:            js.UndefOr[SemanticSize] = js.undefined,
-  tabIndex:        js.UndefOr[String | JsNumber] = js.undefined,
+  tabIndex:        js.UndefOr[String | Double] = js.undefined,
   tpe:             js.UndefOr[String] = js.undefined,
   transparent:     js.UndefOr[Boolean] = js.undefined,
   width:           js.UndefOr[SemanticWidth] = js.undefined,

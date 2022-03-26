@@ -14,14 +14,12 @@ import io.circe.Json
 import japgolly.scalajs.react.Key
 import japgolly.scalajs.react.ReactCats._
 import japgolly.scalajs.react.Reusability
-import japgolly.scalajs.react.facade.JsNumber
 import lucuma.core.data.EnumZipper
 import lucuma.core.math._
 import lucuma.core.math.dimensional._
 import lucuma.core.model._
 import lucuma.core.util.Enumerated
 import react.common.Size
-import react.common.implicits._
 
 import java.time.Duration
 import java.time.Instant
@@ -57,21 +55,21 @@ trait UtilReusabilityInstances {
  */
 trait MathReusabilityInstances {
   // Reusability for coulomb quantities.
-  implicit def quantityReuse[N: Reusability, U]: Reusability[Quantity[N, U]] =
+  implicit def quantityReuse[N: Reusability, U]: Reusability[Quantity[N, U]]  =
     Reusability.by(_.value)
-  implicit val angleReuse: Reusability[Angle]                                = Reusability.by(_.toMicroarcseconds)
-  implicit def raReuse: Reusability[RightAscension]                          = Reusability.byEq
-  implicit def decReuse: Reusability[Declination]                            = Reusability.byEq
-  implicit def coordinatesReuse: Reusability[Coordinates]                    = Reusability.byEq
-  implicit def epochReuse: Reusability[Epoch]                                = Reusability.byEq
-  implicit def pmReuse: Reusability[ProperMotion]                            = Reusability.byEq
-  implicit def rvReuse: Reusability[RadialVelocity]                          = Reusability.byEq
-  implicit def parallaxReuse: Reusability[Parallax]                          = Reusability.byEq
-  implicit val brightnessValueReuse: Reusability[BrightnessValue]            = Reusability.byEq
-  implicit val jsNumberReuse: Reusability[JsNumber]                          = Reusability.byEq
-  implicit val bigDecimalReuse: Reusability[BigDecimal]                      = Reusability.byEq
-  implicit val sizeReuse: Reusability[Size]                                  = Reusability.by(x => (x.height, x.width))
-  implicit val unitsReuse: Reusability[Units]                                = Reusability.byEq
+  implicit val angleReuse: Reusability[Angle]                                 = Reusability.by(_.toMicroarcseconds)
+  implicit def raReuse: Reusability[RightAscension]                           = Reusability.byEq
+  implicit def decReuse: Reusability[Declination]                             = Reusability.byEq
+  implicit def coordinatesReuse: Reusability[Coordinates]                     = Reusability.byEq
+  implicit def epochReuse: Reusability[Epoch]                                 = Reusability.byEq
+  implicit def pmReuse: Reusability[ProperMotion]                             = Reusability.byEq
+  implicit def rvReuse: Reusability[RadialVelocity]                           = Reusability.byEq
+  implicit def parallaxReuse: Reusability[Parallax]                           = Reusability.byEq
+  implicit val brightnessValueReuse: Reusability[BrightnessValue]             = Reusability.byEq
+  implicit val bigDecimalReuse: Reusability[BigDecimal]                       = Reusability.byEq
+  implicit def sizeReuse(implicit dr: Reusability[Double]): Reusability[Size] =
+    Reusability.by(x => (x.height, x.width))
+  implicit val unitsReuse: Reusability[Units]                                 = Reusability.byEq
   @nowarn // Reusability context bound is required but the compiler emits a warning anyway.
   implicit def measureReuse[N: Reusability]: Reusability[Measure[N]] = Reusability.derive
 }
