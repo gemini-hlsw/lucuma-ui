@@ -19,6 +19,8 @@ import lucuma.core.math._
 import lucuma.core.math.dimensional._
 import lucuma.core.model._
 import lucuma.core.util.Enumerated
+import lucuma.core.util.WithGid
+import lucuma.core.util.WithUid
 import react.common.Size
 
 import java.time.Duration
@@ -100,7 +102,8 @@ trait ModelReusabiltyInstances
     extends RefinedReusabiltyInstances
     with UtilReusabilityInstances
     with MathReusabilityInstances {
-  implicit def idReuse[Id <: WithId#Id]: Reusability[Id]                      = Reusability.by(_.value)
+  implicit def gidReuse[Id <: WithGid#Id]: Reusability[Id]                    = Reusability.by(_.value)
+  implicit def uidReuse[Id <: WithUid#Id]: Reusability[Id]                    = Reusability.by(_.toUuid)
   implicit val orcidIdReuse: Reusability[OrcidId]                             = Reusability.by(_.value.toString)
   implicit val orcidProfileResuse: Reusability[OrcidProfile]                  = Reusability.derive
   implicit val partnerReuse: Reusability[Partner]                             = Reusability.derive
