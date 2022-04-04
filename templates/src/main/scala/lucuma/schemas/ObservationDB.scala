@@ -16,27 +16,27 @@ import lucuma.core.math.BrightnessUnits._
 trait ObservationDB {
   object Scalars {
     // Ids
-    type AtomId              = Atom.Id
-    type ExecutionEventId    = ExecutionEvent.Id
-    type ObservationId       = Observation.Id
-    type ProgramId           = String
-    type StepId              = Step.Id
-    type TargetId            = Target.Id
-    type TargetEnvironmentId = TargetEnvironment.Id
+    type AtomId           = Atom.Id
+    type ExecutionEventId = ExecutionEvent.Id
+    type ObservationId    = Observation.Id
+    type ProgramId        = String
+    type StepId           = Step.Id
+    type TargetId         = Target.Id
+    type VisitId          = Visit.Id
     // Basic types
-    type BigDecimal          = scala.BigDecimal
-    type Long                = scala.Long
+    type BigDecimal       = scala.BigDecimal
+    type Long             = scala.Long
     // Formatted strings
-    type DatasetFilename     = String
-    type DmsString           = String
-    type EpochString         = String
-    type HmsString           = String
+    type DatasetFilename  = String
+    type DmsString        = String
+    type EpochString      = String
+    type HmsString        = String
     // Refined
-    type NonEmptyString      = eu.timepit.refined.types.string.NonEmptyString
-    type PosBigDecimal       = eu.timepit.refined.types.numeric.PosBigDecimal
-    type PosInt              = eu.timepit.refined.types.numeric.PosInt
+    type NonEmptyString   = eu.timepit.refined.types.string.NonEmptyString
+    type PosBigDecimal    = eu.timepit.refined.types.numeric.PosBigDecimal
+    type PosInt           = eu.timepit.refined.types.numeric.PosInt
     // Time
-    type Instant             = java.time.Instant
+    type Instant          = java.time.Instant
   }
 
   object Enums {
@@ -65,16 +65,16 @@ trait ObservationDB {
     type GmosDisperserOrder                  = enum.GmosDisperserOrder
     type GmosDtax                            = enum.GmosDtax
     type GmosEOffsetting                     = enum.GmosEOffsetting
+    type GmosNorthBuiltinFpu                 = enum.GmosNorthFpu
     type GmosNorthDetector                   = enum.GmosNorthDetector
     type GmosNorthDisperser                  = enum.GmosNorthDisperser
     type GmosNorthFilter                     = enum.GmosNorthFilter
-    type GmosNorthFpu                        = enum.GmosNorthFpu
     type GmosNorthStageMode                  = enum.GmosNorthStageMode
     type GmosRoi                             = enum.GmosRoi
+    type GmosSouthBuiltinFpu                 = enum.GmosSouthFpu
     type GmosSouthDetector                   = enum.GmosSouthDetector
     type GmosSouthDisperser                  = enum.GmosSouthDisperser
     type GmosSouthFilter                     = enum.GmosSouthFilter
-    type GmosSouthFpu                        = enum.GmosSouthFpu
     type GmosSouthStageMode                  = enum.GmosSouthStageMode
     type GmosXBinning                        = enum.GmosXBinning
     type GmosYBinning                        = enum.GmosYBinning
