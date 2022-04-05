@@ -67,7 +67,6 @@ trait MathReusabilityInstances {
   implicit def pmReuse: Reusability[ProperMotion]                             = Reusability.byEq
   implicit def rvReuse: Reusability[RadialVelocity]                           = Reusability.byEq
   implicit def parallaxReuse: Reusability[Parallax]                           = Reusability.byEq
-  implicit val brightnessValueReuse: Reusability[BrightnessValue]             = Reusability.byEq
   implicit val bigDecimalReuse: Reusability[BigDecimal]                       = Reusability.byEq
   implicit def sizeReuse(implicit dr: Reusability[Double]): Reusability[Size] =
     Reusability.by(x => (x.height, x.width))
