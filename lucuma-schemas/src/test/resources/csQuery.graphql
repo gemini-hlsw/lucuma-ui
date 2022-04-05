@@ -1,0 +1,22 @@
+query {
+  constraintSetGroup(programId: "p-2") {
+    nodes {
+      constraintSet {
+        imageQuality
+        cloudExtinction
+        skyBackground
+        waterVapor
+        elevationRange {
+          airMass {
+            min
+            max
+          }
+          hourAngle {
+            minHours
+            maxHours
+          }
+        }
+      }
+    }
+  }
+}
