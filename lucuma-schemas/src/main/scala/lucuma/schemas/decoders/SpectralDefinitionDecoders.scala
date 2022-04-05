@@ -12,7 +12,6 @@ import io.circe.HCursor
 import io.circe.refined._
 import lucuma.core.enum.Band
 import lucuma.core.math.BrightnessUnits._
-import lucuma.core.math.BrightnessValue
 import lucuma.core.math.Wavelength
 import lucuma.core.math.dimensional._
 import lucuma.core.math.units._
@@ -24,9 +23,6 @@ import scala.collection.immutable.SortedMap
 
 trait SpectralDefinitionDecoders {
 
-  implicit val brightnessValueDecoder: Decoder[BrightnessValue] =
-    Decoder.instance(_.as[BigDecimal].map(BrightnessValue.fromBigDecimal.get))
-
   implicit def bandNormalizedSpectralDefinitionDecoder[T](implicit
     unitDecoder: Decoder[Units Of Brightness[T]]
   ): Decoder[SpectralDefinition.BandNormalized[T]] = {
@@ -35,7 +31,7 @@ trait SpectralDefinitionDecoders {
         for {
           v <- c.as[BrightnessMeasure[T]]
           b <- c.downField("band").as[Band]
-          e <- c.downField("error").as[Option[BrightnessValue]]
+          e <- c.downField("error").as[Option[BigDecimal]]
         } yield (b, Measure.errorTagged.replace(e)(v))
       )
 

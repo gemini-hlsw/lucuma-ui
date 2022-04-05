@@ -13,7 +13,6 @@ import lucuma.core.enum.Band
 import lucuma.core.enum.CatalogName
 import lucuma.core.enum.GalaxySpectrum
 import lucuma.core.math.BrightnessUnits._
-import lucuma.core.math.BrightnessValue
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
@@ -65,47 +64,39 @@ class DecodersSuite extends InputStreamSuite {
             UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral),
             SortedMap(
               Band.SloanU ->
-                BrightnessValue
-                  .fromDouble(14.147)
+                BigDecimal(14.147)
                   .withUnit[ABMagnitude]
                   .toMeasureTagged
-                  .withError(BrightnessValue.fromDouble(0.005)),
-              Band.SloanG -> BrightnessValue
-                .fromDouble(12.924)
+                  .withError(BigDecimal(0.005)),
+              Band.SloanG -> BigDecimal(12.924)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.002)),
-              Band.SloanR -> BrightnessValue
-                .fromDouble(12.252)
+                .withError(BigDecimal(0.002)),
+              Band.SloanR -> BigDecimal(12.252)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.002)),
-              Band.SloanI -> BrightnessValue
-                .fromDouble(11.888)
+                .withError(BigDecimal(0.002)),
+              Band.SloanI -> BigDecimal(11.888)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.002)),
-              Band.SloanZ -> BrightnessValue
-                .fromDouble(11.636)
+                .withError(BigDecimal(0.002)),
+              Band.SloanZ -> BigDecimal(11.636)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.002)),
-              Band.B      -> BrightnessValue.fromDouble(12.7).withUnit[VegaMagnitude].toMeasureTagged,
-              Band.J      -> BrightnessValue
-                .fromDouble(10.279)
+                .withError(BigDecimal(0.002)),
+              Band.B      -> BigDecimal(12.7).withUnit[VegaMagnitude].toMeasureTagged,
+              Band.J      -> BigDecimal(10.279)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.001)),
-              Band.H      -> BrightnessValue
-                .fromDouble(9.649)
+                .withError(BigDecimal(0.001)),
+              Band.H      -> BigDecimal(9.649)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.012)),
-              Band.K      -> BrightnessValue
-                .fromDouble(9.425)
+                .withError(BigDecimal(0.012)),
+              Band.K      -> BigDecimal(9.425)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.017))
+                .withError(BigDecimal(0.017))
             )
           )
         ),
@@ -172,29 +163,24 @@ class DecodersSuite extends InputStreamSuite {
           SpectralDefinition.BandNormalized(
             UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral),
             SortedMap(
-              Band.B -> BrightnessValue
-                .fromDouble(12.63)
+              Band.B -> BigDecimal(12.63)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged,
-              Band.V -> BrightnessValue
-                .fromDouble(13.96)
+              Band.V -> BigDecimal(13.96)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged,
-              Band.J -> BrightnessValue
-                .fromDouble(9.552)
+              Band.J -> BigDecimal(9.552)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.016)),
-              Band.H -> BrightnessValue
-                .fromDouble(8.907)
+                .withError(BigDecimal(0.016)),
+              Band.H -> BigDecimal(8.907)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.017)),
-              Band.K -> BrightnessValue
-                .fromDouble(8.665)
+                .withError(BigDecimal(0.017)),
+              Band.K -> BigDecimal(8.665)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BrightnessValue.fromDouble(0.028))
+                .withError(BigDecimal(0.028))
             )
           )
         ),

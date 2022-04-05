@@ -1,9 +1,9 @@
 val clueVersion            = "0.21.0"
-val lucumaCoreVersion      = "0.30.0"
+val lucumaCoreVersion      = "0.31.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 
-ThisBuild / tlBaseVersion       := "0.15"
+ThisBuild / tlBaseVersion       := "0.16"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
