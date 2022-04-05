@@ -25,9 +25,9 @@ trait ConstraintSetDecoders {
   }
 
   implicit val elevationRangeDecoder: Decoder[ElevationRange] = Decoder.instance { c =>
-    c.downField("airmassRange")
+    c.downField("airMass")
       .as[ElevationRange.AirMass]
-      .orElse(c.downField("hourAngleRange").as[ElevationRange.HourAngle])
+      .orElse(c.downField("hourAngle").as[ElevationRange.HourAngle])
   }
 
   implicit val decoderConstraintsSet: Decoder[ConstraintSet] = semiauto.deriveDecoder

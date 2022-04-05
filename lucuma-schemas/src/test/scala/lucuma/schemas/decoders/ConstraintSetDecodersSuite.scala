@@ -19,7 +19,7 @@ class ConstraintSetDecodersSuite extends InputStreamSuite {
         CloudExtinction.PointThree,
         SkyBackground.Bright,
         WaterVapor.Wet,
-        ElevationRange.AirMass.fromDecimalValues.get((BigDecimal(1.0), BigDecimal(3.0)))
+        ElevationRange.AirMass.fromDecimalValues.get((BigDecimal(1.0), BigDecimal(2.0)))
       )
 
     assertParsedStreamEquals("/cs1.json", expected)
