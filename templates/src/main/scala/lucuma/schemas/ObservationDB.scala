@@ -19,7 +19,7 @@ trait ObservationDB {
     type AtomId           = Atom.Id
     type ExecutionEventId = ExecutionEvent.Id
     type ObservationId    = Observation.Id
-    type ProgramId        = String
+    type ProgramId        = Program.Id
     type StepId           = Step.Id
     type TargetId         = Target.Id
     type VisitId          = Visit.Id
