@@ -31,3 +31,4 @@ metals.sbt
 
 # Hydra
 .hydra/
+.direnv/
