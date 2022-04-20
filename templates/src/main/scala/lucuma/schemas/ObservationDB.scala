@@ -7,6 +7,7 @@ import clue.annotation.GraphQLSchema
 import lucuma.core.enum
 import lucuma.core.model
 import lucuma.core.model._
+import lucuma.core.model.sequence._
 import lucuma.core.math
 import lucuma.core.math.dimensional._
 import lucuma.core.math.BrightnessUnits._
@@ -62,7 +63,7 @@ trait ObservationDB {
     type GmosAmpGain                         = enum.GmosAmpGain
     type GmosAmpReadMode                     = enum.GmosAmpReadMode
     type GmosCustomSlitWidth                 = enum.GmosCustomSlitWidth
-    type GmosGratingOrder                    = enum.GmosGratingOrder
+    type GmosDisperserOrder                  = enum.GmosGratingOrder
     type GmosDtax                            = enum.GmosDtax
     type GmosEOffsetting                     = enum.GmosEOffsetting
     type GmosNorthBuiltinFpu                 = enum.GmosNorthFpu

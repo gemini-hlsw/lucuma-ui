@@ -9,6 +9,7 @@ import coulomb._
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosLong
 import eu.timepit.refined.types.string.NonEmptyString
+import io.circe.Decoder
 import lucuma.core.enum.Band
 import lucuma.core.enum.CatalogName
 import lucuma.core.enum.GalaxySpectrum
@@ -32,7 +33,6 @@ import lucuma.core.model.Target
 import lucuma.core.model.UnnormalizedSED
 
 import scala.collection.immutable.SortedMap
-import io.circe.Decoder
 
 class DecodersSuite extends InputStreamSuite {
 

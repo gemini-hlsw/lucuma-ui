@@ -1,0 +1,228 @@
+{
+  "instrument": "GMOS_NORTH",
+  "staticN": {
+    "stageMode": "FOLLOW_XY",
+    "detector": "HAMAMATSU",
+    "mosPreImaging": "IS_NOT_MOS_PRE_IMAGING",
+    "nodAndShuffle": null
+  },
+  "acquisitionN": {
+    "nextAtom": {
+      "id": "a-a0a4771b-9348-4ee8-8ef6-dffbfec35496",
+      "steps": [
+        {
+          "id": "s-1ece00d1-03f6-4823-ab74-9069fef089ae",
+          "instrumentConfig": {
+            "exposure": {
+              "microseconds": 10000000
+            },
+            "readout": {
+              "xBin": "TWO",
+              "yBin": "TWO",
+              "ampCount": "TWELVE",
+              "ampGain": "LOW",
+              "ampReadMode": "FAST"
+            },
+            "dtax": "ZERO",
+            "roi": "CCD2",
+            "grating": null,
+            "filter": "G_PRIME",
+            "fpu": null
+          },
+          "stepConfig": {
+            "stepType": "SCIENCE",
+            "offset": {
+              "p": {
+                "microarcseconds": 0
+              },
+              "q": {
+                "microarcseconds": 0
+              }
+            }
+          },
+          "time": {
+            "configChange": {
+              "microseconds": 7000000
+            },
+            "exposure": {
+              "microseconds": 10000000
+            },
+            "readout": {
+              "microseconds": 71400000
+            },
+            "write": {
+              "microseconds": 10000000
+            },
+            "total": {
+              "microseconds": 98400000
+            }
+          },
+          "breakpoint": "DISABLED"
+        }
+      ]
+    },
+    "possibleFuture": []
+  },
+  "scienceN": {
+    "nextAtom": {
+      "id": "a-33cbcd88-843c-402b-bb1e-991741cf6f63",
+      "steps": [
+        {
+          "id": "s-f3769281-55cd-4d87-bcac-6dc18dbf512a",
+          "stepType": "SCIENCE",
+          "instrumentConfig": {
+            "exposure": {
+              "microseconds": 10000000
+            },
+            "readout": {
+              "xBin": "TWO",
+              "yBin": "TWO",
+              "ampCount": "TWELVE",
+              "ampGain": "LOW",
+              "ampReadMode": "FAST"
+            },
+            "dtax": "ZERO",
+            "roi": "CCD2",
+            "grating": null,
+            "filter": "G_PRIME",
+            "fpu": null
+          },
+          "stepConfig": {
+            "stepType": "SCIENCE",
+            "offset": {
+              "p": {
+                "microarcseconds": 0
+              },
+              "q": {
+                "microarcseconds": 0
+              }
+            }
+          },
+          "time": {
+            "configChange": {
+              "microseconds": 7000000
+            },
+            "exposure": {
+              "microseconds": 10000000
+            },
+            "readout": {
+              "microseconds": 71400000
+            },
+            "write": {
+              "microseconds": 10000000
+            },
+            "total": {
+              "microseconds": 98400000
+            }
+          },
+          "breakpoint": "DISABLED"
+        },
+        {
+          "id": "s-6bf2856b-abeb-417d-aff8-2125c99f25fe",
+          "stepType": "SCIENCE",
+          "instrumentConfig": {
+            "exposure": {
+              "microseconds": 20000000
+            },
+            "readout": {
+              "xBin": "ONE",
+              "yBin": "ONE",
+              "ampCount": "TWELVE",
+              "ampGain": "LOW",
+              "ampReadMode": "FAST"
+            },
+            "dtax": "ZERO",
+            "roi": "CENTRAL_STAMP",
+            "grating": null,
+            "filter": "G_PRIME",
+            "fpu": {
+              "builtin": "LONG_SLIT_1_00"
+            }
+          },
+          "stepConfig": {
+            "stepType": "SCIENCE",
+            "offset": {
+              "p": {
+                "microarcseconds": 10000000
+              },
+              "q": {
+                "microarcseconds": 0
+              }
+            }
+          },
+          "time": {
+            "configChange": {
+              "microseconds": 7000000
+            },
+            "exposure": {
+              "microseconds": 20000000
+            },
+            "readout": {
+              "microseconds": 71400000
+            },
+            "write": {
+              "microseconds": 10000000
+            },
+            "total": {
+              "microseconds": 108400000
+            }
+          },
+          "breakpoint": "DISABLED"
+        },
+        {
+          "id": "s-f7442252-6eac-4c6e-bfea-ee4ab824fd78",
+          "stepType": "SCIENCE",
+          "instrumentConfig": {
+            "exposure": {
+              "microseconds": 40000000
+            },
+            "readout": {
+              "xBin": "ONE",
+              "yBin": "ONE",
+              "ampCount": "TWELVE",
+              "ampGain": "LOW",
+              "ampReadMode": "FAST"
+            },
+            "dtax": "ZERO",
+            "roi": "CENTRAL_STAMP",
+            "grating": null,
+            "filter": "G_PRIME",
+            "fpu": {
+              "builtin": "LONG_SLIT_1_00"
+            }
+          },
+          "stepConfig": {
+            "stepType": "SCIENCE",
+            "offset": {
+              "p": {
+                "microarcseconds": 0
+              },
+              "q": {
+                "microarcseconds": 0
+              }
+            }
+          },
+          "time": {
+            "configChange": {
+              "microseconds": 7000000
+            },
+            "exposure": {
+              "microseconds": 40000000
+            },
+            "readout": {
+              "microseconds": 71400000
+            },
+            "write": {
+              "microseconds": 10000000
+            },
+            "total": {
+              "microseconds": 128400000
+            }
+          },
+          "breakpoint": "DISABLED"
+        }
+      ]
+    },
+    "possibleFuture": []
+  }
+}

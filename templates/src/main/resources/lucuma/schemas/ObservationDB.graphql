@@ -492,18 +492,6 @@ enum CloudExtinction {
   THREE_POINT_ZERO
 }
 
-# Instrument configuration
-interface Config {
-  # Instrument type
-  instrument: InstrumentType!
-
-  # Planned time for this configuration
-  plannedTime: PlannedTime!
-
-  # Estimated setup time
-  setupTime: Duration!
-}
-
 # ConfigurationMode
 enum ConfigurationModeType {
   # ConfigurationModeType GmosNorthLongSlit
@@ -1643,27 +1631,6 @@ enum GmosNorthBuiltinFpu {
   IFU_RED
 }
 
-# GMOS North Configuration
-type GmosNorthConfig implements Config {
-  # Static/unchanging configuration
-  static: GmosNorthStatic!
-
-  # Acquisition sequence.
-  acquisition: GmosNorthSequence!
-
-  # Science sequence.
-  science: GmosNorthSequence!
-
-  # Instrument type
-  instrument: InstrumentType!
-
-  # Planned time for this configuration
-  plannedTime: PlannedTime!
-
-  # Estimated setup time
-  setupTime: Duration!
-}
-
 # GmosNorth dark step creation input
 input GmosNorthDarkInput {
   # instrument configuration
@@ -1950,6 +1917,27 @@ input GmosNorthLongSlitInput {
   slitWidth: SlitWidthInput
 }
 
+# GMOS North Manual Configuration
+type GmosNorthManualConfig implements ManualConfig {
+  # Static/unchanging configuration
+  static: GmosNorthStatic!
+
+  # Acquisition sequence.
+  acquisition: GmosNorthSequence!
+
+  # Science sequence.
+  science: GmosNorthSequence!
+
+  # Instrument type
+  instrument: InstrumentType!
+
+  # Planned time for this configuration
+  plannedTime: PlannedTime!
+
+  # Estimated setup time
+  setupTime: Duration!
+}
+
 # GmosNorth science step creation input
 input GmosNorthScienceInput {
   # instrument configuration
@@ -2023,9 +2011,6 @@ type GmosNorthStep implements Step {
 
   # Whether to pause before the execution of this step
   breakpoint: Breakpoint!
-
-  # Step type
-  stepType: StepType!
 
   # The sequence step itself
   stepConfig: StepConfig!
@@ -2303,27 +2288,6 @@ enum GmosSouthBuiltinFpu {
 
   # GmosSouthBuiltinFpu IfuNSRed
   IFU_NS_RED
-}
-
-# GMOS South Configuration
-type GmosSouthConfig implements Config {
-  # Static/unchanging configuration
-  static: GmosSouthStatic!
-
-  # Acquisition sequence.
-  acquisition: GmosSouthSequence!
-
-  # Science sequence.
-  science: GmosSouthSequence!
-
-  # Instrument type
-  instrument: InstrumentType!
-
-  # Planned time for this configuration
-  plannedTime: PlannedTime!
-
-  # Estimated setup time
-  setupTime: Duration!
 }
 
 # GmosSouth dark step creation input
@@ -2612,6 +2576,27 @@ input GmosSouthLongSlitInput {
   slitWidth: SlitWidthInput
 }
 
+# GMOS South Manual Configuration
+type GmosSouthManualConfig implements ManualConfig {
+  # Static/unchanging configuration
+  static: GmosSouthStatic!
+
+  # Acquisition sequence.
+  acquisition: GmosSouthSequence!
+
+  # Science sequence.
+  science: GmosSouthSequence!
+
+  # Instrument type
+  instrument: InstrumentType!
+
+  # Planned time for this configuration
+  plannedTime: PlannedTime!
+
+  # Estimated setup time
+  setupTime: Duration!
+}
+
 # GmosSouth science step creation input
 input GmosSouthScienceInput {
   # instrument configuration
@@ -2685,9 +2670,6 @@ type GmosSouthStep implements Step {
 
   # Whether to pause before the execution of this step
   breakpoint: Breakpoint!
-
-  # Step type
-  stepType: StepType!
 
   # The sequence step itself
   stepConfig: StepConfig!
@@ -3061,6 +3043,18 @@ input LongAngleInput {
   units: AngleUnits!
 }
 
+# Manual observing sequence and instrument configuration
+interface ManualConfig {
+  # Instrument type
+  instrument: InstrumentType!
+
+  # Planned time for this configuration
+  plannedTime: PlannedTime!
+
+  # Estimated setup time
+  setupTime: Duration!
+}
+
 # MOS pre-imaging observation
 enum MosPreImaging {
   # MosPreImaging IsMosPreImaging
@@ -3233,7 +3227,7 @@ type Observation {
   existence: Existence!
 
   # Observation title generated from id and targets
-  title: NonEmptyString!
+  title: String!
 
   # User-supplied observation-identifying detail information
   subtitle: NonEmptyString
@@ -3278,7 +3272,7 @@ type Observation {
   ): ItcSuccess
 
   # Manual instrument configuration
-  manualConfig: Config
+  manualConfig: ManualConfig
 
   # Execution sequence and runtime artifacts
   execution: Execution!
@@ -4470,9 +4464,6 @@ interface Step {
 
   # Whether to pause before the execution of this step
   breakpoint: Breakpoint!
-
-  # Step type
-  stepType: StepType!
 
   # The sequence step itself
   stepConfig: StepConfig!

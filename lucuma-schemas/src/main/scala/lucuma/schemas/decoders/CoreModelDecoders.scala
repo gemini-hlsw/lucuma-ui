@@ -10,9 +10,11 @@ import io.circe.Decoder
 import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.math.Angle
+import lucuma.core.math.Axis
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
+import lucuma.core.math.Offset
 import lucuma.core.math.Parallax
 import lucuma.core.math.ProperMotion
 import lucuma.core.math.RadialVelocity
@@ -44,7 +46,7 @@ trait CoreModelDecoders {
       Epoch.fromString.getOption(e).toRight(s"Invalid epoch value: $e")
     )
 
-  val rvmsDecoder: Decoder[RadialVelocity] =
+  private val rvmsDecoder: Decoder[RadialVelocity] =
     Decoder.decodeBigDecimal.emap(x =>
       RadialVelocity(x.withUnit[CentimetersPerSecond]).toRight(s"Invalid radial velocity $x")
     )
@@ -52,7 +54,7 @@ trait CoreModelDecoders {
   implicit val rvDecoder: Decoder[RadialVelocity] =
     Decoder.instance(_.downField("centimetersPerSecond").as[RadialVelocity](rvmsDecoder))
 
-  val pxµasDecoder: Decoder[Parallax] =
+  private val pxµasDecoder: Decoder[Parallax] =
     Decoder.decodeLong.map(Parallax.fromMicroarcseconds)
 
   implicit val pxDecoder: Decoder[Parallax] =
@@ -79,14 +81,14 @@ trait CoreModelDecoders {
 
   implicit val coordDecoder: Decoder[Coordinates] = semiauto.deriveDecoder
 
-  val pmraµasDecoder: Decoder[ProperMotion.RA] =
+  private val pmraµasDecoder: Decoder[ProperMotion.RA] =
     Decoder.decodeLong
       .map(ProperMotion.RA.microarcsecondsPerYear.reverseGet)
 
   implicit val pmraDecoder: Decoder[ProperMotion.RA] =
     Decoder.instance(_.downField("microarcsecondsPerYear").as[ProperMotion.RA](pmraµasDecoder))
 
-  val pmdecµasDecoder: Decoder[ProperMotion.Dec] =
+  private val pmdecµasDecoder: Decoder[ProperMotion.Dec] =
     Decoder.decodeLong
       .map(ProperMotion.Dec.microarcsecondsPerYear.reverseGet)
 
@@ -103,5 +105,20 @@ trait CoreModelDecoders {
 
   implicit val wavelengthDecoder: Decoder[Wavelength] = Decoder.instance(
     _.downField("picometers").as[PosInt].map(Wavelength.apply)
+  )
+
+  private def offsetComponentDecoder[A]: Decoder[Offset.Component[A]] = Decoder.instance(
+    _.as[Angle].map(Offset.Component.apply)
+  )
+
+  implicit val offsetPComponentDecoder: Decoder[Offset.P] = offsetComponentDecoder[Axis.P]
+
+  implicit val offsetQComponentDecoder: Decoder[Offset.Q] = offsetComponentDecoder[Axis.Q]
+
+  implicit val offsetDecoder: Decoder[Offset] = Decoder.instance(c =>
+    for {
+      p <- c.downField("p").as[Offset.Component[Axis.P]]
+      q <- c.downField("q").as[Offset.Component[Axis.Q]]
+    } yield Offset(p, q)
   )
 }
