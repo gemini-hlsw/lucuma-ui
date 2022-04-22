@@ -18,6 +18,7 @@ import lucuma.core.data.EnumZipper
 import lucuma.core.math._
 import lucuma.core.math.dimensional._
 import lucuma.core.model._
+import lucuma.core.model.sequence._
 import lucuma.core.util.Enumerated
 import lucuma.core.util.WithGid
 import lucuma.core.util.WithUid
@@ -25,7 +26,6 @@ import react.common.Size
 
 import java.time.Duration
 import java.time.Instant
-import scala.annotation.nowarn
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.SortedSet
 
@@ -71,8 +71,7 @@ trait MathReusabilityInstances {
   implicit def sizeReuse(implicit dr: Reusability[Double]): Reusability[Size] =
     Reusability.by(x => (x.height, x.width))
   implicit val unitsReuse: Reusability[Units]                                 = Reusability.byEq
-  @nowarn // Reusability context bound is required but the compiler emits a warning anyway.
-  implicit def measureReuse[N: Reusability]: Reusability[Measure[N]] = Reusability.derive
+  implicit def measureReuse[N: Eq]: Reusability[Measure[N]]                   = Reusability.byEq
 }
 
 /**
@@ -100,31 +99,44 @@ trait RefinedReusabiltyInstances {
 trait ModelReusabiltyInstances
     extends RefinedReusabiltyInstances
     with UtilReusabilityInstances
-    with MathReusabilityInstances {
+    with MathReusabilityInstances { _: TimeReusabilityInstances =>
   implicit def gidReuse[Id <: WithGid#Id]: Reusability[Id]                    = Reusability.by(_.value)
   implicit def uidReuse[Id <: WithUid#Id]: Reusability[Id]                    = Reusability.by(_.toUuid)
   implicit val orcidIdReuse: Reusability[OrcidId]                             = Reusability.by(_.value.toString)
-  implicit val orcidProfileResuse: Reusability[OrcidProfile]                  = Reusability.derive
-  implicit val partnerReuse: Reusability[Partner]                             = Reusability.derive
-  implicit val standardRoleReuse: Reusability[StandardRole]                   = Reusability.derive
-  implicit val standardUserReuse: Reusability[StandardUser]                   = Reusability.derive
-  implicit def catalogInfoReuse: Reusability[CatalogInfo]                     = Reusability.derive
-  implicit def siderealTrackingReuse: Reusability[SiderealTracking]           = Reusability.derive
+  implicit val orcidProfileResuse: Reusability[OrcidProfile]                  = Reusability.byEq
+  implicit val partnerReuse: Reusability[Partner]                             = Reusability.byEq
+  implicit val standardRoleReuse: Reusability[StandardRole]                   = Reusability.byEq
+  implicit val standardUserReuse: Reusability[StandardUser]                   = Reusability.byEq
+  implicit def catalogInfoReuse: Reusability[CatalogInfo]                     = Reusability.byEq
+  implicit def siderealTrackingReuse: Reusability[SiderealTracking]           = Reusability.byEq
   implicit val unormalizedSEDReuse: Reusability[UnnormalizedSED]              = Reusability.byEq
   implicit val sourceProfileReuse: Reusability[SourceProfile]                 = Reusability.byEq
   implicit val userReuse: Reusability[User]                                   = Reusability.byEq
   implicit val offsetReuse: Reusability[Offset]                               = Reusability.byEq
   implicit val wavelengthReuse: Reusability[Wavelength]                       = Reusability.byEq
-  implicit def spectralDefinitionReuse[T]: Reusability[SpectralDefinition[T]] = Reusability.derive
-  implicit val semesterReuse: Reusability[Semester]                           = Reusability.derive
-  implicit val ephemerisKeyReuse: Reusability[EphemerisKey]                   = Reusability.derive
-  implicit val siderealTargetReuse: Reusability[Target.Sidereal]              = Reusability.derive
-  implicit val nonsiderealTargetReuse: Reusability[Target.Nonsidereal]        = Reusability.derive
-  implicit val targetReuse: Reusability[Target]                               = Reusability.derive
-  implicit val airMassRangeReuse: Reusability[ElevationRange.AirMass]         = Reusability.derive
-  implicit val hourAngleRangeReuse: Reusability[ElevationRange.HourAngle]     = Reusability.derive
-  implicit val elevationRangeReuse: Reusability[ElevationRange]               = Reusability.derive
-  implicit val constraintsSetReuse: Reusability[ConstraintSet]                = Reusability.derive
+  implicit def spectralDefinitionReuse[T]: Reusability[SpectralDefinition[T]] = Reusability.byEq
+  implicit val semesterReuse: Reusability[Semester]                           = Reusability.byEq
+  implicit val ephemerisKeyReuse: Reusability[EphemerisKey]                   = Reusability.byEq
+  implicit val siderealTargetReuse: Reusability[Target.Sidereal]              = Reusability.byEq
+  implicit val nonsiderealTargetReuse: Reusability[Target.Nonsidereal]        = Reusability.byEq
+  implicit val targetReuse: Reusability[Target]                               = Reusability.byEq
+  implicit val airMassRangeReuse: Reusability[ElevationRange.AirMass]         = Reusability.byEq
+  implicit val hourAngleRangeReuse: Reusability[ElevationRange.HourAngle]     = Reusability.byEq
+  implicit val elevationRangeReuse: Reusability[ElevationRange]               = Reusability.byEq
+  implicit val constraintsSetReuse: Reusability[ConstraintSet]                = Reusability.byEq
+  // Sequences
+  implicit val gmosNodAndShuffleReuse: Reusability[GmosNodAndShuffle]         = Reusability.byEq
+  implicit val gmosCcdModeReuse: Reusability[GmosCcdMode]                     = Reusability.byEq
+  implicit val gmosGratingReuse: Reusability[GmosGrating]                     = Reusability.byEq
+  implicit def gmosFpuMaskReuse[T: Eq]: Reusability[GmosFpuMask[T]]           = Reusability.byEq
+  implicit val staticConfigReuse: Reusability[StaticConfig]                   = Reusability.byEq
+  implicit val stepConfigReuse: Reusability[StepConfig]                       = Reusability.byEq
+  implicit val stepTimeReuse: Reusability[StepTime]                           = Reusability.byEq
+  implicit val stepReuse: Reusability[Step]                                   = Reusability.byEq
+  implicit val atomReuse: Reusability[Atom]                                   = Reusability.byEq
+  implicit val manualConfigReuse: Reusability[ManualConfig]                   = Reusability.byEq
+  implicit val executionSequenceReuse: Reusability[ExecutionSequence]         = Reusability.byEq
+  implicit val executionConfigReuse: Reusability[FutureExecutionConfig]       = Reusability.byEq
 }
 
 package object reusability
