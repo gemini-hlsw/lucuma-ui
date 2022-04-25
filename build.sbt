@@ -60,6 +60,7 @@ lazy val demo =
       Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
       test                                  := {},
+      Compile / doc / sources               := Seq.empty,
       libraryDependencies ++= List(
         "com.github.japgolly.scalajs-react" %%% "callback-ext-cats" % scalaJsReactVersion,
         "com.rpiaggio"                      %%% "log4cats-loglevel" % "0.3.0"
