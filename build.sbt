@@ -5,7 +5,7 @@ lazy val reactJS = "17.0.2"
 lazy val FUILess = "2.8.7"
 
 lazy val scalaJsReactVersion    = "2.1.1"
-lazy val lucumaCoreVersion      = "0.32.0"
+lazy val lucumaCoreVersion      = "0.32.1"
 lazy val monocleVersion         = "3.1.0"
 lazy val crystalVersion         = "0.24.0"
 lazy val catsVersion            = "2.7.0"
