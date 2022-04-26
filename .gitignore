@@ -32,3 +32,5 @@ metals.sbt
 # Hydra
 .hydra/
 .direnv/
+modules/demo/node_modules
+modules/demo/package-lock.json
