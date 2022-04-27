@@ -67,13 +67,13 @@ trait ObservationDB {
     type GmosEOffsetting                     = enum.GmosEOffsetting
     type GmosNorthBuiltinFpu                 = enum.GmosNorthFpu
     type GmosNorthDetector                   = enum.GmosNorthDetector
-    type GmosNorthGrating                    = enum.GmosNorthGrating
+    type GmosNorthDisperser                  = enum.GmosNorthGrating
     type GmosNorthFilter                     = enum.GmosNorthFilter
     type GmosNorthStageMode                  = enum.GmosNorthStageMode
     type GmosRoi                             = enum.GmosRoi
     type GmosSouthBuiltinFpu                 = enum.GmosSouthFpu
     type GmosSouthDetector                   = enum.GmosSouthDetector
-    type GmosSouthGrating                    = enum.GmosSouthGrating
+    type GmosSouthDisperser                  = enum.GmosSouthGrating
     type GmosSouthFilter                     = enum.GmosSouthFilter
     type GmosSouthStageMode                  = enum.GmosSouthStageMode
     type GmosXBinning                        = enum.GmosXBinning
