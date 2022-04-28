@@ -74,7 +74,7 @@ trait SpectralDefinitionDecoders {
     } yield SpectralDefinition.EmissionLines(SortedMap.from(ls), fdc)
   }
 
-  def spectralDefinitionDecoder[T](implicit
+  private def spectralDefinitionDecoder[T](implicit
     brightnessUnitDecoder: Decoder[Units Of Brightness[T]],
     lineFluxUnitDecoder:   Decoder[Units Of LineFlux[T]],
     continuumUnitDecoder:  Decoder[Units Of FluxDensityContinuum[T]]

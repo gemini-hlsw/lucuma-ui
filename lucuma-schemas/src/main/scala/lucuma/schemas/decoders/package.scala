@@ -10,3 +10,4 @@ package object decoders
     with SourceProfileDecoders
     with TargetDecoders
     with ConstraintSetDecoders
+    with SequenceDecoders

@@ -1,0 +1,213 @@
+query {
+  observation(observationId: "o-5") {
+    execution {
+      executionConfig {
+        instrument
+        ... on GmosNorthExecutionConfig {
+          staticN: static {
+            stageMode
+            detector
+            mosPreImaging
+            nodAndShuffle {
+              ...nodAndShuffleFields
+            }
+          }
+          acquisitionN: acquisition {
+            nextAtom {
+              ...northSequenceFields
+            }
+            possibleFuture {
+              ...northSequenceFields
+            }
+          }
+          scienceN: science {
+            nextAtom {
+              ...northSequenceFields
+            }
+            possibleFuture {
+              ...northSequenceFields
+            }
+          }
+        }
+        ... on GmosSouthExecutionConfig {
+          staticS: static {
+            stageMode
+            detector
+            mosPreImaging
+            nodAndShuffle {
+              ...nodAndShuffleFields
+            }
+          }
+          acquisitionS: acquisition {
+            nextAtom {
+              ...southSequenceFields
+            }
+            possibleFuture {
+              ...southSequenceFields
+            }
+          }
+          scienceS: science {
+            nextAtom {
+              ...southSequenceFields
+            }
+            possibleFuture {
+              ...southSequenceFields
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment nodAndShuffleFields on GmosNodAndShuffle {
+  posA {
+    p {
+      microarcseconds
+    }
+    q {
+      microarcseconds
+    }
+  }
+  posB {
+    p {
+      microarcseconds
+    }
+    q {
+      microarcseconds
+    }
+  }
+  eOffset
+  shuffleOffset
+  shuffleCycles
+}
+
+fragment stepTimeFields on StepTime {
+  configChange {
+    microseconds
+  }
+  exposure {
+    microseconds
+  }
+  readout {
+    microseconds
+  }
+  write {
+    microseconds
+  }
+  total {
+    microseconds
+  }
+}
+
+fragment northSequenceFields on GmosNorthAtom {
+  id
+  steps {
+    id
+    instrumentConfig {
+      exposure {
+        microseconds
+      }
+      readout {
+        xBin
+        yBin
+        ampCount
+        ampGain
+        ampReadMode
+      }
+      dtax
+      roi
+      grating {
+        disperser
+        order
+        wavelength {
+          picometers
+        }
+      }
+      filter
+      fpu {
+        builtin
+      }
+    }
+    stepConfig {
+      stepType
+      ... on Gcal {
+        continuum
+        arcs
+        filter
+        diffuser
+        shutter
+      }
+      ... on Science {
+        offset {
+          p {
+            microarcseconds
+          }
+          q {
+            microarcseconds
+          }
+        }
+      }
+    }
+    time {
+      ...stepTimeFields
+    }
+    breakpoint
+  }
+}
+
+fragment southSequenceFields on GmosSouthAtom {
+  id
+  steps {
+    id
+    instrumentConfig {
+      exposure {
+        microseconds
+      }
+      readout {
+        xBin
+        yBin
+        ampCount
+        ampGain
+        ampReadMode
+      }
+      dtax
+      roi
+      grating {
+        disperser
+        order
+        wavelength {
+          picometers
+        }
+      }
+      filter
+      fpu {
+        builtin
+      }
+    }
+    stepConfig {
+      stepType
+      ... on Gcal {
+        continuum
+        arcs
+        filter
+        diffuser
+        shutter
+      }
+      ... on Science {
+        offset {
+          p {
+            microarcseconds
+          }
+          q {
+            microarcseconds
+          }
+        }
+      }
+    }
+    time {
+      ...stepTimeFields
+    }
+    breakpoint
+  }
+}

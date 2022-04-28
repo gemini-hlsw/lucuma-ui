@@ -4,11 +4,11 @@
 package lucuma.schemas.decoders
 
 import eu.timepit.refined.auto._
-import lucuma.core.enum.ImageQuality
-import lucuma.core.model.ConstraintSet
 import lucuma.core.enum.CloudExtinction
+import lucuma.core.enum.ImageQuality
 import lucuma.core.enum.SkyBackground
 import lucuma.core.enum.WaterVapor
+import lucuma.core.model.ConstraintSet
 import lucuma.core.model.ElevationRange
 
 class ConstraintSetDecodersSuite extends InputStreamSuite {

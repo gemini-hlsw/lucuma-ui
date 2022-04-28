@@ -4,11 +4,12 @@
 package lucuma.schemas.decoders
 
 import cats.effect._
+import io.circe.Decoder
 import io.circe.parser._
+import munit.CatsEffectSuite
+
 import java.io.File
 import java.io.FileInputStream
-import munit.CatsEffectSuite
-import io.circe.Decoder
 import java.nio.file.Paths
 
 trait InputStreamSuite extends CatsEffectSuite {
