@@ -38,7 +38,7 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
                   ),
                   dtax = GmosDtax.Zero,
                   roi = GmosRoi.Ccd2,
-                  grating = none,
+                  gratingConfig = none,
                   filter = GmosNorthFilter.GPrime.some,
                   fpu = none
                 ),
@@ -73,7 +73,7 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
                   ),
                   dtax = GmosDtax.Zero,
                   roi = GmosRoi.Ccd2,
-                  grating = none,
+                  gratingConfig = none,
                   filter = GmosNorthFilter.GPrime.some,
                   fpu = none
                 ),
@@ -100,7 +100,7 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
                   ),
                   dtax = GmosDtax.Zero,
                   roi = GmosRoi.CentralStamp,
-                  grating = none,
+                  gratingConfig = none,
                   filter = GmosNorthFilter.GPrime.some,
                   fpu = GmosFpuMask.Builtin(GmosNorthFpu.LongSlit_1_00).some
                 ),
@@ -127,7 +127,7 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
                   ),
                   dtax = GmosDtax.Zero,
                   roi = GmosRoi.CentralStamp,
-                  grating = none,
+                  gratingConfig = none,
                   filter = GmosNorthFilter.GPrime.some,
                   fpu = GmosFpuMask.Builtin(GmosNorthFpu.LongSlit_1_00).some
                 ),

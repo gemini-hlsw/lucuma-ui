@@ -38,7 +38,7 @@ class ManualSequenceDecodersSuite extends InputStreamSuite {
                   ),
                   dtax = GmosDtax.Zero,
                   roi = GmosRoi.Ccd2,
-                  grating = none,
+                  gratingConfig = none,
                   filter = GmosSouthFilter.RPrime.some,
                   fpu = none
                 ),
@@ -70,7 +70,7 @@ class ManualSequenceDecodersSuite extends InputStreamSuite {
                   ),
                   dtax = GmosDtax.Zero,
                   roi = GmosRoi.CentralStamp,
-                  grating = none,
+                  gratingConfig = none,
                   filter = GmosSouthFilter.RPrime.some,
                   fpu = GmosFpuMask.Builtin(GmosSouthFpu.LongSlit_1_00).some
                 ),

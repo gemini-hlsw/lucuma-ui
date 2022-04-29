@@ -23,9 +23,9 @@ trait SequenceDecoders {
 
   implicit val gmosCcdModeDecoder: Decoder[GmosCcdMode] = semiauto.deriveDecoder
 
-  implicit val gmosNorthGratingDecoder: Decoder[GmosGrating.North] = semiauto.deriveDecoder
+  implicit val gmosNorthGratingDecoder: Decoder[GmosGratingConfig.North] = semiauto.deriveDecoder
 
-  implicit val gmosSouthGratingDecoder: Decoder[GmosGrating.South] = semiauto.deriveDecoder
+  implicit val gmosSouthGratingDecoder: Decoder[GmosGratingConfig.South] = semiauto.deriveDecoder
 
   private val gmosCustomMaskDecoder: Decoder[GmosFpuMask.Custom] = semiauto.deriveDecoder
 
