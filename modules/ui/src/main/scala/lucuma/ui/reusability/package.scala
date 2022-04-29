@@ -127,7 +127,7 @@ trait ModelReusabiltyInstances
   // Sequences
   implicit val gmosNodAndShuffleReuse: Reusability[GmosNodAndShuffle]         = Reusability.byEq
   implicit val gmosCcdModeReuse: Reusability[GmosCcdMode]                     = Reusability.byEq
-  implicit val gmosGratingReuse: Reusability[GmosGrating]                     = Reusability.byEq
+  implicit val gmosGratingReuse: Reusability[GmosGratingConfig]               = Reusability.byEq
   implicit def gmosFpuMaskReuse[T: Eq]: Reusability[GmosFpuMask[T]]           = Reusability.byEq
   implicit val staticConfigReuse: Reusability[StaticConfig]                   = Reusability.byEq
   implicit val stepConfigReuse: Reusability[StepConfig]                       = Reusability.byEq
