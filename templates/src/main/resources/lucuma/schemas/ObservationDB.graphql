@@ -5,7 +5,7 @@ input AddDatasetEventInput {
   stepId: StepId!
   datasetIndex: Int!
   filename: DatasetFilename
-  stageType: DatasetStage!
+  stage: DatasetStage!
 }
 
 # SequenceEvent creation parameters
@@ -468,6 +468,22 @@ enum CatalogName {
   GAIA
 }
 
+# Parameters for cloning an existing observation.  The existingObservationId is
+# required, all else is optional. Unset values will be copied from the existing
+# observation, except that status will default to NEW.
+input CloneObservationInput {
+  existingObservationId: ObservationId!
+  suggestedCloneId: ObservationId
+  programId: ProgramId
+  subtitle: NonEmptyString
+  status: ObsStatus
+  activeStatus: ObsActiveStatus
+  targetEnvironment: TargetEnvironmentInput
+  constraintSet: ConstraintSetInput
+  scienceRequirements: ScienceRequirementsInput
+  scienceMode: ScienceModeInput
+}
+
 # Cloud extinction
 enum CloudExtinction {
   # CloudExtinction PointOne
@@ -680,11 +696,14 @@ type Dataset {
   # Observation associated with this dataset
   observation: Observation!
 
-  # Dataset index
-  index: Int!
+  # Dataset id
+  id: DatasetId!
 
   # Dataset filename
   filename: DatasetFilename!
+
+  # Dataset QA state
+  qaState: DatasetQaState
 }
 
 # Datasets in the current page
@@ -755,6 +774,29 @@ type DatasetEventEdge {
 
 # Dataset filename in standard format in format 'N20210519S0001.fits'
 scalar DatasetFilename
+
+type DatasetId {
+  # Observation ID
+  observationId: ObservationId!
+
+  # Step ID
+  stepId: StepId!
+
+  # Dataset index
+  index: PosInt!
+}
+
+# Dataset QA State
+enum DatasetQaState {
+  # DatasetQaState Pass
+  PASS
+
+  # DatasetQaState Usable
+  USABLE
+
+  # DatasetQaState Fail
+  FAIL
+}
 
 # Execution stage or phase of an individual dataset
 enum DatasetStage {
@@ -2145,6 +2187,9 @@ type GmosNorthStepRecord {
     after: Cursor
   ): StepEventConnection!
 
+  # Step QA state based on a combination of dataset QA states
+  stepQaState: StepQaState
+
   # Dataset events associated with this step
   datasetEvents(
     # Retrieve `first` values after the given cursor
@@ -2880,6 +2925,9 @@ type GmosSouthStepRecord {
     after: Cursor
   ): StepEventConnection!
 
+  # Step QA state based on a combination of dataset QA states
+  stepQaState: StepQaState
+
   # Dataset events associated with this step
   datasetEvents(
     # Retrieve `first` values after the given cursor
@@ -3230,6 +3278,10 @@ type Mutation {
     # Edit observation
     input: EditObservationInput!
   ): Observation!
+  cloneObservation(
+    # Observation clone parameters
+    input: CloneObservationInput!
+  ): Observation!
   updateAsterism(
     # Bulk edit asterism
     input: BulkEditAsterismInput!
@@ -3331,6 +3383,19 @@ type Mutation {
     # GmosSouth step configuration parameters
     input: GmosSouthStepRecordInput!
   ): GmosSouthStepRecord!
+  setDatasetQaState(
+    # Observation ID
+    observationId: ObservationId!
+
+    # Step ID
+    stepId: StepId
+
+    # Dataset index
+    index: PosInt
+
+    # Dataset QA State
+    qaState: DatasetQaState!
+  ): [Dataset!]!
 }
 
 # A String value that cannot be empty
@@ -3981,6 +4046,33 @@ type Query {
     # Observation ID
     observationId: ObservationId!
   ): TargetEnvironment
+
+  # Select the dataset associated with the given observation, step, and index
+  dataset(
+    # Observation ID
+    observationId: ObservationId!
+
+    # Step ID
+    stepId: StepId!
+
+    # Dataset index
+    index: PosInt!
+  ): Dataset
+
+  # Select all datasets associated with a step or observation
+  datasets(
+    # Observation ID
+    observationId: ObservationId!
+
+    # Step ID
+    stepId: StepId
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+  ): DatasetConnection!
 }
 
 type RadialVelocity {
@@ -4653,6 +4745,15 @@ type StepEventEdge {
 
 # StepId id formatted as `s-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`
 scalar StepId
+
+# Step QA State
+enum StepQaState {
+  # StepQaState Pass
+  PASS
+
+  # StepQaState Fail
+  FAIL
+}
 
 # Execution stage or phase of an individual step
 enum StepStage {
