@@ -1,27 +1,22 @@
 # DatasetEvent creation parameters
 input AddDatasetEventInput {
-  observationId: ObservationId!
   visitId: VisitId!
-  stepId: StepId!
-  datasetIndex: Int!
-  filename: DatasetFilename
-  stage: DatasetStage!
+  location: DatasetEventLocationInput!
+  payload: DatasetEventPayloadInput!
 }
 
 # SequenceEvent creation parameters
 input AddSequenceEventInput {
-  observationId: ObservationId!
   visitId: VisitId!
-  command: SequenceCommand!
+  location: SequenceEventLocationInput!
+  payload: SequenceEventPayloadInput!
 }
 
 # StepEvent creation parameters
 input AddStepEventInput {
-  observationId: ObservationId!
   visitId: VisitId!
-  stepId: StepId!
-  sequenceType: SequenceType!
-  stage: StepStage!
+  location: StepEventLocationInput!
+  payload: StepEventPayloadInput!
 }
 
 type AirMassRange {
@@ -405,31 +400,51 @@ enum BrightnessSurfaceUnits {
   ERG_PER_S_PER_CM_SQUARED_PER_HZ_PER_ARCSEC_SQUARED
 }
 
-# Input for bulk editing multiple observations
+# Input for bulk editing multiple observations.  Select observations
+# with the 'select' input and specify the changes in 'edit'.
+#
 input BulkEditAsterismInput {
-  selectProgram: ProgramId
-  selectObservations: [ObservationId!]
+  select: BulkEditSelectInput!
   edit: [EditAsterismInput!]!
 }
 
-# Input for bulk editing multiple observations
+# Input for bulk editing multiple observations.  Select observations
+# with the 'select' input and specify the changes in 'edit'.
+#
 input BulkEditConstraintSetInput {
-  selectProgram: ProgramId
-  selectObservations: [ObservationId!]
+  select: BulkEditSelectInput!
   edit: ConstraintSetInput!
 }
 
-# Input for bulk editing multiple observations
+# Input for bulk editing multiple observations.  Select observations
+# with the 'select' input and specify the changes in 'edit'.
+#
+input BulkEditScienceModeInput {
+  select: BulkEditSelectInput!
+  edit: ScienceModeInput!
+}
+
+# Input for bulk editing multiple observations.  Select observations
+# with the 'select' input and specify the changes in 'edit'.
+#
 input BulkEditScienceRequirementsInput {
-  selectProgram: ProgramId
-  selectObservations: [ObservationId!]
+  select: BulkEditSelectInput!
   edit: ScienceRequirementsInput!
 }
 
-# Input for bulk editing multiple observations
+# Observation selection.  Choose 'programId' to select all of a program's
+# observations or else list individual observations in 'observationIds'.
+#       
+input BulkEditSelectInput {
+  programId: ProgramId
+  observationIds: [ObservationId!]
+}
+
+# Input for bulk editing multiple observations.  Select observations
+# with the 'select' input and specify the changes in 'edit'.
+#
 input BulkEditTargetEnvironmentInput {
-  selectProgram: ProgramId
-  selectObservations: [ObservationId!]
+  select: BulkEditSelectInput!
   edit: TargetEnvironmentInput!
 }
 
@@ -730,16 +745,19 @@ type DatasetEdge {
   cursor: Cursor!
 }
 
-# Dataset-level events
+# Dataset-level events.  A single dataset will be associated with multiple events.
 type DatasetEvent implements ExecutionEvent {
-  # Dataset filename, when known
-  filename: DatasetFilename
+  # Identifies the associated dataset
+  location: DatasetEventLocation!
 
-  # Dataset stage
-  stage: DatasetStage!
+  # Dataset event payload, identifying the associated filename and stage of dataset execution
+  payload: DatasetEventPayload!
 
   # Event id
   id: ExecutionEventId!
+
+  # Associated visit
+  visitId: VisitId!
 
   # Observation whose execution produced this event
   observation: Observation!
@@ -770,6 +788,40 @@ type DatasetEventEdge {
 
   # DatasetEventEdge element cursor
   cursor: Cursor!
+}
+
+# Dataset event location, pinpointing the observation, step and index of the associated dataset.
+type DatasetEventLocation {
+  # Observation ID
+  observationId: ObservationId!
+
+  # Step ID
+  stepId: StepId!
+
+  # Dataset index
+  index: PosInt!
+}
+
+# DatasetEvent location parameters
+input DatasetEventLocationInput {
+  observationId: ObservationId!
+  stepId: StepId!
+  index: Int!
+}
+
+# Dataset event payload.
+type DatasetEventPayload {
+  # Dataset filename, when known
+  filename: DatasetFilename
+
+  # Dataset execution stage
+  stage: DatasetStage!
+}
+
+# DatasetEvent payload parameters
+input DatasetEventPayloadInput {
+  stage: DatasetStage!
+  filename: DatasetFilename
 }
 
 # Dataset filename in standard format in format 'N20210519S0001.fits'
@@ -1133,6 +1185,9 @@ interface ExecutionConfig {
 interface ExecutionEvent {
   # Event id
   id: ExecutionEventId!
+
+  # Associated visit
+  visitId: VisitId!
 
   # Observation whose execution produced this event
   observation: Observation!
@@ -3262,59 +3317,94 @@ enum MosPreImaging {
 }
 
 type Mutation {
-  createProgram(
-    # Program description
-    input: CreateProgramInput!
-  ): Program
-  updateProgram(
-    # Edit program
-    input: EditProgramInput!
-  ): Program!
-  createObservation(
-    # Observation description
-    input: CreateObservationInput!
-  ): Observation
-  updateObservation(
-    # Edit observation
-    input: EditObservationInput!
-  ): Observation!
+  # Adds a new dataset event associated with the given visit.  The
+  # generation of a single dataset will produce multiple events as it
+  # transitions through the observe, readout and write stages.
+  #       
+  addDatasetEvent(
+    # Describes the dataset event to add.  All events are associated with a
+    # particular visit (see 'record{InstrumentName}Visit').  Dataset events
+    # are further associated with an |observation, step and index because a
+    # step may produce multiple datasets.  The three form its 'location'.
+    # (See also 'record{InstrumentName}Step'.) Each dataset event 'payload'
+    # identifies the stage (observe, readout, or write) and possibly the
+    # dataset filename.
+    #       
+    input: AddDatasetEventInput!
+  ): DatasetEvent!
+
+  # Adds a sequence event associated with the given visit. Multiple events
+  # will be produced during the execution of a sequence as it is started,
+  # paused, continued, etc.
+  #       
+  addSequenceEvent(
+    # Describes the sequence event to add.  All events are associated with a
+    # particular visit (see 'record{InstrumentName}Visit').  Sequence events
+    # are further associated with an observation (i.e., its 'location').
+    # Each sequence event 'payload' identifies the sequence command that
+    # acted upon the sequence.
+    #       
+    input: AddSequenceEventInput!
+  ): SequenceEvent!
+
+  # Adds a new step event associated with the given visit. Multiple events
+  # will be produced during the execution of a single step as it
+  # transitions through configure and observe stages.
+  #       
+  addStepEvent(
+    # Describes the step event to add.  All events are associated with a
+    # particular visit (see 'record{InstrumentName}Visit'.  Step events are
+    # further associated with an observation and step (i.e., its 'location').
+    # (See also 'record{InstrumentName}Step'.) Each step event 'payload'
+    # identifies the sequence type (acquisition or science) and the stage
+    # through which the step execution is passing.
+    #       
+    input: AddStepEventInput!
+  ): StepEvent!
+
+  # Edit asterisms, adding or deleting targets, in (potentially) multiple
+  # observations at once.
+  #         
+  bulkEditAsterism(
+    # Bulk edit asterism
+    input: BulkEditAsterismInput!
+  ): [Observation!]!
+
+  # Edit constraint sets, setting image quality or elevation ranges etc,
+  # in (potentially) multiple observations at once.
+  #         
+  bulkEditConstraintSet(
+    # Bulk edit constraintSet
+    input: BulkEditConstraintSetInput!
+  ): [Observation!]!
+
+  # Edit the instrument selection and observing mode along with its basic
+  # configuration in (potentially) multiple observations at once.
+  #         
+  bulkEditScienceMode(
+    # Bulk edit scienceMode
+    input: BulkEditScienceModeInput!
+  ): [Observation!]!
+
+  # Edit science requirements in (potentially) multiple observations at
+  # once.
+  #         
+  bulkEditScienceRequirements(
+    # Bulk edit scienceRequirements
+    input: BulkEditScienceRequirementsInput!
+  ): [Observation!]!
+
+  # Edit target environments, setting an explicit base position or the
+  # asterism, in (potentially) multiple observations at once.
+  #         
+  bulkEditTargetEnvironment(
+    # Bulk edit targetEnvironment
+    input: BulkEditTargetEnvironmentInput!
+  ): [Observation!]!
   cloneObservation(
     # Observation clone parameters
     input: CloneObservationInput!
   ): Observation!
-  updateAsterism(
-    # Bulk edit asterism
-    input: BulkEditAsterismInput!
-  ): [Observation!]!
-  updateTargetEnvironment(
-    # Bulk edit targetEnvironment
-    input: BulkEditTargetEnvironmentInput!
-  ): [Observation!]!
-  updateConstraintSet(
-    # Bulk edit constraintSet
-    input: BulkEditConstraintSetInput!
-  ): [Observation!]!
-  updateScienceRequirements(
-    # Bulk edit scienceRequirements
-    input: BulkEditScienceRequirementsInput!
-  ): [Observation!]!
-  deleteObservation(
-    # Observation ID
-    observationId: ObservationId!
-  ): Observation!
-  undeleteObservation(
-    # Observation ID
-    observationId: ObservationId!
-  ): Observation!
-
-  # Creates a new target according to the provided parameters.  Only one of sidereal or nonsidereal may be specified.
-  createTarget(
-    # Program ID
-    programId: ProgramId!
-
-    # Target description.  One (and only one) of sidereal or nonsidereal must be specified.
-    input: CreateTargetInput!
-  ): Target!
 
   # Makes a copy of an existing target, setting it to unobserved and to PRESENT. 
   # If observationIds is specified, the clone will replace the existing target in
@@ -3329,42 +3419,33 @@ type Mutation {
     # Observation IDs
     observationIds: [ObservationId!]
   ): Target!
+  createObservation(
+    # Observation description
+    input: CreateObservationInput!
+  ): Observation
+  createProgram(
+    # Program description
+    input: CreateProgramInput!
+  ): Program
 
-  # Edits an existing target
-  updateTarget(
-    # Parameters for editing an existing target. Nonsidereal edits are ignored for sidereal targets and vice versa.
-    input: EditTargetInput!
+  # Creates a new target according to the provided parameters.  Only one of sidereal or nonsidereal may be specified.
+  createTarget(
+    # Program ID
+    programId: ProgramId!
+
+    # Target description.  One (and only one) of sidereal or nonsidereal must be specified.
+    input: CreateTargetInput!
   ): Target!
+  deleteObservation(
+    # Observation ID
+    observationId: ObservationId!
+  ): Observation!
 
   # Marks the target as DELETED.  Use undeleteTarget to retrieve it.
   deleteTarget(
     # Target ID
     targetId: TargetId!
   ): Target!
-
-  # Marks the target as PRESENT.
-  undeleteTarget(
-    # Target ID
-    targetId: TargetId!
-  ): Target!
-  addSequenceEvent(
-    # Sequence event description
-    input: AddSequenceEventInput!
-  ): SequenceEvent!
-  addStepEvent(
-    # Step event description
-    input: AddStepEventInput!
-  ): StepEvent!
-  addDatasetEvent(
-    # Dataset event description
-    input: AddDatasetEventInput!
-  ): DatasetEvent!
-
-  # Record a new visit
-  recordGmosNorthVisit(
-    # VisitRecord creation parameters
-    input: GmosNorthVisitRecordInput!
-  ): GmosNorthVisitRecord!
 
   # Record a new step
   recordGmosNorthStep(
@@ -3373,16 +3454,22 @@ type Mutation {
   ): GmosNorthStepRecord!
 
   # Record a new visit
-  recordGmosSouthVisit(
+  recordGmosNorthVisit(
     # VisitRecord creation parameters
-    input: GmosSouthVisitRecordInput!
-  ): GmosSouthVisitRecord!
+    input: GmosNorthVisitRecordInput!
+  ): GmosNorthVisitRecord!
 
   # Record a new step
   recordGmosSouthStep(
     # GmosSouth step configuration parameters
     input: GmosSouthStepRecordInput!
   ): GmosSouthStepRecord!
+
+  # Record a new visit
+  recordGmosSouthVisit(
+    # VisitRecord creation parameters
+    input: GmosSouthVisitRecordInput!
+  ): GmosSouthVisitRecord!
   setDatasetQaState(
     # Observation ID
     observationId: ObservationId!
@@ -3396,6 +3483,30 @@ type Mutation {
     # Dataset QA State
     qaState: DatasetQaState!
   ): [Dataset!]!
+  undeleteObservation(
+    # Observation ID
+    observationId: ObservationId!
+  ): Observation!
+
+  # Marks the target as PRESENT.
+  undeleteTarget(
+    # Target ID
+    targetId: TargetId!
+  ): Target!
+  updateObservation(
+    # Edit observation
+    input: EditObservationInput!
+  ): Observation!
+  updateProgram(
+    # Edit program
+    input: EditProgramInput!
+  ): Program!
+
+  # Edits an existing target
+  updateTarget(
+    # Parameters for editing an existing target. Nonsidereal edits are ignored for sidereal targets and vice versa.
+    input: EditTargetInput!
+  ): Target!
 }
 
 # A String value that cannot be empty
@@ -3868,47 +3979,14 @@ enum QuasarSpectrum {
 }
 
 type Query {
-  # Returns all observations associated with the given ids or program, or all observations if neither is specified.
-  observations(
-    # (Optional) listing of specific observations to retrieve
-    observationIds: [ObservationId!]
-
-    # (Optional) program whose observations are sought
-    programId: ProgramId
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): ObservationConnection!
-
-  # Returns the observation with the given id, if any.
-  observation(
+  # All science targets (if any) for the given observation (or environment)
+  asterism(
     # Observation ID
     observationId: ObservationId!
 
     # Set to true to include deleted values
     includeDeleted: Boolean! = false
-  ): Observation
-
-  # Observations grouped by commonly held targets
-  targetGroup(
-    # Program ID
-    programId: ProgramId!
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): TargetGroupConnection!
+  ): [Target!]!
 
   # Observations grouped by commonly held science asterisms
   asterismGroup(
@@ -3925,21 +4003,6 @@ type Query {
     includeDeleted: Boolean! = false
   ): AsterismGroupConnection!
 
-  # Observations grouped by common target environment
-  targetEnvironmentGroup(
-    # Program ID
-    programId: ProgramId!
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): TargetEnvironmentGroupConnection!
-
   # Observations grouped by commonly held constraints
   constraintSetGroup(
     # Program ID
@@ -3954,98 +4017,6 @@ type Query {
     # Set to true to include deleted values
     includeDeleted: Boolean! = false
   ): ConstraintSetGroupConnection!
-
-  # Observations grouped by commonly held science requirements
-  scienceRequirementsGroup(
-    # Program ID
-    programId: ProgramId!
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): ScienceRequirementsGroupConnection!
-
-  # Pages through all requested programs (or all programs if no ids are given).
-  programs(
-    # (Optional) listing of programs to retrieve (all programs if empty)
-    programIds: [ProgramId!]
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): ProgramConnection!
-
-  # Returns the program with the given id, if any.
-  program(
-    # Program ID
-    programId: ProgramId!
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): Program
-
-  # Retrieves the target with the given id, if it exists
-  target(
-    # Target ID
-    targetId: TargetId!
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): Target
-
-  # All the science targets associated with a given program or specific observations
-  scienceTargets(
-    # Program ID
-    programId: ProgramId
-
-    # Observation IDs
-    observationIds: [ObservationId!]
-
-    # Retrieve `first` values after the given cursor
-    first: Int
-
-    # Retrieve values after the one associated with this cursor
-    after: Cursor
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): TargetConnection!
-
-  # The first (or only) science target (if any) for the given observation.  This
-  # will essentially pick a random target from the observation's asterism and is
-  # meant as a convenience when there is only one target.
-  firstScienceTarget(
-    # Observation ID
-    observationId: ObservationId!
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): Target
-
-  # All science targets (if any) for the given observation (or environment)
-  asterism(
-    # Observation ID
-    observationId: ObservationId!
-
-    # Set to true to include deleted values
-    includeDeleted: Boolean! = false
-  ): [Target!]!
-
-  # Target environment for the given observation (or environment id)
-  targetEnvironment(
-    # Observation ID
-    observationId: ObservationId!
-  ): TargetEnvironment
 
   # Select the dataset associated with the given observation, step, and index
   dataset(
@@ -4073,6 +4044,161 @@ type Query {
     # Retrieve values after the one associated with this cursor
     after: Cursor
   ): DatasetConnection!
+
+  # The first (or only) science target (if any) for the given observation.  This
+  # will essentially pick a random target from the observation's asterism and is
+  # meant as a convenience when there is only one target.
+  firstScienceTarget(
+    # Observation ID
+    observationId: ObservationId!
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): Target
+
+  # Returns the observation with the given id, if any.
+  observation(
+    # Observation ID
+    observationId: ObservationId!
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): Observation
+
+  # Returns all observations associated with the given ids or program, or all observations if neither is specified.
+  observations(
+    # (Optional) listing of specific observations to retrieve
+    observationIds: [ObservationId!]
+
+    # (Optional) program whose observations are sought
+    programId: ProgramId
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): ObservationConnection!
+
+  # Returns the program with the given id, if any.
+  program(
+    # Program ID
+    programId: ProgramId!
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): Program
+
+  # Pages through all requested programs (or all programs if no ids are given).
+  programs(
+    # (Optional) listing of programs to retrieve (all programs if empty)
+    programIds: [ProgramId!]
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): ProgramConnection!
+
+  # Observations grouped by commonly held science mode
+  scienceModeGroup(
+    # Program ID
+    programId: ProgramId!
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): ScienceModeGroupConnection!
+
+  # Observations grouped by commonly held science requirements
+  scienceRequirementsGroup(
+    # Program ID
+    programId: ProgramId!
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): ScienceRequirementsGroupConnection!
+
+  # All the science targets associated with a given program or specific observations
+  scienceTargets(
+    # Program ID
+    programId: ProgramId
+
+    # Observation IDs
+    observationIds: [ObservationId!]
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): TargetConnection!
+
+  # Retrieves the target with the given id, if it exists
+  target(
+    # Target ID
+    targetId: TargetId!
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): Target
+
+  # Target environment for the given observation (or environment id)
+  targetEnvironment(
+    # Observation ID
+    observationId: ObservationId!
+  ): TargetEnvironment
+
+  # Observations grouped by common target environment
+  targetEnvironmentGroup(
+    # Program ID
+    programId: ProgramId!
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): TargetEnvironmentGroupConnection!
+
+  # Observations grouped by commonly held targets
+  targetGroup(
+    # Program ID
+    programId: ProgramId!
+
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): TargetGroupConnection!
 }
 
 type RadialVelocity {
@@ -4203,6 +4329,50 @@ type ScienceMode {
   gmosSouthLongSlit: GmosSouthLongSlit
 }
 
+type ScienceModeGroup {
+  # IDs of observations that use the same constraints
+  observationIds: [ObservationId!]!
+
+  # Observations that use this constraint set
+  observations(
+    # Retrieve `first` values after the given cursor
+    first: Int
+
+    # Retrieve values after the one associated with this cursor
+    after: Cursor
+
+    # Set to true to include deleted values
+    includeDeleted: Boolean! = false
+  ): ObservationConnection!
+
+  # Commonly held value across the observations
+  scienceMode: ScienceMode
+}
+
+# Observations grouped by common properties
+type ScienceModeGroupConnection {
+  # The nodes in all the edges from the current page
+  nodes: [ScienceModeGroup!]!
+
+  # Edges in the current page
+  edges: [ScienceModeGroupEdge!]!
+
+  # Count of all nodes in all pages
+  totalCount: Int!
+
+  # Paging information
+  pageInfo: PageInfo!
+}
+
+# An observation group and its cursor
+type ScienceModeGroupEdge {
+  # ScienceModeGroupEdge element
+  node: ScienceModeGroup!
+
+  # ScienceModeGroupEdge element cursor
+  cursor: Cursor!
+}
+
 # Edit or create an observation's science mode
 input ScienceModeInput {
   # The gmosNorthLongSlit field must be either specified or skipped altogether.  It cannot be unset with a null value.
@@ -4303,13 +4473,19 @@ enum SequenceCommand {
   STOP
 }
 
-# Sequence-level events
+# Sequence-level events.  As commands are issued to execute a sequence, corresponding events are generated.
 type SequenceEvent implements ExecutionEvent {
-  # Sequence command
-  command: SequenceCommand!
+  # Identifies the observation to which the event refers
+  location: SequenceEventLocation!
+
+  # Sequence event data
+  payload: SequenceEventPayload!
 
   # Event id
   id: ExecutionEventId!
+
+  # Associated visit
+  visitId: VisitId!
 
   # Observation whose execution produced this event
   observation: Observation!
@@ -4340,6 +4516,28 @@ type SequenceEventEdge {
 
   # SequenceEventEdge element cursor
   cursor: Cursor!
+}
+
+# Sequence event location, i.e., to which observation the event refers.
+type SequenceEventLocation {
+  # Observation containing the sequence
+  observationId: ObservationId!
+}
+
+# SequenceEvent location parameters
+input SequenceEventLocationInput {
+  observationId: ObservationId!
+}
+
+# Sequence event data
+type SequenceEventPayload {
+  # Sequence command
+  command: SequenceCommand!
+}
+
+# SequenceEvent payload creation parameters
+input SequenceEventPayloadInput {
+  command: SequenceCommand!
 }
 
 # Type of sequence, acquisition or science
@@ -4701,16 +4899,19 @@ interface StepConfig {
   stepType: StepType!
 }
 
-# Step-level events
+# Step-level events.  The execution of a single step will generate multiple events.
 type StepEvent implements ExecutionEvent {
-  # Sequence type
-  sequenceType: SequenceType!
+  # Identifies the step to which the event refers
+  location: StepEventLocation!
 
-  # Step stage
-  stage: StepStage!
+  # Step event data including the stage of execution through which it is passing.
+  payload: StepEventPayload!
 
   # Event id
   id: ExecutionEventId!
+
+  # Associated visit
+  visitId: VisitId!
 
   # Observation whose execution produced this event
   observation: Observation!
@@ -4741,6 +4942,36 @@ type StepEventEdge {
 
   # StepEventEdge element cursor
   cursor: Cursor!
+}
+
+# Step event location, i.e., to which step the event refers
+type StepEventLocation {
+  # Observation containing the step
+  observationId: ObservationId!
+
+  # The step id itself
+  stepId: StepId!
+}
+
+# StepEvent location parameters
+input StepEventLocationInput {
+  observationId: ObservationId!
+  stepId: StepId!
+}
+
+# Step event data
+type StepEventPayload {
+  # Sequence type
+  sequenceType: SequenceType!
+
+  # Step execution stage
+  stage: StepStage!
+}
+
+# StepEvent payload parameters
+input StepEventPayloadInput {
+  sequenceType: SequenceType!
+  stage: StepStage!
 }
 
 # StepId id formatted as `s-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`
@@ -4829,6 +5060,16 @@ type Subscription {
   ): ObservationEdit!
 
   #
+  # Subscribes to an event that is generated whenever a program is created
+  # or edited. A particular program id may be provided to limit events to
+  # that program.
+  #
+  programEdit(
+    # Program ID
+    programId: ProgramId
+  ): ProgramEdit!
+
+  #
   # Subscribes to an event that is generated whenever a(n) target is
   # created or updated.  If a(n) target id is provided, the event is only
   # generated for edits to that particular target.  If a program id is
@@ -4842,16 +5083,6 @@ type Subscription {
     # Program ID
     programId: ProgramId
   ): TargetEdit!
-
-  #
-  # Subscribes to an event that is generated whenever a program is created
-  # or edited. A particular program id may be provided to limit events to
-  # that program.
-  #
-  programEdit(
-    # Program ID
-    programId: ProgramId
-  ): ProgramEdit!
 }
 
 # Target description
