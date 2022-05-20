@@ -20,6 +20,9 @@ package fa {
     case object Light   extends Family {
       val prefix = "fal"
     }
+    case object Thin    extends Family {
+      val prefix = "fat"
+    }
     case object Duotone extends Family {
       val prefix = "fad"
     }
@@ -28,6 +31,7 @@ package fa {
       case "far" => Regular
       case "fal" => Light
       case "fad" => Duotone
+      case "fat" => Thin
       case _     => Solid
     }
   }
