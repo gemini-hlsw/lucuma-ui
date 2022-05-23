@@ -49,21 +49,49 @@ final case class FontAwesomeIcon(
   override protected val component                  = FontAwesomeIcon.component
   override def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
 
-  def size(size: IconSize): FontAwesomeIcon = copy(size = size)
-
-  def title(title: String): FontAwesomeIcon = copy(title = title)
+  def clazz(clazz: Css): FontAwesomeIcon = copy(clazz = clazz)
 
   def color(color: String): FontAwesomeIcon = copy(color = color)
 
-  def clazz(clazz: Css): FontAwesomeIcon = copy(clazz = clazz)
+  def pulse(pulse: Boolean = true): FontAwesomeIcon = copy(pulse = pulse)
+
+  def beat(beat: Boolean = true): FontAwesomeIcon = copy(beat = beat)
+
+  def border(border: Boolean = true): FontAwesomeIcon = copy(border = border)
+
+  def fade(fade: Boolean = true): FontAwesomeIcon = copy(fade = fade)
+
+  def flash(flash: Boolean = true): FontAwesomeIcon = copy(flash = flash)
+
+  def fixedWidth(fixedWidth: Boolean = true): FontAwesomeIcon = copy(fixedWidth = fixedWidth)
 
   def inverse(inverse: Boolean = true): FontAwesomeIcon = copy(inverse = inverse)
 
+  def listItem(listItem: Boolean = true): FontAwesomeIcon = copy(listItem = listItem)
+
+  def flip(flip: Flip): FontAwesomeIcon = copy(flip = flip)
+
+  def size(size: IconSize): FontAwesomeIcon = copy(size = size)
+
+  def pull(pull: Pull): FontAwesomeIcon = copy(pull = pull)
+
+  def rotation(rotation: Rotation): FontAwesomeIcon = copy(rotation = rotation)
+
   def transform(transform: Transform): FontAwesomeIcon = copy(transform = transform)
 
-  def spin(spin: Boolean = false): FontAwesomeIcon = copy(spin = spin)
+  def tabIndex(tabIndex: Int): FontAwesomeIcon = copy(tabIndex = tabIndex)
 
-  def fixedWidth(fixedWidth: Boolean = true): FontAwesomeIcon = copy(fixedWidth = fixedWidth)
+  def spin(spin: Boolean = true): FontAwesomeIcon = copy(spin = spin)
+
+  def spinPulse(spinPulse: Boolean = true): FontAwesomeIcon = copy(spinPulse = spinPulse)
+
+  def spinReverse(spinReverse: Boolean = true): FontAwesomeIcon = copy(spinReverse = spinReverse)
+
+  def style(style: Style): FontAwesomeIcon = copy(style = style)
+
+  def title(title: String): FontAwesomeIcon = copy(title = title)
+
+  def swapOpacity(swapOpacity: Boolean = true): FontAwesomeIcon = copy(swapOpacity = swapOpacity)
 }
 
 @js.native
