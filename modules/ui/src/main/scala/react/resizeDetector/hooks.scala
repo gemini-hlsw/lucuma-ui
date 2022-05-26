@@ -21,6 +21,8 @@ trait UseResizeDetectorReturnJS extends DimensionsJS {
 sealed trait UseResizeDetectorReturn extends Dimensions {
   val ref: Ref.Simple[html.Element]
 
+  def isReady: Boolean = width.isDefined && height.isDefined
+
   override def toString(): String = s"Resize($width, $height)"
 }
 
