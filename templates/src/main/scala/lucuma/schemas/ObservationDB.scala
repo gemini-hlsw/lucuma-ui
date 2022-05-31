@@ -34,8 +34,11 @@ trait ObservationDB {
     type HmsString        = String
     // Refined
     type NonEmptyString   = eu.timepit.refined.types.string.NonEmptyString
+    type NonNegBigDecimal = eu.timepit.refined.types.numeric.NonNegBigDecimal
+    type NonNegInt        = eu.timepit.refined.types.numeric.NonNegInt
     type PosBigDecimal    = eu.timepit.refined.types.numeric.PosBigDecimal
     type PosInt           = eu.timepit.refined.types.numeric.PosInt
+    type PosLong          = eu.timepit.refined.types.numeric.PosLong
     // Time
     type Instant          = java.time.Instant
   }
@@ -87,6 +90,7 @@ trait ObservationDB {
     type MosPreImaging                       = enum.MosPreImaging
     type ObsActiveStatus                     = enum.ObsActiveStatus
     type ObsStatus                           = enum.ObsStatus
+    type Partner                             = model.Partner
     type PlanetSpectrum                      = enum.PlanetSpectrum
     type PlanetaryNebulaSpectrum             = enum.PlanetaryNebulaSpectrum
     type QuasarSpectrum                      = enum.QuasarSpectrum
@@ -97,6 +101,8 @@ trait ObservationDB {
     type StellarLibrarySpectrum              = enum.StellarLibrarySpectrum
     type StepStage                           = enum.StepStage
     type StepType                            = enum.StepType
+    type TacCategory                         = enum.TacCategory
+    type ToOActivation                       = enum.ToOActivation
     type WaterVapor                          = enum.WaterVapor
   }
 
@@ -129,6 +135,7 @@ trait ObservationDB {
     type ProperMotion                   = math.ProperMotion
     type ProperMotionDeclination        = math.ProperMotion.Dec
     type ProperMotionRA                 = math.ProperMotion.RA
+    type Proposal                       = model.Proposal
     type Quasar                         = model.UnnormalizedSED.Quasar
     type RadialVelocity                 = math.RadialVelocity
     type RightAscension                 = math.RightAscension

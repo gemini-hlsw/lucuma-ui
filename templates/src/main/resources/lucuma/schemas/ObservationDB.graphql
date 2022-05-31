@@ -21,16 +21,16 @@ input AddStepEventInput {
 
 type AirMassRange {
   # Minimum AirMass (unitless)
-  min: BigDecimal!
+  min: PosBigDecimal!
 
   # Maximum AirMass (unitless)
-  max: BigDecimal!
+  max: PosBigDecimal!
 }
 
 # Air mass range creation and edit parameters
 input AirMassRangeInput {
-  min: BigDecimal
-  max: BigDecimal
+  min: PosBigDecimal
+  max: PosBigDecimal
 }
 
 type Angle {
@@ -79,41 +79,6 @@ input AngleInput {
   hours: BigDecimal
   dms: String
   hms: String
-  fromLong: LongAngleInput
-  fromDecimal: DecimalAngleInput
-}
-
-# Angle units
-enum AngleUnits {
-  # AngleUnits Microarcseconds
-  MICROARCSECONDS
-
-  # AngleUnits Microseconds
-  MICROSECONDS
-
-  # AngleUnits Milliarcseconds
-  MILLIARCSECONDS
-
-  # AngleUnits Milliseconds
-  MILLISECONDS
-
-  # AngleUnits Arcseconds
-  ARCSECONDS
-
-  # AngleUnits Seconds
-  SECONDS
-
-  # AngleUnits Arcminutes
-  ARCMINUTES
-
-  # AngleUnits Minutes
-  MINUTES
-
-  # AngleUnits Degrees
-  DEGREES
-
-  # AngleUnits Hours
-  HOURS
 }
 
 type AsterismGroup {
@@ -400,54 +365,6 @@ enum BrightnessSurfaceUnits {
   ERG_PER_S_PER_CM_SQUARED_PER_HZ_PER_ARCSEC_SQUARED
 }
 
-# Input for bulk editing multiple observations.  Select observations
-# with the 'select' input and specify the changes in 'edit'.
-#
-input BulkEditAsterismInput {
-  select: BulkEditSelectInput!
-  edit: [EditAsterismInput!]!
-}
-
-# Input for bulk editing multiple observations.  Select observations
-# with the 'select' input and specify the changes in 'edit'.
-#
-input BulkEditConstraintSetInput {
-  select: BulkEditSelectInput!
-  edit: ConstraintSetInput!
-}
-
-# Input for bulk editing multiple observations.  Select observations
-# with the 'select' input and specify the changes in 'edit'.
-#
-input BulkEditScienceModeInput {
-  select: BulkEditSelectInput!
-  edit: ScienceModeInput!
-}
-
-# Input for bulk editing multiple observations.  Select observations
-# with the 'select' input and specify the changes in 'edit'.
-#
-input BulkEditScienceRequirementsInput {
-  select: BulkEditSelectInput!
-  edit: ScienceRequirementsInput!
-}
-
-# Observation selection.  Choose 'programId' to select all of a program's
-# observations or else list individual observations in 'observationIds'.
-#       
-input BulkEditSelectInput {
-  programId: ProgramId
-  observationIds: [ObservationId!]
-}
-
-# Input for bulk editing multiple observations.  Select observations
-# with the 'select' input and specify the changes in 'edit'.
-#
-input BulkEditTargetEnvironmentInput {
-  select: BulkEditSelectInput!
-  edit: TargetEnvironmentInput!
-}
-
 type CatalogInfo {
   # Catalog name option
   name: CatalogName!
@@ -483,20 +400,31 @@ enum CatalogName {
   GAIA
 }
 
-# Parameters for cloning an existing observation.  The existingObservationId is
-# required, all else is optional. Unset values will be copied from the existing
-# observation, except that status will default to NEW.
+# Classical observing at Gemini
+type Classical implements ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# Classical observing at Gemini
+input ClassicalInput {
+  # The minPercentTime field is required when creating a new instance of classical, but optional when editing
+  minPercentTime: IntPercent
+}
+
+# Describes an observation clone operation, making any edits in the patch
+# parameter.  The observation status in the cloned observation defaults to NEW.
 input CloneObservationInput {
-  existingObservationId: ObservationId!
-  suggestedCloneId: ObservationId
-  programId: ProgramId
-  subtitle: NonEmptyString
-  status: ObsStatus
-  activeStatus: ObsActiveStatus
-  targetEnvironment: TargetEnvironmentInput
-  constraintSet: ConstraintSetInput
-  scienceRequirements: ScienceRequirementsInput
-  scienceMode: ScienceModeInput
+  observationId: ObservationId!
+  patch: ObservationPropertiesInput
+}
+
+# Describes a target clone operation, making any edits in the patch parameter and
+# replacing the target in the selected observations
+input CloneTargetInput {
+  targetId: TargetId!
+  patch: TargetPropertiesInput
+  replaceIn: [ObservationId!]
 }
 
 # Cloud extinction
@@ -672,30 +600,19 @@ input CoordinatesInput {
 
 # Observation creation parameters
 input CreateObservationInput {
-  observationId: ObservationId
   programId: ProgramId!
-  subtitle: NonEmptyString
-  status: ObsStatus
-  activeStatus: ObsActiveStatus
-  targetEnvironment: TargetEnvironmentInput
-  constraintSet: ConstraintSetInput
-  scienceRequirements: ScienceRequirementsInput
-  scienceMode: ScienceModeInput
+  properties: ObservationPropertiesInput
 }
 
 # Program creation parameters
 input CreateProgramInput {
-  programId: ProgramId
-  name: NonEmptyString
+  properties: ProgramPropertiesInput
 }
 
 # Target creation parameters
 input CreateTargetInput {
-  targetId: TargetId
-  name: NonEmptyString!
-  sidereal: SiderealInput
-  nonsidereal: NonsiderealInput
-  sourceProfile: SourceProfileInput!
+  programId: ProgramId!
+  properties: TargetPropertiesInput!
 }
 
 # Opaque object cursor
@@ -806,7 +723,7 @@ type DatasetEventLocation {
 input DatasetEventLocationInput {
   observationId: ObservationId!
   stepId: StepId!
-  index: Int!
+  index: PosInt!
 }
 
 # Dataset event payload.
@@ -838,6 +755,11 @@ type DatasetId {
   index: PosInt!
 }
 
+# Editable dataset properties
+input DatasetPropertiesInput {
+  qaState: DatasetQaState
+}
+
 # Dataset QA State
 enum DatasetQaState {
   # DatasetQaState Pass
@@ -848,6 +770,16 @@ enum DatasetQaState {
 
   # DatasetQaState Fail
   FAIL
+}
+
+# Choose observationId to include all of its datasets, add a step id to
+# limit it to a particular step, and an index to limit to a particular
+# dataset produced by the step.
+#
+input DatasetSelectInput {
+  observationId: ObservationId!
+  stepId: StepId
+  index: PosInt
 }
 
 # Execution stage or phase of an individual dataset
@@ -871,12 +803,6 @@ enum DatasetStage {
   START_WRITE
 }
 
-# Create an angle from a signed decimal value and its units.
-input DecimalAngleInput {
-  value: BigDecimal!
-  units: AngleUnits!
-}
-
 type Declination {
   # Declination in DD:MM:SS.SS format
   dms: DmsString!
@@ -888,135 +814,86 @@ type Declination {
   microarcseconds: Long!
 }
 
-# Decimal value in Declination
-input DeclinationDecimalInput {
-  # decimal value in associated units
-  value: BigDecimal!
-
-  # units for associated value
-  units: DeclinationUnits!
-}
-
 # Declination, choose one of the available units
 input DeclinationInput {
   microarcseconds: Long
   degrees: BigDecimal
   dms: DmsString
-  fromLong: DeclinationLongInput
-  fromDecimal: DeclinationDecimalInput
 }
 
-# Integral value in Declination
-input DeclinationLongInput {
-  # integral value in associated units
-  value: Long!
-
-  # units for associated value
-  units: DeclinationUnits!
+# Selects the observations for delete
+input DeleteObservationInput {
+  select: ObservationSelectInput!
 }
 
-# Unit options for Declination values
-enum DeclinationUnits {
-  # DeclinationUnits Microarcseconds
-  MICROARCSECONDS
+# Selects the targets for delete
+input DeleteTargetInput {
+  select: TargetSelectInput!
+}
 
-  # DeclinationUnits Degrees
-  DEGREES
+# Demo science
+type DemoScience implements ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# Demo science
+input DemoScienceInput {
+  # The minPercentTime field is required when creating a new instance of demoScience, but optional when editing
+  minPercentTime: IntPercent
+}
+
+# Director's time
+type DirectorsTime implements ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# Director's time
+input DirectorsTimeInput {
+  # The minPercentTime field is required when creating a new instance of directorsTime, but optional when editing
+  minPercentTime: IntPercent
 }
 
 # Target declination coordinate in format '[+/-]DD:MM:SS.sss'
 scalar DmsString
 
-# Equivalent time amount in several unit options (e.g., 120 seconds or 2 minutes)
-type Duration {
-  # Duration in µs
-  microseconds: Long!
-
-  # Duration in ms
-  milliseconds: BigDecimal!
-
-  # Duration in seconds
-  seconds: BigDecimal!
-
-  # Duration in minutes
-  minutes: BigDecimal!
-
-  # Duration in hours
-  hours: BigDecimal!
-}
-
-# Time duration input
-input DurationInput {
-  # Time duration in µs
-  microseconds: Long
-
-  # Time duration in ms
-  milliseconds: BigDecimal
-
-  # Time duration in seconds
-  seconds: BigDecimal
-
-  # Time duration in minutes
-  minutes: BigDecimal
-
-  # Time duration in hours
-  hours: BigDecimal
+# Input for bulk editing multiple observations.  Select observations
+# with the 'select' input and specify the changes in 'edit'.
+#
+input EditAsterismInput {
+  select: ObservationSelectInput!
+  patch: [EditAsterismPatchInput!]!
 }
 
 # Add or delete targets in an asterism
-input EditAsterismInput {
+input EditAsterismPatchInput {
   add: TargetId
   delete: TargetId
 }
 
-# Edit observation
+# Dataset selection and update description
+input EditDatasetInput {
+  select: DatasetSelectInput!
+  patch: DatasetPropertiesInput!
+}
+
+# Observation selection and update description
 input EditObservationInput {
-  observationId: ObservationId!
-
-  # The existence field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  existence: Existence
-
-  # The subtitle field may be unset by assigning a null value, or ignored by skipping it altogether
-  subtitle: NonEmptyString
-
-  # The status field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  status: ObsStatus
-
-  # The activeStatus field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  activeStatus: ObsActiveStatus
-
-  # The targetEnvironment field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  targetEnvironment: TargetEnvironmentInput
-
-  # The constraintSet field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  constraintSet: ConstraintSetInput
-
-  # The scienceRequirements field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  scienceRequirements: ScienceRequirementsInput
-
-  # The scienceMode field may be unset by assigning a null value, or ignored by skipping it altogether
-  scienceMode: ScienceModeInput
+  select: ObservationSelectInput!
+  patch: ObservationPropertiesInput!
 }
 
-# Edit program
+# Program selection and update description
 input EditProgramInput {
-  programId: ProgramId!
-
-  # The existence field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  existence: Existence
-
-  # The name field may be unset by assigning a null value, or ignored by skipping it altogether
-  name: NonEmptyString
+  select: ProgramSelectInput!
+  patch: ProgramPropertiesInput!
 }
 
-# Single target edit options
+# Target selection and update description.
 input EditTargetInput {
-  targetId: TargetId!
-  existence: Existence
-  name: NonEmptyString
-  sidereal: SiderealInput
-  nonsidereal: NonsiderealInput
-  sourceProfile: SourceProfileInput
+  select: TargetSelectInput!
+  patch: TargetPropertiesInput!
 }
 
 # Type of edit that triggered an event
@@ -1152,6 +1029,18 @@ interface Event {
   id: Long!
 }
 
+# Exchange observing at Keck/Subaru
+type Exchange implements ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# Exchange observing at Keck/Subaru
+input ExchangeInput {
+  # The minPercentTime field is required when creating a new instance of exchange, but optional when editing
+  minPercentTime: IntPercent
+}
+
 type Execution {
   # Datasets associated with the observation
   datasets(
@@ -1172,7 +1061,7 @@ type Execution {
   ): ExecutionEventConnection!
 
   # Execution config
-  executionConfig: ExecutionConfig
+  executionConfig: ExecutionConfig!
 }
 
 # Execution configuration
@@ -1230,6 +1119,54 @@ enum Existence {
 
   # Existence Deleted
   DELETED
+}
+
+# Exposure time mode, either signal to noise or fixed
+type ExposureTimeMode {
+  # Signal to noise exposure time mode data, if applicable
+  signalToNoise: SignalToNoiseMode
+
+  # Fixed exposure time mode data, if applicable
+  fixedExposure: FixedExposureMode
+}
+
+# Exposure time mode input.  Specify fixed or signal to noise, but not both
+input ExposureTimeModeInput {
+  # The signalToNoise field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  signalToNoise: SignalToNoiseModeInput
+
+  # The fixedExposure field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  fixedExposure: FixedExposureModeInput
+}
+
+# Fast turnaround observing at Gemini
+type FastTurnaround implements ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# Fast turnaround observing at Gemini
+input FastTurnaroundInput {
+  # The minPercentTime field is required when creating a new instance of fastTurnaround, but optional when editing
+  minPercentTime: IntPercent
+}
+
+# Fixed exposure time mode
+type FixedExposureMode {
+  # Exposure count
+  count: NonNegInt!
+
+  # Exposure time
+  time: NonNegDuration!
+}
+
+# Fixed exposure time mode parameters
+input FixedExposureModeInput {
+  # exposure count
+  count: NonNegInt!
+
+  # exposure time
+  time: NonNegDurationInput!
 }
 
 # Flux density entry
@@ -1295,7 +1232,7 @@ enum FocalPlane {
   IFU
 }
 
-type focalPlaneAngle {
+type FocalPlaneAngle {
   # Focal plane angle in µas
   microarcseconds: Long!
 
@@ -1746,7 +1683,7 @@ enum GmosNorthDetector {
 # GMOS North dynamic step configuration
 type GmosNorthDynamic {
   # GMOS exposure time
-  exposure: Duration!
+  exposure: NonNegDuration!
 
   # GMOS CCD Readout
   readout: GmosCcdMode!
@@ -1770,7 +1707,7 @@ type GmosNorthDynamic {
 # GMOS North instrument configuration input
 input GmosNorthDynamicInput {
   # Exposure time
-  exposure: DurationInput!
+  exposure: NonNegDurationInput!
 
   # GMOS CCD readout
   readout: GmosCcdReadoutInput!
@@ -1995,6 +1932,9 @@ type GmosNorthLongSlit {
 
 # GMOS North Long Slit advanced configuration
 type GmosNorthLongSlitAdvanced {
+  # Overrides the science requirement wavelength
+  overrideWavelength: Wavelength
+
   # GMOS North Grating override, taking the place of the basic configuration grating
   overrideGrating: GmosNorthGrating
 
@@ -2003,6 +1943,9 @@ type GmosNorthLongSlitAdvanced {
 
   # GMOS North FPU override, taking the place of the basic configuration FPU
   overrideFpu: GmosNorthBuiltinFpu
+
+  # Exposure time mode, taking the place of the value from science requirements
+  overrideExposureTimeMode: ExposureTimeMode
 
   # Explicitly specified GMOS X-Binning, override the default (calculated from effective slit size)
   explicitXBin: GmosXBinning
@@ -2029,6 +1972,9 @@ type GmosNorthLongSlitAdvanced {
 
 # Edit or create GMOS North Long Slit advanced configuration
 input GmosNorthLongSlitAdvancedConfigInput {
+  # The overrideWavelength field may be unset by assigning a null value, or ignored by skipping it altogether
+  overrideWavelength: WavelengthInput
+
   # The overrideGrating field may be unset by assigning a null value, or ignored by skipping it altogether
   overrideGrating: GmosNorthGrating
 
@@ -2037,6 +1983,9 @@ input GmosNorthLongSlitAdvancedConfigInput {
 
   # The overrideFpu field may be unset by assigning a null value, or ignored by skipping it altogether
   overrideFpu: GmosNorthBuiltinFpu
+
+  # The overrideExposureTimeMode field may be unset by assigning a null value, or ignored by skipping it altogether
+  overrideExposureTimeMode: ExposureTimeModeInput
 
   # The explicitXBin field may be unset by assigning a null value, or ignored by skipping it altogether
   explicitXBin: GmosXBinning
@@ -2225,7 +2174,7 @@ type GmosNorthStepRecord {
   endTime: Instant
 
   # Step duration
-  duration: Duration!
+  duration: NonNegDuration!
 
   # GmosNorth configuration for this step
   instrumentConfig: GmosNorthDynamic!
@@ -2288,13 +2237,6 @@ type GmosNorthStepRecordEdge {
   cursor: Cursor!
 }
 
-# Input parameters for creating a new GmosNorth StepRecord
-input GmosNorthStepRecordInput {
-  observationId: ObservationId!
-  visitId: VisitId!
-  stepConfig: GmosNorthStepInput!
-}
-
 # A GmosNorth visit as recorded by Observe
 type GmosNorthVisitRecord {
   # Visit id
@@ -2310,7 +2252,7 @@ type GmosNorthVisitRecord {
   endTime: Instant
 
   # Step duration
-  duration: Duration!
+  duration: NonNegDuration!
 
   # GmosNorth static instrument configuration
   staticConfig: GmosNorthStatic!
@@ -2356,12 +2298,6 @@ type GmosNorthVisitRecordEdge {
 
   # GmosNorthVisitRecordEdge element cursor
   cursor: Cursor!
-}
-
-# Input parameters for creating a new GmosNorth VisitRecord
-input GmosNorthVisitRecordInput {
-  observationId: ObservationId!
-  static: GmosNorthStaticInput!
 }
 
 # GMOS Region Of Interest
@@ -2484,7 +2420,7 @@ enum GmosSouthDetector {
 # GMOS South dynamic step configuration
 type GmosSouthDynamic {
   # GMOS exposure time
-  exposure: Duration!
+  exposure: NonNegDuration!
 
   # GMOS CCD Readout
   readout: GmosCcdMode!
@@ -2508,7 +2444,7 @@ type GmosSouthDynamic {
 # GMOS South instrument configuration input
 input GmosSouthDynamicInput {
   # Exposure time
-  exposure: DurationInput!
+  exposure: NonNegDurationInput!
 
   # GMOS CCD readout
   readout: GmosCcdReadoutInput!
@@ -2733,6 +2669,9 @@ type GmosSouthLongSlit {
 
 # GMOS South Long Slit advanced configuration
 type GmosSouthLongSlitAdvanced {
+  # Overrides the science requirement wavelength
+  overrideWavelength: Wavelength
+
   # GMOS North Grating override, taking the place of the basic configuration grating
   overrideGrating: GmosSouthGrating
 
@@ -2741,6 +2680,9 @@ type GmosSouthLongSlitAdvanced {
 
   # GMOS North FPU override, taking the place of the basic configuration FPU
   overrideFpu: GmosSouthBuiltinFpu
+
+  # Exposure time mode, taking the place of the value from science requirements
+  overrideExposureTimeMode: ExposureTimeMode
 
   # Explicitly specified GMOS X-Binning, override the default (calculated from effective slit size)
   explicitXBin: GmosXBinning
@@ -2767,6 +2709,9 @@ type GmosSouthLongSlitAdvanced {
 
 # Edit or create GMOS South Long Slit advanced configuration
 input GmosSouthLongSlitAdvancedConfigInput {
+  # The overrideWavelength field may be unset by assigning a null value, or ignored by skipping it altogether
+  overrideWavelength: WavelengthInput
+
   # The overrideGrating field may be unset by assigning a null value, or ignored by skipping it altogether
   overrideGrating: GmosSouthGrating
 
@@ -2775,6 +2720,9 @@ input GmosSouthLongSlitAdvancedConfigInput {
 
   # The overrideFpu field may be unset by assigning a null value, or ignored by skipping it altogether
   overrideFpu: GmosSouthBuiltinFpu
+
+  # The overrideExposureTimeMode field may be unset by assigning a null value, or ignored by skipping it altogether
+  overrideExposureTimeMode: ExposureTimeModeInput
 
   # The explicitXBin field may be unset by assigning a null value, or ignored by skipping it altogether
   explicitXBin: GmosXBinning
@@ -2963,7 +2911,7 @@ type GmosSouthStepRecord {
   endTime: Instant
 
   # Step duration
-  duration: Duration!
+  duration: NonNegDuration!
 
   # GmosSouth configuration for this step
   instrumentConfig: GmosSouthDynamic!
@@ -3026,13 +2974,6 @@ type GmosSouthStepRecordEdge {
   cursor: Cursor!
 }
 
-# Input parameters for creating a new GmosSouth StepRecord
-input GmosSouthStepRecordInput {
-  observationId: ObservationId!
-  visitId: VisitId!
-  stepConfig: GmosSouthStepInput!
-}
-
 # A GmosSouth visit as recorded by Observe
 type GmosSouthVisitRecord {
   # Visit id
@@ -3048,7 +2989,7 @@ type GmosSouthVisitRecord {
   endTime: Instant
 
   # Step duration
-  duration: Duration!
+  duration: NonNegDuration!
 
   # GmosSouth static instrument configuration
   staticConfig: GmosSouthStatic!
@@ -3094,12 +3035,6 @@ type GmosSouthVisitRecordEdge {
 
   # GmosSouthVisitRecordEdge element cursor
   cursor: Cursor!
-}
-
-# Input parameters for creating a new GmosSouth VisitRecord
-input GmosSouthVisitRecordInput {
-  observationId: ObservationId!
-  static: GmosSouthStaticInput!
 }
 
 # GMOS X Binning
@@ -3242,10 +3177,61 @@ enum InstrumentType {
   ZORRO
 }
 
+# Intensive program observing at Subaru
+type Intensive implements ProposalClass {
+  # Minimum percent of time requested for this semester that is required
+  minPercentTime: IntPercent!
+
+  # Minimum percent of total program time that is required
+  minPercentTotalTime: IntPercent!
+
+  # Estimated total program time
+  totalTime: NonNegDuration!
+}
+
+# Intensive program observing at Subaru
+input IntensiveInput {
+  # The minPercentTime field is required when creating a new instance of intensive, but optional when editing
+  minPercentTime: IntPercent
+
+  # The minPercentTotalTime field is required when creating a new instance of intensive, but optional when editing
+  minPercentTotalTime: IntPercent
+
+  # The totalTime field is required when creating a new instance of intensive, but optional when editing
+  totalTime: NonNegDurationInput
+}
+
+# An 'Int` in the range 0 to 100
+scalar IntPercent
+
 type ItcSuccess {
-  exposureTime: Duration!
-  exposures: Int!
+  exposureTime: NonNegDuration!
+  exposures: NonNegInt!
   signalToNoise: PosBigDecimal!
+}
+
+# Large program observing at Gemini
+type LargeProgram implements ProposalClass {
+  # Minimum percent of time requested for this semester that is required
+  minPercentTime: IntPercent!
+
+  # Minimum percent of total program time that is required
+  minPercentTotalTime: IntPercent!
+
+  # Estimated total program time
+  totalTime: NonNegDuration!
+}
+
+# Large program observing at Gemini
+input LargeProgramInput {
+  # The minPercentTime field is required when creating a new instance of largeProgram, but optional when editing
+  minPercentTime: IntPercent
+
+  # The minPercentTotalTime field is required when creating a new instance of largeProgram, but optional when editing
+  minPercentTotalTime: IntPercent
+
+  # The totalTime field is required when creating a new instance of largeProgram, but optional when editing
+  totalTime: NonNegDurationInput
 }
 
 type LineFluxIntegrated {
@@ -3291,12 +3277,6 @@ enum LineFluxSurfaceUnits {
 # The `Long` scalar type represents non-fractional signed whole numeric values.
 # Long can represent values between -(2^63) and 2^63 - 1.
 scalar Long
-
-# Create an angle from a signed integral value and its units.
-input LongAngleInput {
-  value: Long!
-  units: AngleUnits!
-}
 
 # Manual observing sequence and instrument configuration
 interface ManualConfig {
@@ -3361,48 +3341,8 @@ type Mutation {
     #       
     input: AddStepEventInput!
   ): StepEvent!
-
-  # Edit asterisms, adding or deleting targets, in (potentially) multiple
-  # observations at once.
-  #         
-  bulkEditAsterism(
-    # Bulk edit asterism
-    input: BulkEditAsterismInput!
-  ): [Observation!]!
-
-  # Edit constraint sets, setting image quality or elevation ranges etc,
-  # in (potentially) multiple observations at once.
-  #         
-  bulkEditConstraintSet(
-    # Bulk edit constraintSet
-    input: BulkEditConstraintSetInput!
-  ): [Observation!]!
-
-  # Edit the instrument selection and observing mode along with its basic
-  # configuration in (potentially) multiple observations at once.
-  #         
-  bulkEditScienceMode(
-    # Bulk edit scienceMode
-    input: BulkEditScienceModeInput!
-  ): [Observation!]!
-
-  # Edit science requirements in (potentially) multiple observations at
-  # once.
-  #         
-  bulkEditScienceRequirements(
-    # Bulk edit scienceRequirements
-    input: BulkEditScienceRequirementsInput!
-  ): [Observation!]!
-
-  # Edit target environments, setting an explicit base position or the
-  # asterism, in (potentially) multiple observations at once.
-  #         
-  bulkEditTargetEnvironment(
-    # Bulk edit targetEnvironment
-    input: BulkEditTargetEnvironmentInput!
-  ): [Observation!]!
   cloneObservation(
-    # Observation clone parameters
+    # Parameters for cloning an existing observation
     input: CloneObservationInput!
   ): Observation!
 
@@ -3410,19 +3350,17 @@ type Mutation {
   # If observationIds is specified, the clone will replace the existing target in
   # those observations
   cloneTarget(
-    # The existing target's id
-    existingTargetId: TargetId!
-
-    # The new target clone's id (will be generated if not supplied)
-    suggestedCloneId: TargetId
-
-    # Observation IDs
-    observationIds: [ObservationId!]
+    # Parameters for cloning an existing target
+    input: CloneTargetInput!
   ): Target!
+
+  # Creates a new observation according to provided parameters
   createObservation(
     # Observation description
     input: CreateObservationInput!
-  ): Observation
+  ): Observation!
+
+  # Creates a new program according to provided properties
   createProgram(
     # Program description
     input: CreateProgramInput!
@@ -3430,87 +3368,132 @@ type Mutation {
 
   # Creates a new target according to the provided parameters.  Only one of sidereal or nonsidereal may be specified.
   createTarget(
-    # Program ID
-    programId: ProgramId!
-
     # Target description.  One (and only one) of sidereal or nonsidereal must be specified.
     input: CreateTargetInput!
   ): Target!
-  deleteObservation(
-    # Observation ID
-    observationId: ObservationId!
-  ): Observation!
 
-  # Marks the target as DELETED.  Use undeleteTarget to retrieve it.
+  # Deletes all the observations identified by the `select` field
+  deleteObservation(
+    # Parameters used to select observations for delete
+    input: DeleteObservationInput!
+  ): [Observation!]!
+
+  # Deletes all the targets identified by the `select` field
   deleteTarget(
-    # Target ID
-    targetId: TargetId!
-  ): Target!
+    # Parameters used to select observations for delete
+    input: DeleteTargetInput!
+  ): [Target!]!
+
+  # Edit asterisms, adding or deleting targets, in (potentially) multiple
+  # observations at once.
+  #         
+  editAsterism(
+    # Bulk edit asterism
+    input: EditAsterismInput!
+  ): [Observation!]!
+  editDataset(
+    # Parameters for editing existing datasets
+    input: EditDatasetInput!
+  ): [Dataset!]!
+  editObservation(
+    # Parameters for editing existing observations
+    input: EditObservationInput!
+  ): [Observation!]!
+  editProgram(
+    # Parameters for editing an existing program
+    input: EditProgramInput!
+  ): Program
+
+  # Edits existing targets
+  editTarget(
+    # Parameters for editing existing targets. 
+    input: EditTargetInput!
+  ): [Target!]!
 
   # Record a new step
   recordGmosNorthStep(
     # GmosNorth step configuration parameters
-    input: GmosNorthStepRecordInput!
+    input: RecordGmosNorthStepInput!
   ): GmosNorthStepRecord!
 
   # Record a new visit
   recordGmosNorthVisit(
     # VisitRecord creation parameters
-    input: GmosNorthVisitRecordInput!
+    input: RecordGmosNorthVisitInput!
   ): GmosNorthVisitRecord!
 
   # Record a new step
   recordGmosSouthStep(
     # GmosSouth step configuration parameters
-    input: GmosSouthStepRecordInput!
+    input: RecordGmosSouthStepInput!
   ): GmosSouthStepRecord!
 
   # Record a new visit
   recordGmosSouthVisit(
     # VisitRecord creation parameters
-    input: GmosSouthVisitRecordInput!
+    input: RecordGmosSouthVisitInput!
   ): GmosSouthVisitRecord!
-  setDatasetQaState(
-    # Observation ID
-    observationId: ObservationId!
 
-    # Step ID
-    stepId: StepId
-
-    # Dataset index
-    index: PosInt
-
-    # Dataset QA State
-    qaState: DatasetQaState!
-  ): [Dataset!]!
+  # Undeletes all the observations identified by the `select` field
   undeleteObservation(
-    # Observation ID
-    observationId: ObservationId!
-  ): Observation!
+    # Parameters used to select observations for undelete
+    input: UndeleteObservationInput!
+  ): [Observation!]!
 
-  # Marks the target as PRESENT.
+  # Undeletes all the targets identified by the `select` field
   undeleteTarget(
-    # Target ID
-    targetId: TargetId!
-  ): Target!
-  updateObservation(
-    # Edit observation
-    input: EditObservationInput!
-  ): Observation!
-  updateProgram(
-    # Edit program
-    input: EditProgramInput!
-  ): Program!
-
-  # Edits an existing target
-  updateTarget(
-    # Parameters for editing an existing target. Nonsidereal edits are ignored for sidereal targets and vice versa.
-    input: EditTargetInput!
-  ): Target!
+    # Parameters used to select observations for undelete
+    input: UndeleteTargetInput!
+  ): [Target!]!
 }
 
 # A String value that cannot be empty
 scalar NonEmptyString
+
+# A `BigDecimal` greater than or equal to 0
+scalar NonNegBigDecimal
+
+# Equivalent time amount in several unit options (e.g., 120 seconds or 2 minutes)
+type NonNegDuration {
+  # Duration in µs
+  microseconds: NonNegLong!
+
+  # Duration in ms
+  milliseconds: NonNegBigDecimal!
+
+  # Duration in seconds
+  seconds: NonNegBigDecimal!
+
+  # Duration in minutes
+  minutes: NonNegBigDecimal!
+
+  # Duration in hours
+  hours: NonNegBigDecimal!
+}
+
+# Time duration input
+input NonNegDurationInput {
+  # Time duration in µs
+  microseconds: PosLong
+
+  # Time duration in ms
+  milliseconds: NonNegBigDecimal
+
+  # Time duration in seconds
+  seconds: NonNegBigDecimal
+
+  # Time duration in minutes
+  minutes: NonNegBigDecimal
+
+  # Time duration in hours
+  hours: NonNegBigDecimal
+}
+
+# An `Int` in the range from 0 to 2147483647
+scalar NonNegInt
+
+# An `Long` in the range from 0 to 9223372036854775807
+scalar NonNegLong
 
 type Nonsidereal {
   # Human readable designation that discriminates among ephemeris keys of the same type.
@@ -3640,6 +3623,42 @@ type ObservationEdit implements Event {
 # ObservationId id formatted as `o-[1-9a-f][0-9a-f]*`
 scalar ObservationId
 
+# Observation properties
+input ObservationPropertiesInput {
+  # Subtitle adds additional detail to the target-based observation title, and is both optional and nullable
+  subtitle: NonEmptyString
+
+  # The observation status will default to New if not specified when an
+  # observation is created and may be edited but not deleted
+  status: ObsStatus
+
+  # The observation active status will default to Active if not specified when an
+  # observation is created and may be edited but not deleted
+  activeStatus: ObsActiveStatus
+
+  # The targetEnvironment defaults to empty if not specified on creation, and may be edited but not deleted
+  targetEnvironment: TargetEnvironmentInput
+
+  # The constraintSet defaults to standard values if not specified on creation, and may be edited but not deleted
+  constraintSet: ConstraintSetInput
+
+  # The scienceRequirements defaults to spectroscopy if not specified on creation, and may be edited but not deleted
+  scienceRequirements: ScienceRequirementsInput
+
+  # The scienceMode describes the chosen observing mode and instrument, is optional and may be deleted
+  scienceMode: ScienceModeInput
+
+  # Whether the observation is considered deleted (defaults to PRESENT) but may be edited
+  existence: Existence
+}
+
+# Choose programId to include all of its observations, or else a
+# collection of observationIds to include particular observations.
+input ObservationSelectInput {
+  programId: ProgramId
+  observationIds: [ObservationId!]
+}
+
 # Observation status options
 enum ObsStatus {
   # ObsStatus New
@@ -3727,39 +3746,75 @@ type Parallax {
   milliarcseconds: BigDecimal!
 }
 
-# Decimal value in Parallax
-input ParallaxDecimalInput {
-  # decimal value in associated units
-  value: BigDecimal!
-
-  # units for associated value
-  units: ParallaxUnits!
-}
-
 # Parallax, choose one of the available units
 input ParallaxInput {
   microarcseconds: Long
   milliarcseconds: BigDecimal
-  fromLong: ParallaxLongInput
-  fromDecimal: ParallaxDecimalInput
 }
 
-# Integral value in Parallax
-input ParallaxLongInput {
-  # integral value in associated units
-  value: Long!
+# Partner
+enum partner {
+  # partner ar
+  AR
 
-  # units for associated value
-  units: ParallaxUnits!
+  # partner br
+  BR
+
+  # partner ca
+  CA
+
+  # partner cl
+  CL
+
+  # partner kr
+  KR
+
+  # partner uh
+  UH
+
+  # partner us
+  US
 }
 
-# Unit options for parallax values
-enum ParallaxUnits {
-  # ParallaxUnits Microarcseconds
-  MICROARCSECONDS
+# Partner
+enum Partner {
+  # Partner ar
+  AR
 
-  # ParallaxUnits Milliarcseconds
-  MILLIARCSECONDS
+  # Partner br
+  BR
+
+  # Partner ca
+  CA
+
+  # Partner cl
+  CL
+
+  # Partner kr
+  KR
+
+  # Partner uh
+  UH
+
+  # Partner us
+  US
+}
+
+type PartnerSplit {
+  # Partner
+  partner: Partner!
+
+  # Percentage of observation time
+  percent: IntPercent!
+}
+
+# Partner time allocation: must be empty or sum to 100%
+input PartnerSplitsInput {
+  # The partner field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  partner: partner
+
+  # The percent field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  percent: IntPercent
 }
 
 # Planetary nebula spectrum
@@ -3792,7 +3847,7 @@ enum PlanetSpectrum {
 # Time estimates for executing this configuration
 type PlannedTime {
   # Estimated setup time
-  setup: Duration!
+  setup: NonNegDuration!
 
   # Estimated acquisition time for each atom
   acquisition: [StepTime!]!
@@ -3807,25 +3862,40 @@ type PlannedTime {
   scienceTotal: StepTime!
 
   # Total planned time across acquisition and science
-  total: Duration!
+  total: NonNegDuration!
 }
 
 type PlannedTimeSummary {
   # The portion of planned time that will be charged
-  pi: Duration!
+  pi: NonNegDuration!
 
   # The portion of planned time that will not be charged
-  uncharged: Duration!
+  uncharged: NonNegDuration!
 
   # The total estimated execution time
-  execution: Duration!
+  execution: NonNegDuration!
+}
+
+# Poor Weather
+type PoorWeather implements ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# Poor weather
+input PoorWeatherInput {
+  # The minPercentTime field is required when creating a new instance of poorWeather, but optional when editing
+  minPercentTime: IntPercent
 }
 
 # A `BigDecimal` greater than 0
 scalar PosBigDecimal
 
-# An `Int` in the range from 1 to `Int.MaxValue`
+# An `Int` in the range from 1 to 2147483647
 scalar PosInt
+
+# An `Long` in the range from 1 to 9223372036854775807
+scalar PosLong
 
 type Program {
   # Program ID
@@ -3836,6 +3906,9 @@ type Program {
 
   # Program name
   name: NonEmptyString
+
+  # Program proposal
+  proposal: Proposal
 
   # All observations associated with the program (needs pagination).
   observations(
@@ -3893,6 +3966,23 @@ type ProgramEdit implements Event {
 # ProgramId id formatted as `p-[1-9a-f][0-9a-f]*`
 scalar ProgramId
 
+# Program properties
+input ProgramPropertiesInput {
+  # The program name, which is both optional and nullable
+  name: NonEmptyString
+
+  # The program proposal is both optional and nullable
+  proposal: ProposalInput
+
+  # Whether the program is considered deleted (defaults to PRESENT) but may be edited
+  existence: Existence
+}
+
+# Choose programId to select the program for editing
+input ProgramSelectInput {
+  programId: ProgramId
+}
+
 type ProperMotion {
   # Proper motion in RA
   ra: ProperMotionRA!
@@ -3901,39 +3991,10 @@ type ProperMotion {
   dec: ProperMotionDeclination!
 }
 
-# Decimal value in ProperMotionComponent
-input ProperMotionComponentDecimalInput {
-  # decimal value in associated units
-  value: BigDecimal!
-
-  # units for associated value
-  units: ProperMotionComponentUnits!
-}
-
 # Proper motion component, choose one of the available units
 input ProperMotionComponentInput {
   microarcsecondsPerYear: Long
   milliarcsecondsPerYear: BigDecimal
-  fromLong: ProperMotionComponentLongInput
-  fromDecimal: ProperMotionComponentDecimalInput
-}
-
-# Integral value in ProperMotionComponent
-input ProperMotionComponentLongInput {
-  # integral value in associated units
-  value: Long!
-
-  # units for associated value
-  units: ProperMotionComponentUnits!
-}
-
-# Unit options for proper motion components (RA and Dec)
-enum ProperMotionComponentUnits {
-  # ProperMotionComponentUnits MicroarcsecondsPerYear
-  MICROARCSECONDS_PER_YEAR
-
-  # ProperMotionComponentUnits MilliarcsecondsPerYear
-  MILLIARCSECONDS_PER_YEAR
 }
 
 type ProperMotionDeclination {
@@ -3956,6 +4017,86 @@ type ProperMotionRA {
 
   # Proper motion in properMotion mas/year
   milliarcsecondsPerYear: BigDecimal!
+}
+
+type Proposal {
+  # Proposal title
+  title: NonEmptyString
+
+  # Proposal class
+  proposalClass: ProposalClass!
+
+  # Proposal TAC category
+  category: TacCategory
+
+  # Target of Opportunity activation
+  toOActivation: ToOActivation
+
+  # Abstract
+  abstract: NonEmptyString
+
+  # Partner time allocations
+  partnerSplits: [PartnerSplit!]!
+}
+
+# Proposal Class interface
+interface ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# Proposal class. Choose exactly one class type
+input ProposalClassInput {
+  # Classical observing at Gemini
+  classical: ClassicalInput
+
+  # Demo science
+  demoScience: DemoScienceInput
+
+  # Director's time
+  directorsTime: DirectorsTimeInput
+
+  # Exchange observing at Keck/Subaru
+  exchange: ExchangeInput
+
+  # Fast turnaround observing at Gemini
+  fastTurnaround: FastTurnaroundInput
+
+  # Poor weather
+  poorWeather: PoorWeatherInput
+
+  # Queue observing at Gemini
+  queue: QueueInput
+
+  # System verification
+  systemVerification: SystemVerificationInput
+
+  # Large program observing at Gemini
+  largeProgram: LargeProgramInput
+
+  # Intensive program observing at Subaru
+  intensive: IntensiveInput
+}
+
+# Program proposal
+input ProposalInput {
+  # The title field may be unset by assigning a null value, or ignored by skipping it altogether
+  title: NonEmptyString
+
+  # The proposalClass field is required when creating a new instance of proposal, but optional when editing
+  proposalClass: ProposalClassInput
+
+  # The category field may be unset by assigning a null value, or ignored by skipping it altogether
+  category: tacCategory
+
+  # The toOActivation field is required when creating a new instance of proposal, but optional when editing
+  toOActivation: toOActivation
+
+  # The abstract field may be unset by assigning a null value, or ignored by skipping it altogether
+  abstract: NonEmptyString
+
+  # The partnerSplits field is required when creating a new instance of proposal, but optional when editing
+  partnerSplits: [PartnerSplitsInput!]
 }
 
 type q {
@@ -4201,6 +4342,18 @@ type Query {
   ): TargetGroupConnection!
 }
 
+# Queue observing at Gemini
+type Queue implements ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# Queue observing at Gemini
+input QueueInput {
+  # The minPercentTime field is required when creating a new instance of queue, but optional when editing
+  minPercentTime: IntPercent
+}
+
 type RadialVelocity {
   # Radial velocity in cm/s
   centimetersPerSecond: Long!
@@ -4212,43 +4365,37 @@ type RadialVelocity {
   kilometersPerSecond: BigDecimal!
 }
 
-# Decimal value in RadialVelocity
-input RadialVelocityDecimalInput {
-  # decimal value in associated units
-  value: BigDecimal!
-
-  # units for associated value
-  units: RadialVelocityUnits!
-}
-
 # Radial velocity, choose one of the available units
 input RadialVelocityInput {
   centimetersPerSecond: Long
   metersPerSecond: BigDecimal
   kilometersPerSecond: BigDecimal
-  fromLong: RadialVelocityLongInput
-  fromDecimal: RadialVelocityDecimalInput
 }
 
-# Integral value in RadialVelocity
-input RadialVelocityLongInput {
-  # integral value in associated units
-  value: Long!
-
-  # units for associated value
-  units: RadialVelocityUnits!
+# Input parameters for creating a new GmosNorth StepRecord
+input RecordGmosNorthStepInput {
+  observationId: ObservationId!
+  visitId: VisitId!
+  stepConfig: GmosNorthStepInput!
 }
 
-# Unit options for radial velocity values
-enum RadialVelocityUnits {
-  # RadialVelocityUnits CentimetersPerSecond
-  CENTIMETERS_PER_SECOND
+# Input parameters for creating a new GmosNorth VisitRecord
+input RecordGmosNorthVisitInput {
+  observationId: ObservationId!
+  static: GmosNorthStaticInput!
+}
 
-  # RadialVelocityUnits MetersPerSecond
-  METERS_PER_SECOND
+# Input parameters for creating a new GmosSouth StepRecord
+input RecordGmosSouthStepInput {
+  observationId: ObservationId!
+  visitId: VisitId!
+  stepConfig: GmosSouthStepInput!
+}
 
-  # RadialVelocityUnits KilometersPerSecond
-  KILOMETERS_PER_SECOND
+# Input parameters for creating a new GmosSouth VisitRecord
+input RecordGmosSouthVisitInput {
+  observationId: ObservationId!
+  static: GmosSouthStaticInput!
 }
 
 type RightAscension {
@@ -4265,44 +4412,12 @@ type RightAscension {
   microarcseconds: Long!
 }
 
-# Decimal value in RightAscension
-input RightAscensionDecimalInput {
-  # decimal value in associated units
-  value: BigDecimal!
-
-  # units for associated value
-  units: RightAscensionUnits!
-}
-
 # Right Ascension, choose one of the available units
 input RightAscensionInput {
   microarcseconds: Long
   degrees: BigDecimal
   hours: BigDecimal
   hms: HmsString
-  fromLong: RightAscensionLongInput
-  fromDecimal: RightAscensionDecimalInput
-}
-
-# Integral value in RightAscension
-input RightAscensionLongInput {
-  # integral value in associated units
-  value: Long!
-
-  # units for associated value
-  units: RightAscensionUnits!
-}
-
-# Unit options for RightAscension values
-enum RightAscensionUnits {
-  # RightAscensionUnits Microarcseconds
-  MICROARCSECONDS
-
-  # RightAscensionUnits Degrees
-  DEGREES
-
-  # RightAscensionUnits Hours
-  HOURS
 }
 
 # Science step
@@ -4596,6 +4711,18 @@ input SiderealInput {
   catalogInfo: CatalogInfoInput
 }
 
+# Signal to noise exposure time mode
+type SignalToNoiseMode {
+  # Signal/Noise value
+  value: PosBigDecimal!
+}
+
+# Signal-to-noise mode parameters
+input SignalToNoiseModeInput {
+  # s/n value
+  value: PosBigDecimal!
+}
+
 # Sky background
 enum SkyBackground {
   # SkyBackground Darkest
@@ -4692,7 +4819,7 @@ type SpectroscopyScienceRequirements {
   focalPlane: FocalPlane
 
   # Focal plane angle
-  focalPlaneAngle: focalPlaneAngle
+  focalPlaneAngle: FocalPlaneAngle
 
   # Spectroscopy Capabilities
   capabilities: SpectroscopyCapabilities
@@ -4704,10 +4831,10 @@ input SpectroscopyScienceRequirementsInput {
   wavelength: WavelengthInput
 
   # The resolution field may be unset by assigning a null value, or ignored by skipping it altogether
-  resolution: Int
+  resolution: PosInt
 
   # The signalToNoise field may be unset by assigning a null value, or ignored by skipping it altogether
-  signalToNoise: BigDecimal
+  signalToNoise: PosBigDecimal
 
   # The signalToNoiseAt field may be unset by assigning a null value, or ignored by skipping it altogether
   signalToNoiseAt: WavelengthInput
@@ -5010,19 +5137,19 @@ enum StepStage {
 # Time required for a step or steps, categorized according to use
 type StepTime {
   # Time spent making configuration changes
-  configChange: Duration!
+  configChange: NonNegDuration!
 
   # Time spent collecting photons
-  exposure: Duration!
+  exposure: NonNegDuration!
 
   # Time spent reading out the detector
-  readout: Duration!
+  readout: NonNegDuration!
 
   # Time spent writing the dataset file
-  write: Duration!
+  write: NonNegDuration!
 
   # Total time across all categories
-  total: Duration!
+  total: NonNegDuration!
 }
 
 # Step type
@@ -5085,6 +5212,150 @@ type Subscription {
   ): TargetEdit!
 }
 
+# System Verification
+type SystemVerification implements ProposalClass {
+  # Minimum percent of requested observation time that is required
+  minPercentTime: IntPercent!
+}
+
+# System verification
+input SystemVerificationInput {
+  # The minPercentTime field is required when creating a new instance of systemVerification, but optional when editing
+  minPercentTime: IntPercent
+}
+
+# TAC category
+enum tacCategory {
+  # tacCategory SmallBodies
+  SMALL_BODIES
+
+  # tacCategory PlanetaryAtmospheres
+  PLANETARY_ATMOSPHERES
+
+  # tacCategory PlanetarySurfaces
+  PLANETARY_SURFACES
+
+  # tacCategory SolarSystemOther
+  SOLAR_SYSTEM_OTHER
+
+  # tacCategory ExoplanetRadialVelocities
+  EXOPLANET_RADIAL_VELOCITIES
+
+  # tacCategory ExoplanetAtmospheresActivity
+  EXOPLANET_ATMOSPHERES_ACTIVITY
+
+  # tacCategory ExoplanetTransits
+  EXOPLANET_TRANSITS
+
+  # tacCategory ExoplanetHostStar
+  EXOPLANET_HOST_STAR
+
+  # tacCategory ExoplanetOther
+  EXOPLANET_OTHER
+
+  # tacCategory StellarAstrophysics
+  STELLAR_ASTROPHYSICS
+
+  # tacCategory StellarPopulations
+  STELLAR_POPULATIONS
+
+  # tacCategory StarFormation
+  STAR_FORMATION
+
+  # tacCategory GaseousAstrophysics
+  GASEOUS_ASTROPHYSICS
+
+  # tacCategory StellarRemnants
+  STELLAR_REMNANTS
+
+  # tacCategory GalacticOther
+  GALACTIC_OTHER
+
+  # tacCategory Cosmology
+  COSMOLOGY
+
+  # tacCategory ClustersOfGalaxies
+  CLUSTERS_OF_GALAXIES
+
+  # tacCategory HighZUniverse
+  HIGH_Z_UNIVERSE
+
+  # tacCategory LowZUniverse
+  LOW_Z_UNIVERSE
+
+  # tacCategory ActiveGalaxies
+  ACTIVE_GALAXIES
+
+  # tacCategory ExtragalacticOther
+  EXTRAGALACTIC_OTHER
+}
+
+# TAC Category
+enum TacCategory {
+  # TacCategory SmallBodies
+  SMALL_BODIES
+
+  # TacCategory PlanetaryAtmospheres
+  PLANETARY_ATMOSPHERES
+
+  # TacCategory PlanetarySurfaces
+  PLANETARY_SURFACES
+
+  # TacCategory SolarSystemOther
+  SOLAR_SYSTEM_OTHER
+
+  # TacCategory ExoplanetRadialVelocities
+  EXOPLANET_RADIAL_VELOCITIES
+
+  # TacCategory ExoplanetAtmospheresActivity
+  EXOPLANET_ATMOSPHERES_ACTIVITY
+
+  # TacCategory ExoplanetTransits
+  EXOPLANET_TRANSITS
+
+  # TacCategory ExoplanetHostStar
+  EXOPLANET_HOST_STAR
+
+  # TacCategory ExoplanetOther
+  EXOPLANET_OTHER
+
+  # TacCategory StellarAstrophysics
+  STELLAR_ASTROPHYSICS
+
+  # TacCategory StellarPopulations
+  STELLAR_POPULATIONS
+
+  # TacCategory StarFormation
+  STAR_FORMATION
+
+  # TacCategory GaseousAstrophysics
+  GASEOUS_ASTROPHYSICS
+
+  # TacCategory StellarRemnants
+  STELLAR_REMNANTS
+
+  # TacCategory GalacticOther
+  GALACTIC_OTHER
+
+  # TacCategory Cosmology
+  COSMOLOGY
+
+  # TacCategory ClustersOfGalaxies
+  CLUSTERS_OF_GALAXIES
+
+  # TacCategory HighZUniverse
+  HIGH_Z_UNIVERSE
+
+  # TacCategory LowZUniverse
+  LOW_Z_UNIVERSE
+
+  # TacCategory ActiveGalaxies
+  ACTIVE_GALAXIES
+
+  # TacCategory ExtragalacticOther
+  EXTRAGALACTIC_OTHER
+}
+
 # Target description
 type Target {
   # Target ID
@@ -5093,14 +5364,14 @@ type Target {
   # DELETED or PRESENT
   existence: Existence!
 
-  # Target name.
-  name: NonEmptyString!
-
   # Program that contains this target
   program(
     # Set to true to include deleted values
     includeDeleted: Boolean! = false
   ): Program!
+
+  # Target name.
+  name: NonEmptyString!
 
   # source profile
   sourceProfile: SourceProfile!
@@ -5261,6 +5532,58 @@ type TargetGroupEdge {
 # TargetId id formatted as `t-[1-9a-f][0-9a-f]*`
 scalar TargetId
 
+# Target properties
+input TargetPropertiesInput {
+  name: NonEmptyString
+  sidereal: SiderealInput
+  nonsidereal: NonsiderealInput
+  sourceProfile: SourceProfileInput
+  existence: Existence
+}
+
+# Choose programId to include all of its targets, observationIds to
+# include each listed observation's targets, or else individual targets
+# via targetIds.
+input TargetSelectInput {
+  programId: ProgramId
+  observationIds: [ObservationId!]
+  targetIds: [TargetId!]
+}
+
+# Target of opportunity activation
+enum toOActivation {
+  # toOActivation None
+  NONE
+
+  # toOActivation Standard
+  STANDARD
+
+  # toOActivation Rapid
+  RAPID
+}
+
+# ToO Activation
+enum ToOActivation {
+  # ToOActivation None
+  NONE
+
+  # ToOActivation Standard
+  STANDARD
+
+  # ToOActivation Rapid
+  RAPID
+}
+
+# Selects the observations for undelete
+input UndeleteObservationInput {
+  select: ObservationSelectInput!
+}
+
+# Selects the targets for undelete
+input UndeleteTargetInput {
+  select: TargetSelectInput!
+}
+
 # Un-normalized spectral energy distribution.  Exactly one of the definitions will be non-null.
 type UnnormalizedSed {
   stellarLibrary: StellarLibrarySpectrum
@@ -5309,58 +5632,23 @@ enum WaterVapor {
 
 type Wavelength {
   # Wavelength in pm
-  picometers: Int!
+  picometers: PosInt!
 
   # Wavelength in Å
-  angstroms: BigDecimal!
+  angstroms: PosBigDecimal!
 
   # Wavelength in nm
-  nanometers: BigDecimal!
+  nanometers: PosBigDecimal!
 
   # Wavelength in µm
-  micrometers: BigDecimal!
-}
-
-# Decimal value in Wavelength
-input WavelengthDecimalInput {
-  # decimal value in associated units
-  value: BigDecimal!
-
-  # units for associated value
-  units: WavelengthUnits!
+  micrometers: PosBigDecimal!
 }
 
 # Wavelength, choose one of the available units
 input WavelengthInput {
-  picometers: Long
-  angstroms: BigDecimal
-  nanometers: BigDecimal
-  micrometers: BigDecimal
-  fromLong: WavelengthLongInput
-  fromDecimal: WavelengthDecimalInput
-}
-
-# Integral value in Wavelength
-input WavelengthLongInput {
-  # integral value in associated units
-  value: Long!
-
-  # units for associated value
-  units: WavelengthUnits!
-}
-
-# Wavelength units
-enum WavelengthUnits {
-  # WavelengthUnits Picometers
-  PICOMETERS
-
-  # WavelengthUnits Angstroms
-  ANGSTROMS
-
-  # WavelengthUnits Nanometers
-  NANOMETERS
-
-  # WavelengthUnits Micrometers
-  MICROMETERS
+  picometers: PosInt
+  angstroms: PosBigDecimal
+  nanometers: PosBigDecimal
+  micrometers: PosBigDecimal
 }
 
