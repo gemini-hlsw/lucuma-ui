@@ -11,11 +11,11 @@ import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 
 package object implicits {
-  implicit class ViewFOps[F[_], A](val self: ViewF[F, A])             extends AnyVal {
+  implicit class ViewFOpticOps[F[_], A](val self: ViewF[F, A])             extends AnyVal {
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B]): ViewF[F, B] =
       self.zoom(splitEpi.get)(splitEpi.modify)
   }
-  implicit class ReuseViewFOps[F[_], A](val self: Reuse[ViewF[F, A]]) extends AnyVal {
+  implicit class ReuseViewFOpticOps[F[_], A](val self: Reuse[ViewF[F, A]]) extends AnyVal {
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
   }
