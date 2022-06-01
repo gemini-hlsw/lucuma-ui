@@ -1,6 +1,7 @@
 val clueVersion            = "0.22.0"
 val lucumaCoreVersion      = "0.39.0"
 val munitVersion           = "0.7.29"
+val munitDisciplineVersion = "1.0.9"
 val munitCatsEffectVersion = "1.0.7"
 
 ThisBuild / tlBaseVersion       := "0.24"
@@ -20,7 +21,9 @@ val coreDependencies = List(
 )
 
 val schemasDependencies = List(
+  "edu.gemini"    %% "lucuma-core-testkit" % lucumaCoreVersion      % Test,
   "org.scalameta" %% "munit"               % munitVersion           % Test,
+  "org.typelevel" %% "discipline-munit"    % munitDisciplineVersion % Test,
   "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectVersion % Test
 )
 
