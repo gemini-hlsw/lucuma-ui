@@ -32,4 +32,6 @@ class PosAngleDecodersSuite extends InputStreamSuite {
 
   test("Override 42") {
     success(4, PosAngleConstraint.ParallacticOverride(a42))
-  }}
+  }
+
+}
