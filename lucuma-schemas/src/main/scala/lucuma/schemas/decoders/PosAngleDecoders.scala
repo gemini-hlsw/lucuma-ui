@@ -4,9 +4,9 @@
 package lucuma.schemas.decoders
 
 import cats.syntax.all._
-import io.circe.{CursorOp, Decoder, DecodingFailure}
+import io.circe.{ CursorOp, Decoder, DecodingFailure }
 import lucuma.core.math.Angle
-import lucuma.core.model.{PosAngle => PosAngleConstraint}
+import lucuma.core.model.{ PosAngle => PosAngleConstraint }
 
 trait PosAngleDecoders {
 
@@ -15,13 +15,17 @@ trait PosAngleDecoders {
     def missingAngle[A](kind: String, ops: => List[CursorOp]): Decoder.Result[A] =
       DecodingFailure(s"The $kind PosAngleConstraint requires an angle", ops).asLeft[A]
 
-    def toPac(n: String, a: Option[Angle], ops: => List[CursorOp]): Decoder.Result[PosAngleConstraint] =
+    def toPac(
+      n:   String,
+      a:   Option[Angle],
+      ops: => List[CursorOp]
+    ): Decoder.Result[PosAngleConstraint] =
       (n, a) match {
-        case ("FIXED",               Some(a)) => PosAngleConstraint.Fixed(a).asRight
-        case ("FIXED",                  None) => missingAngle("FIXED", ops)
-        case ("ALLOW_FLIP",          Some(a)) => PosAngleConstraint.AllowFlip(a).asRight
-        case ("ALLOW_FLIP",             None) => missingAngle("ALLOW_FLIP", ops)
-        case ("AVERAGE_PARALLACTIC",    None) => PosAngleConstraint.AverageParallactic.asRight
+        case ("FIXED", Some(a))               => PosAngleConstraint.Fixed(a).asRight
+        case ("FIXED", None)                  => missingAngle("FIXED", ops)
+        case ("ALLOW_FLIP", Some(a))          => PosAngleConstraint.AllowFlip(a).asRight
+        case ("ALLOW_FLIP", None)             => missingAngle("ALLOW_FLIP", ops)
+        case ("AVERAGE_PARALLACTIC", None)    => PosAngleConstraint.AverageParallactic.asRight
         case ("AVERAGE_PARALLACTIC", Some(a)) => PosAngleConstraint.ParallacticOverride(a).asRight
         case _                                => DecodingFailure(s"Unknown constraint type `$n``", ops).asLeft
       }

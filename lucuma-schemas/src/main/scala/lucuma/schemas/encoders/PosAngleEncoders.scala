@@ -3,10 +3,10 @@
 
 package lucuma.schemas.encoders
 
-import io.circe.{Encoder, Json}
+import io.circe.{ Encoder, Json }
 import io.circe.syntax._
 import lucuma.core.math.Angle
-import lucuma.core.model.{PosAngle => PosAngleConstraint}
+import lucuma.core.model.{ PosAngle => PosAngleConstraint }
 
 trait PosAngleEncoders {
 
