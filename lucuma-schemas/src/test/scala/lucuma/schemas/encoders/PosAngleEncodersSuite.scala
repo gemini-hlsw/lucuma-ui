@@ -6,8 +6,7 @@ package lucuma.schemas.encoders
 import cats.effect.IO
 import io.circe.Encoder
 import lucuma.schemas.decoders._
-import lucuma.core.model.{PosAngle => PosAngleConstraint}
-
+import lucuma.core.model.{ PosAngle => PosAngleConstraint }
 
 class PosAngleEncodersSuite extends InputStreamSuite {
 
@@ -17,7 +16,6 @@ class PosAngleEncodersSuite extends InputStreamSuite {
       pac    <- IO.fromEither(jsonIn.as[PosAngleConstraint])
       jsonOut = Encoder[PosAngleConstraint].apply(pac)
     } yield assertEquals(jsonIn.spaces2, jsonOut.spaces2)
-
 
   test("Unconstrained") {
     roundtrip(1)

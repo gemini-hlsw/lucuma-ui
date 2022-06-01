@@ -5,12 +5,12 @@ package lucuma.schemas.decoders
 
 import cats.effect.IO
 import lucuma.core.math.Angle
-import lucuma.core.model.{PosAngle => PosAngleConstraint}
+import lucuma.core.model.{ PosAngle => PosAngleConstraint }
 
 class PosAngleDecodersSuite extends InputStreamSuite {
 
   val a42: Angle =
-    Angle.fromDMS(42,0,0,0,0)
+    Angle.fromDMS(42, 0, 0, 0, 0)
 
   def success(file: Int, expected: PosAngleConstraint): IO[Unit] =
     assertParsedStreamEquals(s"/pac$file.json", expected)

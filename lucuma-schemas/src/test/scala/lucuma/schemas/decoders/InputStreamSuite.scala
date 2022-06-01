@@ -4,7 +4,7 @@
 package lucuma.schemas.decoders
 
 import cats.effect._
-import io.circe.{Decoder, Json}
+import io.circe.{ Decoder, Json }
 import io.circe.parser._
 import munit.CatsEffectSuite
 
@@ -26,8 +26,8 @@ trait InputStreamSuite extends CatsEffectSuite {
 
     inputStream(file).use { inStream =>
       for {
-        str      <- IO.blocking(scala.io.Source.fromInputStream(inStream).mkString)
-        json     <- IO.fromEither(parse(str))
+        str  <- IO.blocking(scala.io.Source.fromInputStream(inStream).mkString)
+        json <- IO.fromEither(parse(str))
       } yield json
     }
   }
@@ -44,7 +44,9 @@ trait InputStreamSuite extends CatsEffectSuite {
   def assertParsedStreamFails[A: Decoder](jsonFile: String, fail: String): IO[Unit] =
     for {
       r <- parsedResult[A](jsonFile)
-      o <- IO.fromOption(r.swap.toOption)(new RuntimeException(s"Expected a decoding failure, but was successful: $r"))
+      o <- IO.fromOption(r.swap.toOption)(
+             new RuntimeException(s"Expected a decoding failure, but was successful: $r")
+           )
     } yield assertEquals(o.message, fail)
 
 }
