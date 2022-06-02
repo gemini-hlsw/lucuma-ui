@@ -1,0 +1,6 @@
+{
+  "constraint": "AVERAGE_PARALLACTIC",
+  "angle": {
+    "microarcseconds": 151200000000
+  }
+}
