@@ -4,7 +4,9 @@
 package lucuma.schemas.decoders
 
 import cats.syntax.all._
-import io.circe.{ CursorOp, Decoder, DecodingFailure }
+import io.circe.CursorOp
+import io.circe.Decoder
+import io.circe.DecodingFailure
 import lucuma.core.math.Angle
 import lucuma.core.model.{ PosAngle => PosAngleConstraint }
 
