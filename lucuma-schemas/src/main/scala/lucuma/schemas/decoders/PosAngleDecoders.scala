@@ -8,7 +8,7 @@ import io.circe.CursorOp
 import io.circe.Decoder
 import io.circe.DecodingFailure
 import lucuma.core.math.Angle
-import lucuma.core.model.{ PosAngle => PosAngleConstraint }
+import lucuma.core.model.{PosAngle => PosAngleConstraint}
 
 trait PosAngleDecoders {
 

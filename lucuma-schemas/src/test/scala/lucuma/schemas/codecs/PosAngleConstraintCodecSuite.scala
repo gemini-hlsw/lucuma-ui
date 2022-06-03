@@ -6,7 +6,7 @@ package lucuma.schemas.codecs
 import io.circe.testing.CodecTests
 import io.circe.testing.instances.arbitraryJson
 import lucuma.core.model.arb.ArbPosAngle
-import lucuma.core.model.{ PosAngle => PosAngleConstraint }
+import lucuma.core.model.{PosAngle => PosAngleConstraint}
 import lucuma.schemas.decoders._
 import lucuma.schemas.encoders._
 import munit.DisciplineSuite
