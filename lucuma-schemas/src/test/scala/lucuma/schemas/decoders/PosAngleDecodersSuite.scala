@@ -5,7 +5,7 @@ package lucuma.schemas.decoders
 
 import cats.effect.IO
 import lucuma.core.math.Angle
-import lucuma.core.model.{ PosAngle => PosAngleConstraint }
+import lucuma.core.model.{PosAngle => PosAngleConstraint}
 
 class PosAngleDecodersSuite extends InputStreamSuite {
 
