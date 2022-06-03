@@ -4,7 +4,8 @@
 package lucuma.schemas.decoders
 
 import cats.effect._
-import io.circe.{ Decoder, Json }
+import io.circe.Decoder
+import io.circe.Json
 import io.circe.parser._
 import munit.CatsEffectSuite
 

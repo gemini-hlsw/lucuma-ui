@@ -5,8 +5,8 @@ package lucuma.schemas.encoders
 
 import cats.effect.IO
 import io.circe.Encoder
-import lucuma.schemas.decoders._
 import lucuma.core.model.{ PosAngle => PosAngleConstraint }
+import lucuma.schemas.decoders._
 
 class PosAngleEncodersSuite extends InputStreamSuite {
 
