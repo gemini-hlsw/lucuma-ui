@@ -8,7 +8,7 @@ import cats.data.Validated
 import cats.data.ValidatedNec
 import cats.syntax.all._
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.api.{ Validate => RefinedValidate }
+import eu.timepit.refined.api.{Validate => RefinedValidate}
 import eu.timepit.refined.auto._
 import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.types.numeric.PosBigDecimal

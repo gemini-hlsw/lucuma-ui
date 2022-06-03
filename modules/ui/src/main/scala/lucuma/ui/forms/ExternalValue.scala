@@ -11,7 +11,7 @@ import crystal.react._
 import crystal.react.implicits._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.extra.StateSnapshot
-import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
+import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
 import japgolly.scalajs.react.util.Effect
 import org.typelevel.log4cats.Logger
 

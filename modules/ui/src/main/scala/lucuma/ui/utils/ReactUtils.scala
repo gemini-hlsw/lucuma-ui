@@ -5,7 +5,7 @@ package lucuma.ui.utils
 
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.ReactMouseEvent
-import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
+import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
 
 trait ReactUtils {
   def linkOverride(f: => DefaultS[Unit]): ReactMouseEvent => Callback =
