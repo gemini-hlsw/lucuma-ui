@@ -7,7 +7,7 @@ import cats.Id
 import cats.Monoid
 import cats.syntax.all._
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.util.DefaultEffects.{ Sync => DefaultS }
+import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated

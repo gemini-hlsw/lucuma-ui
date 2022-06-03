@@ -6,7 +6,7 @@ package lucuma.ui.optics
 import cats.data.Validated._
 import cats.syntax.all._
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.api.{ Validate => RefinedValidate }
+import eu.timepit.refined.api.{Validate => RefinedValidate}
 import eu.timepit.refined.auto._
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt

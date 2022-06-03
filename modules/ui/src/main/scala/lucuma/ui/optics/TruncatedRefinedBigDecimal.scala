@@ -5,7 +5,7 @@ package lucuma.ui.optics
 
 import cats.Order
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.api.{ Validate => RefinedValidate }
+import eu.timepit.refined.api.{Validate => RefinedValidate}
 import eu.timepit.refined.cats._
 import eu.timepit.refined.refineV
 import lucuma.core.optics.SplitEpi

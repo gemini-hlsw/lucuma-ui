@@ -6,7 +6,7 @@ package lucuma.ui.optics
 import cats.data.Validated
 import cats.syntax.all._
 import eu.timepit.refined.api.Refined
-import eu.timepit.refined.api.{ Validate => RefinedValidate }
+import eu.timepit.refined.api.{Validate => RefinedValidate}
 import lucuma.core.optics._
 import monocle.Iso
 import monocle.Prism
