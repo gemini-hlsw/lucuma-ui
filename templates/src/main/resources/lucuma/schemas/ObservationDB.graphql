@@ -2202,6 +2202,16 @@ input ObservationPropertiesInput {
   activeStatus: ObsActiveStatus
 
   """
+  Reference time used for time-dependent calculations such as average parallactic angle
+  """
+  visualizationTime: Instant
+
+  """
+  Position angle constraint, if any. Set to null to remove all position angle constraints
+  """
+  posAngleConstraint: PosAngleConstraintInput
+
+  """
   The targetEnvironment defaults to empty if not specified on creation, and may be edited but not deleted
   """
   targetEnvironment: TargetEnvironmentInput
@@ -2292,6 +2302,23 @@ input PoorWeatherInput {
   The minPercentTime field is required when creating a new instance of poorWeather, but optional when editing
   """
   minPercentTime: IntPercent
+}
+
+"""
+Create or edit position angle constraint.  If not specified, then the
+position angle required to reach the best guide star option will be used.
+
+"""
+input PosAngleConstraintInput {
+  """
+  The constraint field is required when creating a new instance of position angle constraint type, but optional when editing
+  """
+  constraint: PosAngleConstraintType
+
+  """
+  The angle field is required when creating a new instance of fixed any, if any (not required for average parallactic, but optional when editing
+  """
+  angle: AngleInput
 }
 
 """An `Long` in the range from 1 to 9223372036854775807"""
@@ -4601,6 +4628,14 @@ type Observation {
   """Observation operational status"""
   activeStatus: ObsActiveStatus!
 
+  """
+  Reference time used by default for visualization and time-dependent calculations (e.g., average parallactic angle)
+  """
+  visualizationTime: Instant
+
+  """Position angle constraint, if any."""
+  posAngleConstraint: PosAngleConstraint
+
   """Observation planned time calculation."""
   plannedTime: PlannedTimeSummary!
 
@@ -4785,6 +4820,27 @@ type PlannedTimeSummary {
 type PoorWeather implements ProposalClass {
   """Minimum percent of requested observation time that is required"""
   minPercentTime: IntPercent!
+}
+
+"""Constraints (if any) on the observation's position angle."""
+type PosAngleConstraint {
+  """The position angle constraint type in use"""
+  constraint: PosAngleConstraintType!
+
+  """Describes the fixed position angle constraint, if set"""
+  angle: Angle
+}
+
+"""Position angle constraint type"""
+enum PosAngleConstraintType {
+  """PosAngleConstraintType Fixed"""
+  FIXED
+
+  """PosAngleConstraintType AllowFlip"""
+  ALLOW_FLIP
+
+  """PosAngleConstraintType AverageParallactic"""
+  AVERAGE_PARALLACTIC
 }
 
 """A `BigDecimal` greater than 0"""
