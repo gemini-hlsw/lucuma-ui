@@ -4,7 +4,7 @@ val munitVersion           = "0.7.29"
 val munitDisciplineVersion = "1.0.9"
 val munitCatsEffectVersion = "1.0.7"
 
-ThisBuild / tlBaseVersion       := "0.24"
+ThisBuild / tlBaseVersion       := "0.25"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
