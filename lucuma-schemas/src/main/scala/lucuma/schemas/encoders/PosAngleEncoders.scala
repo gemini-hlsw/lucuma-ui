@@ -7,7 +7,7 @@ import io.circe.Encoder
 import io.circe.Json
 import io.circe.syntax._
 import lucuma.core.math.Angle
-import lucuma.core.model.{PosAngle => PosAngleConstraint}
+import lucuma.core.model.PosAngleConstraint
 
 trait PosAngleEncoders {
 
@@ -27,7 +27,6 @@ trait PosAngleEncoders {
       case PosAngleConstraint.AllowFlip(a)           => withAngle("ALLOW_FLIP", a)
       case PosAngleConstraint.AverageParallactic     => withoutAngle("AVERAGE_PARALLACTIC")
       case PosAngleConstraint.ParallacticOverride(a) => withAngle("AVERAGE_PARALLACTIC", a)
-      case PosAngleConstraint.Unconstrained          => Json.Null
     }
 
   }
