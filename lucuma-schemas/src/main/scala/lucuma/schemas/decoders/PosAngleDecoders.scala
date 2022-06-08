@@ -8,7 +8,7 @@ import io.circe.CursorOp
 import io.circe.Decoder
 import io.circe.DecodingFailure
 import lucuma.core.math.Angle
-import lucuma.core.model.{PosAngle => PosAngleConstraint}
+import lucuma.core.model.PosAngleConstraint
 
 trait PosAngleDecoders {
 
@@ -33,14 +33,11 @@ trait PosAngleDecoders {
       }
 
     Decoder.instance { c =>
-      if (c.value.isNull)
-        PosAngleConstraint.Unconstrained.asRight
-      else
-        for {
-          n <- c.downField("constraint").as[String]
-          a <- c.downField("angle").as[Option[Angle]]
-          p <- toPac(n, a, c.history)
-        } yield p
+      for {
+        n <- c.downField("constraint").as[String]
+        a <- c.downField("angle").as[Option[Angle]]
+        p <- toPac(n, a, c.history)
+      } yield p
     }
   }
 

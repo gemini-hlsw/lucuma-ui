@@ -131,7 +131,7 @@ trait ObservationDB {
     type Planet                         = model.UnnormalizedSED.Planet
     type PlanetaryNebula                = model.UnnormalizedSED.PlanetaryNebula
     type PointSource                    = model.SourceProfile.Point
-    type PosAngle                       = model.PosAngle
+    type PosAngleConstraint             = model.PosAngleConstraint
     type PowerLaw                       = model.UnnormalizedSED.PowerLaw
     type ProperMotion                   = math.ProperMotion
     type ProperMotionDeclination        = math.ProperMotion.Dec
