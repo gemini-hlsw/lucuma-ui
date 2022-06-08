@@ -5,7 +5,7 @@ package lucuma.schemas.decoders
 
 import cats.effect.IO
 import lucuma.core.math.Angle
-import lucuma.core.model.{PosAngle => PosAngleConstraint}
+import lucuma.core.model.PosAngleConstraint
 
 class PosAngleDecodersSuite extends InputStreamSuite {
 
@@ -17,10 +17,6 @@ class PosAngleDecodersSuite extends InputStreamSuite {
 
   def failure(file: Int, expected: String): IO[Unit] =
     assertParsedStreamFails[PosAngleConstraint](s"/pac$file.json", expected)
-
-  test("Unconstrained") {
-    success(1, PosAngleConstraint.Unconstrained)
-  }
 
   test("Fixed error") {
     failure(2, "The FIXED PosAngleConstraint requires an angle")
