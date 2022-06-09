@@ -16,6 +16,8 @@ import lucuma.ui.optics.TruncatedDec
 import lucuma.ui.optics.TruncatedRA
 import mouse.all._
 
+import scala.annotation.unused
+
 sealed trait AuditResult extends Product with Serializable
 object AuditResult {
   case object Reject                                    extends AuditResult
@@ -156,6 +158,25 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
     }
     if (allowNeg) auditor.allowNeg else auditor.denyNeg
   }
+
+  // Separators longer than a single Char add the complexity that the separator itself may be being edited, not sure it's worth it.
+  def toSequence[L[_]](
+    separator:           Char = ','
+  )(implicit @unused ev: SeqGuard[L]): ChangeAuditor[L[A]] =
+    ChangeAuditor { (str, cursorPos) =>
+      val startIndex = str.lastIndexOf(separator.toString, cursorPos - 1) + 1
+      val endIndex_  = str.indexOf(separator.toString, cursorPos)
+      val endIndex   = if (endIndex_ == -1) str.length else endIndex_
+
+      this.audit(str.substring(startIndex, endIndex), cursorPos - startIndex) match {
+        case AuditResult.NewString(newS, cursorOffset) =>
+          AuditResult.NewString(
+            str.substring(0, startIndex) + newS + str.substring(endIndex),
+            cursorOffset + startIndex
+          )
+        case other                                     => other
+      }
+    }
 
   private def checkAgainstSelf(str: String, cursor: Int, result: AuditResult): AuditResult = {
     def rejectOrPassOn(s: String, c: Int) = audit(s, c) match {
