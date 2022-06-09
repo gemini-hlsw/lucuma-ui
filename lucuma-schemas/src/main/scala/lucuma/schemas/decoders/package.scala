@@ -12,3 +12,4 @@ package object decoders
     with ConstraintSetDecoders
     with SequenceDecoders
     with PosAngleDecoders
+    with ProposalDecoders

@@ -5,6 +5,7 @@ package lucuma.schemas.decoders
 
 import cats.syntax.all._
 import coulomb._
+import eu.timepit.refined.types.numeric.NonNegLong
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
 import io.circe.generic.semiauto
@@ -22,6 +23,7 @@ import lucuma.core.math.RightAscension
 import lucuma.core.math.Wavelength
 import lucuma.core.math.dimensional._
 import lucuma.core.math.units.CentimetersPerSecond
+import lucuma.core.model.NonNegDuration
 
 import java.time.Duration
 import java.time.temporal.ChronoUnit
@@ -101,6 +103,12 @@ trait CoreModelDecoders {
     _.downField("microseconds")
       .as[Long]
       .map(l => Duration.of(l, ChronoUnit.MICROS))
+  )
+
+  implicit val nonNegDurationDecoder: Decoder[NonNegDuration] = Decoder.instance(
+    _.downField("microseconds")
+      .as[NonNegLong]
+      .map(l => NonNegDuration.unsafeFrom(Duration.of(l.value, ChronoUnit.MICROS)))
   )
 
   implicit val wavelengthDecoder: Decoder[Wavelength] = Decoder.instance(
