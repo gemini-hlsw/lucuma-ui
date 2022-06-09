@@ -7,6 +7,7 @@ import cats.data.NonEmptyChain
 import cats.data.NonEmptyList
 import cats.data.Validated
 import cats.syntax.all._
+import eu.timepit.refined.auto._
 import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.optics.Format
 
@@ -15,6 +16,10 @@ package object optics {
   type ValidFormatNec[E, T, A] = ValidFormat[NonEmptyChain[E], T, A]
   type ValidFormatNel[E, T, A] = ValidFormat[NonEmptyList[E], T, A]
   type ValidFormatInput[A]     = ValidFormatNec[NonEmptyString, String, A]
+
+  sealed trait SeqGuard[L[_]]
+  implicit object ListSeqGuard         extends SeqGuard[List]
+  implicit object NonEmptyListSeqGuard extends SeqGuard[NonEmptyList]
 
   /**
    * Build `ValidFormatInput` from another one, but allow empty values to become `None`
@@ -27,6 +32,21 @@ package object optics {
           else
             self.getValidated(a).map(_.some),
         (a: Option[A]) => a.foldMap(self.reverseGet)
+      )
+
+    def toNel(
+      separator: NonEmptyString = ",",
+      error:     Option[NonEmptyString] = none // If not set, will show the list of individual errors
+    ): ValidFormatInput[NonEmptyList[A]] =
+      ValidFormatInput[NonEmptyList[A]](
+        _.split(separator).toList.toNel
+          .toRight[NonEmptyChain[NonEmptyString]](NonEmptyChain("Cannot be empty"))
+          .flatMap(
+            _.traverse(self.getValidated.andThen(_.toEither))
+              .leftMap(errorNec => error.fold(errorNec)(e => NonEmptyChain(e)))
+          )
+          .toValidated,
+        _.map(self.reverseGet).toList.mkString(separator)
       )
   }
 }

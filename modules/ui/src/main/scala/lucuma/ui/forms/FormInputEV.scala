@@ -157,8 +157,8 @@ object FormInputEV {
 
       getCursor
         .map {
-          case Some(c) => c._1
-          case _       => value.length
+          case Some((start, _)) => start
+          case _                => value.length
         }
         .flatMap { c =>
           auditor.audit(value, c) match {
@@ -201,7 +201,9 @@ object FormInputEV {
       )
 
     def onKeyDown(props: Props[EV, A], state: State): ReactKeyboardEventFromInput => Callback = e =>
-      if (e.keyCode === KeyCode.Enter)
+      if (
+        e.keyCode === KeyCode.Enter
+      ) // TODO keyCode can be undefined (despite the facade). This happens when selecting a value in form auto-fill.
         submit(props, state)
       else
         $.setStateL(State.lastKeyCode)(e.keyCode) *> clearStateCursor
@@ -279,17 +281,26 @@ object FormInputEV {
         // Force new value from props if the prop changes (or we are initializing).
         stateOpt match {
           case Some(state) if newValue === state.modelValue => state
-          case _                                            => State(newValue, newValue, none, 0, none, none)
+          case Some(state)                                  =>
+            State(
+              newValue,
+              newValue,
+              (newValue.length, newValue.length).some,
+              state.lastKeyCode,
+              state.inputElement,
+              none
+            )
+          case None                                         =>
+            State(newValue, newValue, none, 0, none, none)
         }
       }
       .renderBackend[Backend[EV, A]]
-      .componentDidMount($ =>
-        $.setStateL(State.inputElement)($.backend.getInputElement($.props.id))
-          *>
-            $.backend
-              .audit($.props.changeAuditor, $.props.valGet)
-              .flatMap($.backend.validate($.props, _))
-      )
+      .componentDidMount { $ =>
+        $.setStateL(State.inputElement)($.backend.getInputElement($.props.id)) >>
+          $.backend
+            .audit($.props.changeAuditor, $.props.valGet)
+            .flatMap($.backend.validate($.props, _))
+      }
       .componentDidUpdate(_.backend.setCursorFromState)
       .configure(Reusability.shouldComponentUpdate)
       .build
