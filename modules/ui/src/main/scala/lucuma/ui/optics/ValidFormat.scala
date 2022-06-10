@@ -65,11 +65,25 @@ abstract class ValidFormat[E, T, A] extends Serializable { self =>
   def andThen[B](f: SplitEpi[A, B], error: E): ValidFormat[E, T, B] =
     andThen(ValidFormat.fromFormat(f.asFormat, error))
 
-  // /** Format is an invariant functor over A. */
+  /** Compose with a SplitMono. */
+  def andThen[B](f: SplitMono[A, B]): ValidFormat[E, T, B] =
+    ValidFormat(
+      getValidated(_).map(f.get),
+      reverseGet.compose(f.reverseGet)
+    )
+
+  /** Compose with a Wedge. */
+  def andThen[B](f: Wedge[A, B]): ValidFormat[E, T, B] =
+    ValidFormat(
+      getValidated(_).map(f.get),
+      reverseGet.compose(f.reverseGet)
+    )
+
+  // /** ValidFormat is an invariant functor over A. */
   def imapA[B](f: B => A, g: A => B): ValidFormat[E, T, B] =
     ValidFormat(getValidated(_).map(g), f.andThen(reverseGet))
 
-  // /** Format is an invariant functor over T. */
+  // /** ValidFormat is an invariant functor over T. */
   def imapT[S](f: T => S, g: S => T): ValidFormat[E, S, A] =
     ValidFormat(g.andThen(getValidated), reverseGet.andThen(f))
 }
