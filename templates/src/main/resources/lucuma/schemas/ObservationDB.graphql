@@ -5,6 +5,12 @@ input AddDatasetEventInput {
   payload: DatasetEventPayloadInput!
 }
 
+"""The result of adding a dataset event."""
+type AddDatasetEventResult {
+  """The new dataset event that was added."""
+  event: DatasetEvent!
+}
+
 """SequenceEvent creation parameters"""
 input AddSequenceEventInput {
   visitId: VisitId!
@@ -12,11 +18,23 @@ input AddSequenceEventInput {
   payload: SequenceEventPayloadInput!
 }
 
+"""The result of adding a sequence event."""
+type AddSequenceEventResult {
+  """The new sequence event that was added."""
+  event: SequenceEvent!
+}
+
 """StepEvent creation parameters"""
 input AddStepEventInput {
   visitId: VisitId!
   location: StepEventLocationInput!
   payload: StepEventPayloadInput!
+}
+
+"""The result of adding a step event."""
+type AddStepEventResult {
+  """The new step event that was added."""
+  event: StepEvent!
 }
 
 """Air mass range creation and edit parameters"""
@@ -196,12 +214,34 @@ input CloneObservationInput {
 }
 
 """
+The result of cloning an observation, containing the original and new observations.
+"""
+type CloneObservationResult {
+  """The original unmodified observation which was cloned."""
+  originalObservation: Observation!
+
+  """The new cloned (but possibly modified) observation."""
+  newObservation: Observation!
+}
+
+"""
 Describes a target clone operation, making any edits in the patch parameter and replacing the target in the selected observations
 """
 input CloneTargetInput {
   targetId: TargetId!
   patch: TargetPropertiesInput
   replaceIn: [ObservationId!]
+}
+
+"""
+The result of cloning a target, containing the original and new targets.
+"""
+type CloneTargetResult {
+  """The original unmodified target which was cloned"""
+  originalTarget: Target!
+
+  """The new cloned (but possibly modified) target"""
+  newTarget: Target!
 }
 
 """Constraint set creation and editing parameters"""
@@ -244,15 +284,33 @@ input CreateObservationInput {
   properties: ObservationPropertiesInput
 }
 
+"""The result of creating a new observation."""
+type CreateObservationResult {
+  """The newly created observation."""
+  observation: Observation!
+}
+
 """Program creation parameters"""
 input CreateProgramInput {
   properties: ProgramPropertiesInput
+}
+
+"""The result of creating a new program."""
+type CreateProgramResult {
+  """The newly created program."""
+  program: Program!
 }
 
 """Target creation parameters"""
 input CreateTargetInput {
   programId: ProgramId!
   properties: TargetPropertiesInput!
+}
+
+"""The result of creating a new target."""
+type CreateTargetResult {
+  """The newly created target."""
+  target: Target!
 }
 
 """Dark calibration step"""
@@ -323,13 +381,25 @@ input DeclinationInput {
 }
 
 """Selects the observations for delete"""
-input DeleteObservationInput {
+input DeleteObservationsInput {
   select: ObservationSelectInput!
 }
 
+"""The result of performing an observation delete mutation."""
+type DeleteObservationsResult {
+  """The deleted observations."""
+  observations: [Observation!]!
+}
+
 """Selects the targets for delete"""
-input DeleteTargetInput {
+input DeleteTargetsInput {
   select: TargetSelectInput!
+}
+
+"""The result of performing a target delete mutation."""
+type DeleteTargetsResult {
+  """The deleted targets."""
+  targets: [Target!]!
 }
 
 """Demo science"""
@@ -353,15 +423,21 @@ Input for bulk editing multiple observations.  Select observations
 with the 'select' input and specify the changes in 'edit'.
 
 """
-input EditAsterismInput {
+input EditAsterismsInput {
   select: ObservationSelectInput!
-  patch: [EditAsterismPatchInput!]!
+  patch: [EditAsterismsPatchInput!]!
 }
 
 """Add or delete targets in an asterism"""
-input EditAsterismPatchInput {
+input EditAsterismsPatchInput {
   add: TargetId
   delete: TargetId
+}
+
+"""The result of editing the asterism of the selected observations."""
+type EditAsterismsResult {
+  """The edited observations."""
+  observations: [Observation!]!
 }
 
 """Dataset selection and update description"""
@@ -370,10 +446,22 @@ input EditDatasetInput {
   patch: DatasetPropertiesInput!
 }
 
+"""The result of editing the selected datasets."""
+type EditDatasetsResult {
+  """The edited datasets."""
+  datasets: [Dataset!]!
+}
+
 """Observation selection and update description"""
-input EditObservationInput {
+input EditObservationsInput {
   select: ObservationSelectInput!
   patch: ObservationPropertiesInput!
+}
+
+"""The result of editing select observations."""
+type EditObservationsResult {
+  """The edited observations."""
+  observations: [Observation!]!
 }
 
 """Program selection and update description"""
@@ -382,10 +470,22 @@ input EditProgramInput {
   patch: ProgramPropertiesInput!
 }
 
+"""The result of editing the selected program."""
+type EditProgramResult {
+  """The edited program."""
+  program: Program
+}
+
 """Target selection and update description."""
-input EditTargetInput {
+input EditTargetsInput {
   select: TargetSelectInput!
   patch: TargetPropertiesInput!
+}
+
+"""The result of editing select targets."""
+type EditTargetsResult {
+  """The edited targets."""
+  targets: [Target!]!
 }
 
 """Type of edit that triggered an event"""
@@ -1090,9 +1190,9 @@ input GmosNorthLongSlitAdvancedConfigInput {
   explicitRoi: GmosRoi
 
   """
-  The explicitWavelengthDithers field may be unset by assigning a null value, or ignored by skipping it altogether
+  The explicitWavelengthDithersNm field may be unset by assigning a null value, or ignored by skipping it altogether
   """
-  explicitWavelengthDithers: [Int!]
+  explicitWavelengthDithersNm: [BigDecimal!]
 
   """
   The explicitSpatialOffsets field may be unset by assigning a null value, or ignored by skipping it altogether
@@ -1607,9 +1707,9 @@ input GmosSouthLongSlitAdvancedConfigInput {
   explicitRoi: GmosRoi
 
   """
-  The explicitWavelengthDithers field may be unset by assigning a null value, or ignored by skipping it altogether
+  The explicitWavelengthDithersNm field may be unset by assigning a null value, or ignored by skipping it altogether
   """
-  explicitWavelengthDithers: [Int!]
+  explicitWavelengthDithersNm: [BigDecimal!]
 
   """
   The explicitSpatialOffsets field may be unset by assigning a null value, or ignored by skipping it altogether
@@ -1988,7 +2088,7 @@ type Mutation {
           
     """
     input: AddDatasetEventInput!
-  ): DatasetEvent!
+  ): AddDatasetEventResult!
 
   """
   Adds a sequence event associated with the given visit. Multiple events
@@ -2006,7 +2106,7 @@ type Mutation {
           
     """
     input: AddSequenceEventInput!
-  ): SequenceEvent!
+  ): AddSequenceEventResult!
 
   """
   Adds a new step event associated with the given visit. Multiple events
@@ -2025,11 +2125,11 @@ type Mutation {
           
     """
     input: AddStepEventInput!
-  ): StepEvent!
+  ): AddStepEventResult!
   cloneObservation(
     """Parameters for cloning an existing observation"""
     input: CloneObservationInput!
-  ): Observation!
+  ): CloneObservationResult!
 
   """
   Makes a copy of an existing target, setting it to unobserved and to PRESENT.  If observationIds is specified, the clone will replace the existing target in those observations
@@ -2037,19 +2137,19 @@ type Mutation {
   cloneTarget(
     """Parameters for cloning an existing target"""
     input: CloneTargetInput!
-  ): Target!
+  ): CloneTargetResult!
 
   """Creates a new observation according to provided parameters"""
   createObservation(
     """Observation description"""
     input: CreateObservationInput!
-  ): Observation!
+  ): CreateObservationResult!
 
   """Creates a new program according to provided properties"""
   createProgram(
     """Program description"""
     input: CreateProgramInput!
-  ): Program
+  ): CreateProgramResult!
 
   """
   Creates a new target according to the provided parameters.  Only one of sidereal or nonsidereal may be specified.
@@ -2059,83 +2159,83 @@ type Mutation {
     Target description.  One (and only one) of sidereal or nonsidereal must be specified.
     """
     input: CreateTargetInput!
-  ): Target!
+  ): CreateTargetResult!
 
   """Deletes all the observations identified by the `select` field"""
-  deleteObservation(
+  deleteObservations(
     """Parameters used to select observations for delete"""
-    input: DeleteObservationInput!
-  ): [Observation!]!
+    input: DeleteObservationsInput!
+  ): DeleteObservationsResult!
 
   """Deletes all the targets identified by the `select` field"""
-  deleteTarget(
+  deleteTargets(
     """Parameters used to select observations for delete"""
-    input: DeleteTargetInput!
-  ): [Target!]!
+    input: DeleteTargetsInput!
+  ): DeleteTargetsResult!
 
   """
   Edit asterisms, adding or deleting targets, in (potentially) multiple
   observations at once.
           
   """
-  editAsterism(
+  editAsterisms(
     """Bulk edit asterism"""
-    input: EditAsterismInput!
-  ): [Observation!]!
-  editDataset(
+    input: EditAsterismsInput!
+  ): EditAsterismsResult!
+  editDatasets(
     """Parameters for editing existing datasets"""
     input: EditDatasetInput!
-  ): [Dataset!]!
-  editObservation(
+  ): EditDatasetsResult!
+  editObservations(
     """Parameters for editing existing observations"""
-    input: EditObservationInput!
-  ): [Observation!]!
+    input: EditObservationsInput!
+  ): EditObservationsResult!
   editProgram(
     """Parameters for editing an existing program"""
     input: EditProgramInput!
-  ): Program
+  ): EditProgramResult!
 
   """Edits existing targets"""
-  editTarget(
+  editTargets(
     """Parameters for editing existing targets. """
-    input: EditTargetInput!
-  ): [Target!]!
+    input: EditTargetsInput!
+  ): EditTargetsResult!
 
   """Record a new step"""
   recordGmosNorthStep(
     """GmosNorth step configuration parameters"""
     input: RecordGmosNorthStepInput!
-  ): GmosNorthStepRecord!
+  ): RecordGmosNorthStepResult!
 
   """Record a new visit"""
   recordGmosNorthVisit(
     """VisitRecord creation parameters"""
     input: RecordGmosNorthVisitInput!
-  ): GmosNorthVisitRecord!
+  ): RecordGmosNorthVisitResult!
 
   """Record a new step"""
   recordGmosSouthStep(
     """GmosSouth step configuration parameters"""
     input: RecordGmosSouthStepInput!
-  ): GmosSouthStepRecord!
+  ): RecordGmosSouthStepResult!
 
   """Record a new visit"""
   recordGmosSouthVisit(
     """VisitRecord creation parameters"""
     input: RecordGmosSouthVisitInput!
-  ): GmosSouthVisitRecord!
+  ): RecordGmosSouthVisitResult!
 
   """Undeletes all the observations identified by the `select` field"""
-  undeleteObservation(
+  undeleteObservations(
     """Parameters used to select observations for undelete"""
-    input: UndeleteObservationInput!
-  ): [Observation!]!
+    input: UndeleteObservationsInput!
+  ): UndeleteObservationsResult!
 
   """Undeletes all the targets identified by the `select` field"""
-  undeleteTarget(
+  undeleteTargets(
     """Parameters used to select observations for undelete"""
-    input: UndeleteTargetInput!
-  ): [Target!]!
+    input: UndeleteTargetsInput!
+  ): UndeleteTargetsResult!
 }
 
 """Time duration input"""
@@ -2453,10 +2553,22 @@ input RecordGmosNorthStepInput {
   stepConfig: GmosNorthStepInput!
 }
 
+"""The result of recording a GmosNorth step."""
+type RecordGmosNorthStepResult {
+  """The newly added step record itself."""
+  stepRecord: GmosNorthStepRecord!
+}
+
 """Input parameters for creating a new GmosNorth VisitRecord"""
 input RecordGmosNorthVisitInput {
   observationId: ObservationId!
   static: GmosNorthStaticInput!
+}
+
+"""The result of recording a GmosNorth visit."""
+type RecordGmosNorthVisitResult {
+  """The newly added visit record itself."""
+  visitRecord: GmosNorthVisitRecord!
 }
 
 """Input parameters for creating a new GmosSouth StepRecord"""
@@ -2466,10 +2578,22 @@ input RecordGmosSouthStepInput {
   stepConfig: GmosSouthStepInput!
 }
 
+"""The result of recording a GmosSouth step."""
+type RecordGmosSouthStepResult {
+  """The newly added step record itself."""
+  stepRecord: GmosSouthStepRecord!
+}
+
 """Input parameters for creating a new GmosSouth VisitRecord"""
 input RecordGmosSouthVisitInput {
   observationId: ObservationId!
   static: GmosSouthStaticInput!
+}
+
+"""The result of recording a GmosSouth visit."""
+type RecordGmosSouthVisitResult {
+  """The newly added visit record itself."""
+  visitRecord: GmosSouthVisitRecord!
 }
 
 """Right Ascension, choose one of the available units"""
@@ -2841,13 +2965,25 @@ input TargetSelectInput {
 }
 
 """Selects the observations for undelete"""
-input UndeleteObservationInput {
+input UndeleteObservationsInput {
   select: ObservationSelectInput!
 }
 
+"""The result of performing an observation undelete mutation."""
+type UndeleteObservationsResult {
+  """The undeleted observations."""
+  observations: [Observation!]!
+}
+
 """Selects the targets for undelete"""
-input UndeleteTargetInput {
+input UndeleteTargetsInput {
   select: TargetSelectInput!
+}
+
+"""The result of performing a target undelete mutation."""
+type UndeleteTargetsResult {
+  """The undeleted targets."""
+  targets: [Target!]!
 }
 
 """Un-normalized SED input parameters.  Define one value only."""
@@ -4037,7 +4173,7 @@ type GmosNorthLongSlitAdvanced {
   """
   Explicitly specified wavelength dithers required to fill in the chip gaps (in nm), taking the place of the calculated value based on the grating dispersion
   """
-  explicitWavelengthDithers: [Int!]
+  explicitWavelengthDithersNm: [BigDecimal!]
 
   """Explicitly specified spatial q offsets, overriding the default"""
   explicitSpatialOffsets: [q!]
@@ -4304,7 +4440,7 @@ type GmosSouthLongSlitAdvanced {
   """
   Explicitly specified wavelength dithers required to fill in the chip gaps (in nm), taking the place of the calculated value based on the grating dispersion
   """
-  explicitWavelengthDithers: [Int!]
+  explicitWavelengthDithersNm: [BigDecimal!]
 
   """Explicitly specified spatial q offsets, overriding the default"""
   explicitSpatialOffsets: [q!]

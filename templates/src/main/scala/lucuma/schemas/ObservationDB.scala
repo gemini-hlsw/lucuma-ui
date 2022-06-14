@@ -36,6 +36,7 @@ trait ObservationDB {
     type NonEmptyString   = eu.timepit.refined.types.string.NonEmptyString
     type NonNegBigDecimal = eu.timepit.refined.types.numeric.NonNegBigDecimal
     type NonNegInt        = eu.timepit.refined.types.numeric.NonNegInt
+    type NonNegLong       = eu.timepit.refined.types.numeric.NonNegLong
     type PosBigDecimal    = eu.timepit.refined.types.numeric.PosBigDecimal
     type PosInt           = eu.timepit.refined.types.numeric.PosInt
     type PosLong          = eu.timepit.refined.types.numeric.PosLong
