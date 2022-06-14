@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.36"
+ThisBuild / tlBaseVersion       := "0.37"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -6,7 +6,7 @@ lazy val FUILess = "2.8.7"
 
 lazy val catsVersion            = "2.8.0"
 lazy val crystalVersion         = "0.29.0"
-lazy val lucumaCoreVersion      = "0.43.1"
+lazy val lucumaCoreVersion      = "0.44.0"
 lazy val monocleVersion         = "3.1.0"
 lazy val mouseVersion           = "1.1.0"
 lazy val reactCommonVersion     = "0.17.0"
@@ -21,7 +21,7 @@ ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
 addCommandAlias(
   "fixImports",
-  "; scalafix OrganizeImports; Test/scalafix OrganizeImports; scalafmtAll"
+  "; scalafix OrganizeImports; Test/scalafix OrganizeImports"
 )
 
 ThisBuild / scalacOptions ++= Seq(

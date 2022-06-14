@@ -1,10 +1,10 @@
 // Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package lucuma.ui.optics
+package lucuma.ui.input
 
 import eu.timepit.refined.types.numeric.NonNegInt
-import lucuma.ui.optics.FormatUtils._
+import lucuma.ui.input.FormatUtils._
 import munit.DisciplineSuite
 import org.scalacheck.Arbitrary._
 import org.scalacheck.Prop._
