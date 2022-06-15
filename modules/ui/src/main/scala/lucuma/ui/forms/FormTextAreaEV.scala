@@ -4,11 +4,10 @@
 package lucuma.ui.forms
 
 import cats.syntax.all._
-import crystal.ViewF
+import crystal.react.View
 import crystal.react.hooks._
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react._
-import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
 import japgolly.scalajs.react.vdom.html_<^._
 import react.common._
 import react.semanticui._
@@ -38,7 +37,7 @@ final case class FormTextAreaEV[EV[_]](
   width:           js.UndefOr[SemanticWidth] = js.undefined,
   modifiers:       Seq[TagMod] = Seq.empty
 )(implicit val ev: ExternalValue[EV])
-    extends ReactFnProps[FormTextAreaEV[EV]](FormTextAreaEV.buildComponent[EV]) {
+    extends ReactFnProps[FormTextAreaEV[Any]](FormTextAreaEV.component) {
   def valGet: String = ev.get(value).orEmpty
 
   def valSet: String => Callback = ev.set(value)
@@ -46,20 +45,22 @@ final case class FormTextAreaEV[EV[_]](
 
 object FormTextAreaEV {
   type Props[EV[_]] = FormTextAreaEV[EV]
-  type View[A]      = ViewF[DefaultS, A]
 
-  def onChange[EV[_]](props: Props[EV], valueView: View[String]): TextArea.Event =
+  private def onChange[EV[_]](props: Props[EV], valueView: View[String]): TextArea.Event =
     (_: TextArea.ReactChangeEvent, tap: TextArea.TextAreaProps) => {
       val v = tap.value.asInstanceOf[String]
       valueView.set(v) >> props.onTextChange(v)
     }
 
-  def onBlur[EV[_]](props: Props[EV], valueView: View[String]): Callback =
+  private def onBlur[EV[_]](props: Props[EV], valueView: View[String]): Callback =
     props.valSet(valueView.get)
 
-  def buildComponent[EV[_]] = ScalaFnComponent
+  private def buildComponent[EV[_]] = ScalaFnComponent
     .withHooks[Props[EV]]
     .useStateViewBy(props => props.valGet)
+    .useEffectWithDepsBy((props, _) => props.valGet)((_, valueView) =>
+      newValue => valueView.set(newValue)
+    )
     .render((props, valueView) =>
       FormTextArea(
         as = props.as,
@@ -81,4 +82,6 @@ object FormTextAreaEV {
           props.modifiers :+ (^.id := props.id.value) :+ (^.onBlur --> onBlur(props, valueView))
       )
     )
+
+  protected val component = buildComponent[Any]
 }
