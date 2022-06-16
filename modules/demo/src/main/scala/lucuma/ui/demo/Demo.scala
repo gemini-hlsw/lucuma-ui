@@ -321,7 +321,7 @@ trait AppMain extends IOApp.Simple {
 
     val AppStateProvider = StateProvider(initialModel)
 
-    (AppStateProvider((rootComponent _).reuseAlways)).renderIntoDOM(container)
+    AppStateProvider((rootComponent _).reuseAlways).renderIntoDOM(container)
 
     ()
   }

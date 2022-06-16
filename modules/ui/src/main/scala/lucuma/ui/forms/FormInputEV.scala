@@ -263,10 +263,10 @@ object FormInputEV {
         p.width,
         s.displayValue
       )(
-        (p.modifiers :+
+        p.modifiers :+
           (^.id := p.id.value) :+
           (^.onKeyDown ==> onKeyDown(p, s)) :+
-          (^.onBlur --> submit(p, s)): _*)
+          (^.onBlur --> submit(p, s)): _*
       )
     }
   }
