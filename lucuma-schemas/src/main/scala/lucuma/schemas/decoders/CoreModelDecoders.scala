@@ -3,8 +3,11 @@
 
 package lucuma.schemas.decoders
 
+import algebra.instances.all.given
 import cats.syntax.all._
 import coulomb._
+import coulomb.policy.spire.standard.given
+import coulomb.syntax._
 import eu.timepit.refined.types.numeric.NonNegLong
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
@@ -23,6 +26,7 @@ import lucuma.core.math.RightAscension
 import lucuma.core.math.Wavelength
 import lucuma.core.math.dimensional._
 import lucuma.core.math.units.CentimetersPerSecond
+import lucuma.core.math.units.MetersPerSecond
 import lucuma.core.model.NonNegDuration
 
 import java.time.Duration
@@ -50,7 +54,8 @@ trait CoreModelDecoders {
 
   private val rvmsDecoder: Decoder[RadialVelocity] =
     Decoder.decodeBigDecimal.emap(x =>
-      RadialVelocity(x.withUnit[CentimetersPerSecond]).toRight(s"Invalid radial velocity $x")
+      RadialVelocity(x.withUnit[CentimetersPerSecond].toUnit[MetersPerSecond])
+        .toRight(s"Invalid radial velocity $x")
     )
 
   implicit val rvDecoder: Decoder[RadialVelocity] =

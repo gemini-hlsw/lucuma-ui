@@ -6,6 +6,9 @@ package lucuma.schemas.decoders
 import cats.Order._
 import cats.syntax.all._
 import coulomb._
+import coulomb.syntax._
+import eu.timepit.refined.collection.NonEmpty
+import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosLong
 import eu.timepit.refined.types.string.NonEmptyString
@@ -31,10 +34,13 @@ import lucuma.core.model.SourceProfile
 import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.Target
 import lucuma.core.model.UnnormalizedSED
+import lucuma.refined._
 
 import scala.collection.immutable.SortedMap
 
 class DecodersSuite extends InputStreamSuite {
+  inline given Predicate[Long, Positive] with
+    transparent inline def isValid(inline t: Long): Boolean = t > 0
 
   implicit val decoderIdTarget: Decoder[(Target.Id, Target)] = Decoder.instance { c =>
     val root = c.downField("data").downField("target")
@@ -45,10 +51,10 @@ class DecodersSuite extends InputStreamSuite {
   }
 
   test("Target decoder - Point - BandNormalized") {
-    val expectedId: Target.Id  = Target.Id(PosLong(2))
+    val expectedId: Target.Id  = Target.Id(2L.refined)
     val expectedTarget: Target =
       Target.Sidereal(
-        NonEmptyString("NGC 5949"),
+        "NGC 5949".refined,
         SiderealTracking(
           Coordinates(
             RightAscension.fromStringHMS.getOption("15:28:00.668").get,
@@ -100,17 +106,20 @@ class DecodersSuite extends InputStreamSuite {
             )
           )
         ),
-        CatalogInfo(CatalogName.Simbad, NonEmptyString("M   1"), NonEmptyString("SNR").some).some
+        CatalogInfo(CatalogName.Simbad,
+                    "M   1".refined[NonEmpty],
+                    Option("SNR".refined[NonEmpty])
+        ).some
       )
 
     assertParsedStreamEquals("/t2.json", (expectedId, expectedTarget))
   }
 
   test("Target decoder - Point - EmissionLines") {
-    val expectedId: Target.Id  = Target.Id(PosLong(3))
+    val expectedId: Target.Id  = Target.Id(3L.refined)
     val expectedTarget: Target =
       Target.Sidereal(
-        NonEmptyString("NGC 5949"),
+        "NGC 5949".refined,
         SiderealTracking(
           Coordinates(
             RightAscension.fromStringHMS.getOption("15:28:00.668").get,
@@ -125,15 +134,15 @@ class DecodersSuite extends InputStreamSuite {
           SpectralDefinition.EmissionLines(
             SortedMap(
               Wavelength.unsafeFromInt(1000000)    -> EmissionLine(
-                PosBigDecimal(BigDecimal(1)).withUnit[KilometersPerSecond],
-                PosBigDecimal(BigDecimal(1)).withUnit[WattsPerMeter2].toMeasureTagged
+                BigDecimal(1).refined.withUnit[KilometersPerSecond],
+                BigDecimal(1).refined.withUnit[WattsPerMeter2].toMeasureTagged
               ),
               Wavelength.unsafeFromInt(1000000000) -> EmissionLine(
-                PosBigDecimal(BigDecimal(1)).withUnit[KilometersPerSecond],
-                PosBigDecimal(BigDecimal(1)).withUnit[ErgsPerSecondCentimeter2].toMeasureTagged
+                BigDecimal(1).refined.withUnit[KilometersPerSecond],
+                BigDecimal(1).refined.withUnit[ErgsPerSecondCentimeter2].toMeasureTagged
               )
             ),
-            PosBigDecimal(BigDecimal(12))
+            BigDecimal(12).refined
               .withUnit[ErgsPerSecondCentimeter2Angstrom]
               .toMeasureTagged
           )
@@ -145,10 +154,10 @@ class DecodersSuite extends InputStreamSuite {
   }
 
   test("Target decoder - Uniform - BandNormalized") {
-    val expectedId: Target.Id  = Target.Id(PosLong(4))
+    val expectedId: Target.Id  = Target.Id(4L.refined)
     val expectedTarget: Target =
       Target.Sidereal(
-        NonEmptyString("NGC 3312"),
+        "NGC 3312".refined,
         SiderealTracking(
           Coordinates(
             RightAscension.fromStringHMS.getOption("10:37:02.549").get,

@@ -7,7 +7,8 @@ import cats.Order._
 import cats.data.NonEmptyMap
 import cats.syntax.all._
 import coulomb._
-import coulomb.si.Kelvin
+import coulomb.syntax._
+import coulomb.units.si.Kelvin
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
