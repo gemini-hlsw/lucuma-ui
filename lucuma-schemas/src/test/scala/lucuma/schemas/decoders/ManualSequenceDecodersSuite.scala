@@ -4,7 +4,7 @@
 package lucuma.schemas.decoders
 
 import cats.syntax.all._
-import lucuma.core.enum._
+import lucuma.core.enums._
 import lucuma.core.math.Offset
 import lucuma.core.model.sequence._
 

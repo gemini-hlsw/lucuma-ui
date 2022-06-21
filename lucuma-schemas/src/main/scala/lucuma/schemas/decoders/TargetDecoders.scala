@@ -8,7 +8,7 @@ import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
 import io.circe.HCursor
 import io.circe.refined._
-import lucuma.core.enum.CatalogName
+import lucuma.core.enums.CatalogName
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Epoch
 import lucuma.core.math.Parallax

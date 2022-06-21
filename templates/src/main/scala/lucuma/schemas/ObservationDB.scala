@@ -4,7 +4,7 @@
 package lucuma.schemas
 
 import clue.annotation.GraphQLSchema
-import lucuma.core.enum
+import lucuma.core.enums
 import lucuma.core.model
 import lucuma.core.model._
 import lucuma.core.model.sequence._
@@ -45,66 +45,66 @@ trait ObservationDB {
   }
 
   object Enums {
-    type Band                                = enum.Band
-    type Breakpoint                          = enum.Breakpoint
+    type Band                                = enums.Band
+    type Breakpoint                          = enums.Breakpoint
     type BrightnessIntegratedUnits           = Units Of Brightness[Integrated]
     type BrightnessSurfaceUnits              = Units Of Brightness[Surface]
-    type CatalogName                         = enum.CatalogName
-    type CloudExtinction                     = enum.CloudExtinction
-    type CoolStarTemperature                 = enum.CoolStarTemperature
-    type DatasetStage                        = enum.DatasetStage
-    type EphemerisKeyType                    = enum.EphemerisKeyType
+    type CatalogName                         = enums.CatalogName
+    type CloudExtinction                     = enums.CloudExtinction
+    type CoolStarTemperature                 = enums.CoolStarTemperature
+    type DatasetStage                        = enums.DatasetStage
+    type EphemerisKeyType                    = enums.EphemerisKeyType
     type FluxDensityContinuumIntegratedUnits = Units Of FluxDensityContinuum[Integrated]
     type FluxDensityContinuumSurfaceUnits    = Units Of FluxDensityContinuum[Surface]
-    type FocalPlane                          = enum.FocalPlane
-    type GalaxySpectrum                      = enum.GalaxySpectrum
-    type GcalArc                             = enum.GcalArc
-    type GcalContinuum                       = enum.GcalContinuum
-    type GcalDiffuser                        = enum.GcalDiffuser
-    type GcalFilter                          = enum.GcalFilter
-    type GcalShutter                         = enum.GcalShutter
-    type GmosAmpCount                        = enum.GmosAmpCount
-    type GmosAmpGain                         = enum.GmosAmpGain
-    type GmosAmpReadMode                     = enum.GmosAmpReadMode
-    type GmosCustomSlitWidth                 = enum.GmosCustomSlitWidth
-    type GmosGratingOrder                    = enum.GmosGratingOrder
-    type GmosDtax                            = enum.GmosDtax
-    type GmosEOffsetting                     = enum.GmosEOffsetting
-    type GmosNorthBuiltinFpu                 = enum.GmosNorthFpu
-    type GmosNorthDetector                   = enum.GmosNorthDetector
-    type GmosNorthGrating                    = enum.GmosNorthGrating
-    type GmosNorthFilter                     = enum.GmosNorthFilter
-    type GmosNorthStageMode                  = enum.GmosNorthStageMode
-    type GmosRoi                             = enum.GmosRoi
-    type GmosSouthBuiltinFpu                 = enum.GmosSouthFpu
-    type GmosSouthDetector                   = enum.GmosSouthDetector
-    type GmosSouthGrating                    = enum.GmosSouthGrating
-    type GmosSouthFilter                     = enum.GmosSouthFilter
-    type GmosSouthStageMode                  = enum.GmosSouthStageMode
-    type GmosXBinning                        = enum.GmosXBinning
-    type GmosYBinning                        = enum.GmosYBinning
-    type HiiRegionSpectrum                   = enum.HIIRegionSpectrum
-    type ImageQuality                        = enum.ImageQuality
-    type InstrumentType                      = enum.Instrument
+    type FocalPlane                          = enums.FocalPlane
+    type GalaxySpectrum                      = enums.GalaxySpectrum
+    type GcalArc                             = enums.GcalArc
+    type GcalContinuum                       = enums.GcalContinuum
+    type GcalDiffuser                        = enums.GcalDiffuser
+    type GcalFilter                          = enums.GcalFilter
+    type GcalShutter                         = enums.GcalShutter
+    type GmosAmpCount                        = enums.GmosAmpCount
+    type GmosAmpGain                         = enums.GmosAmpGain
+    type GmosAmpReadMode                     = enums.GmosAmpReadMode
+    type GmosCustomSlitWidth                 = enums.GmosCustomSlitWidth
+    type GmosGratingOrder                    = enums.GmosGratingOrder
+    type GmosDtax                            = enums.GmosDtax
+    type GmosEOffsetting                     = enums.GmosEOffsetting
+    type GmosNorthBuiltinFpu                 = enums.GmosNorthFpu
+    type GmosNorthDetector                   = enums.GmosNorthDetector
+    type GmosNorthGrating                    = enums.GmosNorthGrating
+    type GmosNorthFilter                     = enums.GmosNorthFilter
+    type GmosNorthStageMode                  = enums.GmosNorthStageMode
+    type GmosRoi                             = enums.GmosRoi
+    type GmosSouthBuiltinFpu                 = enums.GmosSouthFpu
+    type GmosSouthDetector                   = enums.GmosSouthDetector
+    type GmosSouthGrating                    = enums.GmosSouthGrating
+    type GmosSouthFilter                     = enums.GmosSouthFilter
+    type GmosSouthStageMode                  = enums.GmosSouthStageMode
+    type GmosXBinning                        = enums.GmosXBinning
+    type GmosYBinning                        = enums.GmosYBinning
+    type HiiRegionSpectrum                   = enums.HIIRegionSpectrum
+    type ImageQuality                        = enums.ImageQuality
+    type InstrumentType                      = enums.Instrument
     type LineFluxIntegratedUnits             = Units Of LineFlux[Integrated]
     type LineFluxSurfaceUnits                = Units Of LineFlux[Surface]
-    type MosPreImaging                       = enum.MosPreImaging
-    type ObsActiveStatus                     = enum.ObsActiveStatus
-    type ObsStatus                           = enum.ObsStatus
+    type MosPreImaging                       = enums.MosPreImaging
+    type ObsActiveStatus                     = enums.ObsActiveStatus
+    type ObsStatus                           = enums.ObsStatus
     type Partner                             = model.Partner
-    type PlanetSpectrum                      = enum.PlanetSpectrum
-    type PlanetaryNebulaSpectrum             = enum.PlanetaryNebulaSpectrum
-    type QuasarSpectrum                      = enum.QuasarSpectrum
-    type ScienceRequirementMode              = enum.ScienceMode
-    type SequenceCommand                     = enum.SequenceCommand
-    type SkyBackground                       = enum.SkyBackground
-    type SpectroscopyCapabilities            = enum.SpectroscopyCapabilities
-    type StellarLibrarySpectrum              = enum.StellarLibrarySpectrum
-    type StepStage                           = enum.StepStage
-    type StepType                            = enum.StepType
-    type TacCategory                         = enum.TacCategory
-    type ToOActivation                       = enum.ToOActivation
-    type WaterVapor                          = enum.WaterVapor
+    type PlanetSpectrum                      = enums.PlanetSpectrum
+    type PlanetaryNebulaSpectrum             = enums.PlanetaryNebulaSpectrum
+    type QuasarSpectrum                      = enums.QuasarSpectrum
+    type ScienceRequirementMode              = enums.ScienceMode
+    type SequenceCommand                     = enums.SequenceCommand
+    type SkyBackground                       = enums.SkyBackground
+    type SpectroscopyCapabilities            = enums.SpectroscopyCapabilities
+    type StellarLibrarySpectrum              = enums.StellarLibrarySpectrum
+    type StepStage                           = enums.StepStage
+    type StepType                            = enums.StepType
+    type TacCategory                         = enums.TacCategory
+    type ToOActivation                       = enums.ToOActivation
+    type WaterVapor                          = enums.WaterVapor
   }
 
   object Types {

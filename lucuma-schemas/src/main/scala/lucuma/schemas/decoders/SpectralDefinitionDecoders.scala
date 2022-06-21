@@ -10,7 +10,7 @@ import eu.timepit.refined.types.numeric.PosBigDecimal
 import io.circe.Decoder
 import io.circe.HCursor
 import io.circe.refined._
-import lucuma.core.enum.Band
+import lucuma.core.enums.Band
 import lucuma.core.math.BrightnessUnits._
 import lucuma.core.math.Wavelength
 import lucuma.core.math.dimensional._
