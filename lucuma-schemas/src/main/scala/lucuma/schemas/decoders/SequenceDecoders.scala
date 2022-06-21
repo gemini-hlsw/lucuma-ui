@@ -8,11 +8,11 @@ import io.circe.Decoder
 import io.circe.DecodingFailure
 import io.circe.generic.semiauto
 import io.circe.refined._
-import lucuma.core.enum.Breakpoint
-import lucuma.core.enum.GmosNorthFpu
-import lucuma.core.enum.GmosSouthFpu
-import lucuma.core.enum.Instrument
-import lucuma.core.enum.StepType
+import lucuma.core.enums.Breakpoint
+import lucuma.core.enums.GmosNorthFpu
+import lucuma.core.enums.GmosSouthFpu
+import lucuma.core.enums.Instrument
+import lucuma.core.enums.StepType
 import lucuma.core.model.sequence._
 
 import java.time.Duration

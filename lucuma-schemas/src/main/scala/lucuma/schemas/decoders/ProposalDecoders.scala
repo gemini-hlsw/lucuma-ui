@@ -9,8 +9,8 @@ import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
 import io.circe.DecodingFailure
 import io.circe.refined._
-import lucuma.core.enum.TacCategory
-import lucuma.core.enum.ToOActivation
+import lucuma.core.enums.TacCategory
+import lucuma.core.enums.ToOActivation
 import lucuma.core.model.IntPercent
 import lucuma.core.model.NonNegDuration
 import lucuma.core.model.Partner

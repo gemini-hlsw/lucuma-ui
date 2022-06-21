@@ -7,8 +7,8 @@ import cats.Order._
 import cats.syntax.all._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.types.string.NonEmptyString
-import lucuma.core.enum.TacCategory
-import lucuma.core.enum.ToOActivation
+import lucuma.core.enums.TacCategory
+import lucuma.core.enums.ToOActivation
 import lucuma.core.model.IntPercent
 import lucuma.core.model.NonNegDuration
 import lucuma.core.model.Partner

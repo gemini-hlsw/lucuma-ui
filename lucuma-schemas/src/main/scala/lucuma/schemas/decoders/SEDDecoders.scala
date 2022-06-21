@@ -12,7 +12,7 @@ import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
 import io.circe.refined._
-import lucuma.core.enum._
+import lucuma.core.enums._
 import lucuma.core.math.Wavelength
 import lucuma.core.model.UnnormalizedSED
 

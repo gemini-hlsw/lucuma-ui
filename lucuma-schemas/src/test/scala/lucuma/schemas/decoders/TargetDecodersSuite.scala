@@ -10,9 +10,9 @@ import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosLong
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
-import lucuma.core.enum.Band
-import lucuma.core.enum.CatalogName
-import lucuma.core.enum.GalaxySpectrum
+import lucuma.core.enums.Band
+import lucuma.core.enums.CatalogName
+import lucuma.core.enums.GalaxySpectrum
 import lucuma.core.math.BrightnessUnits._
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Declination
