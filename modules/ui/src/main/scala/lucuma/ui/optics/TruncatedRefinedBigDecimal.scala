@@ -9,7 +9,9 @@ import eu.timepit.refined.api.{Validate => RefinedValidate}
 import eu.timepit.refined.cats._
 import eu.timepit.refined.refineV
 import lucuma.core.optics.SplitEpi
-import singleton.ops._
+
+import scala.compiletime.ops.int.*
+import scala.compiletime.ops.boolean.*
 
 import scala.annotation.unused
 
@@ -26,18 +28,18 @@ import scala.annotation.unused
  * @param vo
  *   Evidence that Dec is a Singleton type.
  */
-sealed abstract case class TruncatedRefinedBigDecimal[P, Dec <: XInt] private (
+sealed abstract case class TruncatedRefinedBigDecimal[P, Dec <: Int] private (
   value:                BigDecimal Refined P
-)(implicit @unused req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]) {
-  val decimals: XInt = vo.value
+)(implicit @unused req: Dec > 0 && Dec < 10, vo: ValueOf[Dec]) {
+  val decimals: Int = vo.value
 }
 
 object TruncatedRefinedBigDecimal {
 
-  def apply[P, Dec <: XInt](value: BigDecimal Refined P)(implicit
-    v:                             RefinedValidate[BigDecimal, P],
-    req:                           Require[&&[Dec > 0, Dec < 10]],
-    vo:                            ValueOf[Dec]
+  def apply[P, Dec <: Int](value: BigDecimal Refined P)(implicit
+    v:                            RefinedValidate[BigDecimal, P],
+    req:                          Dec > 0 && Dec < 10,
+    vo:                           ValueOf[Dec]
   ): Option[TruncatedRefinedBigDecimal[P, Dec]] = {
     val truncBD = value.value.setScale(vo.value, BigDecimal.RoundingMode.HALF_UP)
     refineV[P](truncBD).toOption.map(v => new TruncatedRefinedBigDecimal[P, Dec](v) {})
@@ -58,14 +60,14 @@ object TruncatedRefinedBigDecimal {
    *
    * Non Interval refinements can also be problematic, so use this with caution.
    */
-  def unsafeRefinedBigDecimal[P, Dec <: XInt](implicit
+  def unsafeRefinedBigDecimal[P, Dec <: Int](implicit
     v:           RefinedValidate[BigDecimal, P],
-    @unused req: Require[&&[Dec > 0, Dec < 10]],
+    @unused req: Dec > 0 && Dec < 10,
     vo:          ValueOf[Dec]
   ): SplitEpi[BigDecimal Refined P, TruncatedRefinedBigDecimal[P, Dec]] =
     SplitEpi(TruncatedRefinedBigDecimal[P, Dec](_).get, _.value)
 
-  implicit def truncatedRefinedBigDecimalOrder[P, Dec <: XInt]
+  implicit def truncatedRefinedBigDecimalOrder[P, Dec <: Int]
     : Order[TruncatedRefinedBigDecimal[P, Dec]] =
     Order.by(_.value)
 }

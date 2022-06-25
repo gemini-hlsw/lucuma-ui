@@ -5,7 +5,8 @@ package lucuma.ui.optics
 
 import cats.Eq
 import lucuma.core.optics.SplitEpi
-import singleton.ops._
+import scala.compiletime.ops.int.*
+import scala.compiletime.ops.boolean.*
 
 import scala.annotation.unused
 
@@ -21,26 +22,26 @@ import scala.annotation.unused
  * @param vo
  *   Evidence that Dec is a Singleton type.
  */
-sealed abstract case class TruncatedBigDecimal[Dec <: XInt] private (value: BigDecimal)(implicit
-  @unused req:                                                              Require[&&[Dec > 0, Dec < 10]],
-  vo:                                                                       ValueOf[Dec]
+sealed abstract case class TruncatedBigDecimal[Dec <: Int] private (value: BigDecimal)(implicit
+  @unused req:                                                             Dec > 0 && Dec < 10,
+  vo:                                                                      ValueOf[Dec]
 ) { val decimals: Int = vo.value }
 
 object TruncatedBigDecimal {
 
-  def apply[Dec <: XInt](
+  def apply[Dec <: Int](
     value:        BigDecimal
-  )(implicit req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]): TruncatedBigDecimal[Dec] =
+  )(implicit req: Dec > 0 && Dec < 10, vo: ValueOf[Dec]): TruncatedBigDecimal[Dec] =
     new TruncatedBigDecimal[Dec](
       value.setScale(vo.value, BigDecimal.RoundingMode.HALF_UP)
     ) {}
 
-  def bigDecimal[Dec <: XInt](implicit
-    req: Require[&&[Dec > 0, Dec < 10]],
+  def bigDecimal[Dec <: Int](implicit
+    req: Dec > 0 && Dec < 10,
     vo:  ValueOf[Dec]
   ): SplitEpi[BigDecimal, TruncatedBigDecimal[Dec]] =
     SplitEpi(TruncatedBigDecimal(_), _.value)
 
-  implicit def truncatedBigDecimalEq[Dec <: XInt]: Eq[TruncatedBigDecimal[Dec]] =
+  implicit def truncatedBigDecimalEq[Dec <: Int]: Eq[TruncatedBigDecimal[Dec]] =
     Eq.by(_.value)
 }

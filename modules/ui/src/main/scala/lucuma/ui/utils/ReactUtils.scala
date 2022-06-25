@@ -3,8 +3,7 @@
 
 package lucuma.ui.utils
 
-import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.ReactMouseEvent
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
 
 trait ReactUtils {

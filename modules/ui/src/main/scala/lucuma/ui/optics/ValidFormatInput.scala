@@ -19,6 +19,8 @@ import lucuma.core.optics._
 import monocle.Iso
 import monocle.Prism
 import lucuma.refined._
+import scala.compiletime.ops.int.*
+import scala.compiletime.ops.boolean.*
 
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -103,11 +105,11 @@ object ValidFormatInput extends ValidFormatInputInstances {
   ): ValidFormatInput[PosBigDecimal] =
     forRefinedBigDecimal[Positive](error)
 
-  def forRefinedTruncatedBigDecimal[P, Dec <: XInt](
+  def forRefinedTruncatedBigDecimal[P, Dec <: Int](
     error: NonEmptyString = "Invalid format".refined
   )(implicit
     v:     RefinedValidate[BigDecimal, P],
-    req:   Require[&&[Dec > 0, Dec < 10]],
+    req:   Dec > 0 && Dec < 10,
     vo:    ValueOf[Dec]
   ): ValidFormatInput[TruncatedRefinedBigDecimal[P, Dec]] = {
     val prism = refinedPrism[BigDecimal, P]

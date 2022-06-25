@@ -6,7 +6,7 @@ package lucuma.ui
 import cats.Monad
 import crystal.ViewF
 import crystal.ViewOptF
-import crystal.react.reuse.Reuse
+import crystal.react.reuse._
 import lucuma.core.optics.SplitEpi
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated

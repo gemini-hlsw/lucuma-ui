@@ -14,6 +14,8 @@ import lucuma.core.math.RightAscension
 import lucuma.core.syntax.string._
 import lucuma.refined._
 import lucuma.ui.refined._
+import scala.compiletime.ops.int.*
+import scala.compiletime.ops.boolean.*
 
 /**
  * Convenience ValidFormatInput instances.
@@ -49,14 +51,14 @@ trait ValidFormatInputInstances {
       _.toString.toLowerCase.replace("+", "") // Strip + sign from exponent.
     )
 
-  def truncatedBigDecimalValidFormat[Dec <: XInt](
+  def truncatedBigDecimalValidFormat[Dec <: Int](
     errorMessage: NonEmptyString = "Must be a number".refined
-  )(implicit req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]) =
+  )(implicit req: Dec > 0 && Dec < 10, vo: ValueOf[Dec]) =
     ValidFormatInput[TruncatedBigDecimal[Dec]](
       s =>
         fixDecimalString(s).parseBigDecimalOption
-          .fold(errorMessage.invalidNec[TruncatedBigDecimal[Dec]])(
-            TruncatedBigDecimal[Dec](_).validNec
+          .fold(errorMessage.invalidNec[TruncatedBigDecimal[Dec]])(x =>
+            TruncatedBigDecimal[Dec](x).validNec
           ),
       tbd => s"%.${vo.value}f".format(tbd.value)
     )

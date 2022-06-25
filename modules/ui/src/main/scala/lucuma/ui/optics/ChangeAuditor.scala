@@ -14,7 +14,6 @@ import lucuma.core.optics._
 import lucuma.ui.optics.FormatUtils._
 import lucuma.ui.optics.TruncatedDec
 import lucuma.ui.optics.TruncatedRA
-import mouse.all._
 
 import scala.annotation.unused
 
