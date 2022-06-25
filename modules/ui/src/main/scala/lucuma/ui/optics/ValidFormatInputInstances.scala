@@ -8,18 +8,20 @@ import cats.data.Validated
 import cats.syntax.all._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.types.string.NonEmptyString
+import eu.timepit.refined.collection.NonEmpty
 import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
+import lucuma.core.syntax.string._
+import lucuma.refined._
 import lucuma.ui.refined._
-import mouse.all._
-import singleton.ops._
 
 /**
  * Convenience ValidFormatInput instances.
  */
 trait ValidFormatInputInstances {
   val nonEmptyValidFormat = ValidFormatInput[NonEmptyString](
-    s => NonEmptyString.from(s).fold(_ => NonEmptyString("Can't be empty").invalidNec, _.validNec),
+    s =>
+      NonEmptyString.from(s).fold(_ => "Can't be empty".refined[NonEmpty].invalidNec, _.validNec),
     _.toString
   )
 
@@ -27,18 +29,19 @@ trait ValidFormatInputInstances {
     s =>
       UpperNES
         .from(s.toUpperCase)
-        .fold(_ => NonEmptyString("Can't be empty").invalidNec, s => s.validNec),
+        .fold(_ => "Can't be empty".refined[NonEmpty].invalidNec, s => s.validNec),
     _.toString
   )
 
-  def intValidFormat(errorMessage: NonEmptyString = "Must be an integer") = ValidFormatInput[Int](
-    s => fixIntString(s).parseIntOption.fold(errorMessage.invalidNec[Int])(_.validNec),
-    _.toString
-  )
+  def intValidFormat(errorMessage: NonEmptyString = "Must be an integer".refined[NonEmpty]) =
+    ValidFormatInput[Int](
+      s => fixIntString(s).parseIntOption.fold(errorMessage.invalidNec[Int])(_.validNec),
+      _.toString
+    )
 
   // Does not, and cannot, format to a particular number of decimal places. For that
   // you need a TruncatedBigDecimal.
-  def bigDecimalValidFormat(errorMessage: NonEmptyString = "Must be a number") =
+  def bigDecimalValidFormat(errorMessage: NonEmptyString = "Must be a number".refined[NonEmpty]) =
     ValidFormatInput[BigDecimal](
       s =>
         fixDecimalString(s).parseBigDecimalOption
@@ -47,7 +50,7 @@ trait ValidFormatInputInstances {
     )
 
   def truncatedBigDecimalValidFormat[Dec <: XInt](
-    errorMessage: NonEmptyString = "Must be a number"
+    errorMessage: NonEmptyString = "Must be a number".refined
   )(implicit req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]) =
     ValidFormatInput[TruncatedBigDecimal[Dec]](
       s =>
@@ -63,7 +66,7 @@ trait ValidFormatInputInstances {
       val ota = RightAscension.fromStringHMS
         .getOption(s)
         .map(TruncatedRA(_))
-      Validated.fromOption(ota, NonEmptyChain("Invalid Right Ascension"))
+      Validated.fromOption(ota, NonEmptyChain("Invalid Right Ascension".refined[NonEmpty]))
     },
     tra => {
       val s = RightAscension.fromStringHMS.reverseGet(tra.ra)
@@ -74,7 +77,7 @@ trait ValidFormatInputInstances {
   val truncatedDec = ValidFormatInput[TruncatedDec](
     s => {
       val otd = Declination.fromStringSignedDMS.getOption(s).map(TruncatedDec(_))
-      Validated.fromOption(otd, NonEmptyChain("Invalid Declination"))
+      Validated.fromOption(otd, NonEmptyChain("Invalid Declination".refined[NonEmpty]))
     },
     tdec => {
       val s = Declination.fromStringSignedDMS.reverseGet(tdec.dec)

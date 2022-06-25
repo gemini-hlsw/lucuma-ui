@@ -14,11 +14,11 @@ import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
 import eu.timepit.refined.types.string.NonEmptyString
+import lucuma.core.syntax.string._
 import lucuma.core.optics._
 import monocle.Iso
 import monocle.Prism
-import mouse.all._
-import singleton.ops._
+import lucuma.refined._
 
 import java.math.RoundingMode
 import java.text.DecimalFormat
@@ -49,7 +49,7 @@ object ValidFormatInput extends ValidFormatInputInstances {
    */
   def fromFormat[A](
     format:       Format[String, A],
-    errorMessage: NonEmptyString = "Invalid format"
+    errorMessage: NonEmptyString = "Invalid format".refined
   ): ValidFormatInput[A] =
     ValidFormat(
       format.getOption.andThen(o => Validated.fromOption(o, NonEmptyChain(errorMessage))),
@@ -61,7 +61,7 @@ object ValidFormatInput extends ValidFormatInputInstances {
    */
   def fromPrism[A](
     prism:        Prism[String, A],
-    errorMessage: NonEmptyString = "Invalid value"
+    errorMessage: NonEmptyString = "Invalid value".refined
   ): ValidFormatInput[A] =
     fromFormat(Format.fromPrism(prism), errorMessage)
 
@@ -75,36 +75,36 @@ object ValidFormatInput extends ValidFormatInputInstances {
     )
 
   def forRefinedString[P](
-    error:      NonEmptyString = "Invalid format"
+    error:      NonEmptyString = "Invalid format".refined
   )(implicit v: RefinedValidate[String, P]): ValidFormatInput[String Refined P] =
     ValidFormat.forRefined[NonEmptyChain[NonEmptyString], String, P](NonEmptyChain(error))
 
   def forRefinedInt[P](
-    error:      NonEmptyString = "Invalid format"
+    error:      NonEmptyString = "Invalid format".refined
   )(implicit v: RefinedValidate[Int, P]): ValidFormatInput[Int Refined P] =
     intValidFormat(error).andThen(
       ValidFormat.forRefined[NonEmptyChain[NonEmptyString], Int, P](NonEmptyChain(error))
     )
 
   def forPosInt(
-    error: NonEmptyString = "Invalid format"
+    error: NonEmptyString = "Invalid format".refined
   ): ValidFormatInput[PosInt] =
     forRefinedInt[Positive](error)
 
   def forRefinedBigDecimal[P](
-    error:      NonEmptyString = "Invalid format"
+    error:      NonEmptyString = "Invalid format".refined
   )(implicit v: RefinedValidate[BigDecimal, P]): ValidFormatInput[BigDecimal Refined P] =
     bigDecimalValidFormat(error).andThen(
       ValidFormat.forRefined[NonEmptyChain[NonEmptyString], BigDecimal, P](NonEmptyChain(error))
     )
 
   def forPosBigDecimal(
-    error: NonEmptyString = "Invalid format"
+    error: NonEmptyString = "Invalid format".refined
   ): ValidFormatInput[PosBigDecimal] =
     forRefinedBigDecimal[Positive](error)
 
   def forRefinedTruncatedBigDecimal[P, Dec <: XInt](
-    error: NonEmptyString = "Invalid format"
+    error: NonEmptyString = "Invalid format".refined
   )(implicit
     v:     RefinedValidate[BigDecimal, P],
     req:   Require[&&[Dec > 0, Dec < 10]],
@@ -129,14 +129,14 @@ object ValidFormatInput extends ValidFormatInputInstances {
   }
 
   def forScientificNotationBigDecimal(
-    error: NonEmptyString = "Invalid format"
+    error: NonEmptyString = "Invalid format".refined
   ): ValidFormatInput[BigDecimal] =
     ValidFormatInput(bigDecimalValidFormat(error).getValidated,
                      n => Try(scientificNotationFormat(n)).toOption.orEmpty
     ) // We shouldn't need to catch errors here, but https://github.com/scala-js/scala-js/issues/4655
 
   def forScientificNotationPosBigDecimal(
-    error: NonEmptyString = "Invalid format"
+    error: NonEmptyString = "Invalid format".refined
   ): ValidFormatInput[PosBigDecimal] =
     ValidFormatInput(forPosBigDecimal(error).getValidated,
                      pbd => scientificNotationFormat(pbd.value)

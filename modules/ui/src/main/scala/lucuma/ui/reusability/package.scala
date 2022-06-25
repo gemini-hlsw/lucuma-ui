@@ -99,7 +99,8 @@ trait RefinedReusabiltyInstances {
 trait ModelReusabiltyInstances
     extends RefinedReusabiltyInstances
     with UtilReusabilityInstances
-    with MathReusabilityInstances { _: TimeReusabilityInstances =>
+    with MathReusabilityInstances
+    with TimeReusabilityInstances {
   implicit def gidReuse[Id <: WithGid#Id]: Reusability[Id]                    = Reusability.by(_.value)
   implicit def uidReuse[Id <: WithUid#Id]: Reusability[Id]                    = Reusability.by(_.toUuid)
   implicit val orcidIdReuse: Reusability[OrcidId]                             = Reusability.by(_.value.toString)

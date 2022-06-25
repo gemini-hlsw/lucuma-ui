@@ -9,6 +9,7 @@ import cats.data.Validated
 import cats.syntax.all._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.types.string.NonEmptyString
+import lucuma.refined._
 import lucuma.core.optics.Format
 
 package object optics {
@@ -35,12 +36,12 @@ package object optics {
       )
 
     def toNel(
-      separator: NonEmptyString = ",",
+      separator: NonEmptyString = ",".refined,
       error:     Option[NonEmptyString] = none // If not set, will show the list of individual errors
     ): ValidFormatInput[NonEmptyList[A]] =
       ValidFormatInput[NonEmptyList[A]](
         _.split(separator).toList.toNel
-          .toRight[NonEmptyChain[NonEmptyString]](NonEmptyChain("Cannot be empty"))
+          .toRight[NonEmptyChain[NonEmptyString]](NonEmptyChain("Cannot be empty".refined))
           .flatMap(
             _.traverse(self.getValidated.andThen(_.toEither))
               .leftMap(errorNec => error.fold(errorNec)(e => NonEmptyChain(e)))
