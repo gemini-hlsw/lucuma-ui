@@ -8,6 +8,7 @@ import cats.syntax.all._
 import crystal.ViewF
 import crystal.react._
 import crystal.react.reuse._
+import eu.timepit.refined._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.auto._
 import eu.timepit.refined.cats._
@@ -31,20 +32,23 @@ import lucuma.ui.optics.TruncatedDec
 import lucuma.ui.optics.TruncatedRA
 import lucuma.ui.optics.TruncatedRefinedBigDecimal
 import lucuma.ui.optics.ValidFormatInput
+import lucuma.ui.optics._
 import lucuma.ui.refined._
+import lucuma.refined._
 import lucuma.ui.reusability._
 import monocle.Focus
 import org.scalajs.dom
-import react.common.ReactProps
+import react.common._
 import react.common.style.Css
 import react.semanticui.collections.form.Form
 import react.semanticui.elements.label.LabelPointing
-import lucuma.refined._
+import scala.compiletime.ops.int.*
+import scala.compiletime.ops.boolean.*
 
 import scala.scalajs.js.annotation._
 
 final case class FormComponent(root: Reuse[ViewF[CallbackTo, FormComponent.RootModel]])
-    extends ReactProps[FormComponent, Unit, Unit](FormComponent.component)
+    extends ReactProps[FormComponent, FormComponent.State, Unit](FormComponent.component)
 
 object FormComponent {
   type Props = FormComponent
@@ -119,8 +123,8 @@ object FormComponent {
     val scientific    = Focus[RootModel](_.scientific)
   }
 
-  implicit val propsReuse: Reusability[Props] = Reusability.never[Props]
-  implicit val stateReuse: Reusability[State] = Reusability.never[State]
+  implicit val propsReuse: Reusability[Props] = Reusability.derive[Props]
+  implicit val stateReuse: Reusability[State] = Reusability.derive[State]
 
   val component =
     ScalaComponent
@@ -142,16 +146,16 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.valid1)(v)
             ),
             FormInputEV[ReuseView, String](
-              id = "field2".refinedd,
+              id = "field2".refined,
               label = "field2 - can't be empty",
               value = $.props.root.zoom(RootModel.field2),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              error = NonEmptyString("This is another error"),
+              error = "This is another error".refined[NonEmpty],
               validFormat = ValidFormatInput(
                 s =>
                   if (s.isEmpty)
-                    NonEmptyString("Can't be empty").invalidNec
+                    "Can't be empty".refined[NonEmpty].invalidNec
                   else
                     s.toLowerCase.validNec,
                 identity[String]
@@ -159,12 +163,13 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.valid2)(v)
             ),
             FormInputEV[ReuseView, String Refined UpperNEPred](
-              id = "forced-upper",
+              id = "forced-upper".refined,
               label = "forced uppercase",
               value = $.props.root.zoom(RootModel.forcedUpper),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat = ValidFormatInput.forRefinedString[UpperNEPred]("Can't be empty"),
+              validFormat =
+                ValidFormatInput.forRefinedString[UpperNEPred]("Can't be empty".refined),
               changeAuditor = ChangeAuditor.forRefinedString[UpperNEPred](formatFn = _.toUpperCase,
                                                                           filterMode =
                                                                             FilterMode.Lax
@@ -172,7 +177,7 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.forcedUpper)(v)
             ),
             FormInputEV[ReuseView, Int](
-              id = "just-an-int",
+              id = "just-an-int".refined,
               label = "Just An Int",
               value = $.props.root.zoom(RootModel.justAnInt),
               errorClazz = Css("error-label"),
@@ -182,52 +187,53 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.validJaI)(v)
             ),
             FormInputEV[ReuseView, Int Refined Interval.Closed[0, 2048]](
-              id = "refined-int",
+              id = "refined-int".refined,
               label = "refined Int - 0 to 2048, input constrained",
               value = $.props.root.zoom(RootModel.refinedInt),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat = ValidFormatInput.forRefinedInt[ZeroTo2048]("Must be in range 0-2048"),
+              validFormat =
+                ValidFormatInput.forRefinedInt[ZeroTo2048]("Must be in range 0-2048".refined),
               changeAuditor = ChangeAuditor.forRefinedInt[ZeroTo2048](),
               onValidChange = v => $.setStateL(State.refinedInt)(v)
             ),
             FormInputEV[ReuseView, Int Refined Odd](
-              id = "odd-int",
+              id = "odd-int".refined,
               label = "odd Int - validated on blur",
               value = $.props.root.zoom(RootModel.refinedOdd),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat = ValidFormatInput.forRefinedInt[Odd]("Must be an odd integer"),
+              validFormat = ValidFormatInput.forRefinedInt[Odd]("Must be an odd integer".refined),
               changeAuditor = ChangeAuditor.forRefinedInt[Odd](filterMode = FilterMode.Lax),
               onValidChange = v => $.setStateL(State.refinedOdd)(v)
             ),
             FormInputEV[ReuseView, BigDecimal](
-              id = "big-decimal",
+              id = "big-decimal".refined,
               label = "Big Decimal, 4 decimal places",
               value = $.props.root.zoom(RootModel.bigDecimal),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = ValidFormatInput.bigDecimalValidFormat(),
-              changeAuditor = ChangeAuditor.bigDecimal(4),
+              changeAuditor = ChangeAuditor.bigDecimal(4.refined),
               onValidChange = v => $.setStateL(State.bigDecimal)(v)
             ),
-            FormInputEV[ReuseView, TruncatedRefinedBigDecimal[OneToThree, 1]](
-              id = "refined-big-decimal",
-              label = "Refined Big Decimal - 1 decimal place",
-              value = $.props.root
-                .zoom(RootModel.refinedBigDec)
-                .zoomSplitEpi(
-                  TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree, 1]
-                ),
-              errorClazz = Css("error-label"),
-              errorPointing = LabelPointing.Below,
-              validFormat = ValidFormatInput
-                .forRefinedTruncatedBigDecimal[OneToThree, 1]("Must be 1.0 to 3.0"),
-              changeAuditor = ChangeAuditor.accept.decimal(1),
-              onValidChange = v => $.setStateL(State.refinedBigDec)(v)
-            ),
+            // FormInputEV[ReuseView, TruncatedRefinedBigDecimal[OneToThree, 1]](
+            //   id = "refined-big-decimal".refined,
+            //   label = "Refined Big Decimal - 1 decimal place",
+            //   value = $.props.root
+            //     .zoom(RootModel.refinedBigDec)
+            //     .zoomSplitEpi(
+            //       TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree, 1]
+            //     ),
+            //   errorClazz = Css("error-label"),
+            //   errorPointing = LabelPointing.Below,
+            //   validFormat = ValidFormatInput
+            //     .forRefinedTruncatedBigDecimal[OneToThree, 1]("Must be 1.0 to 3.0".refined),
+            //   changeAuditor = ChangeAuditor.accept.decimal(1.refined),
+            //   onValidChange = v => $.setStateL(State.refinedBigDec)(v)
+            // ),
             FormInputEV[ReuseView, TruncatedRA](
-              id = "ra",
+              id = "ra".refined,
               label = "RA",
               value = $.props.root.zoom(RootModel.ra).zoomSplitEpi(TruncatedRA.rightAscension),
               errorClazz = Css("error-label"),
@@ -237,7 +243,7 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.ra)(v)
             ),
             FormInputEV[ReuseView, TruncatedDec](
-              id = "dec",
+              id = "dec".refined,
               label = "Dec",
               value = $.props.root.zoom(RootModel.dec).zoomSplitEpi(TruncatedDec.declination),
               errorClazz = Css("error-label"),
@@ -247,30 +253,31 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.dec)(v)
             ),
             FormInputEV[ReuseView, Epoch](
-              id = "epoch",
+              id = "epoch".refined,
               label = "Epoch",
               value = $.props.root.zoom(RootModel.epoch),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat =
-                ValidFormatInput.fromFormat(Epoch.fromStringNoScheme, "Must be a number"),
+                ValidFormatInput.fromFormat(Epoch.fromStringNoScheme, "Must be a number".refined),
               changeAuditor = ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3.refined),
               onValidChange = v => $.setStateL(State.epoch)(v)
             ),
             FormInputEV[ReuseView, Option[Epoch]](
-              id = "opt-epoch",
+              id = "opt-epoch".refined,
               label = "Optional Epoch",
               value = $.props.root.zoom(RootModel.optionalEpoch),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat =
-                ValidFormatInput.fromFormat(Epoch.fromStringNoScheme, "Must be a number").optional,
+              validFormat = ValidFormatInput
+                .fromFormat(Epoch.fromStringNoScheme, "Must be a number".refined[NonEmpty])
+                .optional,
               changeAuditor =
                 ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3.refined).optional,
               onValidChange = v => $.setStateL(State.epoch)(v)
             ),
             FormInputEV[ReuseView, BigDecimal](
-              id = "scientific",
+              id = "scientific".refined,
               label = "Scientific Notation",
               value = $.props.root.zoom(RootModel.scientific),
               errorClazz = Css("error-label"),
@@ -299,12 +306,12 @@ trait AppMain extends IOApp.Simple {
 
     val initialModel =
       RootModel(
-        "FIELD".refined[NonEmpty],
+        refineV[UpperNEPred]("FIELD").getOrElse(sys.error("Shouldn't happen")),
         "",
-        "UPPER".refined[NonEmpty],
+        refineV[UpperNEPred]("UPPER").getOrElse(sys.error("Shouldn't happen")),
         0,
-        0.refined[NonEmpty],
-        1.refined[NonEmpty],
+        0.refined,
+        refineV[Odd](1).getOrElse(sys.error("Shouldn't happen")),
         0.123456,
         Refined.unsafeApply[BigDecimal, OneToThree](OneBD),
         RightAscension.fromStringHMS.getOption("12:34:56.789876").get,

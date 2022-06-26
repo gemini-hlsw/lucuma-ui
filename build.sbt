@@ -2,13 +2,14 @@ ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
 lazy val FUILess = "2.8.7"
+val reactSUI     = "2.0.4"
 
 lazy val catsVersion          = "2.8.0"
 lazy val crystalVersion       = "0.29.0"
 lazy val lucumaCoreVersion    = "0.41-8517424-SNAPSHOT"
 lazy val monocleVersion       = "3.1.0"
 lazy val mouseVersion         = "1.1.0"
-lazy val lucumaReactVersion   = "1.0-2f1c8d8-SNAPSHOT"
+lazy val lucumaReactVersion   = "1.0-7e5ce9c-SNAPSHOT"
 lazy val lucumaRefinedVersion = "0.0-21cb1ca-SNAPSHOT"
 lazy val scalaJsReactVersion  = "2.1.1"
 
@@ -60,6 +61,11 @@ lazy val demo =
       ),
       webpackMonitoredDirectories += (Compile / resourceDirectory).value,
       webpackResources                      := (baseDirectory.value / "webpack") * "*.js",
+      Compile / npmDependencies ++= Seq(
+        "react"             -> reactJS,
+        "react-dom"         -> reactJS,
+        "semantic-ui-react" -> reactSUI
+      ),
       webpackMonitoredFiles / includeFilter := "*",
       useYarn                               := true,
       fastOptJS / webpackBundlingMode       := BundlingMode.LibraryOnly(),
