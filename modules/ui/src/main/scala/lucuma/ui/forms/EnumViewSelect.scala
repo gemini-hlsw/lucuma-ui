@@ -24,103 +24,103 @@ import scalajs.js
 import scalajs.js.|
 import scalajs.js.JSConverters._
 
-// /**
-//  * Produces a dropdown menu, similar to a combobox, for which the value is required.
-//  */
-// final case class EnumViewSelect[EV[_], A](
-//   id:                   String,
-//   value:                EV[A],
-//   as:                   js.UndefOr[AsC] = js.undefined,
-//   basic:                js.UndefOr[Boolean] = js.undefined,
-//   button:               js.UndefOr[Boolean] = js.undefined,
-//   className:            js.UndefOr[String] = js.undefined,
-//   clazz:                js.UndefOr[Css] = js.undefined,
-//   closeOnBlur:          js.UndefOr[Boolean] = js.undefined,
-//   closeOnEscape:        js.UndefOr[Boolean] = js.undefined,
-//   closeOnChange:        js.UndefOr[Boolean] = js.undefined,
-//   compact:              js.UndefOr[Boolean] = js.undefined,
-//   deburr:               js.UndefOr[Boolean] = js.undefined,
-//   defaultOpen:          js.UndefOr[Boolean] = js.undefined,
-//   defaultSearchQuery:   js.UndefOr[String] = js.undefined,
-//   defaultSelectedLabel: js.UndefOr[Double | String] = js.undefined,
-//   defaultUpward:        js.UndefOr[Boolean] = js.undefined,
-//   direction:            js.UndefOr[Direction] = js.undefined,
-//   disabled:             js.UndefOr[Boolean] = js.undefined,
-//   error:                js.UndefOr[Boolean] = js.undefined,
-//   floating:             js.UndefOr[Boolean] = js.undefined,
-//   fluid:                js.UndefOr[Boolean] = js.undefined,
-//   header:               js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
-//   icon:                 js.UndefOr[ShorthandS[Icon]] = js.undefined,
-//   inline:               js.UndefOr[Boolean] = js.undefined,
-//   item:                 js.UndefOr[Boolean] = js.undefined,
-//   label:                js.UndefOr[ShorthandS[Label]] = js.undefined,
-//   labeled:              js.UndefOr[Boolean] = js.undefined,
-//   loading:              js.UndefOr[Boolean] = js.undefined,
-//   minCharacters:        js.UndefOr[Int] = js.undefined,
-//   noResultsMessage:     js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
-//   onBlur:               js.UndefOr[Callback] = js.undefined,
-//   onBlurE:              js.UndefOr[OnBlur] = js.undefined,
-//   onClick:              js.UndefOr[Callback] = js.undefined,
-//   onClickE:             js.UndefOr[OnClick] = js.undefined,
-//   onChange:             js.UndefOr[FormDropdown.OnChange] = js.undefined,
-//   onChangeE:            js.UndefOr[FormDropdown.OnChangeE] = js.undefined,
-//   onClose:              js.UndefOr[Callback] = js.undefined,
-//   onCloseE:             js.UndefOr[OnClose] = js.undefined,
-//   onFocus:              js.UndefOr[Callback] = js.undefined,
-//   onFocusE:             js.UndefOr[OnFocus] = js.undefined,
-//   onLabelClick:         js.UndefOr[Callback] = js.undefined,
-//   onLabelClickE:        js.UndefOr[OnLabelClick] = js.undefined,
-//   onMouseDown:          js.UndefOr[Callback] = js.undefined,
-//   onMouseDownE:         js.UndefOr[OnMouseDown] = js.undefined,
-//   onOpen:               js.UndefOr[Callback] = js.undefined,
-//   onOpenE:              js.UndefOr[OnOpen] = js.undefined,
-//   onSearchChange:       js.UndefOr[OnSearchChange] = js.undefined,
-//   onSearchChangeE:      js.UndefOr[OnSearchChangeE] = js.undefined,
-//   open:                 js.UndefOr[Boolean] = js.undefined,
-//   openOnFocus:          js.UndefOr[Boolean] = js.undefined,
-//   pointing:             js.UndefOr[Pointing] = js.undefined,
-//   renderLabel:          js.UndefOr[RenderLabel] = js.undefined,
-//   required:             js.UndefOr[Boolean] = js.undefined,
-//   scrolling:            js.UndefOr[Boolean] = js.undefined,
-//   search:               js.UndefOr[Boolean | SearchFunction] = js.undefined,
-//   searchInput:          js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
-//   searchQuery:          js.UndefOr[String] = js.undefined,
-//   selectOnBlur:         js.UndefOr[Boolean] = js.undefined,
-//   selectOnNavigation:   js.UndefOr[Boolean] = js.undefined,
-//   selectedLabel:        js.UndefOr[Double | String] = js.undefined,
-//   simple:               js.UndefOr[Boolean] = js.undefined,
-//   tabIndex:             js.UndefOr[String | Int] = js.undefined,
-//   text:                 js.UndefOr[String] = js.undefined,
-//   tpe:                  js.UndefOr[String] = js.undefined,
-//   trigger:              js.UndefOr[VdomNode] = js.undefined,
-//   upward:               js.UndefOr[Boolean] = js.undefined,
-//   width:                js.UndefOr[SemanticWidth] = js.undefined,
-//   wrapSelection:        js.UndefOr[Boolean] = js.undefined,
-//   exclude:              Set[A] = Set.empty[A],
-//   modifiers:            Seq[TagMod] = Seq.empty
-// )(implicit
-//   val enumerated:       Enumerated[A],
-//   val display:          Display[A],
-//   val monoid:           Monoid[DefaultS[Unit]],
-//   val ev:               ExternalValue[EV]
-// ) extends ReactProps[EnumViewSelectBase[EV]](EnumViewSelectBase.buildComponent[EV])
-//     with EnumViewSelectBase[EV] {
-//
-//   type AA    = A
-//   type GG[X] = Id[A]
-//   type FF[X] = DefaultS[X]
-//
-//   override val clearable   = false
-//   override val multiple    = false
-//   override val placeholder = js.undefined
-//
-//   def withMods(mods: TagMod*): EnumViewSelect[EV, A] = copy(modifiers = modifiers ++ mods)
-//
-//   override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
-//     ddp.value.toOption
-//       .flatMap(v => enumerated.fromTag(v.asInstanceOf[String]))
-//       .map(v => ev.set(value)(v))
-//       .orEmpty
-//
-//   override def getter = ev.get(value).map(enumerated.tag).orUndefined
-// }
+/**
+ * Produces a dropdown menu, similar to a combobox, for which the value is required.
+ */
+final case class EnumViewSelect[EV[_], A](
+  id:                   String,
+  value:                EV[A],
+  as:                   js.UndefOr[AsC] = js.undefined,
+  basic:                js.UndefOr[Boolean] = js.undefined,
+  button:               js.UndefOr[Boolean] = js.undefined,
+  className:            js.UndefOr[String] = js.undefined,
+  clazz:                js.UndefOr[Css] = js.undefined,
+  closeOnBlur:          js.UndefOr[Boolean] = js.undefined,
+  closeOnEscape:        js.UndefOr[Boolean] = js.undefined,
+  closeOnChange:        js.UndefOr[Boolean] = js.undefined,
+  compact:              js.UndefOr[Boolean] = js.undefined,
+  deburr:               js.UndefOr[Boolean] = js.undefined,
+  defaultOpen:          js.UndefOr[Boolean] = js.undefined,
+  defaultSearchQuery:   js.UndefOr[String] = js.undefined,
+  defaultSelectedLabel: js.UndefOr[Double | String] = js.undefined,
+  defaultUpward:        js.UndefOr[Boolean] = js.undefined,
+  direction:            js.UndefOr[Direction] = js.undefined,
+  disabled:             js.UndefOr[Boolean] = js.undefined,
+  error:                js.UndefOr[Boolean] = js.undefined,
+  floating:             js.UndefOr[Boolean] = js.undefined,
+  fluid:                js.UndefOr[Boolean] = js.undefined,
+  header:               js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
+  icon:                 js.UndefOr[ShorthandS[Icon]] = js.undefined,
+  inline:               js.UndefOr[Boolean] = js.undefined,
+  item:                 js.UndefOr[Boolean] = js.undefined,
+  label:                js.UndefOr[ShorthandS[Label]] = js.undefined,
+  labeled:              js.UndefOr[Boolean] = js.undefined,
+  loading:              js.UndefOr[Boolean] = js.undefined,
+  minCharacters:        js.UndefOr[Int] = js.undefined,
+  noResultsMessage:     js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
+  onBlur:               js.UndefOr[Callback] = js.undefined,
+  onBlurE:              js.UndefOr[OnBlur] = js.undefined,
+  onClick:              js.UndefOr[Callback] = js.undefined,
+  onClickE:             js.UndefOr[OnClick] = js.undefined,
+  onChange:             js.UndefOr[FormDropdown.OnChange] = js.undefined,
+  onChangeE:            js.UndefOr[FormDropdown.OnChangeE] = js.undefined,
+  onClose:              js.UndefOr[Callback] = js.undefined,
+  onCloseE:             js.UndefOr[OnClose] = js.undefined,
+  onFocus:              js.UndefOr[Callback] = js.undefined,
+  onFocusE:             js.UndefOr[OnFocus] = js.undefined,
+  onLabelClick:         js.UndefOr[Callback] = js.undefined,
+  onLabelClickE:        js.UndefOr[OnLabelClick] = js.undefined,
+  onMouseDown:          js.UndefOr[Callback] = js.undefined,
+  onMouseDownE:         js.UndefOr[OnMouseDown] = js.undefined,
+  onOpen:               js.UndefOr[Callback] = js.undefined,
+  onOpenE:              js.UndefOr[OnOpen] = js.undefined,
+  onSearchChange:       js.UndefOr[OnSearchChange] = js.undefined,
+  onSearchChangeE:      js.UndefOr[OnSearchChangeE] = js.undefined,
+  open:                 js.UndefOr[Boolean] = js.undefined,
+  openOnFocus:          js.UndefOr[Boolean] = js.undefined,
+  pointing:             js.UndefOr[Pointing] = js.undefined,
+  renderLabel:          js.UndefOr[RenderLabel] = js.undefined,
+  required:             js.UndefOr[Boolean] = js.undefined,
+  scrolling:            js.UndefOr[Boolean] = js.undefined,
+  search:               js.UndefOr[Boolean | SearchFunction] = js.undefined,
+  searchInput:          js.UndefOr[ShorthandS[VdomNode]] = js.undefined,
+  searchQuery:          js.UndefOr[String] = js.undefined,
+  selectOnBlur:         js.UndefOr[Boolean] = js.undefined,
+  selectOnNavigation:   js.UndefOr[Boolean] = js.undefined,
+  selectedLabel:        js.UndefOr[Double | String] = js.undefined,
+  simple:               js.UndefOr[Boolean] = js.undefined,
+  tabIndex:             js.UndefOr[String | Int] = js.undefined,
+  text:                 js.UndefOr[String] = js.undefined,
+  tpe:                  js.UndefOr[String] = js.undefined,
+  trigger:              js.UndefOr[VdomNode] = js.undefined,
+  upward:               js.UndefOr[Boolean] = js.undefined,
+  width:                js.UndefOr[SemanticWidth] = js.undefined,
+  wrapSelection:        js.UndefOr[Boolean] = js.undefined,
+  exclude:              Set[A] = Set.empty[A],
+  modifiers:            Seq[TagMod] = Seq.empty
+)(implicit
+  val enumerated:       Enumerated[A],
+  val display:          Display[A],
+  val monoid:           Monoid[DefaultS[Unit]],
+  val ev:               ExternalValue[EV]
+) extends ReactProps[EnumViewSelectBase[EV], Unit, Unit](EnumViewSelectBase.buildComponent[EV])
+    with EnumViewSelectBase[EV] {
+
+  type AA    = A
+  type GG[X] = Id[A]
+  type FF[X] = DefaultS[X]
+
+  override val clearable   = false
+  override val multiple    = false
+  override val placeholder = js.undefined
+
+  def withMods(mods: TagMod*): EnumViewSelect[EV, A] = copy(modifiers = modifiers ++ mods)
+
+  override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
+    ddp.value.toOption
+      .flatMap(v => enumerated.fromTag(v.asInstanceOf[String]))
+      .map(v => ev.set(value)(v))
+      .orEmpty
+
+  override def getter = ev.get(value).map(enumerated.tag).orUndefined
+}
