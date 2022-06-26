@@ -95,7 +95,6 @@ lazy val ui =
         "com.rpiaggio"                      %%% "crystal"                  % crystalVersion,
         // "org.typelevel"                     %%% "mouse"                    % mouseVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit"      % lucumaCoreVersion % Test,
-        "edu.gemini"                        %%% "lucuma-refined"           % lucumaRefinedVersion,
         "org.scalameta"                     %%% "munit"                    % "0.7.29"          % Test,
         "org.typelevel"                     %%% "discipline-munit"         % "1.0.9"           % Test
       )
