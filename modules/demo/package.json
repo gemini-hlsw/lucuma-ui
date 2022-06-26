@@ -16,7 +16,7 @@
     "css-minimizer-webpack-plugin": "^1.1.5",
     "webpack": "^4.44.1",
     "concat-with-sourcemaps": "^1.0.7",
-    "sass": "^1.52.3",
+    "sass": "^1.53.0",
     "cssnano": "^5.1.12",
     "html-webpack-plugin": "^4.3.0",
     "sass-loader": "^9.0.2",
