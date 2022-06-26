@@ -226,16 +226,19 @@ object FormInputEV {
         )
       }
 
-      val error: js.UndefOr[ShorthandB[Label]] = p.error
-        .flatMap[ShorthandB[Label]] {
-          (_: Any) match {
-            case b: Boolean => s.errors.map(errorLabel).getOrElse(b)
+      val error: Option[Boolean | VdomNode | Label | Unit] = p.error.toOption
+        .flatMap[Boolean | VdomNode | Label | Unit] {
+          _ match {
+            case b: Boolean => s.errors.map(errorLabel).getOrElse(b).toOption
             case e          => // We can't pattern match against NonEmptyString, but we know it is one.
               val nes = e.asInstanceOf[NonEmptyString]
-              s.errors.map(ve => errorLabel(nes +: ve)).getOrElse(errorLabel(NonEmptyChain(nes)))
+              s.errors
+                .map(ve => errorLabel(nes +: ve))
+                .getOrElse(errorLabel(NonEmptyChain(nes)))
+                .toOption
           }
         }
-        .orElse(s.errors.orUndefined.flatMap(errorLabel))
+      // .orElse(s.errors.flatMap(_ => errorLabel.toOption))
 
       FormInput(
         p.action,
@@ -246,7 +249,7 @@ object FormInputEV {
         p.content,
         p.control,
         p.disabled,
-        error,
+        error.orUndefined,
         p.fluid,
         p.focus,
         p.icon,
@@ -275,7 +278,7 @@ object FormInputEV {
     }
   }
 
-  protected def buildComponent[EV[_], A] = {
+  protected def buildComponent[EV[_], A] =
     implicit val propsReuse: Reusability[Props[EV, A]] = Reusability.never
 
     ScalaComponent
@@ -308,7 +311,6 @@ object FormInputEV {
       .componentDidUpdate(_.backend.setCursorFromState)
       .configure(Reusability.shouldComponentUpdate)
       .build
-  }
 
   protected val component = buildComponent[AnyF, Any]
 }
