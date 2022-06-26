@@ -13,6 +13,7 @@ import eu.timepit.refined.auto._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.types.string.NonEmptyString
+import eu.timepit.refined.collection.NonEmpty
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.Reusability._
@@ -38,11 +39,12 @@ import react.common.ReactProps
 import react.common.style.Css
 import react.semanticui.collections.form.Form
 import react.semanticui.elements.label.LabelPointing
+import lucuma.refined._
 
 import scala.scalajs.js.annotation._
 
 final case class FormComponent(root: Reuse[ViewF[CallbackTo, FormComponent.RootModel]])
-    extends ReactProps[FormComponent](FormComponent.component)
+    extends ReactProps[FormComponent, Unit, Unit](FormComponent.component)
 
 object FormComponent {
   type Props = FormComponent
@@ -117,8 +119,8 @@ object FormComponent {
     val scientific    = Focus[RootModel](_.scientific)
   }
 
-  implicit val propsReuse = Reusability.derive[Props]
-  implicit val stateReuse = Reusability.derive[State]
+  implicit val propsReuse: Reusability[Props] = Reusability.never[Props]
+  implicit val stateReuse: Reusability[State] = Reusability.never[State]
 
   val component =
     ScalaComponent
@@ -131,7 +133,7 @@ object FormComponent {
           s"STATE: ${$.state}",
           Form(
             FormInputEV[ReuseView, UpperNES](
-              id = "field1",
+              id = "field1".refined,
               label = "field1 - uppercased on blur, can't be empty",
               value = $.props.root.zoom(RootModel.field1),
               errorClazz = Css("error-label"),
@@ -140,7 +142,7 @@ object FormComponent {
               onValidChange = v => $.setStateL(State.valid1)(v)
             ),
             FormInputEV[ReuseView, String](
-              id = "field2",
+              id = "field2".refinedd,
               label = "field2 - can't be empty",
               value = $.props.root.zoom(RootModel.field2),
               errorClazz = Css("error-label"),
@@ -252,7 +254,7 @@ object FormComponent {
               errorPointing = LabelPointing.Below,
               validFormat =
                 ValidFormatInput.fromFormat(Epoch.fromStringNoScheme, "Must be a number"),
-              changeAuditor = ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3),
+              changeAuditor = ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3.refined),
               onValidChange = v => $.setStateL(State.epoch)(v)
             ),
             FormInputEV[ReuseView, Option[Epoch]](
@@ -264,7 +266,7 @@ object FormComponent {
               validFormat =
                 ValidFormatInput.fromFormat(Epoch.fromStringNoScheme, "Must be a number").optional,
               changeAuditor =
-                ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3).optional,
+                ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3.refined).optional,
               onValidChange = v => $.setStateL(State.epoch)(v)
             ),
             FormInputEV[ReuseView, BigDecimal](
@@ -297,12 +299,12 @@ trait AppMain extends IOApp.Simple {
 
     val initialModel =
       RootModel(
-        "FIELD",
+        "FIELD".refined[NonEmpty],
         "",
-        "UPPER",
+        "UPPER".refined[NonEmpty],
         0,
-        0,
-        1,
+        0.refined[NonEmpty],
+        1.refined[NonEmpty],
         0.123456,
         Refined.unsafeApply[BigDecimal, OneToThree](OneBD),
         RightAscension.fromStringHMS.getOption("12:34:56.789876").get,

@@ -10,6 +10,8 @@ import crystal.react.reuse._
 import lucuma.core.optics.SplitEpi
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
+import scala.annotation.targetName
+import react.common.EnumValue
 
 package object implicits {
   implicit class ViewFOpticOps[F[_], A](val self: ViewF[F, A]) extends AnyVal {
@@ -34,4 +36,9 @@ package object implicits {
 
   implicit def displayEnumByTag[A: Enumerated]: Display[A] =
     Display.byShortName(Enumerated[A].tag)
+
+  extension [A](a: A | Unit)(using ev: EnumValue[A])
+    @targetName("undefToJs")
+    def undefToJs: Unit = a.map(ev.value)
+
 }
