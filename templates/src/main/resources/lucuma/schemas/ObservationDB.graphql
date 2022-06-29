@@ -3056,9 +3056,11 @@ type AsterismGroup {
   asterism: [Target!]!
 }
 
-"""The matching asterism results, limited to a maximum of 1000 entries."""
-type AsterismSelectResult {
-  """Matching asterisms up to the return size limit of 1000"""
+"""
+The matching asterismGroup results, limited to a maximum of 1000 entries.
+"""
+type AsterismGroupSelectResult {
+  """Matching asterismGroups up to the return size limit of 1000"""
   matches: [AsterismGroup!]!
 
   """`true` when there were additional matches that were not returned."""
@@ -3320,10 +3322,10 @@ type ConstraintSetGroup {
 }
 
 """
-The matching constraintSet results, limited to a maximum of 1000 entries.
+The matching constraintSetGroup results, limited to a maximum of 1000 entries.
 """
-type ConstraintSetSelectResult {
-  """Matching constraintSets up to the return size limit of 1000"""
+type ConstraintSetGroupSelectResult {
+  """Matching constraintSetGroups up to the return size limit of 1000"""
   matches: [ConstraintSetGroup!]!
 
   """`true` when there were additional matches that were not returned."""
@@ -4950,7 +4952,7 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
-  ): AsterismSelectResult!
+  ): AsterismGroupSelectResult!
 
   """Observations grouped by commonly held constraints"""
   constraintSetGroup(
@@ -4964,7 +4966,7 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
-  ): ConstraintSetSelectResult!
+  ): ConstraintSetGroupSelectResult!
 
   """
   Select the dataset associated with the given observation, step, and index
@@ -5080,7 +5082,7 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
-  ): ScienceModeSelectResult!
+  ): ScienceModeGroupSelectResult!
 
   """Observations grouped by commonly held science requirements"""
   scienceRequirementsGroup(
@@ -5094,7 +5096,7 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
-  ): ScienceRequirementsSelectResult!
+  ): ScienceRequirementsGroupSelectResult!
 
   """Retrieves the target with the given id, if it exists"""
   target(
@@ -5123,7 +5125,7 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
-  ): TargetEnvironmentSelectResult!
+  ): TargetEnvironmentGroupSelectResult!
 
   """Observations grouped by commonly held targets"""
   targetGroup(
@@ -5137,7 +5139,7 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
-  ): TargetSelectResult!
+  ): TargetGroupSelectResult!
 
   """
   Selects the first `LIMIT` matching targets based on the provided `WHERE` parameter, if any.
@@ -5229,10 +5231,10 @@ type ScienceModeGroup {
 }
 
 """
-The matching scienceMode results, limited to a maximum of 1000 entries.
+The matching scienceModeGroup results, limited to a maximum of 1000 entries.
 """
-type ScienceModeSelectResult {
-  """Matching scienceModes up to the return size limit of 1000"""
+type ScienceModeGroupSelectResult {
+  """Matching scienceModeGroups up to the return size limit of 1000"""
   matches: [ScienceModeGroup!]!
 
   """`true` when there were additional matches that were not returned."""
@@ -5281,10 +5283,10 @@ type ScienceRequirementsGroup {
 }
 
 """
-The matching scienceRequirements results, limited to a maximum of 1000 entries.
+The matching scienceRequirementsGroup results, limited to a maximum of 1000 entries.
 """
-type ScienceRequirementsSelectResult {
-  """Matching scienceRequirementss up to the return size limit of 1000"""
+type ScienceRequirementsGroupSelectResult {
+  """Matching scienceRequirementsGroups up to the return size limit of 1000"""
   matches: [ScienceRequirementsGroup!]!
 
   """`true` when there were additional matches that were not returned."""
@@ -5855,10 +5857,10 @@ type TargetEnvironmentGroup {
 }
 
 """
-The matching targetEnvironment results, limited to a maximum of 1000 entries.
+The matching targetEnvironmentGroup results, limited to a maximum of 1000 entries.
 """
-type TargetEnvironmentSelectResult {
-  """Matching targetEnvironments up to the return size limit of 1000"""
+type TargetEnvironmentGroupSelectResult {
+  """Matching targetEnvironmentGroups up to the return size limit of 1000"""
   matches: [TargetEnvironmentGroup!]!
 
   """`true` when there were additional matches that were not returned."""
@@ -5889,13 +5891,24 @@ type TargetGroup {
   target: Target!
 }
 
+"""
+The matching targetGroup results, limited to a maximum of 1000 entries.
+"""
+type TargetGroupSelectResult {
+  """Matching targetGroups up to the return size limit of 1000"""
+  matches: [TargetGroup!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
+}
+
 """TargetId id formatted as `t-[1-9a-f][0-9a-f]*`"""
 scalar TargetId
 
 """The matching target results, limited to a maximum of 1000 entries."""
 type TargetSelectResult {
   """Matching targets up to the return size limit of 1000"""
-  matches: [TargetGroup!]!
+  matches: [Target!]!
 
   """`true` when there were additional matches that were not returned."""
   hasMore: Boolean!
