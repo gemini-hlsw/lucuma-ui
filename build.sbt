@@ -3,7 +3,7 @@ val lucumaCoreVersion      = "0.42.1"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 
-ThisBuild / tlBaseVersion       := "0.28"
+ThisBuild / tlBaseVersion       := "0.29"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges

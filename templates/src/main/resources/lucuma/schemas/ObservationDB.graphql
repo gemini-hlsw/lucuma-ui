@@ -1,7 +1,7 @@
 """DatasetEvent creation parameters"""
 input AddDatasetEventInput {
   visitId: VisitId!
-  location: DatasetEventLocationInput!
+  location: DatasetIdInput!
   payload: DatasetEventPayloadInput!
 }
 
@@ -206,11 +206,11 @@ input ClassicalInput {
 }
 
 """
-Describes an observation clone operation, making any edits in the patch parameter.  The observation status in the cloned observation defaults to NEW.
+Describes an observation clone operation, making any edits in the `SET` parameter.  The observation status in the cloned observation defaults to NEW.
 """
 input CloneObservationInput {
   observationId: ObservationId!
-  patch: ObservationPropertiesInput
+  SET: ObservationPropertiesInput
 }
 
 """
@@ -225,12 +225,12 @@ type CloneObservationResult {
 }
 
 """
-Describes a target clone operation, making any edits in the patch parameter and replacing the target in the selected observations
+Describes a target clone operation, making any edits in the `SET` parameter and replacing the target in the selected `REPLACE_IN` observations
 """
 input CloneTargetInput {
   targetId: TargetId!
-  patch: TargetPropertiesInput
-  replaceIn: [ObservationId!]
+  SET: TargetPropertiesInput
+  REPLACE_IN: [ObservationId!]
 }
 
 """
@@ -281,7 +281,7 @@ input CoordinatesInput {
 """Observation creation parameters"""
 input CreateObservationInput {
   programId: ProgramId!
-  properties: ObservationPropertiesInput
+  SET: ObservationPropertiesInput
 }
 
 """The result of creating a new observation."""
@@ -292,7 +292,7 @@ type CreateObservationResult {
 
 """Program creation parameters"""
 input CreateProgramInput {
-  properties: ProgramPropertiesInput
+  SET: ProgramPropertiesInput
 }
 
 """The result of creating a new program."""
@@ -304,7 +304,7 @@ type CreateProgramResult {
 """Target creation parameters"""
 input CreateTargetInput {
   programId: ProgramId!
-  properties: TargetPropertiesInput!
+  SET: TargetPropertiesInput
 }
 
 """The result of creating a new target."""
@@ -319,58 +319,15 @@ type Dark implements StepConfig {
   stepType: StepType!
 }
 
-"""Dataset ExecutionEvents in the current page"""
-type DatasetEventConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [DatasetEvent!]!
-
-  """Edges in the current page"""
-  edges: [DatasetEventEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A dataset ExecutionEvent and its cursor"""
-type DatasetEventEdge {
-  """DatasetEventEdge element"""
-  node: DatasetEvent!
-
-  """DatasetEventEdge element cursor"""
-  cursor: Cursor!
-}
-
-"""DatasetEvent location parameters"""
-input DatasetEventLocationInput {
-  observationId: ObservationId!
-  stepId: StepId!
-  index: PosInt!
-}
-
 """DatasetEvent payload parameters"""
 input DatasetEventPayloadInput {
-  stage: DatasetStage!
+  datasetStage: DatasetStage!
   filename: DatasetFilename
 }
 
 """Editable dataset properties"""
 input DatasetPropertiesInput {
   qaState: DatasetQaState
-}
-
-"""
-Choose observationId to include all of its datasets, add a step id to
-limit it to a particular step, and an index to limit to a particular
-dataset produced by the step.
-
-"""
-input DatasetSelectInput {
-  observationId: ObservationId!
-  stepId: StepId
-  index: PosInt
 }
 
 """Declination, choose one of the available units"""
@@ -382,24 +339,54 @@ input DeclinationInput {
 
 """Selects the observations for delete"""
 input DeleteObservationsInput {
-  select: ObservationSelectInput!
+  """
+  Filters the observations for delete according to those that match the given constraints.
+  """
+  WHERE: WhereObservation
+
+  """
+  Caps the number of results returned to the given value (if additional observations match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
 }
 
-"""The result of performing an observation delete mutation."""
+"""
+The result of updating the selected observations, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional observations were modified and not included here.
+"""
 type DeleteObservationsResult {
-  """The deleted observations."""
+  """
+  The edited observations, up to the specified LIMIT or the default maximum of 1000.
+  """
   observations: [Observation!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
 }
 
 """Selects the targets for delete"""
 input DeleteTargetsInput {
-  select: TargetSelectInput!
+  """
+  Filters the targets for delete according to those that match the given constraints.
+  """
+  WHERE: WhereTarget
+
+  """
+  Caps the number of results returned to the given value (if additional targets match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
 }
 
-"""The result of performing a target delete mutation."""
+"""
+The result of updating the selected targets, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional targets were modified and not included here.
+"""
 type DeleteTargetsResult {
-  """The deleted targets."""
+  """
+  The edited targets, up to the specified LIMIT or the default maximum of 1000.
+  """
   targets: [Target!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
 }
 
 """Demo science"""
@@ -418,74 +405,10 @@ input DirectorsTimeInput {
   minPercentTime: IntPercent
 }
 
-"""
-Input for bulk editing multiple observations.  Select observations
-with the 'select' input and specify the changes in 'edit'.
-
-"""
-input EditAsterismsInput {
-  select: ObservationSelectInput!
-  patch: [EditAsterismsPatchInput!]!
-}
-
 """Add or delete targets in an asterism"""
 input EditAsterismsPatchInput {
-  add: TargetId
-  delete: TargetId
-}
-
-"""The result of editing the asterism of the selected observations."""
-type EditAsterismsResult {
-  """The edited observations."""
-  observations: [Observation!]!
-}
-
-"""Dataset selection and update description"""
-input EditDatasetInput {
-  select: DatasetSelectInput!
-  patch: DatasetPropertiesInput!
-}
-
-"""The result of editing the selected datasets."""
-type EditDatasetsResult {
-  """The edited datasets."""
-  datasets: [Dataset!]!
-}
-
-"""Observation selection and update description"""
-input EditObservationsInput {
-  select: ObservationSelectInput!
-  patch: ObservationPropertiesInput!
-}
-
-"""The result of editing select observations."""
-type EditObservationsResult {
-  """The edited observations."""
-  observations: [Observation!]!
-}
-
-"""Program selection and update description"""
-input EditProgramInput {
-  select: ProgramSelectInput!
-  patch: ProgramPropertiesInput!
-}
-
-"""The result of editing the selected program."""
-type EditProgramResult {
-  """The edited program."""
-  program: Program
-}
-
-"""Target selection and update description."""
-input EditTargetsInput {
-  select: TargetSelectInput!
-  patch: TargetPropertiesInput!
-}
-
-"""The result of editing select targets."""
-type EditTargetsResult {
-  """The edited targets."""
-  targets: [Target!]!
+  ADD: TargetId
+  DELETE: TargetId
 }
 
 """Type of edit that triggered an event"""
@@ -1065,13 +988,7 @@ type GmosNorthExecutionConfig implements ExecutionConfig {
 
   """GMOS North science execution"""
   science: GmosNorthExecutionSequence!
-  visits(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): GmosNorthVisitRecordConnection!
+  visits: [GmosNorthVisitRecord!]!
 
   """Instrument type"""
   instrument: InstrumentType!
@@ -1372,58 +1289,16 @@ type GmosNorthStepRecord {
   stepConfig: StepConfig!
 
   """Step events associated with this step"""
-  stepEvents(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): StepEventConnection!
+  stepEvents: [StepEvent!]!
 
   """Step QA state based on a combination of dataset QA states"""
   stepQaState: StepQaState
 
   """Dataset events associated with this step"""
-  datasetEvents(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): DatasetEventConnection!
+  datasetEvents: [DatasetEvent!]!
 
   """Datasets associated with this step"""
-  datasets(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): DatasetConnection!
-}
-
-"""Steps recorded by Observe in the current page"""
-type GmosNorthStepRecordConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [GmosNorthStepRecord!]!
-
-  """Edges in the current page"""
-  edges: [GmosNorthStepRecordEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A step recorded by Observe and its cursor"""
-type GmosNorthStepRecordEdge {
-  """GmosNorthStepRecordEdge element"""
-  node: GmosNorthStepRecord!
-
-  """GmosNorthStepRecordEdge element cursor"""
-  cursor: Cursor!
+  datasets: [Dataset!]!
 }
 
 """A GmosNorth visit as recorded by Observe"""
@@ -1447,46 +1322,10 @@ type GmosNorthVisitRecord {
   staticConfig: GmosNorthStatic!
 
   """GmosNorth recorded steps"""
-  steps(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): GmosNorthStepRecordConnection!
+  steps: [GmosNorthStepRecord!]!
 
   """Sequence events associated with this visit"""
-  sequenceEvents(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): SequenceEventConnection!
-}
-
-"""Visits as recorded by Observe"""
-type GmosNorthVisitRecordConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [GmosNorthVisitRecord!]!
-
-  """Edges in the current page"""
-  edges: [GmosNorthVisitRecordEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A visit (and its cursor) as recorded by Observe"""
-type GmosNorthVisitRecordEdge {
-  """GmosNorthVisitRecordEdge element"""
-  node: GmosNorthVisitRecord!
-
-  """GmosNorthVisitRecordEdge element cursor"""
-  cursor: Cursor!
+  sequenceEvents: [SequenceEvent!]!
 }
 
 """
@@ -1582,13 +1421,7 @@ type GmosSouthExecutionConfig implements ExecutionConfig {
 
   """GMOS South science execution"""
   science: GmosSouthExecutionSequence!
-  visits(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): GmosSouthVisitRecordConnection!
+  visits: [GmosSouthVisitRecord!]!
 
   """Instrument type"""
   instrument: InstrumentType!
@@ -1889,58 +1722,16 @@ type GmosSouthStepRecord {
   stepConfig: StepConfig!
 
   """Step events associated with this step"""
-  stepEvents(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): StepEventConnection!
+  stepEvents: [StepEvent!]!
 
   """Step QA state based on a combination of dataset QA states"""
   stepQaState: StepQaState
 
   """Dataset events associated with this step"""
-  datasetEvents(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): DatasetEventConnection!
+  datasetEvents: [DatasetEvent!]!
 
   """Datasets associated with this step"""
-  datasets(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): DatasetConnection!
-}
-
-"""Steps recorded by Observe in the current page"""
-type GmosSouthStepRecordConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [GmosSouthStepRecord!]!
-
-  """Edges in the current page"""
-  edges: [GmosSouthStepRecordEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A step recorded by Observe and its cursor"""
-type GmosSouthStepRecordEdge {
-  """GmosSouthStepRecordEdge element"""
-  node: GmosSouthStepRecord!
-
-  """GmosSouthStepRecordEdge element cursor"""
-  cursor: Cursor!
+  datasets: [Dataset!]!
 }
 
 """A GmosSouth visit as recorded by Observe"""
@@ -1964,46 +1755,10 @@ type GmosSouthVisitRecord {
   staticConfig: GmosSouthStatic!
 
   """GmosSouth recorded steps"""
-  steps(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): GmosSouthStepRecordConnection!
+  steps: [GmosSouthStepRecord!]!
 
   """Sequence events associated with this visit"""
-  sequenceEvents(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): SequenceEventConnection!
-}
-
-"""Visits as recorded by Observe"""
-type GmosSouthVisitRecordConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [GmosSouthVisitRecord!]!
-
-  """Edges in the current page"""
-  edges: [GmosSouthVisitRecordEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A visit (and its cursor) as recorded by Observe"""
-type GmosSouthVisitRecordEdge {
-  """GmosSouthVisitRecordEdge element"""
-  node: GmosSouthVisitRecord!
-
-  """GmosSouthVisitRecordEdge element cursor"""
-  cursor: Cursor!
+  sequenceEvents: [SequenceEvent!]!
 }
 
 """Hour angle range creation parameters"""
@@ -2132,7 +1887,7 @@ type Mutation {
   ): CloneObservationResult!
 
   """
-  Makes a copy of an existing target, setting it to unobserved and to PRESENT.  If observationIds is specified, the clone will replace the existing target in those observations
+  Makes a copy of an existing target, setting it to unobserved and to PRESENT.  If `REPLACE_IN` observationIds are specified in the input, the clone will replace the existing target in those observations
   """
   cloneTarget(
     """Parameters for cloning an existing target"""
@@ -2161,45 +1916,17 @@ type Mutation {
     input: CreateTargetInput!
   ): CreateTargetResult!
 
-  """Deletes all the observations identified by the `select` field"""
+  """Deletes all the observations identified by the `WHERE` field"""
   deleteObservations(
     """Parameters used to select observations for delete"""
     input: DeleteObservationsInput!
   ): DeleteObservationsResult!
 
-  """Deletes all the targets identified by the `select` field"""
+  """Deletes all the targets identified by the `WHERE` field"""
   deleteTargets(
     """Parameters used to select observations for delete"""
     input: DeleteTargetsInput!
   ): DeleteTargetsResult!
-
-  """
-  Edit asterisms, adding or deleting targets, in (potentially) multiple
-  observations at once.
-          
-  """
-  editAsterisms(
-    """Bulk edit asterism"""
-    input: EditAsterismsInput!
-  ): EditAsterismsResult!
-  editDatasets(
-    """Parameters for editing existing datasets"""
-    input: EditDatasetInput!
-  ): EditDatasetsResult!
-  editObservations(
-    """Parameters for editing existing observations"""
-    input: EditObservationsInput!
-  ): EditObservationsResult!
-  editProgram(
-    """Parameters for editing an existing program"""
-    input: EditProgramInput!
-  ): EditProgramResult!
-
-  """Edits existing targets"""
-  editTargets(
-    """Parameters for editing existing targets. """
-    input: EditTargetsInput!
-  ): EditTargetsResult!
 
   """Record a new step"""
   recordGmosNorthStep(
@@ -2225,17 +1952,47 @@ type Mutation {
     input: RecordGmosSouthVisitInput!
   ): RecordGmosSouthVisitResult!
 
-  """Undeletes all the observations identified by the `select` field"""
+  """Undeletes all the observations identified by the `WHERE` field"""
   undeleteObservations(
     """Parameters used to select observations for undelete"""
     input: UndeleteObservationsInput!
   ): UndeleteObservationsResult!
 
-  """Undeletes all the targets identified by the `select` field"""
+  """Undeletes all the targets identified by the `WHERE` field"""
   undeleteTargets(
     """Parameters used to select observations for undelete"""
     input: UndeleteTargetsInput!
   ): UndeleteTargetsResult!
+
+  """
+  Update asterisms, adding or deleting targets, in (potentially) multiple
+  observations at once.
+          
+  """
+  updateAsterisms(
+    """Bulk update asterism"""
+    input: UpdateAsterismsInput!
+  ): UpdateAsterismsResult!
+  updateDatasets(
+    """Parameters for editing existing datasets"""
+    input: UpdateDatasetsInput!
+  ): UpdateDatasetsResult!
+
+  """Updates existing observations"""
+  updateObservations(
+    """Parameters for editing existing observations."""
+    input: UpdateObservationsInput!
+  ): UpdateObservationsResult!
+  updatePrograms(
+    """Parameters for updating existing programs."""
+    input: UpdateProgramsInput!
+  ): UpdateProgramsResult!
+
+  """Updates existing targets"""
+  updateTargets(
+    """Parameters for updating existing targets. """
+    input: UpdateTargetsInput!
+  ): UpdateTargetsResult!
 }
 
 """Time duration input"""
@@ -2335,15 +2092,6 @@ input ObservationPropertiesInput {
   Whether the observation is considered deleted (defaults to PRESENT) but may be edited
   """
   existence: Existence
-}
-
-"""
-Choose programId to include all of its observations, or else a
-collection of observationIds to include particular observations.
-"""
-input ObservationSelectInput {
-  programId: ProgramId
-  observationIds: [ObservationId!]
 }
 
 type Offset {
@@ -2446,11 +2194,6 @@ input ProgramPropertiesInput {
   Whether the program is considered deleted (defaults to PRESENT) but may be edited
   """
   existence: Existence
-}
-
-"""Choose programId to select the program for editing"""
-input ProgramSelectInput {
-  programId: ProgramId
 }
 
 """Proper motion component, choose one of the available units"""
@@ -2639,30 +2382,6 @@ input ScienceRequirementsInput {
   spectroscopy: SpectroscopyScienceRequirementsInput
 }
 
-"""Sequence ExecutionEvents in the current page"""
-type SequenceEventConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [SequenceEvent!]!
-
-  """Edges in the current page"""
-  edges: [SequenceEventEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A sequence ExecutionEvent and its cursor"""
-type SequenceEventEdge {
-  """SequenceEventEdge element"""
-  node: SequenceEvent!
-
-  """SequenceEventEdge element cursor"""
-  cursor: Cursor!
-}
-
 """SequenceEvent location parameters"""
 input SequenceEventLocationInput {
   observationId: ObservationId!
@@ -2806,30 +2525,6 @@ interface StepConfig {
   stepType: StepType!
 }
 
-"""Step ExecutionEvents in the current page"""
-type StepEventConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [StepEvent!]!
-
-  """Edges in the current page"""
-  edges: [StepEventEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A step ExecutionEvent and its cursor"""
-type StepEventEdge {
-  """StepEventEdge element"""
-  node: StepEvent!
-
-  """StepEventEdge element cursor"""
-  cursor: Cursor!
-}
-
 """StepEvent location parameters"""
 input StepEventLocationInput {
   observationId: ObservationId!
@@ -2839,7 +2534,7 @@ input StepEventLocationInput {
 """StepEvent payload parameters"""
 input StepEventPayloadInput {
   sequenceType: SequenceType!
-  stage: StepStage!
+  stepStage: StepStage!
 }
 
 """Step QA State"""
@@ -2953,37 +2648,56 @@ input TargetPropertiesInput {
   existence: Existence
 }
 
-"""
-Choose programId to include all of its targets, observationIds to
-include each listed observation's targets, or else individual targets
-via targetIds.
-"""
-input TargetSelectInput {
-  programId: ProgramId
-  observationIds: [ObservationId!]
-  targetIds: [TargetId!]
-}
-
 """Selects the observations for undelete"""
 input UndeleteObservationsInput {
-  select: ObservationSelectInput!
+  """
+  Filters the observations for undelete according to those that match the given constraints.
+  """
+  WHERE: WhereObservation
+
+  """
+  Caps the number of results returned to the given value (if additional observations match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
 }
 
-"""The result of performing an observation undelete mutation."""
+"""
+The result of updating the selected observations, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional observations were modified and not included here.
+"""
 type UndeleteObservationsResult {
-  """The undeleted observations."""
+  """
+  The edited observations, up to the specified LIMIT or the default maximum of 1000.
+  """
   observations: [Observation!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
 }
 
 """Selects the targets for undelete"""
 input UndeleteTargetsInput {
-  select: TargetSelectInput!
+  """
+  Filters the targets for undelete according to those that match the given constraints.
+  """
+  WHERE: WhereTarget
+
+  """
+  Caps the number of results returned to the given value (if additional targets match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
 }
 
-"""The result of performing a target undelete mutation."""
+"""
+The result of updating the selected targets, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional targets were modified and not included here.
+"""
 type UndeleteTargetsResult {
-  """The undeleted targets."""
+  """
+  The edited targets, up to the specified LIMIT or the default maximum of 1000.
+  """
   targets: [Target!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
 }
 
 """Un-normalized SED input parameters.  Define one value only."""
@@ -2998,6 +2712,163 @@ input UnnormalizedSedInput {
   powerLaw: BigDecimal
   blackBodyTempK: PosInt
   fluxDensities: [FluxDensity!]
+}
+
+"""
+Input for bulk updating multiple observations.  Select observations
+with the 'WHERE' input and specify the changes in 'SET'.
+
+"""
+input UpdateAsterismsInput {
+  """Describes the values to modify."""
+  SET: [EditAsterismsPatchInput!]!
+
+  """
+  Filters the observations to be updated according to those that match the given constraints.
+  """
+  WHERE: WhereObservation
+
+  """
+  Caps the number of results returned to the given value (if additional observations match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
+}
+
+"""
+The result of updating the selected observations, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional observations were modified and not included here.
+"""
+type UpdateAsterismsResult {
+  """
+  The edited observations, up to the specified LIMIT or the default maximum of 1000.
+  """
+  observations: [Observation!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
+}
+
+"""
+Dataset selection and update description. Use `SET` to specify the changes, `WHERE` to select the datasets to update, and `LIMIT` to control the size of the return value.
+"""
+input UpdateDatasetsInput {
+  """Describes the dataset values to modify."""
+  SET: DatasetPropertiesInput!
+
+  """
+  Filters the datasets to be updated according to those that match the given constraints.
+  """
+  WHERE: WhereDataset
+
+  """
+  Caps the number of results returned to the given value (if additional datasets match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
+}
+
+"""
+The result of updating the selected datasets, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional datasets were modified and not included here.
+"""
+type UpdateDatasetsResult {
+  """
+  The edited datasets, up to the specified LIMIT or the default maximum of 1000.
+  """
+  datasets: [Dataset!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
+}
+
+"""
+Observation selection and update description.  Use `SET` to specify the changes, `WHERE` to select the observations to update, and `LIMIT` to control the size of the return value.
+"""
+input UpdateObservationsInput {
+  """Describes the observation values to modify."""
+  SET: ObservationPropertiesInput!
+
+  """
+  Filters the observations to be updated according to those that match the given constraints.
+  """
+  WHERE: WhereObservation
+
+  """
+  Caps the number of results returned to the given value (if additional observations match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
+}
+
+"""
+The result of updating the selected observations, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional observations were modified and not included here.
+"""
+type UpdateObservationsResult {
+  """
+  The edited observations, up to the specified LIMIT or the default maximum of 1000.
+  """
+  observations: [Observation!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
+}
+
+"""
+Program selection and update description.  Use `SET` to specify the changes, `WHERE` to select the programs to update, and `LIMIT` to control the size of the return value.
+"""
+input UpdateProgramsInput {
+  """Describes the program values to modify."""
+  SET: ProgramPropertiesInput!
+
+  """
+  Filters the programs to be updated according to those that match the given constraints.
+  """
+  WHERE: WhereProgram
+
+  """
+  Caps the number of results returned to the given value (if additional programs match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
+}
+
+"""
+The result of updating the selected programs, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional programs were modified and not included here.
+"""
+type UpdateProgramsResult {
+  """
+  The edited programs, up to the specified LIMIT or the default maximum of 1000.
+  """
+  programs: [Program!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
+}
+
+"""
+Target selection and update description. Use `SET` to specify the changes, `WHERE` to select the targets to update, and `LIMIT` to control the size of the return value.
+"""
+input UpdateTargetsInput {
+  """Describes the target values to modify."""
+  SET: TargetPropertiesInput!
+
+  """
+  Filters the targets to be updated according to those that match the given constraints.
+  """
+  WHERE: WhereTarget
+
+  """
+  Caps the number of results returned to the given value (if additional targets match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
+}
+
+"""
+The result of updating the selected targets, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional targets were modified and not included here.
+"""
+type UpdateTargetsResult {
+  """
+  The edited targets, up to the specified LIMIT or the default maximum of 1000.
+  """
+  targets: [Target!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
 }
 
 """Wavelength, choose one of the available units"""
@@ -3165,44 +3036,33 @@ type AsterismGroup {
   """IDs of observations that use the same constraints"""
   observationIds: [ObservationId!]!
 
-  """Observations that use this constraint set"""
+  """Observations associated with the common value"""
   observations(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
-  ): ObservationConnection!
+
+    """
+    Starts the result set at (or after if not existent) the given observation id.
+    """
+    OFFSET: ObservationId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ObservationSelectResult!
 
   """Commonly held value across the observations"""
   asterism: [Target!]!
 }
 
-"""Observations grouped by common properties"""
-type AsterismGroupConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [AsterismGroup!]!
+"""The matching asterism results, limited to a maximum of 1000 entries."""
+type AsterismSelectResult {
+  """Matching asterisms up to the return size limit of 1000"""
+  matches: [AsterismGroup!]!
 
-  """Edges in the current page"""
-  edges: [AsterismGroupEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""An observation group and its cursor"""
-type AsterismGroupEdge {
-  """AsterismGroupEdge element"""
-  node: AsterismGroup!
-
-  """AsterismGroupEdge element cursor"""
-  cursor: Cursor!
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 """Brightness bands"""
@@ -3439,44 +3299,35 @@ type ConstraintSetGroup {
   """IDs of observations that use the same constraints"""
   observationIds: [ObservationId!]!
 
-  """Observations that use this constraint set"""
+  """Observations associated with the common value"""
   observations(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
-  ): ObservationConnection!
+
+    """
+    Starts the result set at (or after if not existent) the given observation id.
+    """
+    OFFSET: ObservationId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ObservationSelectResult!
 
   """Commonly held value across the observations"""
   constraintSet: ConstraintSet!
 }
 
-"""Observations grouped by common properties"""
-type ConstraintSetGroupConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [ConstraintSetGroup!]!
+"""
+The matching constraintSet results, limited to a maximum of 1000 entries.
+"""
+type ConstraintSetSelectResult {
+  """Matching constraintSets up to the return size limit of 1000"""
+  matches: [ConstraintSetGroup!]!
 
-  """Edges in the current page"""
-  edges: [ConstraintSetGroupEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""An observation group and its cursor"""
-type ConstraintSetGroupEdge {
-  """ConstraintSetGroupEdge element"""
-  node: ConstraintSetGroup!
-
-  """ConstraintSetGroupEdge element cursor"""
-  cursor: Cursor!
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 """Cool star temperature options"""
@@ -3532,9 +3383,6 @@ type Coordinates {
   dec: Declination!
 }
 
-"""Opaque object cursor"""
-scalar Cursor
-
 type Dataset {
   """Observation associated with this dataset"""
   observation: Observation!
@@ -3549,36 +3397,12 @@ type Dataset {
   qaState: DatasetQaState
 }
 
-"""Datasets in the current page"""
-type DatasetConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [Dataset!]!
-
-  """Edges in the current page"""
-  edges: [DatasetEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A Dataset and its cursor"""
-type DatasetEdge {
-  """DatasetEdge element"""
-  node: Dataset!
-
-  """DatasetEdge element cursor"""
-  cursor: Cursor!
-}
-
 """
 Dataset-level events.  A single dataset will be associated with multiple events.
 """
 type DatasetEvent implements ExecutionEvent {
   """Identifies the associated dataset"""
-  location: DatasetEventLocation!
+  datasetId: DatasetId!
 
   """
   Dataset event payload, identifying the associated filename and stage of dataset execution
@@ -3598,27 +3422,13 @@ type DatasetEvent implements ExecutionEvent {
   received: Instant!
 }
 
-"""
-Dataset event location, pinpointing the observation, step and index of the associated dataset.
-"""
-type DatasetEventLocation {
-  """Observation ID"""
-  observationId: ObservationId!
-
-  """Step ID"""
-  stepId: StepId!
-
-  """Dataset index"""
-  index: PosInt!
-}
-
 """Dataset event payload."""
 type DatasetEventPayload {
   """Dataset filename, when known"""
   filename: DatasetFilename
 
   """Dataset execution stage"""
-  stage: DatasetStage!
+  datasetStage: DatasetStage!
 }
 
 """Dataset filename in standard format in format 'N20210519S0001.fits'"""
@@ -3635,6 +3445,18 @@ type DatasetId {
   index: PosInt!
 }
 
+"""Dataset ID input type"""
+input DatasetIdInput {
+  """Associated observation id."""
+  observationId: ObservationId!
+
+  """Associated step id."""
+  stepId: StepId!
+
+  """Dataset index within the step."""
+  index: PosInt!
+}
+
 """Dataset QA State"""
 enum DatasetQaState {
   """DatasetQaState Pass"""
@@ -3645,6 +3467,15 @@ enum DatasetQaState {
 
   """DatasetQaState Fail"""
   FAIL
+}
+
+"""The matching dataset results, limited to a maximum of 1000 entries."""
+type DatasetSelectResult {
+  """Matching datasets up to the return size limit of 1000"""
+  matches: [Dataset!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 """Execution stage or phase of an individual dataset"""
@@ -3759,21 +3590,29 @@ type Exchange implements ProposalClass {
 type Execution {
   """Datasets associated with the observation"""
   datasets(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """
+    Starts the result set at (or after if not existent) the given dataset id.
+    """
+    OFFSET: DatasetIdInput
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): DatasetConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetSelectResult!
 
   """Events associated with the observation"""
   events(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): ExecutionEventConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
 
   """Execution config"""
   executionConfig: ExecutionConfig!
@@ -3800,32 +3639,19 @@ interface ExecutionEvent {
   received: Instant!
 }
 
-"""ExecutionEvents in the current page"""
-type ExecutionEventConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [ExecutionEvent!]!
-
-  """Edges in the current page"""
-  edges: [ExecutionEventEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""An ExecutionEvent and its cursor"""
-type ExecutionEventEdge {
-  """ExecutionEventEdge element"""
-  node: ExecutionEvent!
-
-  """ExecutionEventEdge element cursor"""
-  cursor: Cursor!
-}
-
 """ExecutionEventId id formatted as `e-[1-9a-f][0-9a-f]*`"""
 scalar ExecutionEventId
+
+"""
+The matching ExecutionEvent results, limited to a maximum of 1000 entries.
+"""
+type ExecutionEventSelectResult {
+  """Matching ExecutionEvents up to the return size limit of 1000"""
+  matches: [ExecutionEvent!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
+}
 
 """State of being: either Deleted or Present"""
 enum Existence {
@@ -4814,43 +4640,18 @@ type Observation {
   execution: Execution!
 }
 
-"""Matching observations"""
-type ObservationConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [Observation!]!
-
-  """Edges in the current page"""
-  edges: [ObservationEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""An observation and its cursor"""
-type ObservationEdge {
-  """ObservationEdge element"""
-  node: Observation!
-
-  """ObservationEdge element cursor"""
-  cursor: Cursor!
-}
-
 """ObservationId id formatted as `o-[1-9a-f][0-9a-f]*`"""
 scalar ObservationId
 
-"""Information that supports paging through a list of elements"""
-type PageInfo {
-  """Cursor pointing to the first element in the result set, if any"""
-  startCursor: Cursor
+"""
+The matching observation results, limited to a maximum of 1000 entries.
+"""
+type ObservationSelectResult {
+  """Matching observations up to the return size limit of 1000"""
+  matches: [Observation!]!
 
-  """Cursor pointing to the last element in the result set, if any"""
-  endCursor: Cursor
-
-  """Whether there are any pages left to retrieve"""
-  hasNextPage: Boolean!
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 type Parallax {
@@ -4998,17 +4799,21 @@ type Program {
   """Program proposal"""
   proposal: Proposal
 
-  """All observations associated with the program (needs pagination)."""
+  """All observations associated with the program."""
   observations(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
-  ): ObservationConnection!
+
+    """
+    Starts the result set at (or after if not existent) the given observation id.
+    """
+    OFFSET: ObservationId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ObservationSelectResult!
 
   """Program planned time calculation."""
   plannedTime(
@@ -5017,32 +4822,17 @@ type Program {
   ): PlannedTimeSummary!
 }
 
-"""Programs in the current page"""
-type ProgramConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [Program!]!
-
-  """Edges in the current page"""
-  edges: [ProgramEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A Program node and its cursor"""
-type ProgramEdge {
-  """ProgramEdge element"""
-  node: Program!
-
-  """ProgramEdge element cursor"""
-  cursor: Cursor!
-}
-
 """ProgramId id formatted as `p-[1-9a-f][0-9a-f]*`"""
 scalar ProgramId
+
+"""The matching program results, limited to a maximum of 1000 entries."""
+type ProgramSelectResult {
+  """Matching programs up to the return size limit of 1000"""
+  matches: [Program!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
+}
 
 type ProperMotion {
   """Proper motion in RA"""
@@ -5094,6 +4884,39 @@ interface ProposalClass {
   minPercentTime: IntPercent!
 }
 
+"""Proposal class type"""
+enum ProposalClassEnum {
+  """ProposalClassEnum Classical"""
+  CLASSICAL
+
+  """ProposalClassEnum DemoScience"""
+  DEMO_SCIENCE
+
+  """ProposalClassEnum DirectorsTime"""
+  DIRECTORS_TIME
+
+  """ProposalClassEnum Exchange"""
+  EXCHANGE
+
+  """ProposalClassEnum FastTurnaround"""
+  FAST_TURNAROUND
+
+  """ProposalClassEnum Intensive"""
+  INTENSIVE
+
+  """ProposalClassEnum LargeProgram"""
+  LARGE_PROGRAM
+
+  """ProposalClassEnum PoorWeather"""
+  POOR_WEATHER
+
+  """ProposalClassEnum Queue"""
+  QUEUE
+
+  """ProposalClassEnum SystemVerification"""
+  SYSTEM_VERIFICATION
+}
+
 """Quasar spectrum"""
 enum QuasarSpectrum {
   """QuasarSpectrum QS0"""
@@ -5120,30 +4943,28 @@ type Query {
     """Program ID"""
     programId: ProgramId!
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """Filters the selection of observations."""
+    WHERE: WhereObservation
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): AsterismGroupConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): AsterismSelectResult!
 
   """Observations grouped by commonly held constraints"""
   constraintSetGroup(
     """Program ID"""
     programId: ProgramId!
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """Filters the selection of observations."""
+    WHERE: WhereObservation
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): ConstraintSetGroupConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ConstraintSetSelectResult!
 
   """
   Select the dataset associated with the given observation, step, and index
@@ -5161,29 +4982,37 @@ type Query {
 
   """Select all datasets associated with a step or observation"""
   datasets(
-    """Observation ID"""
-    observationId: ObservationId!
+    """Filters the selection of datasets."""
+    WHERE: WhereDataset
 
-    """Step ID"""
-    stepId: StepId
+    """
+    Starts the result set at (or after if not existent) the given dataset id.
+    """
+    OFFSET: DatasetIdInput
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-  ): DatasetConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetSelectResult!
 
   """
-  The first (or only) science target (if any) for the given observation.  This will essentially pick a random target from the observation's asterism and is meant as a convenience when there is only one target.
+  Selects the first `LIMIT` matching execution events based on the provided `WHERE` parameter, if any.
   """
-  firstScienceTarget(
-    """Observation ID"""
-    observationId: ObservationId!
+  executionEvents(
+    """Filters the selection of execution events"""
+    WHERE: WhereExecutionEvent
 
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): Target
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
 
   """Returns the observation with the given id, if any."""
   observation(
@@ -5195,24 +5024,22 @@ type Query {
   ): Observation
 
   """
-  Returns all observations associated with the given ids or program, or all observations if neither is specified.
+  Selects the first `LIMIT` matching observations based on the provided `WHERE` parameter, if any.
   """
   observations(
-    """(Optional) listing of specific observations to retrieve"""
-    observationIds: [ObservationId!]
+    """Filters the selection of observations."""
+    WHERE: WhereObservation
 
-    """(Optional) program whose observations are sought"""
-    programId: ProgramId
+    """
+    Starts the result set at (or after if not existent) the given observation id.
+    """
+    OFFSET: ObservationId
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): ObservationConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ObservationSelectResult!
 
   """Returns the program with the given id, if any."""
   program(
@@ -5224,71 +5051,50 @@ type Query {
   ): Program
 
   """
-  Pages through all requested programs (or all programs if no ids are given).
+  Selects the first `LIMIT` matching programs based on the provided `WHERE` parameter, if any.
   """
   programs(
-    """(Optional) listing of programs to retrieve (all programs if empty)"""
-    programIds: [ProgramId!]
+    """Filters the selection of programs."""
+    WHERE: WhereProgram
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """
+    Starts the result set at (or after if not existent) the given program id.
+    """
+    OFFSET: ProgramId
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): ProgramConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ProgramSelectResult!
 
   """Observations grouped by commonly held science mode"""
   scienceModeGroup(
     """Program ID"""
     programId: ProgramId!
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """Filters the selection of observations."""
+    WHERE: WhereObservation
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): ScienceModeGroupConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ScienceModeSelectResult!
 
   """Observations grouped by commonly held science requirements"""
   scienceRequirementsGroup(
     """Program ID"""
     programId: ProgramId!
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """Filters the selection of observations."""
+    WHERE: WhereObservation
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): ScienceRequirementsGroupConnection!
-
-  """
-  All the science targets associated with a given program or specific observations
-  """
-  scienceTargets(
-    """Program ID"""
-    programId: ProgramId
-
-    """Observation IDs"""
-    observationIds: [ObservationId!]
-
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): TargetConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ScienceRequirementsSelectResult!
 
   """Retrieves the target with the given id, if it exists"""
   target(
@@ -5310,30 +5116,46 @@ type Query {
     """Program ID"""
     programId: ProgramId!
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """Filters the selection of observations."""
+    WHERE: WhereObservation
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): TargetEnvironmentGroupConnection!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): TargetEnvironmentSelectResult!
 
   """Observations grouped by commonly held targets"""
   targetGroup(
     """Program ID"""
     programId: ProgramId!
 
-    """Retrieve `first` values after the given cursor"""
-    first: Int
+    """Filters the selection of observations."""
+    WHERE: WhereObservation
 
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): TargetSelectResult!
 
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
-  ): TargetGroupConnection!
+  """
+  Selects the first `LIMIT` matching targets based on the provided `WHERE` parameter, if any.
+  """
+  targets(
+    """Filters the selection of targets."""
+    WHERE: WhereTarget
+
+    """
+    Starts the result set at (or after if not existent) the given target id.
+    """
+    OFFSET: TargetId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): TargetSelectResult!
 }
 
 """Queue observing at Gemini"""
@@ -5386,44 +5208,35 @@ type ScienceModeGroup {
   """IDs of observations that use the same constraints"""
   observationIds: [ObservationId!]!
 
-  """Observations that use this constraint set"""
+  """Observations associated with the common value"""
   observations(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
-  ): ObservationConnection!
+
+    """
+    Starts the result set at (or after if not existent) the given observation id.
+    """
+    OFFSET: ObservationId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ObservationSelectResult!
 
   """Commonly held value across the observations"""
   scienceMode: ScienceMode
 }
 
-"""Observations grouped by common properties"""
-type ScienceModeGroupConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [ScienceModeGroup!]!
+"""
+The matching scienceMode results, limited to a maximum of 1000 entries.
+"""
+type ScienceModeSelectResult {
+  """Matching scienceModes up to the return size limit of 1000"""
+  matches: [ScienceModeGroup!]!
 
-  """Edges in the current page"""
-  edges: [ScienceModeGroupEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""An observation group and its cursor"""
-type ScienceModeGroupEdge {
-  """ScienceModeGroupEdge element"""
-  node: ScienceModeGroup!
-
-  """ScienceModeGroupEdge element cursor"""
-  cursor: Cursor!
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 """Mode Spectroscopy/Imaging"""
@@ -5447,44 +5260,35 @@ type ScienceRequirementsGroup {
   """IDs of observations that use the same constraints"""
   observationIds: [ObservationId!]!
 
-  """Observations that use this constraint set"""
+  """Observations associated with the common value"""
   observations(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
-  ): ObservationConnection!
+
+    """
+    Starts the result set at (or after if not existent) the given observation id.
+    """
+    OFFSET: ObservationId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ObservationSelectResult!
 
   """Commonly held value across the observations"""
   scienceRequirements: ScienceRequirements!
 }
 
-"""Observations grouped by common properties"""
-type ScienceRequirementsGroupConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [ScienceRequirementsGroup!]!
+"""
+The matching scienceRequirements results, limited to a maximum of 1000 entries.
+"""
+type ScienceRequirementsSelectResult {
+  """Matching scienceRequirementss up to the return size limit of 1000"""
+  matches: [ScienceRequirementsGroup!]!
 
-  """Edges in the current page"""
-  edges: [ScienceRequirementsGroupEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""An observation group and its cursor"""
-type ScienceRequirementsGroupEdge {
-  """ScienceRequirementsGroupEdge element"""
-  node: ScienceRequirementsGroup!
-
-  """ScienceRequirementsGroupEdge element cursor"""
-  cursor: Cursor!
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 """Sequence-level command"""
@@ -5863,7 +5667,7 @@ type StepEventPayload {
   sequenceType: SequenceType!
 
   """Step execution stage"""
-  stage: StepStage!
+  stepStage: StepStage!
 }
 
 """
@@ -6009,30 +5813,6 @@ type Target {
   nonsidereal: Nonsidereal
 }
 
-"""Targets in the current page"""
-type TargetConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [Target!]!
-
-  """Edges in the current page"""
-  edges: [TargetEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""A Target and its cursor"""
-type TargetEdge {
-  """TargetEdge element"""
-  node: Target!
-
-  """TargetEdge element cursor"""
-  cursor: Cursor!
-}
-
 type TargetEnvironment {
   """All the observation's science targets, if any"""
   asterism(
@@ -6054,92 +5834,72 @@ type TargetEnvironmentGroup {
   """IDs of observations that use the same constraints"""
   observationIds: [ObservationId!]!
 
-  """Observations that use this constraint set"""
+  """Observations associated with the common value"""
   observations(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
-  ): ObservationConnection!
+
+    """
+    Starts the result set at (or after if not existent) the given observation id.
+    """
+    OFFSET: ObservationId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ObservationSelectResult!
 
   """Commonly held value across the observations"""
   targetEnvironment: TargetEnvironment!
 }
 
-"""Observations grouped by common properties"""
-type TargetEnvironmentGroupConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [TargetEnvironmentGroup!]!
+"""
+The matching targetEnvironment results, limited to a maximum of 1000 entries.
+"""
+type TargetEnvironmentSelectResult {
+  """Matching targetEnvironments up to the return size limit of 1000"""
+  matches: [TargetEnvironmentGroup!]!
 
-  """Edges in the current page"""
-  edges: [TargetEnvironmentGroupEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""An observation group and its cursor"""
-type TargetEnvironmentGroupEdge {
-  """TargetEnvironmentGroupEdge element"""
-  node: TargetEnvironmentGroup!
-
-  """TargetEnvironmentGroupEdge element cursor"""
-  cursor: Cursor!
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 type TargetGroup {
   """IDs of observations that use the same constraints"""
   observationIds: [ObservationId!]!
 
-  """Observations that use this constraint set"""
+  """Observations associated with the common value"""
   observations(
-    """Retrieve `first` values after the given cursor"""
-    first: Int
-
-    """Retrieve values after the one associated with this cursor"""
-    after: Cursor
-
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
-  ): ObservationConnection!
+
+    """
+    Starts the result set at (or after if not existent) the given observation id.
+    """
+    OFFSET: ObservationId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ObservationSelectResult!
 
   """Commonly held value across the observations"""
   target: Target!
 }
 
-"""Observations grouped by common properties"""
-type TargetGroupConnection {
-  """The nodes in all the edges from the current page"""
-  nodes: [TargetGroup!]!
-
-  """Edges in the current page"""
-  edges: [TargetGroupEdge!]!
-
-  """Count of all nodes in all pages"""
-  totalCount: Int!
-
-  """Paging information"""
-  pageInfo: PageInfo!
-}
-
-"""An observation group and its cursor"""
-type TargetGroupEdge {
-  """TargetGroupEdge element"""
-  node: TargetGroup!
-
-  """TargetGroupEdge element cursor"""
-  cursor: Cursor!
-}
-
 """TargetId id formatted as `t-[1-9a-f][0-9a-f]*`"""
 scalar TargetId
+
+"""The matching target results, limited to a maximum of 1000 entries."""
+type TargetSelectResult {
+  """Matching targets up to the return size limit of 1000"""
+  matches: [TargetGroup!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
+}
 
 """ToO Activation"""
 enum ToOActivation {
@@ -6201,6 +5961,982 @@ type Wavelength {
 
   """Wavelength in µm"""
   micrometers: PosBigDecimal!
+}
+
+"""Dataset filter options.  All specified items must match."""
+input WhereDataset {
+  """Matches the dataset observation id."""
+  observationId: WhereOrderObservationId
+
+  """Matches the dataset step id."""
+  stepId: WhereEqStepId
+
+  """Matches the dataset index within the step."""
+  index: WhereOrderDatasetIndex
+
+  """Matches the dataset file name."""
+  filename: WhereString
+
+  """Matches the dataset QA state."""
+  qaState: WhereOptionEqQaState
+}
+
+"""DatasetEvent filter options."""
+input WhereDatasetEvent {
+  """Matches on the step id."""
+  stepId: WhereEqStepId
+
+  """Matches on the dataset index within the step."""
+  index: WhereOrderDatasetIndex
+
+  """Matches on the dataset stage."""
+  stage: WhereOrderDatasetStage
+
+  """Matches on the dataset filename."""
+  filename: WhereOptionString
+}
+
+"""
+Filters on equality (or not) of the property value and the supplied criteria.
+All supplied criteria must match, but usually only one is selected.  E.g.
+'EQ = "Foo"' will match when the property value is "FOO".
+      
+"""
+input WhereEqExistence {
+  """Matches if the property is exactly the supplied value."""
+  EQ: Existence
+
+  """Matches if the property is not the supplied value."""
+  NEQ: Existence
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [Existence!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [Existence!]
+}
+
+"""
+Filters on equality (or not) of the property value and the supplied criteria.
+All supplied criteria must match, but usually only one is selected.  E.g.
+'EQ = "Foo"' will match when the property value is "FOO".
+      
+"""
+input WhereEqPartner {
+  """Matches if the property is exactly the supplied value."""
+  EQ: Partner
+
+  """Matches if the property is not the supplied value."""
+  NEQ: Partner
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [Partner!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [Partner!]
+}
+
+"""
+Filters on equality (or not) of the property value and the supplied criteria.
+All supplied criteria must match, but usually only one is selected.  E.g.
+'EQ = "Foo"' will match when the property value is "FOO".
+      
+"""
+input WhereEqProposalClassType {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ProposalClassEnum
+
+  """Matches if the property is not the supplied value."""
+  NEQ: ProposalClassEnum
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [ProposalClassEnum!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ProposalClassEnum!]
+}
+
+"""
+Filters on equality (or not) of the property value and the supplied criteria.
+All supplied criteria must match, but usually only one is selected.  E.g.
+'EQ = "Foo"' will match when the property value is "FOO".
+      
+"""
+input WhereEqStepId {
+  """Matches if the property is exactly the supplied value."""
+  EQ: StepId
+
+  """Matches if the property is not the supplied value."""
+  NEQ: StepId
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [StepId!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [StepId!]
+}
+
+"""
+Filters on equality (or not) of the property value and the supplied criteria.
+All supplied criteria must match, but usually only one is selected.  E.g.
+'EQ = "Foo"' will match when the property value is "FOO".
+      
+"""
+input WhereEqToOActivation {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ToOActivation
+
+  """Matches if the property is not the supplied value."""
+  NEQ: ToOActivation
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [ToOActivation!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ToOActivation!]
+}
+
+"""
+Filters on equality (or not) of the property value and the supplied criteria.
+All supplied criteria must match, but usually only one is selected.  E.g.
+'EQ = "Foo"' will match when the property value is "FOO".
+      
+"""
+input WhereEqVisitId {
+  """Matches if the property is exactly the supplied value."""
+  EQ: VisitId
+
+  """Matches if the property is not the supplied value."""
+  NEQ: VisitId
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [VisitId!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [VisitId!]
+}
+
+"""ExecutionEvent filter options."""
+input WhereExecutionEvent {
+  """
+  A list of nested execution event filters that all must match in order for the AND group as a whole to match.
+  """
+  AND: [WhereExecutionEvent!]
+
+  """
+  A list of nested execution event filters where any one match causes the entire OR group as a whole to match.
+  """
+  OR: [WhereExecutionEvent!]
+
+  """
+  A nested execution event filter that must not match in order for the NOT itself to match.
+  """
+  NOT: WhereExecutionEvent
+
+  """Matches on the execution event id"""
+  id: WhereOrderExecutionEventId
+
+  """Matches on the visit id"""
+  visitId: WhereEqVisitId
+
+  """Matches on observation id"""
+  observationId: WhereOrderObservationId
+
+  """Matches on event reception time"""
+  received: WhereOrderInstant
+
+  """Matches sequence events only"""
+  sequenceEvent: WhereSequenceEvent
+
+  """Matches step events only"""
+  stepEvent: WhereStepEvent
+
+  """Matches dataset events only"""
+  datasetEvent: WhereDatasetEvent
+}
+
+"""Observation filter options.  All specified items must match."""
+input WhereObservation {
+  """
+  A list of nested observation filters that all must match in order for the AND group as a whole to match.
+  """
+  AND: [WhereObservation!]
+
+  """
+  A list of nested observation filters where any one match causes the entire OR group as a whole to match.
+  """
+  OR: [WhereObservation!]
+
+  """
+  A nested observation filter that must not match in order for the NOT itself to match.
+  """
+  NOT: WhereObservation
+
+  """Matches the observation id."""
+  id: WhereOrderObservationId
+
+  """Matches the id of the program associated with this observation."""
+  programId: WhereOrderProgramId
+
+  """Matches the subtitle of the observation."""
+  subtitle: WhereOptionString
+
+  """Matches the observation status."""
+  status: WhereOrderObsStatus
+
+  """Matches the observation active status."""
+  activeStatus: WhereOrderObsActiveStatus
+
+  """
+  By default matching is limited to PRESENT observations.  Use this filter to include DELETED observations as well, for example.
+  """
+  existence: WhereEqExistence = {EQ: PRESENT}
+}
+
+"""
+Filters on equality (or not) of the property value and the supplied criteria.
+All supplied criteria must match, but usually only one is selected.  E.g.
+'EQ = "Foo"' will match when the property value is "FOO".  Defining, `EQ`,
+`NEQ` etc. implies `IS_NULL` is `false`.
+      
+"""
+input WhereOptionEqQaState {
+  """
+  When `true`, matches if the QaState is not defined. When `false` matches if the QaState is defined.
+  """
+  IS_NULL: Boolean
+
+  """Matches if the property is exactly the supplied value."""
+  EQ: DatasetQaState
+
+  """Matches if the property is not the supplied value."""
+  NEQ: DatasetQaState
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [DatasetQaState!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [DatasetQaState!]
+}
+
+"""
+Filters on equality (or not) of the property value and the supplied criteria.
+All supplied criteria must match, but usually only one is selected.  E.g.
+'EQ = "Foo"' will match when the property value is "FOO".  Defining, `EQ`,
+`NEQ` etc. implies `IS_NULL` is `false`.
+      
+"""
+input WhereOptionEqTacCategory {
+  """
+  When `true`, matches if the TacCategory is not defined. When `false` matches if the TacCategory is defined.
+  """
+  IS_NULL: Boolean
+
+  """Matches if the property is exactly the supplied value."""
+  EQ: TacCategory
+
+  """Matches if the property is not the supplied value."""
+  NEQ: TacCategory
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [TacCategory!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [TacCategory!]
+}
+
+"""String matching options."""
+input WhereOptionString {
+  """
+  When `true` the string must not be defined.  When `false` the string must be defined.
+  """
+  IS_NULL: Boolean
+  EQ: NonEmptyString
+  NEQ: NonEmptyString
+  IN: [NonEmptyString!]
+  NIN: [NonEmptyString!]
+
+  """
+  Performs string matching with wildcard patterns.  The entire string must be matched.  Use % to match a sequence of any characters and _ to match any single character.
+  """
+  LIKE: NonEmptyString
+
+  """
+  Performs string matching with wildcard patterns.  The entire string must not match.  Use % to match a sequence of any characters and _ to match any single character.
+  """
+  NLIKE: NonEmptyString
+
+  """
+  Set to `true` (the default) for case sensitive matches, `false` to ignore case.
+  """
+  MATCH_CASE: Boolean = true
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderDatasetIndex {
+  """Matches if the property is exactly the supplied value."""
+  EQ: PosInt
+
+  """Matches if the property is not the supplied value."""
+  NEQ: PosInt
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [PosInt!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [PosInt!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: PosInt
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: PosInt
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: PosInt
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: PosInt
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderDatasetStage {
+  """Matches if the property is exactly the supplied value."""
+  EQ: DatasetStage
+
+  """Matches if the property is not the supplied value."""
+  NEQ: DatasetStage
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [DatasetStage!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [DatasetStage!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: DatasetStage
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: DatasetStage
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: DatasetStage
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: DatasetStage
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderExecutionEventId {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ExecutionEventId
+
+  """Matches if the property is not the supplied value."""
+  NEQ: ExecutionEventId
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [ExecutionEventId!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ExecutionEventId!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: ExecutionEventId
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: ExecutionEventId
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: ExecutionEventId
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: ExecutionEventId
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderInstant {
+  """Matches if the property is exactly the supplied value."""
+  EQ: Instant
+
+  """Matches if the property is not the supplied value."""
+  NEQ: Instant
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [Instant!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [Instant!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: Instant
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: Instant
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: Instant
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: Instant
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderInt {
+  """Matches if the property is exactly the supplied value."""
+  EQ: Int
+
+  """Matches if the property is not the supplied value."""
+  NEQ: Int
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [Int!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [Int!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: Int
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: Int
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: Int
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: Int
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderObsActiveStatus {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ObsActiveStatus
+
+  """Matches if the property is not the supplied value."""
+  NEQ: ObsActiveStatus
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [ObsActiveStatus!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ObsActiveStatus!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: ObsActiveStatus
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: ObsActiveStatus
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: ObsActiveStatus
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: ObsActiveStatus
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderObsStatus {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ObsStatus
+
+  """Matches if the property is not the supplied value."""
+  NEQ: ObsStatus
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [ObsStatus!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ObsStatus!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: ObsStatus
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: ObsStatus
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: ObsStatus
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: ObsStatus
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderObservationId {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ObservationId
+
+  """Matches if the property is not the supplied value."""
+  NEQ: ObservationId
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [ObservationId!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ObservationId!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: ObservationId
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: ObservationId
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: ObservationId
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: ObservationId
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderProgramId {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ProgramId
+
+  """Matches if the property is not the supplied value."""
+  NEQ: ProgramId
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [ProgramId!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ProgramId!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: ProgramId
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: ProgramId
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: ProgramId
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: ProgramId
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderSequenceCommand {
+  """Matches if the property is exactly the supplied value."""
+  EQ: SequenceCommand
+
+  """Matches if the property is not the supplied value."""
+  NEQ: SequenceCommand
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [SequenceCommand!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [SequenceCommand!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: SequenceCommand
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: SequenceCommand
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: SequenceCommand
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: SequenceCommand
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderSequenceType {
+  """Matches if the property is exactly the supplied value."""
+  EQ: SequenceType
+
+  """Matches if the property is not the supplied value."""
+  NEQ: SequenceType
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [SequenceType!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [SequenceType!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: SequenceType
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: SequenceType
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: SequenceType
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: SequenceType
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderStepStage {
+  """Matches if the property is exactly the supplied value."""
+  EQ: StepStage
+
+  """Matches if the property is not the supplied value."""
+  NEQ: StepStage
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [StepStage!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [StepStage!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: StepStage
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: StepStage
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: StepStage
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: StepStage
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+      
+"""
+input WhereOrderTargetId {
+  """Matches if the property is exactly the supplied value."""
+  EQ: TargetId
+
+  """Matches if the property is not the supplied value."""
+  NEQ: TargetId
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [TargetId!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [TargetId!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: TargetId
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: TargetId
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: TargetId
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: TargetId
+}
+
+"""Program filter options.  All specified items must match."""
+input WhereProgram {
+  """
+  A list of nested program filters that all must match in order for the AND group as a whole to match.
+  """
+  AND: [WhereProgram!]
+
+  """
+  A list of nested program filters where any one match causes the entire OR group as a whole to match.
+  """
+  OR: [WhereProgram!]
+
+  """
+  A nested program filter that must not match in order for the NOT itself to match.
+  """
+  NOT: WhereProgram
+
+  """Matches the program ID."""
+  id: WhereOrderProgramId
+
+  """Matches the program name."""
+  name: WhereOptionString
+
+  """Matches the proposal."""
+  proposal: WhereProposal
+
+  """
+  By default matching is limited to PRESENT programs.  Use this filter to included DELETED programs for example.
+  """
+  existence: WhereEqExistence = {EQ: PRESENT}
+}
+
+"""Proposal filter options.  All specified items must match."""
+input WhereProposal {
+  """
+  When `true`, matches if the proposal is not defined. When `false` matches if the proposal is defined.
+  """
+  IS_NULL: Boolean
+
+  """
+  A list of nested proposal filters that all must match in order for the AND group as a whole to match.
+  """
+  AND: [WhereProposal!]
+
+  """
+  A list of nested proposal filters where any one match causes the entire OR group as a whole to match.
+  """
+  OR: [WhereProposal!]
+
+  """
+  A nested proposal filter that must not match in order for the NOT itself to match.
+  """
+  NOT: WhereProposal
+
+  """Matches the proposal title."""
+  title: WhereOptionString
+
+  """Matches the proposal class."""
+  class: WhereProposalClass
+
+  """Matches the proposal TAC category."""
+  category: WhereOptionEqTacCategory
+
+  """Matches the Target of Opportunity setting."""
+  toOActivation: WhereEqToOActivation
+
+  """Matches the proposal abstract."""
+  abstract: WhereOptionString
+
+  """Matches proposal partners."""
+  partners: WhereProposalPartners
+}
+
+"""Proposal class filter options."""
+input WhereProposalClass {
+  """Proposal class type match."""
+  type: WhereEqProposalClassType
+
+  """Minimum acceptable percentage match."""
+  minPercent: WhereOrderInt
+}
+
+"""
+Proposal partner entry filter options. The set of partners is scanned for a matching partner and percentage entry.
+"""
+input WhereProposalPartnerEntry {
+  """
+  A list of nested partner entry filters that all must match in order for the AND group as a whole to match.
+  """
+  AND: [WhereProposalPartnerEntry!]
+
+  """
+  A list of nested partner entry filters where any one match causes the entire OR group as a whole to match.
+  """
+  OR: [WhereProposalPartnerEntry!]
+
+  """
+  A nested partner entry filter that must not match in order for the NOT itself to match.
+  """
+  NOT: WhereProposalPartnerEntry
+
+  """Matches on partner equality"""
+  partner: WhereEqPartner
+
+  """Matches on partner percentage"""
+  percent: WhereOrderInt
+}
+
+"""
+Proposal partners matching.  Use `MATCH` for detailed matching options, `EQ` to just match against a partners list, and/or `isJoint` for checking joint vs individual proposals
+"""
+input WhereProposalPartners {
+  """Detailed partner matching.  Use EQ instead of a simple exact match."""
+  MATCH: WhereProposalPartnerEntry
+
+  """
+  A simple exact match for the supplied partners. Use `MATCH` instead for more advanced options.
+  """
+  EQ: [Partner!]
+
+  """
+  Matching based on whether the proposal is a joint (i.e., multi-partner) proposal.
+  """
+  isJoint: Boolean
+}
+
+"""SequenceEvent filter options."""
+input WhereSequenceEvent {
+  """Matches the sequence command type"""
+  command: WhereOrderSequenceCommand
+}
+
+"""StepEvent filter options."""
+input WhereStepEvent {
+  """Matches on the step id."""
+  stepId: WhereEqStepId
+
+  """Matches on the sequence type"""
+  sequenceType: WhereOrderSequenceType
+
+  """Matches on the step stage"""
+  stage: WhereOrderStepStage
+}
+
+"""String matching options."""
+input WhereString {
+  EQ: NonEmptyString
+  NEQ: NonEmptyString
+  IN: [NonEmptyString!]
+  NIN: [NonEmptyString!]
+
+  """
+  Performs string matching with wildcard patterns.  The entire string must be matched.  Use % to match a sequence of any characters and _ to match any single character.
+  """
+  LIKE: NonEmptyString
+
+  """
+  Performs string matching with wildcard patterns.  The entire string must not match.  Use % to match a sequence of any characters and _ to match any single character.
+  """
+  NLIKE: NonEmptyString
+
+  """
+  Set to `true` (the default) for case sensitive matches, `false` to ignore case.
+  """
+  MATCH_CASE: Boolean = true
+}
+
+"""Target filter options.  All specified items must match."""
+input WhereTarget {
+  """
+  A list of nested target filters that all must match in order for the AND group as a whole to match.
+  """
+  AND: [WhereTarget!]
+
+  """
+  A list of nested target filters where any one match causes the entire OR group as a whole to match.
+  """
+  OR: [WhereTarget!]
+
+  """
+  A nested target filter that must not match in order for the NOT itself to match.
+  """
+  NOT: WhereTarget
+
+  """Matches the target id."""
+  id: WhereOrderTargetId
+
+  """Matches the id of the associated program."""
+  programId: WhereOrderProgramId
+
+  """Matches the target name."""
+  name: WhereString
+
+  """
+  By default matching is limited to PRESENT targets.  Use this filter to include DELETED targets as well, for example.
+  """
+  existence: WhereEqExistence = {EQ: PRESENT}
 }
 
 type q {
