@@ -13,3 +13,4 @@ package object decoders
     with SequenceDecoders
     with PosAngleDecoders
     with ProposalDecoders
+    with ExposureTimeModeDecoders
