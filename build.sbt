@@ -26,10 +26,6 @@ addCommandAlias(
   "; scalafix OrganizeImports; Test/scalafix OrganizeImports; scalafmtAll"
 )
 
-ThisBuild / scalacOptions ++= Seq(
-  "-Ymacro-annotations"
-)
-
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
 ThisBuild / scalaVersion             := "3.1.3"
