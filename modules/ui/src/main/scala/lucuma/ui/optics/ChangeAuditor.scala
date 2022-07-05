@@ -5,20 +5,20 @@ package lucuma.ui.optics
 
 import cats.data.Validated._
 import cats.syntax.all._
-import eu.timepit.refined.refineV
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{Validate => RefinedValidate}
 import eu.timepit.refined.auto._
+import eu.timepit.refined.numeric.NonNegative
+import eu.timepit.refined.numeric.Positive
+import eu.timepit.refined.refineV
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
-import eu.timepit.refined.numeric.Positive
-import eu.timepit.refined.numeric.NonNegative
 import lucuma.core.optics._
+import lucuma.core.syntax.string._
+import lucuma.refined._
 import lucuma.ui.optics.FormatUtils._
 import lucuma.ui.optics.TruncatedDec
 import lucuma.ui.optics.TruncatedRA
-import lucuma.core.syntax.string._
-import lucuma.refined._
 
 import scala.annotation.unused
 

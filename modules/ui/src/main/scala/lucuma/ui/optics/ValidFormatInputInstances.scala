@@ -7,15 +7,16 @@ import cats.data.NonEmptyChain
 import cats.data.Validated
 import cats.syntax.all._
 import eu.timepit.refined.auto._
-import eu.timepit.refined.types.string.NonEmptyString
 import eu.timepit.refined.collection.NonEmpty
+import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.math.Declination
 import lucuma.core.math.RightAscension
 import lucuma.core.syntax.string._
 import lucuma.refined._
 import lucuma.ui.refined._
-import scala.compiletime.ops.int.*
+
 import scala.compiletime.ops.boolean.*
+import scala.compiletime.ops.int.*
 
 /**
  * Convenience ValidFormatInput instances.

@@ -4,8 +4,8 @@
 package lucuma.ui.forms
 
 import cats.syntax.all._
-import japgolly.scalajs.react._
 import japgolly.scalajs.react.ReactMonocle._
+import japgolly.scalajs.react._
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.optics.InputFormat

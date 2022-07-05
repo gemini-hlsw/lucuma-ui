@@ -9,8 +9,8 @@ import cats.data.Validated
 import cats.syntax.all._
 import eu.timepit.refined.auto._
 import eu.timepit.refined.types.string.NonEmptyString
-import lucuma.refined._
 import lucuma.core.optics.Format
+import lucuma.refined._
 
 package object optics {
   type InputFormat[A]          = Format[String, A]

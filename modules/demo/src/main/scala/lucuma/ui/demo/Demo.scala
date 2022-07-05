@@ -12,9 +12,9 @@ import eu.timepit.refined._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.auto._
 import eu.timepit.refined.cats._
+import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.numeric._
 import eu.timepit.refined.types.string.NonEmptyString
-import eu.timepit.refined.collection.NonEmpty
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.Reusability._
@@ -24,6 +24,7 @@ import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
+import lucuma.refined._
 import lucuma.ui.forms._
 import lucuma.ui.implicits._
 import lucuma.ui.optics.ChangeAuditor
@@ -34,7 +35,6 @@ import lucuma.ui.optics.TruncatedRefinedBigDecimal
 import lucuma.ui.optics.ValidFormatInput
 import lucuma.ui.optics._
 import lucuma.ui.refined._
-import lucuma.refined._
 import lucuma.ui.reusability._
 import monocle.Focus
 import org.scalajs.dom
@@ -42,9 +42,9 @@ import react.common._
 import react.common.style.Css
 import react.semanticui.collections.form.Form
 import react.semanticui.elements.label.LabelPointing
-import scala.compiletime.ops.int.*
-import scala.compiletime.ops.boolean.*
 
+import scala.compiletime.ops.boolean.*
+import scala.compiletime.ops.int.*
 import scala.scalajs.js.annotation._
 
 final case class FormComponent(root: Reuse[ViewF[CallbackTo, FormComponent.RootModel]])

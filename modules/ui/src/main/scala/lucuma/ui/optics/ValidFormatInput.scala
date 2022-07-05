@@ -14,16 +14,16 @@ import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
 import eu.timepit.refined.types.string.NonEmptyString
-import lucuma.core.syntax.string._
 import lucuma.core.optics._
+import lucuma.core.syntax.string._
+import lucuma.refined._
 import monocle.Iso
 import monocle.Prism
-import lucuma.refined._
-import scala.compiletime.ops.int.*
-import scala.compiletime.ops.boolean.*
 
 import java.math.RoundingMode
 import java.text.DecimalFormat
+import scala.compiletime.ops.boolean.*
+import scala.compiletime.ops.int.*
 import scala.util.Try
 
 /**

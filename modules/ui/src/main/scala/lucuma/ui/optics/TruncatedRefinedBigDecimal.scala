@@ -10,10 +10,9 @@ import eu.timepit.refined.cats._
 import eu.timepit.refined.refineV
 import lucuma.core.optics.SplitEpi
 
-import scala.compiletime.ops.int.*
-import scala.compiletime.ops.boolean.*
-
 import scala.annotation.unused
+import scala.compiletime.ops.boolean.*
+import scala.compiletime.ops.int.*
 
 /**
  * A wrapper around a Refined BigDecimal that is limited to a specified number of decimals places.

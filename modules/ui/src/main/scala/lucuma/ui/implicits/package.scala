@@ -10,8 +10,9 @@ import crystal.react.reuse._
 import lucuma.core.optics.SplitEpi
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
-import scala.annotation.targetName
 import react.common.EnumValue
+
+import scala.annotation.targetName
 
 package object implicits {
   implicit class ViewFOpticOps[F[_], A](val self: ViewF[F, A]) extends AnyVal {
