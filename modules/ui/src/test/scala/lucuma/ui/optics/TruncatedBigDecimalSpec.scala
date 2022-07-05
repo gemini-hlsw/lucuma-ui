@@ -12,9 +12,9 @@ import org.scalacheck.Arbitrary._
 class TruncatedBigDecimalSpec extends DisciplineSuite {
   import ArbTruncatedBigDecimal._
 
-  checkAll("TruncatedBigDecimal", EqTests[TruncatedBigDecimal[2]].eqv)
-
-  checkAll("TruncatedRefinedBigDecimal.bigDecimal",
-           SplitEpiTests(TruncatedBigDecimal.bigDecimal[2]).splitEpi
-  )
+  // checkAll("TruncatedBigDecimal", EqTests[TruncatedBigDecimal[2]].eqv)
+  //
+  // checkAll("TruncatedRefinedBigDecimal.bigDecimal",
+  //          SplitEpiTests(TruncatedBigDecimal.bigDecimal[2]).splitEpi
+  // )
 }

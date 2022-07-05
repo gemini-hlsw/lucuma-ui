@@ -17,11 +17,11 @@ trait ArbTruncatedRefinedBigDecimal {
   type OneToThree    = Interval.Closed[OneBD.type, ThreeBD.type]
   type BigOneToThree = BigDecimal Refined OneToThree
 
-  implicit val arbClosed: Arbitrary[BigOneToThree] = intervalClosedArbitrary
+  // implicit val arbClosed: Arbitrary[BigOneToThree] = intervalClosedArbitrary
 
-  implicit val arbTruncRefinedBD = Arbitrary[TruncatedRefinedBigDecimal[OneToThree, 1]] {
-    arbitrary[BigOneToThree].map(TruncatedRefinedBigDecimal[OneToThree, 1](_).get)
-  }
+  // implicit val arbTruncRefinedBD = Arbitrary[TruncatedRefinedBigDecimal[OneToThree, 1]] {
+  //   arbitrary[BigOneToThree].map(TruncatedRefinedBigDecimal[OneToThree, 1](_).get)
+  // }
 
   implicit def cogTruncRefinedBD: Cogen[TruncatedRefinedBigDecimal[OneToThree, 1]] =
     Cogen[BigOneToThree].contramap(trbd => trbd.value)

@@ -13,11 +13,11 @@ import org.scalacheck.Arbitrary._
 class TruncatedRefinedBigDecimalSpec extends DisciplineSuite {
   import ArbTruncatedRefinedBigDecimal._
 
-  checkAll("TruncatedRefinedBigDecimal",
-           OrderTests[TruncatedRefinedBigDecimal[OneToThree, 1]].order
-  )
-
-  checkAll("TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal",
-           SplitEpiTests(TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree, 1]).splitEpi
-  )
+  // checkAll("TruncatedRefinedBigDecimal",
+  //          OrderTests[TruncatedRefinedBigDecimal[OneToThree, 1]].order
+  // )
+  //
+  // checkAll("TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal",
+  //          SplitEpiTests(TruncatedRefinedBigDecimal.unsafeRefinedBigDecimal[OneToThree, 1]).splitEpi
+  // )
 }

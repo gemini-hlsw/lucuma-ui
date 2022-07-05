@@ -9,12 +9,13 @@ import org.scalacheck._
 
 trait ArbTruncatedBigDecimal {
 
-  implicit val arbTruncatedDecimal = Arbitrary[TruncatedBigDecimal[2]] {
-    arbitrary[BigDecimal].map(TruncatedBigDecimal[2](_))
-  }
-
-  implicit def cogTruncatedBigDecimal: Cogen[TruncatedBigDecimal[2]] =
-    Cogen[BigDecimal].contramap(_.value)
+  // implicit val arbTruncatedDecimal: Arbitrary[TruncatedBigDecimal[2]] =
+  //   Arbitrary[TruncatedBigDecimal[2]] {
+  //     arbitrary[BigDecimal].map(TruncatedBigDecimal[2](_))
+  //   }
+  //
+  // implicit def cogTruncatedBigDecimal: Cogen[TruncatedBigDecimal[2]] =
+  //   Cogen[BigDecimal].contramap(_.value)
 }
 
 object ArbTruncatedBigDecimal extends ArbTruncatedBigDecimal
