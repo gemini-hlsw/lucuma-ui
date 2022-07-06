@@ -14,7 +14,9 @@ import java.time.Duration
 class ExposureTimeModeDecodersSuite extends InputStreamSuite {
   test("SignalToNoise decoder") {
     val expected: ExposureTimeMode =
-      ExposureTimeMode.SignalToNoise(value = refineV[Positive](BigDecimal(1.23)).getOrElse(sys.error("Cannot happen")))
+      ExposureTimeMode.SignalToNoise(value =
+        refineV[Positive](BigDecimal(1.23)).getOrElse(sys.error("Cannot happen"))
+      )
     assertParsedStreamEquals("/signalToNoise.json", expected)
   }
 
