@@ -1,4 +1,4 @@
-ThisBuild / tlCiReleaseBranches := Seq("master")
+ThisBuild / tlCiReleaseBranches := Seq("master", "scala3")
 
 lazy val reactJS = "17.0.2"
 lazy val FUILess = "2.8.7"
