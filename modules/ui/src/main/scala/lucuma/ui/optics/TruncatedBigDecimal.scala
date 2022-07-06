@@ -17,12 +17,12 @@ import scala.annotation.unused
  * @param value
  *   The BigDecimal. It is guaranteed to have a scale of no more than Dec.
  * @param req
- *   Requirement that 0 < Dec < 10
+ *   Requirement that 0 <= Dec < 10
  * @param vo
  *   Evidence that Dec is a Singleton type.
  */
 sealed abstract case class TruncatedBigDecimal[Dec <: XInt] private (value: BigDecimal)(implicit
-  @unused req:                                                              Require[&&[Dec > 0, Dec < 10]],
+  @unused req:                                                              Require[&&[Dec >= 0, Dec < 10]],
   vo:                                                                       ValueOf[Dec]
 ) { val decimals: Int = vo.value }
 
@@ -30,13 +30,13 @@ object TruncatedBigDecimal {
 
   def apply[Dec <: XInt](
     value:        BigDecimal
-  )(implicit req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]): TruncatedBigDecimal[Dec] =
+  )(implicit req: Require[&&[Dec >= 0, Dec < 10]], vo: ValueOf[Dec]): TruncatedBigDecimal[Dec] =
     new TruncatedBigDecimal[Dec](
       value.setScale(vo.value, BigDecimal.RoundingMode.HALF_UP)
     ) {}
 
   def bigDecimal[Dec <: XInt](implicit
-    req: Require[&&[Dec > 0, Dec < 10]],
+    req: Require[&&[Dec >= 0, Dec < 10]],
     vo:  ValueOf[Dec]
   ): SplitEpi[BigDecimal, TruncatedBigDecimal[Dec]] =
     SplitEpi(TruncatedBigDecimal(_), _.value)

@@ -48,7 +48,7 @@ trait ValidFormatInputInstances {
 
   def truncatedBigDecimalValidFormat[Dec <: XInt](
     errorMessage: NonEmptyString = "Must be a number"
-  )(implicit req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]) =
+  )(implicit req: Require[&&[Dec >= 0, Dec < 10]], vo: ValueOf[Dec]) =
     ValidFormatInput[TruncatedBigDecimal[Dec]](
       s =>
         fixDecimalString(s).parseBigDecimalOption

@@ -28,7 +28,7 @@ import scala.annotation.unused
  */
 sealed abstract case class TruncatedRefinedBigDecimal[P, Dec <: XInt] private (
   value:                BigDecimal Refined P
-)(implicit @unused req: Require[&&[Dec > 0, Dec < 10]], vo: ValueOf[Dec]) {
+)(implicit @unused req: Require[&&[Dec >= 0, Dec < 10]], vo: ValueOf[Dec]) {
   val decimals: XInt = vo.value
 }
 
@@ -36,7 +36,7 @@ object TruncatedRefinedBigDecimal {
 
   def apply[P, Dec <: XInt](value: BigDecimal Refined P)(implicit
     v:                             RefinedValidate[BigDecimal, P],
-    req:                           Require[&&[Dec > 0, Dec < 10]],
+    req:                           Require[&&[Dec >= 0, Dec < 10]],
     vo:                            ValueOf[Dec]
   ): Option[TruncatedRefinedBigDecimal[P, Dec]] = {
     val truncBD = value.value.setScale(vo.value, BigDecimal.RoundingMode.HALF_UP)
@@ -60,7 +60,7 @@ object TruncatedRefinedBigDecimal {
    */
   def unsafeRefinedBigDecimal[P, Dec <: XInt](implicit
     v:           RefinedValidate[BigDecimal, P],
-    @unused req: Require[&&[Dec > 0, Dec < 10]],
+    @unused req: Require[&&[Dec >= 0, Dec < 10]],
     vo:          ValueOf[Dec]
   ): SplitEpi[BigDecimal Refined P, TruncatedRefinedBigDecimal[P, Dec]] =
     SplitEpi(TruncatedRefinedBigDecimal[P, Dec](_).get, _.value)

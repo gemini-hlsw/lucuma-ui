@@ -107,7 +107,7 @@ object ValidFormatInput extends ValidFormatInputInstances {
     error: NonEmptyString = "Invalid format"
   )(implicit
     v:     RefinedValidate[BigDecimal, P],
-    req:   Require[&&[Dec > 0, Dec < 10]],
+    req:   Require[&&[Dec >= 0, Dec < 10]],
     vo:    ValueOf[Dec]
   ): ValidFormatInput[TruncatedRefinedBigDecimal[P, Dec]] = {
     val prism = refinedPrism[BigDecimal, P]
