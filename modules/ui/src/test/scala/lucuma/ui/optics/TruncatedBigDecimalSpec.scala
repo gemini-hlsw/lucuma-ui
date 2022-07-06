@@ -14,7 +14,7 @@ class TruncatedBigDecimalSpec extends DisciplineSuite {
 
   checkAll("TruncatedBigDecimal", EqTests[TruncatedBigDecimal[2]].eqv)
 
-  checkAll("TruncatedRefinedBigDecimal.bigDecimal",
+  checkAll("TruncatedBigDecimal.bigDecimal",
            SplitEpiTests(TruncatedBigDecimal.bigDecimal[2]).splitEpi
   )
 }
