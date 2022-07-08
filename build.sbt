@@ -1,5 +1,5 @@
 val clueVersion            = "0.23.0"
-val lucumaCoreVersion      = "0.43.1"
+val lucumaCoreVersion      = "0.44.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 
