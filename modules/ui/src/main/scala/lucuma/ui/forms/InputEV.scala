@@ -10,7 +10,7 @@ import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react.ScalaComponent
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.ui.optics.InputFormat
+import lucuma.ui.input.InputFormat
 import monocle.Focus
 import monocle.Lens
 import react.common.ReactProps

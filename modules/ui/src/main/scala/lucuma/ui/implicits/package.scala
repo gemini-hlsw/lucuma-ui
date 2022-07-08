@@ -8,8 +8,6 @@ import crystal.ViewF
 import crystal.ViewOptF
 import crystal.react.reuse.Reuse
 import lucuma.core.optics.SplitEpi
-import lucuma.core.util.Display
-import lucuma.core.util.Enumerated
 
 package object implicits {
   implicit class ViewFOpticOps[F[_], A](val self: ViewF[F, A]) extends AnyVal {
@@ -31,7 +29,4 @@ package object implicits {
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewOptF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
   }
-
-  implicit def displayEnumByTag[A: Enumerated]: Display[A] =
-    Display.byShortName(Enumerated[A].tag)
 }
