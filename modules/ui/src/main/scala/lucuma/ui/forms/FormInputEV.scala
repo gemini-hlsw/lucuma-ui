@@ -5,18 +5,15 @@ package lucuma.ui.forms
 
 import cats._
 import cats.data.NonEmptyChain
-import cats.data.Validated.Invalid
-import cats.data.Validated.Valid
-import cats.data.ValidatedNec
 import cats.syntax.all._
 import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.ui.optics.AuditResult
-import lucuma.ui.optics.ChangeAuditor
-import lucuma.ui.optics.ValidFormatInput
+import lucuma.core.validation._
+import lucuma.ui.input.AuditResult
+import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.reusability._
 import monocle.Focus
 import monocle.Lens
@@ -68,14 +65,13 @@ final case class FormInputEV[EV[_], A](
   transparent:     js.UndefOr[Boolean] = js.undefined,
   width:           js.UndefOr[SemanticWidth] = js.undefined,
   value:           EV[A],
-  validFormat:     ValidFormatInput[A] = ValidFormatInput.id,
-  changeAuditor:   ChangeAuditor[A] = ChangeAuditor.accept[A],
+  validFormat:     InputValidFormat[A] = InputValidSplitEpi.id,
+  changeAuditor:   ChangeAuditor = ChangeAuditor.accept,
   modifiers:       Seq[TagMod] = Seq.empty,
   onTextChange:    String => Callback = _ => Callback.empty,
   onValidChange:   FormInputEV.ChangeCallback[Boolean] = _ => Callback.empty,
-  onBlur:          FormInputEV.ChangeCallback[ValidatedNec[NonEmptyString, A]] =
-    // Only use for extra actions, setting should be done through value.set
-    (_: ValidatedNec[NonEmptyString, A]) => Callback.empty
+  // Only use for extra actions, setting should be done through value.set
+  onBlur:          FormInputEV.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) => Callback.empty
 )(implicit val ev: ExternalValue[EV], val eq: Eq[A])
     extends ReactProps[FormInputEV[FormInputEV.AnyF, Any],
                        FormInputEV.State,
@@ -119,10 +115,10 @@ object FormInputEV {
     def validate(
       props: Props[EV, A],
       value: String,
-      cb:    ValidatedNec[NonEmptyString, A] => Callback = _ => Callback.empty
+      cb:    EitherErrors[A] => Callback = _ => Callback.empty
     ): Callback = {
-      val validated = props.validFormat.getValidated(value)
-      props.onValidChange(validated.isValid) >> cb(validated)
+      val validated = props.validFormat.getValid(value)
+      props.onValidChange(validated.isRight) >> cb(validated)
     }
 
     // queries the dom based on id. Onus is on user to make id's unique.
@@ -148,7 +144,7 @@ object FormInputEV {
     def setCursorFromState: Callback =
       $.state.flatMap(s => s.cursor.map(setCursor).getOrEmpty)
 
-    def audit(auditor: ChangeAuditor[A], value: String): CallbackTo[String] = {
+    def audit(auditor: ChangeAuditor, value: String): CallbackTo[String] = {
       def setDisplayValue(s: String): CallbackTo[String] =
         $.setStateL(State.displayValue)(s).map(_ => s)
 
@@ -191,13 +187,13 @@ object FormInputEV {
         state.displayValue,
         { validated =>
           val validatedCB = validated match {
-            case Valid(a)   =>
+            case Right(a) =>
               implicit val eq = props.eq
               if (props.ev.get(props.value).exists(_ =!= a)) // Only set if resulting A changed.
                 props.valSet(a)
               else                                           // A didn't change, but redisplay formatted string.
                 $.setStateL(State.displayValue)(props.valGet)
-            case Invalid(e) =>
+            case Left(e)  =>
               $.setStateL(State.errors)(e.some)
           }
           validatedCB >> props.onBlur(validated)

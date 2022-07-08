@@ -8,8 +8,6 @@ import crystal.ViewF
 import crystal.ViewOptF
 import crystal.react.reuse._
 import lucuma.core.optics.SplitEpi
-import lucuma.core.util.Display
-import lucuma.core.util.Enumerated
 import react.common.EnumValue
 
 import scala.annotation.targetName
@@ -34,9 +32,6 @@ package object implicits {
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewOptF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
   }
-
-  implicit def displayEnumByTag[A: Enumerated]: Display[A] =
-    Display.byShortName(Enumerated[A].tag)
 
   extension [A](a: A | Unit)(using ev: EnumValue[A])
     @targetName("undefToJs")

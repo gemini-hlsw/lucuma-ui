@@ -1,3 +1,4 @@
+ThisBuild / tlBaseVersion       := "0.38"
 ThisBuild / tlCiReleaseBranches := Seq("master", "scala3")
 
 lazy val reactJS = "17.0.2"
@@ -13,9 +14,6 @@ lazy val lucumaReactVersion   = "1.0-0f7eb8e-SNAPSHOT"
 lazy val lucumaRefinedVersion = "0.0-c2d0e92-SNAPSHOT"
 lazy val scalaJsReactVersion  = "2.1.1"
 
-lazy val kindProjectorVersion = "0.13.2"
-lazy val singletonOpsVersion  = "0.5.2"
-
 ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
@@ -23,7 +21,7 @@ ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
 addCommandAlias(
   "fixImports",
-  "; scalafix OrganizeImports; Test/scalafix OrganizeImports; scalafmtAll"
+  "; scalafix OrganizeImports; Test/scalafix OrganizeImports"
 )
 
 ThisBuild / turbo                    := true
@@ -33,7 +31,6 @@ ThisBuild / crossScalaVersions       := Seq("3.1.3")
 ThisBuild / scalacOptions ++= Seq(
   "-language:implicitConversions"
 )
-ThisBuild / tlBaseVersion            := "0.37"
 
 enablePlugins(NoPublishPlugin)
 

@@ -1,11 +1,10 @@
 // Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package lucuma.ui.optics
+package lucuma.ui.input
 
 import cats.data.Validated._
 import cats.syntax.all._
-import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.{Validate => RefinedValidate}
 import eu.timepit.refined.auto._
 import eu.timepit.refined.numeric.NonNegative
@@ -19,8 +18,6 @@ import lucuma.refined._
 import lucuma.ui.optics.FormatUtils._
 import lucuma.ui.optics.TruncatedDec
 import lucuma.ui.optics.TruncatedRA
-
-import scala.annotation.unused
 
 sealed trait AuditResult extends Product with Serializable
 object AuditResult {
@@ -40,15 +37,7 @@ object FilterMode {
   case object Strict extends FilterMode
 }
 
-final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
-
-  /**
-   * Allows you to treat the current ChangeAuditor as though it is for a different type. Useful, for
-   * example, if you can't directly use a Format for a type because you have to allow interim
-   * invalid values while typing. You can use something like a BigDecimal auditor and then call
-   * this.
-   */
-  def as[B] = ChangeAuditor[B]((s, c) => self.audit(s, c))
+final case class ChangeAuditor(audit: (String, Int) => AuditResult) { self =>
 
   /**
    * Accept if the string meets the condition.
@@ -56,7 +45,7 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * @param cond
    *   - Condition to check for.
    */
-  def allow(cond: String => Boolean): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+  def allow(cond: String => Boolean): ChangeAuditor = ChangeAuditor { (s, c) =>
     if (cond(s)) AuditResult.accept else self.audit(s, c)
   }
 
@@ -66,7 +55,7 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * @param cond
    *   - Condition to check for.
    */
-  def deny(cond: String => Boolean): ChangeAuditor[A] = ChangeAuditor { (s, c) =>
+  def deny(cond: String => Boolean): ChangeAuditor = ChangeAuditor { (s, c) =>
     if (cond(s)) AuditResult.reject else self.audit(s, c)
   }
 
@@ -78,7 +67,7 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * "" as zero. Hint: If you're going to chain this together with another "modifier" like 'int',
    * you probably want this one last.
    */
-  def allowEmpty: ChangeAuditor[A] = allow(_.isEmpty)
+  def allowEmpty: ChangeAuditor = allow(_.isEmpty)
 
   /**
    * Converts a ChangeAuditor[A] into a ChangeAuditor[Option[A]]. It unconditionally allows spaces.
@@ -86,25 +75,25 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * Hint: If you're going to chain this together with another "modifier" like 'int', you want this
    * one last.
    */
-  def optional: ChangeAuditor[Option[A]] = allowEmpty.as[Option[A]]
+  def optional: ChangeAuditor = allowEmpty
 
   /**
    * Unconditionally allows the field to start with minus sign. This is used by the `int` and
    * `decimal` modifiers below, but could possibly be useful elsewhere.
    */
-  def allowNeg: ChangeAuditor[A] = allow(_.startsWith("-"))
+  def allowNeg: ChangeAuditor = allow(_.startsWith("-"))
 
   /**
    * Unconditionally prevents the field from starting with minus sign. This is used by the `int` and
    * `decimal` modifiers below, but could possibly be useful elsewhere.
    */
-  def denyNeg: ChangeAuditor[A] = deny(_.startsWith("-"))
+  def denyNeg: ChangeAuditor = deny(_.startsWith("-"))
 
   /**
    * Allows a numeric field to have an exponential part (ie.: e10, e+10 or e-10). Numeric fields
    * don't allow this unless explicitly enabled with this method.
    */
-  def allowExp(digits: PosInt = 2.refined): ChangeAuditor[A] = {
+  def allowExp(digits: PosInt = 2.refined): ChangeAuditor = {
     val SplitExp = s"^([^e]*)((?:e[\\+-]?)?)((?:[1-9]\\d{0,${digits.value - 1}})?)$$".r
 
     ChangeAuditor { (s, c) =>
@@ -133,12 +122,12 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * ChangeAuditor. This is useful when using a ChangeAuditor made from a format to get better
    * behavior for entering values.
    */
-  def int: ChangeAuditor[A] = {
+  def int: ChangeAuditor = {
     // Check to see if negative values are allowed. If this causes
     // problems, we may need to make the check optional.
     val allowNeg = isAllowed("-1")
 
-    val auditor = ChangeAuditor[A] { (s, c) =>
+    val auditor = ChangeAuditor { (s, c) =>
       val (result, newS, newC) = ChangeAuditor.processIntString(s, c)
       self.checkAgainstSelf(newS, newC, result)
     }
@@ -150,13 +139,13 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
    * "original" ChangeAuditor. This is useful when using a ChangeAuditor made from a format to get
    * better behavior for entering values.
    */
-  def decimal(decimals: PosInt): ChangeAuditor[A] = {
+  def decimal(decimals: PosInt): ChangeAuditor = {
     // Check to see if negative values are allowed. If this causes
     // problems, we may need to make the check optional.
     val negStr   = "-0." + "0" * (decimals.value - 1) + "1"
     val allowNeg = isAllowed(negStr)
 
-    val auditor = ChangeAuditor[A] { (s, c) =>
+    val auditor = ChangeAuditor { (s, c) =>
       val (result, newS, newC) = ChangeAuditor.processDecimalString(s, c, decimals)
       self.checkAgainstSelf(newS, newC, result)
     }
@@ -164,9 +153,7 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
   }
 
   // Separators longer than a single Char add the complexity that the separator itself may be being edited, not sure it's worth it.
-  def toSequence[L[_]](
-    separator:           Char = ','
-  )(implicit @unused ev: SeqGuard[L]): ChangeAuditor[L[A]] =
+  def toSequence(separator: Char = ','): ChangeAuditor =
     ChangeAuditor { (str, cursorPos) =>
       val startIndex = str.lastIndexOf(separator.toString, cursorPos - 1) + 1
       val endIndex_  = str.indexOf(separator.toString, cursorPos)
@@ -204,12 +191,12 @@ final case class ChangeAuditor[A](audit: (String, Int) => AuditResult) { self =>
 object ChangeAuditor {
   import FilterMode._
 
-  def accept[A]: ChangeAuditor[A] = ChangeAuditor((_, _) => AuditResult.accept)
+  def accept[A]: ChangeAuditor = ChangeAuditor((_, _) => AuditResult.accept)
 
   /**
    * For a string. Simply limits the length of the input string.
    */
-  def maxLength(max: PosInt): ChangeAuditor[String] = ChangeAuditor { (str, _) =>
+  def maxLength(max: PosInt): ChangeAuditor = ChangeAuditor { (str, _) =>
     if (str.length > max.value) AuditResult.reject else AuditResult.accept
   }
 
@@ -217,7 +204,7 @@ object ChangeAuditor {
    * For a plain integer. Only allows entry of numeric values. ALlows the input to be empty or "-",
    * etc. to make entry easier. It also strips leading zeros.
    */
-  val int: ChangeAuditor[Int] = ChangeAuditor { (str, cursorPos) =>
+  val int: ChangeAuditor = ChangeAuditor { (str, cursorPos) =>
     processIntString(str, cursorPos)._1
   }
 
@@ -225,7 +212,7 @@ object ChangeAuditor {
    * For a plain positive integer. Only allows entry of numeric values. ALlows the input to be
    * empty, etc. to make entry easier. It also strips leading zeros.
    */
-  val posInt: ChangeAuditor[PosInt] = int.denyNeg.as[PosInt]
+  val posInt: ChangeAuditor = int.denyNeg
 
   /**
    * For a big decimal. Allows the input to be empty or "-", etc. to make entry easier. It also
@@ -236,7 +223,7 @@ object ChangeAuditor {
    * @param decimals
    *   - maximum number of allowed decimals.
    */
-  protected def bigDecimal(integers: Option[PosInt], decimals: PosInt): ChangeAuditor[BigDecimal] =
+  protected def bigDecimal(integers: Option[PosInt], decimals: PosInt): ChangeAuditor =
     ChangeAuditor { (str, cursorPos) =>
       val (result, formatStr, _) = processDecimalString(str, cursorPos, decimals)
       result match {
@@ -260,7 +247,7 @@ object ChangeAuditor {
    *   - maximum number of allowed decimals.
    */
   @inline
-  def bigDecimal(decimals: PosInt = 3.refined): ChangeAuditor[BigDecimal] =
+  def bigDecimal(decimals: PosInt = 3.refined): ChangeAuditor =
     bigDecimal(none, decimals)
 
   /**
@@ -273,7 +260,7 @@ object ChangeAuditor {
    *   - maximum number of allowed decimals.
    */
   @inline
-  def bigDecimal(integers: PosInt, decimals: PosInt): ChangeAuditor[BigDecimal] =
+  def bigDecimal(integers: PosInt, decimals: PosInt): ChangeAuditor =
     bigDecimal(integers.some, decimals)
 
   /**
@@ -285,10 +272,9 @@ object ChangeAuditor {
    * @param decimals
    *   - maximum number of allowed decimals.
    */
-
   @inline
-  def posBigDecimal(integers: Option[PosInt], decimals: PosInt): ChangeAuditor[PosBigDecimal] =
-    bigDecimal(integers, decimals).denyNeg.as[PosBigDecimal]
+  def posBigDecimal(integers: Option[PosInt], decimals: PosInt): ChangeAuditor =
+    bigDecimal(integers, decimals).denyNeg
 
   /**
    * For a big decimal. Allows the input to be empty, etc. to make entry easier. It also strips
@@ -299,7 +285,7 @@ object ChangeAuditor {
    *   - maximum number of allowed decimals.
    */
   @inline
-  def posBigDecimal(decimals: PosInt = 3.refined): ChangeAuditor[PosBigDecimal] =
+  def posBigDecimal(decimals: PosInt = 3.refined): ChangeAuditor =
     posBigDecimal(none, decimals)
 
   /**
@@ -312,27 +298,27 @@ object ChangeAuditor {
    *   - maximum number of allowed decimals.
    */
   @inline
-  def posBigDecimal(integers: PosInt, decimals: PosInt): ChangeAuditor[PosBigDecimal] =
+  def posBigDecimal(integers: PosInt, decimals: PosInt): ChangeAuditor =
     posBigDecimal(integers.some, decimals)
 
   def scientificNotation(
     decimals:       PosInt = 3.refined,
     exponentDigits: PosInt = 2.refined
-  ): ChangeAuditor[BigDecimal] =
+  ): ChangeAuditor =
     bigDecimal(1.refined[Positive], decimals).allowExp(exponentDigits)
 
   @inline
   def posScientificNotation(
     decimals:       PosInt = 3.refined,
     exponentDigits: PosInt = 2.refined
-  ): ChangeAuditor[PosBigDecimal] =
+  ): ChangeAuditor =
     scientificNotation(decimals, exponentDigits).denyNeg.as[PosBigDecimal]
 
   /**
    * For Refined Ints. Only allows entry of numeric values.
    *
    * @param filterMode
-   *   - If Strict, it validates against the ValidFormatInput for the P. If Lax, it only validates
+   *   - If Strict, it validates against the InputValidWedge for the P. If Lax, it only validates
    *     that it is an Int. This can be useful in instances where the ValidFormatInstance makes it
    *     difficult to enter values, such as for Odd integers or other discontinuous ranges. NOTE: If
    *     the filter mode is Strict, the refined Int is tested to see if it allows a value of -1. If
@@ -341,19 +327,19 @@ object ChangeAuditor {
    *     noted above, Lax filter mode should be used for this type of refined Int. This is required
    *     because scala, and refined, treat a -0 as a 0.
    */
-  def forRefinedInt[P](filterMode: FilterMode = FilterMode.Strict)(implicit
-    v:                             RefinedValidate[Int, P]
-  ): ChangeAuditor[Int Refined P] = {
+  def refinedInt[P](filterMode: FilterMode = FilterMode.Strict)(implicit
+    v:                          RefinedValidate[Int, P]
+  ): ChangeAuditor = {
 
-    val auditor: ChangeAuditor[Int Refined P] = ChangeAuditor { (str, cursorPos) =>
+    val auditor: ChangeAuditor = ChangeAuditor { (str, cursorPos) =>
       val (formatStr, newStr, offset) = fixIntString(str, cursorPos)
       val validFormat                 = filterMode match {
-        case Strict => ValidFormatInput.forRefinedInt[P]()
-        case Lax    => ValidFormatInput.intValidFormat()
+        case Strict => InputValidSplitEpi.refinedInt[P]
+        case Lax    => InputValidSplitEpi.int
       }
-      validFormat.getValidated(formatStr) match {
-        case Invalid(_)                => AuditResult.reject
-        case Valid(_) if newStr == str => AuditResult.accept
+      validFormat.getValid(formatStr) match {
+        case Left(_)                   => AuditResult.reject
+        case Right(_) if newStr == str => AuditResult.accept
         case _                         => AuditResult.newString(newStr, offset)
       }
     }
@@ -366,22 +352,22 @@ object ChangeAuditor {
    * For Refined Strings.
    *
    * @param filterMode
-   *   - If Strict, it validates against the ValidFormatInput for the P. If Lax, it allows any
+   *   - If Strict, it validates against the InputValidWedge for the P. If Lax, it allows any
    *     string.
    * @param formatFn
    *   - A formatting function, such as _.toUpperCase and forces the input to that format. If the
    *     length of the string is changed other than truncation, it could mean the cursor position
    *     might be off.
    */
-  def forRefinedString[P](
+  def refinedString[P](
     filterMode: FilterMode = FilterMode.Strict,
     formatFn:   String => String = identity
   )(implicit
     v:          RefinedValidate[String, P]
-  ): ChangeAuditor[String Refined P] = ChangeAuditor { (s, _) =>
+  ): ChangeAuditor = ChangeAuditor { (s, _) =>
     val newStr = formatFn(s)
     val valid  = filterMode match {
-      case Strict => ValidFormatInput.forRefinedString[P]().getValidated(newStr)
+      case Strict => InputValidSplitEpi.refinedString[P].getValid(newStr)
       case Lax    => newStr.validNec[String]
     }
     valid match {
@@ -393,7 +379,7 @@ object ChangeAuditor {
   /**
    * for RightAscension entry.
    */
-  val truncatedRA: ChangeAuditor[TruncatedRA] =
+  val truncatedRA: ChangeAuditor =
     ChangeAuditor { (str, _) =>
       val stripped = stripZerosPastNPlaces(str, 3.refined)
       val isValid  =
@@ -418,7 +404,7 @@ object ChangeAuditor {
   /**
    * for Declination entry.
    */
-  val truncatedDec: ChangeAuditor[TruncatedDec] =
+  val truncatedDec: ChangeAuditor =
     ChangeAuditor { (str, _) =>
       val (sign, noSign) =
         if (str.startsWith("+") || str.startsWith("-")) (str.head, str.tail) else ("", str)
@@ -446,15 +432,22 @@ object ChangeAuditor {
   /**
    * Build from an InputFormat instance.
    */
-  def fromFormat[A](f: InputFormat[A]): ChangeAuditor[A] = ChangeAuditor { (s, _) =>
+  def fromFormat[A](f: InputFormat[A]): ChangeAuditor = ChangeAuditor { (s, _) =>
     f.getOption(s).fold(AuditResult.reject)(_ => AuditResult.accept)
   }
 
   /**
-   * Build from a ValidFormatInput instance.
+   * Build from a InputValidSplitEpi instance.
    */
-  def fromValidFormatInput[A](v: ValidFormatInput[A]): ChangeAuditor[A] = ChangeAuditor { (s, _) =>
-    v.getValidated(s).fold(_ => AuditResult.reject, _ => AuditResult.accept)
+  def fromInputValidSplitEpi[A](v: InputValidSplitEpi[A]): ChangeAuditor = ChangeAuditor { (s, _) =>
+    v.getValid(s).fold(_ => AuditResult.reject, _ => AuditResult.accept)
+  }
+
+  /**
+   * Build from a InputValidWedge instance.
+   */
+  def fromInputValidWedge[A](v: InputValidWedge[A]): ChangeAuditor = ChangeAuditor { (s, _) =>
+    v.getValid(s).fold(_ => AuditResult.reject, _ => AuditResult.accept)
   }
 
   private def processIntString(str: String, cursorPos: Int): (AuditResult, String, Int) = {
