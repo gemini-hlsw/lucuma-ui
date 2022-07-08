@@ -14,7 +14,6 @@ lazy val reactSemanticUIVersion = "0.15.1"
 lazy val scalaJsReactVersion    = "2.1.1"
 
 lazy val kindProjectorVersion = "0.13.2"
-lazy val singletonOpsVersion  = "0.5.2"
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
@@ -79,7 +78,6 @@ lazy val ui =
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"   % scalaJsReactVersion,
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"  % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"         % lucumaCoreVersion,
-        "eu.timepit"                        %%% "singleton-ops"       % singletonOpsVersion,
         "io.github.cquiroz.react"           %%% "common"              % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "cats"                % reactCommonVersion,
         "io.github.cquiroz.react"           %%% "react-semantic-ui"   % reactSemanticUIVersion,
