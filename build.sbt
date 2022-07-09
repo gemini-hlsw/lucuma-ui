@@ -6,7 +6,7 @@ lazy val FUILess = "2.8.7"
 val reactSUI     = "2.0.4"
 
 lazy val catsVersion          = "2.8.0"
-lazy val crystalVersion       = "0.0.0+1-8dd5205c-SNAPSHOT"
+lazy val crystalVersion       = "0.0.0+1-1a31d718-SNAPSHOT"
 lazy val lucumaCoreVersion    = "0.45-faed6e6-SNAPSHOT"
 lazy val monocleVersion       = "3.1.0"
 lazy val mouseVersion         = "1.1.0"
