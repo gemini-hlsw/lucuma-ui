@@ -14,10 +14,9 @@ import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
 import lucuma.core.optics._
 import lucuma.core.syntax.string._
+import lucuma.core.validation._
 import lucuma.refined._
-import lucuma.ui.optics.FormatUtils._
-import lucuma.ui.optics.TruncatedDec
-import lucuma.ui.optics.TruncatedRA
+import lucuma.ui.input.FormatUtils._
 
 sealed trait AuditResult extends Product with Serializable
 object AuditResult {
@@ -312,7 +311,7 @@ object ChangeAuditor {
     decimals:       PosInt = 3.refined,
     exponentDigits: PosInt = 2.refined
   ): ChangeAuditor =
-    scientificNotation(decimals, exponentDigits).denyNeg.as[PosBigDecimal]
+    scientificNotation(decimals, exponentDigits).denyNeg
 
   /**
    * For Refined Ints. Only allows entry of numeric values.
