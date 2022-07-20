@@ -54,7 +54,7 @@ lazy val demo =
       ),
       webpackMonitoredDirectories += (Compile / resourceDirectory).value,
       webpackResources                      := (baseDirectory.value / "webpack") * "*.js",
-      webpackDevServerPort := 7800,
+      webpackDevServerPort                  := 7800,
       Compile / npmDependencies ++= Seq(
         "react"             -> reactJS,
         "react-dom"         -> reactJS,

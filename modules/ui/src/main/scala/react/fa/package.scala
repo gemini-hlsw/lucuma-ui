@@ -4,9 +4,10 @@
 package react
 
 import react.common.EnumValue
-import scala.scalajs.js.UndefOr
 import react.semanticui.ShorthandSB
 import react.semanticui.elements.icon.Icon
+
+import scala.scalajs.js.UndefOr
 
 package fa {
   sealed trait Family extends Product with Serializable {
