@@ -6,7 +6,7 @@ lazy val FUILess = "2.8.7"
 val reactSUI     = "2.0.4"
 
 lazy val catsVersion          = "2.8.0"
-lazy val crystalVersion       = "0.0.0+1-1a31d718-SNAPSHOT"
+lazy val crystalVersion       = "0.0.0+1-734ea040-SNAPSHOT"
 lazy val lucumaCoreVersion    = "0.45-e482287-SNAPSHOT"
 lazy val monocleVersion       = "3.1.0"
 lazy val mouseVersion         = "1.1.0"
@@ -14,7 +14,7 @@ lazy val lucumaRefinedVersion = "0.1.0"
 lazy val lucumaReactVersion   = "1.0-6b1a9d9-SNAPSHOT"
 lazy val scalaJsReactVersion  = "2.1.1"
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
@@ -54,6 +54,7 @@ lazy val demo =
       ),
       webpackMonitoredDirectories += (Compile / resourceDirectory).value,
       webpackResources                      := (baseDirectory.value / "webpack") * "*.js",
+      webpackDevServerPort := 7800,
       Compile / npmDependencies ++= Seq(
         "react"             -> reactJS,
         "react-dom"         -> reactJS,

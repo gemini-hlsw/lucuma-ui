@@ -4,6 +4,9 @@
 package react
 
 import react.common.EnumValue
+import scala.scalajs.js.UndefOr
+import react.semanticui.ShorthandSB
+import react.semanticui.elements.icon.Icon
 
 package fa {
   sealed trait Family extends Product with Serializable {
@@ -95,5 +98,8 @@ package fa {
     case object Rotate180 extends Rotation
     case object Rotate270 extends Rotation
   }
+
+  // Conversion to simplify usage with semantic ui
+  given Conversion[FontAwesomeIcon, UndefOr[ShorthandSB[Icon]]] = _.render
 
 }
