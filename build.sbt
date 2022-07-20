@@ -11,7 +11,7 @@ lazy val lucumaCoreVersion    = "0.45-e482287-SNAPSHOT"
 lazy val monocleVersion       = "3.1.0"
 lazy val mouseVersion         = "1.1.0"
 lazy val lucumaRefinedVersion = "0.1.0"
-lazy val lucumaReactVersion   = "1.0-18d05e8-SNAPSHOT"
+lazy val lucumaReactVersion   = "1.0-6b1a9d9-SNAPSHOT"
 lazy val scalaJsReactVersion  = "2.1.1"
 
 ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
