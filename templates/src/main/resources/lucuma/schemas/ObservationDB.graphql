@@ -2096,7 +2096,7 @@ input PartnerSplitsInput {
   """
   The partner field must be either specified or skipped altogether.  It cannot be unset with a null value.
   """
-  partner: partner
+  partner: Partner
 
   """
   The percent field must be either specified or skipped altogether.  It cannot be unset with a null value.
@@ -2216,12 +2216,12 @@ input ProposalInput {
   """
   The category field may be unset by assigning a null value, or ignored by skipping it altogether
   """
-  category: tacCategory
+  category: TacCategory
 
   """
   The toOActivation field is required when creating a new instance of proposal, but optional when editing
   """
-  toOActivation: toOActivation
+  toOActivation: ToOActivation
 
   """
   The abstract field may be unset by assigning a null value, or ignored by skipping it altogether
@@ -2857,108 +2857,6 @@ type p {
 
   """p offset in arcsec"""
   arcseconds: BigDecimal!
-}
-
-"""Partner"""
-enum partner {
-  """partner ar"""
-  AR
-
-  """partner br"""
-  BR
-
-  """partner ca"""
-  CA
-
-  """partner cl"""
-  CL
-
-  """partner kr"""
-  KR
-
-  """partner uh"""
-  UH
-
-  """partner us"""
-  US
-}
-
-"""TAC category"""
-enum tacCategory {
-  """tacCategory SmallBodies"""
-  SMALL_BODIES
-
-  """tacCategory PlanetaryAtmospheres"""
-  PLANETARY_ATMOSPHERES
-
-  """tacCategory PlanetarySurfaces"""
-  PLANETARY_SURFACES
-
-  """tacCategory SolarSystemOther"""
-  SOLAR_SYSTEM_OTHER
-
-  """tacCategory ExoplanetRadialVelocities"""
-  EXOPLANET_RADIAL_VELOCITIES
-
-  """tacCategory ExoplanetAtmospheresActivity"""
-  EXOPLANET_ATMOSPHERES_ACTIVITY
-
-  """tacCategory ExoplanetTransits"""
-  EXOPLANET_TRANSITS
-
-  """tacCategory ExoplanetHostStar"""
-  EXOPLANET_HOST_STAR
-
-  """tacCategory ExoplanetOther"""
-  EXOPLANET_OTHER
-
-  """tacCategory StellarAstrophysics"""
-  STELLAR_ASTROPHYSICS
-
-  """tacCategory StellarPopulations"""
-  STELLAR_POPULATIONS
-
-  """tacCategory StarFormation"""
-  STAR_FORMATION
-
-  """tacCategory GaseousAstrophysics"""
-  GASEOUS_ASTROPHYSICS
-
-  """tacCategory StellarRemnants"""
-  STELLAR_REMNANTS
-
-  """tacCategory GalacticOther"""
-  GALACTIC_OTHER
-
-  """tacCategory Cosmology"""
-  COSMOLOGY
-
-  """tacCategory ClustersOfGalaxies"""
-  CLUSTERS_OF_GALAXIES
-
-  """tacCategory HighZUniverse"""
-  HIGH_Z_UNIVERSE
-
-  """tacCategory LowZUniverse"""
-  LOW_Z_UNIVERSE
-
-  """tacCategory ActiveGalaxies"""
-  ACTIVE_GALAXIES
-
-  """tacCategory ExtragalacticOther"""
-  EXTRAGALACTIC_OTHER
-}
-
-"""Target of opportunity activation"""
-enum toOActivation {
-  """toOActivation None"""
-  NONE
-
-  """toOActivation Standard"""
-  STANDARD
-
-  """toOActivation Rapid"""
-  RAPID
 }
 
 type AirMassRange {
