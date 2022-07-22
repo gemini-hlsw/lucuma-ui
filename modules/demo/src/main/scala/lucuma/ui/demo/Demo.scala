@@ -40,6 +40,7 @@ import monocle.Focus
 import org.scalajs.dom
 import react.common._
 import react.common.style.Css
+import react.fa.given
 import react.semanticui.collections.form.Form
 import react.semanticui.elements.label.LabelPointing
 
@@ -150,6 +151,7 @@ object FormComponent {
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = upperNESValidator,
+              icon = react.fa.Icons.Bars,
               onValidChange = v => $.setStateL(State.valid1)(v)
             ),
             FormInputEV[ReuseView, String](
