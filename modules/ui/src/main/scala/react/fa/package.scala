@@ -3,13 +3,13 @@
 
 package react.fa
 
+import japgolly.scalajs.react.vdom.VdomNode
 import react.common.EnumValue
-import react.semanticui.ShorthandSB
 import react.semanticui.ShorthandS
+import react.semanticui.ShorthandSB
 import react.semanticui.elements.icon.Icon
 
 import scala.scalajs.js.UndefOr
-import japgolly.scalajs.react.vdom.VdomNode
 
 sealed trait Family extends Product with Serializable {
   val prefix: String

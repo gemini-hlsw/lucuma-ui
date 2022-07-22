@@ -151,7 +151,6 @@ object FormComponent {
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = upperNESValidator,
-              icon = react.fa.Icons.Bars,
               onValidChange = v => $.setStateL(State.valid1)(v)
             ),
             FormInputEV[ReuseView, String](
