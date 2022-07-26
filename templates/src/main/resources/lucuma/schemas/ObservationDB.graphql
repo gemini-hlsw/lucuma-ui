@@ -125,16 +125,6 @@ input BandNormalizedIntegratedInput {
   The brightnesses field is required when creating a new instance of BandNormalizedIntegrated, but optional when editing
   """
   brightnesses: [BandBrightnessIntegratedInput!]
-
-  """
-  Optional field that may be provided to edit existing brightness definitions or add new ones
-  """
-  editBrightnesses: [BandBrightnessIntegratedInput!]
-
-  """
-  Optional field that may be provided to delete existing brightness definitions identified by band
-  """
-  deleteBrightnesses: [Band!]
 }
 
 """
@@ -150,16 +140,6 @@ input BandNormalizedSurfaceInput {
   The brightnesses field is required when creating a new instance of BandNormalizedSurface, but optional when editing
   """
   brightnesses: [BandBrightnessSurfaceInput!]
-
-  """
-  Optional field that may be provided to edit existing brightness definitions or add new ones
-  """
-  editBrightnesses: [BandBrightnessSurfaceInput!]
-
-  """
-  Optional field that may be provided to delete existing brightness definitions identified by band
-  """
-  deleteBrightnesses: [Band!]
 }
 
 """Bias calibration step"""
@@ -472,16 +452,6 @@ input EmissionLinesIntegratedInput {
   lines: [EmissionLineIntegratedInput!]
 
   """
-  Optional field that may be provided to edit existing emission line definitions or add new ones
-  """
-  editLines: [EmissionLineIntegratedInput!]
-
-  """
-  Optional field that may be provided to delete existing emission lines identified by wavelength
-  """
-  deleteLines: [WavelengthInput!]
-
-  """
   The fluxDensityContinuum field is required when creating a new instance of EmissionLinesIntegrated, but optional when editing
   """
   fluxDensityContinuum: FluxDensityContinuumIntegratedInput
@@ -495,16 +465,6 @@ input EmissionLinesSurfaceInput {
   The lines field is required when creating a new instance of EmissionLinesSurface, but optional when editing
   """
   lines: [EmissionLineSurfaceInput!]
-
-  """
-  Optional field that may be provided to edit existing emission line definitions or add new ones
-  """
-  editLines: [EmissionLineSurfaceInput!]
-
-  """
-  Optional field that may be provided to delete existing emission lines identified by wavelength
-  """
-  deleteLines: [WavelengthInput!]
 
   """
   The fluxDensityContinuum field is required when creating a new instance of EmissionLinesSurface, but optional when editing
@@ -2136,7 +2096,7 @@ input PartnerSplitsInput {
   """
   The partner field must be either specified or skipped altogether.  It cannot be unset with a null value.
   """
-  partner: partner
+  partner: Partner
 
   """
   The percent field must be either specified or skipped altogether.  It cannot be unset with a null value.
@@ -2256,12 +2216,12 @@ input ProposalInput {
   """
   The category field may be unset by assigning a null value, or ignored by skipping it altogether
   """
-  category: tacCategory
+  category: TacCategory
 
   """
   The toOActivation field is required when creating a new instance of proposal, but optional when editing
   """
-  toOActivation: toOActivation
+  toOActivation: ToOActivation
 
   """
   The abstract field may be unset by assigning a null value, or ignored by skipping it altogether
@@ -2794,6 +2754,9 @@ input UpdateObservationsInput {
   Caps the number of results returned to the given value (if additional observations match the WHERE clause they will be updated but not returned).
   """
   LIMIT: NonNegInt
+
+  """Set to `true` to include deleted observations."""
+  includeDeleted: Boolean = false
 }
 
 """
@@ -2825,6 +2788,9 @@ input UpdateProgramsInput {
   Caps the number of results returned to the given value (if additional programs match the WHERE clause they will be updated but not returned).
   """
   LIMIT: NonNegInt
+
+  """Set to `true` to include deleted programs."""
+  includeDeleted: Boolean = false
 }
 
 """
@@ -2856,6 +2822,9 @@ input UpdateTargetsInput {
   Caps the number of results returned to the given value (if additional targets match the WHERE clause they will be updated but not returned).
   """
   LIMIT: NonNegInt
+
+  """Set to `true` to include deleted targets"""
+  includeDeleted: Boolean = false
 }
 
 """
@@ -2888,108 +2857,6 @@ type p {
 
   """p offset in arcsec"""
   arcseconds: BigDecimal!
-}
-
-"""Partner"""
-enum partner {
-  """partner ar"""
-  AR
-
-  """partner br"""
-  BR
-
-  """partner ca"""
-  CA
-
-  """partner cl"""
-  CL
-
-  """partner kr"""
-  KR
-
-  """partner uh"""
-  UH
-
-  """partner us"""
-  US
-}
-
-"""TAC category"""
-enum tacCategory {
-  """tacCategory SmallBodies"""
-  SMALL_BODIES
-
-  """tacCategory PlanetaryAtmospheres"""
-  PLANETARY_ATMOSPHERES
-
-  """tacCategory PlanetarySurfaces"""
-  PLANETARY_SURFACES
-
-  """tacCategory SolarSystemOther"""
-  SOLAR_SYSTEM_OTHER
-
-  """tacCategory ExoplanetRadialVelocities"""
-  EXOPLANET_RADIAL_VELOCITIES
-
-  """tacCategory ExoplanetAtmospheresActivity"""
-  EXOPLANET_ATMOSPHERES_ACTIVITY
-
-  """tacCategory ExoplanetTransits"""
-  EXOPLANET_TRANSITS
-
-  """tacCategory ExoplanetHostStar"""
-  EXOPLANET_HOST_STAR
-
-  """tacCategory ExoplanetOther"""
-  EXOPLANET_OTHER
-
-  """tacCategory StellarAstrophysics"""
-  STELLAR_ASTROPHYSICS
-
-  """tacCategory StellarPopulations"""
-  STELLAR_POPULATIONS
-
-  """tacCategory StarFormation"""
-  STAR_FORMATION
-
-  """tacCategory GaseousAstrophysics"""
-  GASEOUS_ASTROPHYSICS
-
-  """tacCategory StellarRemnants"""
-  STELLAR_REMNANTS
-
-  """tacCategory GalacticOther"""
-  GALACTIC_OTHER
-
-  """tacCategory Cosmology"""
-  COSMOLOGY
-
-  """tacCategory ClustersOfGalaxies"""
-  CLUSTERS_OF_GALAXIES
-
-  """tacCategory HighZUniverse"""
-  HIGH_Z_UNIVERSE
-
-  """tacCategory LowZUniverse"""
-  LOW_Z_UNIVERSE
-
-  """tacCategory ActiveGalaxies"""
-  ACTIVE_GALAXIES
-
-  """tacCategory ExtragalacticOther"""
-  EXTRAGALACTIC_OTHER
-}
-
-"""Target of opportunity activation"""
-enum toOActivation {
-  """toOActivation None"""
-  NONE
-
-  """toOActivation Standard"""
-  STANDARD
-
-  """toOActivation Rapid"""
-  RAPID
 }
 
 type AirMassRange {
@@ -4930,7 +4797,7 @@ enum QuasarSpectrum {
 
 type Query {
   """
-  All science targets (if any) for the given observation (or environment)
+  All science targets (if any) for the given observation (or environment). Set `includeDeleted` to true to include any deleted targets in the asterism.
   """
   asterism(
     """Observation ID"""
@@ -4952,6 +4819,9 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): AsterismGroupSelectResult!
 
   """Observations grouped by commonly held constraints"""
@@ -4966,6 +4836,9 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): ConstraintSetGroupSelectResult!
 
   """
@@ -5020,9 +4893,6 @@ type Query {
   observation(
     """Observation ID"""
     observationId: ObservationId!
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
   ): Observation
 
   """
@@ -5041,15 +4911,15 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): ObservationSelectResult!
 
   """Returns the program with the given id, if any."""
   program(
     """Program ID"""
     programId: ProgramId!
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
   ): Program
 
   """
@@ -5068,6 +4938,9 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): ProgramSelectResult!
 
   """Observations grouped by commonly held science mode"""
@@ -5082,6 +4955,9 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): ScienceModeGroupSelectResult!
 
   """Observations grouped by commonly held science requirements"""
@@ -5096,15 +4972,15 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): ScienceRequirementsGroupSelectResult!
 
   """Retrieves the target with the given id, if it exists"""
   target(
     """Target ID"""
     targetId: TargetId!
-
-    """Set to true to include deleted values"""
-    includeDeleted: Boolean! = false
   ): Target
 
   """Target environment for the given observation (or environment id)"""
@@ -5125,6 +5001,9 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): TargetEnvironmentGroupSelectResult!
 
   """Observations grouped by commonly held targets"""
@@ -5139,6 +5018,9 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): TargetGroupSelectResult!
 
   """
@@ -5157,6 +5039,9 @@ type Query {
     Limits the result to at most this number of matches (but never more than 1000).
     """
     LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
   ): TargetSelectResult!
 }
 
@@ -6015,26 +5900,6 @@ All supplied criteria must match, but usually only one is selected.  E.g.
 'EQ = "Foo"' will match when the property value is "FOO".
       
 """
-input WhereEqExistence {
-  """Matches if the property is exactly the supplied value."""
-  EQ: Existence
-
-  """Matches if the property is not the supplied value."""
-  NEQ: Existence
-
-  """Matches if the property value is any of the supplied options."""
-  IN: [Existence!]
-
-  """Matches if the property value is none of the supplied values."""
-  NIN: [Existence!]
-}
-
-"""
-Filters on equality (or not) of the property value and the supplied criteria.
-All supplied criteria must match, but usually only one is selected.  E.g.
-'EQ = "Foo"' will match when the property value is "FOO".
-      
-"""
 input WhereEqPartner {
   """Matches if the property is exactly the supplied value."""
   EQ: Partner
@@ -6199,11 +6064,6 @@ input WhereObservation {
 
   """Matches the observation active status."""
   activeStatus: WhereOrderObsActiveStatus
-
-  """
-  By default matching is limited to PRESENT observations.  Use this filter to include DELETED observations as well, for example.
-  """
-  existence: WhereEqExistence = {EQ: PRESENT}
 }
 
 """
@@ -6778,11 +6638,6 @@ input WhereProgram {
 
   """Matches the proposal."""
   proposal: WhereProposal
-
-  """
-  By default matching is limited to PRESENT programs.  Use this filter to included DELETED programs for example.
-  """
-  existence: WhereEqExistence = {EQ: PRESENT}
 }
 
 """Proposal filter options.  All specified items must match."""
@@ -6945,11 +6800,6 @@ input WhereTarget {
 
   """Matches the target name."""
   name: WhereString
-
-  """
-  By default matching is limited to PRESENT targets.  Use this filter to include DELETED targets as well, for example.
-  """
-  existence: WhereEqExistence = {EQ: PRESENT}
 }
 
 type q {
