@@ -175,7 +175,6 @@ object FormInputEV {
           )(^.position.absolute)
         }
 
-
         val error: Option[Boolean | VdomNode | Label | Unit] = props.error.toOption
           .flatMap[Boolean | VdomNode | Label | Unit] {
             _ match {
