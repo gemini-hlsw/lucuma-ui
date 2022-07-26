@@ -9,9 +9,7 @@ import japgolly.scalajs.react._
 import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.input.InputFormat
-import monocle.Focus
-import monocle.Lens
-import react.common.ReactProps
+import react.common._
 
 /**
  * Input component that uses an ExternalValue to share the content of the field
@@ -28,7 +26,7 @@ final case class InputEV[EV[_], A](
     (_: A) => Callback.empty, // callback for parents of this component
   onBlur:          InputEV.ChangeCallback[A] = (_: A) => Callback.empty
 )(implicit val ev: ExternalValue[EV])
-    extends ReactProps[InputEV[InputEV.AnyF, Any], InputEV.State, Unit](InputEV.component) {
+    extends ReactFnProps[InputEV[InputEV.AnyF, Any]](InputEV.component) {
   def valGet: String                            = ev.get(value).foldMap(format.reverseGet)
   def valSet(s: String): Callback               = format.getOption(s).map(ev.set(value)).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =
@@ -38,61 +36,48 @@ final case class InputEV[EV[_], A](
 }
 
 object InputEV {
-  type AnyF[_]           = Any
-  type Props[EV[_], A]   = InputEV[EV, A]
-  type ChangeCallback[A] = A => Callback
-  type Scope[EV[_], A]   = RenderScope[Props[EV, A], State, Unit]
-
-  final protected case class State(curValue: Option[String], prevValue: String)
-  protected object State {
-    val curValue: Lens[State, Option[String]] = Focus[State](_.curValue)
-    val prevValue: Lens[State, String]        = Focus[State](_.prevValue)
-  }
+  type AnyF[_]                            = Any
+  protected type Props[EV[_], A]          = InputEV[EV, A]
+  protected[forms] type ChangeCallback[A] = A => Callback
 
   sealed trait InputType    extends Product with Serializable
   case object TextInput     extends InputType
   case object PasswordInput extends InputType
 
-  def onTextChange[EV[_], A]($ : Scope[EV, A])(e: ReactEventFromInput): Callback = {
-    // Capture the value outside setState, react reuses the events
-    val v = e.target.value
-    // First update the internal state, then call the outside listener
-    $.setStateL(State.curValue)(v.some) *>
-      // Next 2 might not be called if the InputFormat returns None
-      $.props.valSet(v) *>
-      $.props.onChangeC(v)
-  }
-
-  def onBlur[EV[_], A]($ : Scope[EV, A], c: ChangeCallback[String]): Callback =
-    c($.state.curValue.orEmpty)
-
   protected val component =
-    ScalaComponent
-      .builder[Props[AnyF, Any]]
-      .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
-        val newValue = props.valGet
-        // Force new value from props if the prop changes (or we are initializing).
-        stateOpt match {
-          case Some(state) if newValue === state.prevValue => state
-          case _                                           => State(newValue.some, newValue)
+    ScalaFnComponent
+      .withHooks[Props[AnyF, Any]]
+      // final protected case class State(curValue: Option[String], prevValue: String)
+      .useState(none[String]) // value
+      .useEffectWithDepsBy((props, _) => props.valGet)((_, value) =>
+        newValue => value.setState(newValue.some)
+      )
+      .render { (props, value) =>
+        def onTextChange(e: ReactEventFromInput): Callback = {
+          // Capture the value outside setState, react reuses the events
+          val v = e.target.value
+          // First update the internal state, then call the outside listener
+          value.setState(v.some) >>
+            // Next 2 might not be called if the InputFormat returns None
+            props.valSet(v) >>
+            props.onChangeC(v)
         }
-      }
-      .render { b =>
-        val p = b.props
-        val s = b.state
+
+        def onBlur(cc: ChangeCallback[String]): Callback =
+          cc(value.value.orEmpty)
+
         <.input(
-          ^.`type`      := (p.inputType match {
+          ^.`type`      := (props.inputType match {
             case TextInput     => "text"
             case PasswordInput => "password"
           }),
-          ^.placeholder := p.placeholder,
-          ^.name        := p.name,
-          ^.id          := p.id,
-          ^.value       := s.curValue.orEmpty,
-          ^.disabled    := p.disabled,
-          ^.onChange ==> onTextChange(b),
-          ^.onBlur --> onBlur(b, p.onBlurC)
+          ^.placeholder := props.placeholder,
+          ^.name        := props.name,
+          ^.id          := props.id,
+          ^.value       := value.value.orEmpty,
+          ^.disabled    := props.disabled,
+          ^.onChange ==> onTextChange,
+          ^.onBlur --> onBlur(props.onBlurC)
         )
       }
-      .build
 }

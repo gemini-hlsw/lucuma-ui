@@ -6,17 +6,13 @@ package lucuma.ui.forms
 import cats._
 import cats.data.NonEmptyChain
 import cats.syntax.all._
-import eu.timepit.refined.cats._
 import eu.timepit.refined.types.string.NonEmptyString
-import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.validation._
 import lucuma.ui.input.AuditResult
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.reusability._
-import monocle.Focus
-import monocle.Lens
 import org.scalajs.dom.document
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html
@@ -73,10 +69,7 @@ final case class FormInputEV[EV[_], A](
   // Only use for extra actions, setting should be done through value.set
   onBlur:          FormInputEV.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) => Callback.empty
 )(implicit val ev: ExternalValue[EV], val eq: Eq[A])
-    extends ReactProps[FormInputEV[FormInputEV.AnyF, Any],
-                       FormInputEV.State,
-                       FormInputEV.Backend[FormInputEV.AnyF, Any]
-    ](FormInputEV.component) {
+    extends ReactFnProps[FormInputEV[FormInputEV.AnyF, Any]](FormInputEV.component) {
 
   def valGet: String = ev.get(value).foldMap(validFormat.reverseGet)
 
@@ -86,227 +79,201 @@ final case class FormInputEV[EV[_], A](
 }
 
 object FormInputEV {
-  type AnyF[_]           = Any
-  type Props[EV[_], A]   = FormInputEV[EV, A]
-  type ChangeCallback[A] = A => Callback
+  type AnyF[_]                     = Any
+  protected type Props[EV[_], A]   = FormInputEV[EV, A]
+  protected type ChangeCallback[A] = A => Callback
 
-  final protected case class State(
-    displayValue: String,
-    modelValue:   String,
-    cursor:       Option[(Int, Int)],
-    lastKeyCode:  Int,
-    inputElement: Option[html.Input],
-    errors:       Option[NonEmptyChain[NonEmptyString]]
-  )
-  protected object State {
-    val displayValue: Lens[State, String]                          = Focus[State](_.displayValue)
-    val modelValue: Lens[State, String]                            = Focus[State](_.modelValue)
-    val cursor: Lens[State, Option[(Int, Int)]]                    = Focus[State](_.cursor)
-    val lastKeyCode: Lens[State, Int]                              = Focus[State](_.lastKeyCode)
-    val inputElement: Lens[State, Option[html.Input]]              = Focus[State](_.inputElement)
-    val errors: Lens[State, Option[NonEmptyChain[NonEmptyString]]] = Focus[State](_.errors)
-  }
+  // queries the dom based on id. Onus is on user to make id's unique.
+  private def getInputElement(id: NonEmptyString): CallbackTo[Option[html.Input]] =
+    CallbackTo(Option(document.querySelector(s"#${id.value}").asInstanceOf[html.Input]))
 
-  implicit val neChainReuse: Reusability[NonEmptyChain[NonEmptyString]] = Reusability.byEq
-  implicit val stateReuse: Reusability[State]                           = Reusability.by(s => (s.displayValue, s.errors))
+  protected def buildComponent[EV[_], A] = {
+    def audit(
+      auditor:         ChangeAuditor,
+      value:           String,
+      setDisplayValue: String => Callback,
+      inputElement:    Option[html.Input],
+      setCursor:       Option[(Int, Int)] => Callback,
+      lastKeyCode:     Int
+    ): CallbackTo[String] = {
+      val cursor: Option[(Int, Int)] = inputElement.map(i => (i.selectionStart, i.selectionEnd))
 
-  class Backend[EV[_], A]($ : BackendScope[Props[EV, A], State]) {
+      def setStateCursorFromInput(offset: Int): Callback =
+        setCursor(cursor.map { case (start, end) => (start + offset, end + offset) })
 
-    def validate(
-      props: Props[EV, A],
-      value: String,
-      cb:    EitherErrors[A] => Callback = _ => Callback.empty
-    ): Callback = {
-      val validated = props.validFormat.getValid(value)
-      props.onValidChange(validated.isRight) >> cb(validated)
-    }
-
-    // queries the dom based on id. Onus is on user to make id's unique.
-    def getInputElement(id: NonEmptyString): Option[html.Input] =
-      Option(document.querySelector(s"#${id.value}").asInstanceOf[html.Input])
-
-    def getInputFromState: CallbackOption[html.Input] =
-      $.state.map(_.inputElement).asCBO
-
-    def getCursor: CallbackTo[Option[(Int, Int)]] =
-      getInputFromState.map(i => (i.selectionStart, i.selectionEnd)).asCallback
-
-    def setCursor(cursor: (Int, Int)): Callback =
-      getInputFromState.map(i => i.setSelectionRange(cursor._1, cursor._2))
-
-    def setStateCursorFromInput(offset: Int): Callback =
-      getCursor
-        .map(oc => oc.map { case (start, end) => (start + offset, end + offset) })
-        .flatMap(oc => $.setStateL(State.cursor)(oc))
-
-    def clearStateCursor: Callback = $.setStateL(State.cursor)(None)
-
-    def setCursorFromState: Callback =
-      $.state.flatMap(s => s.cursor.map(setCursor).getOrEmpty)
-
-    def audit(auditor: ChangeAuditor, value: String): CallbackTo[String] = {
-      def setDisplayValue(s: String): CallbackTo[String] =
-        $.setStateL(State.displayValue)(s).map(_ => s)
-
-      def cursorOffsetForReject: CallbackTo[Int] =
-        $.state.map(_.lastKeyCode match {
+      val cursorOffsetForReject: Int =
+        lastKeyCode match {
           case KeyCode.Backspace => 1
           case KeyCode.Delete    => 0
           case _                 => -1
-        })
-
-      getCursor
-        .map {
-          case Some((start, _)) => start
-          case _                => value.length
         }
-        .flatMap { c =>
-          auditor.audit(value, c) match {
-            case AuditResult.Accept                  => clearStateCursor *> setDisplayValue(value)
-            case AuditResult.NewString(newS, offset) =>
-              setStateCursorFromInput(offset) *> setDisplayValue(newS)
-            case AuditResult.Reject                  =>
-              cursorOffsetForReject.flatMap(setStateCursorFromInput _) *> CallbackTo(value)
-          }
-        }
-    }
 
-    def onTextChange(props: Props[EV, A]): ReactEventFromInput => Callback =
-      (e: ReactEventFromInput) => {
-        // Capture the value outside setState, react reuses the events
-        val v = e.target.value
-        audit(props.changeAuditor, v).flatMap(newS =>
-          // First update the internal state, then call the outside listener
-          $.setStateL(State.errors)(none) *> props.onTextChange(newS) *> validate(props, newS)
-        )
+      val c = cursor match {
+        case Some((start, _)) => start
+        case _                => value.length
       }
 
-    def submit(props: Props[EV, A], state: State): Callback =
-      validate(
-        props,
-        state.displayValue,
-        { validated =>
-          val validatedCB = validated match {
-            case Right(a) =>
-              implicit val eq = props.eq
-              if (props.ev.get(props.value).exists(_ =!= a)) // Only set if resulting A changed.
-                props.valSet(a)
-              else                                           // A didn't change, but redisplay formatted string.
-                $.setStateL(State.displayValue)(props.valGet)
-            case Left(e)  =>
-              $.setStateL(State.errors)(e.some)
-          }
-          validatedCB >> props.onBlur(validated)
-        }
-      )
-
-    def onKeyDown(props: Props[EV, A], state: State): ReactKeyboardEventFromInput => Callback = e =>
-      if (
-        e.keyCode === KeyCode.Enter
-      ) // TODO keyCode can be undefined (despite the facade). This happens when selecting a value in form auto-fill.
-        submit(props, state)
-      else
-        $.setStateL(State.lastKeyCode)(e.keyCode) *> clearStateCursor
-
-    def render(p: Props[EV, A], s: State): VdomNode = {
-
-      def errorLabel(errors: NonEmptyChain[NonEmptyString]): js.UndefOr[ShorthandB[Label]] = {
-        val vdoms = errors.toList.map[VdomNode](_.value)
-        val list  = vdoms.head +: vdoms.tail.flatMap[VdomNode](e => List(<.br, <.br, e))
-        Label(
-          content = React.Fragment(list: _*),
-          clazz = p.errorClazz,
-          pointing = p.errorPointing
-        )(
-          ^.position.absolute
-        )
+      auditor.audit(value, c) match {
+        case AuditResult.Accept                  =>
+          setCursor(none) >> setDisplayValue(value).as(value)
+        case AuditResult.NewString(newS, offset) =>
+          setStateCursorFromInput(offset) >> setDisplayValue(newS).as(newS)
+        case AuditResult.Reject                  =>
+          setStateCursorFromInput(cursorOffsetForReject) >> CallbackTo(value)
       }
 
-      val error: Option[Boolean | VdomNode | Label | Unit] = p.error.toOption
-        .flatMap[Boolean | VdomNode | Label | Unit] {
-          _ match {
-            case b: Boolean => s.errors.map(errorLabel).getOrElse(b).toOption
-            case e          => // We can't pattern match against NonEmptyString, but we know it is one.
-              val nes = e.asInstanceOf[NonEmptyString]
-              s.errors
-                .map(ve => errorLabel(nes +: ve))
-                .getOrElse(errorLabel(NonEmptyChain(nes)))
-                .toOption
-          }
-        }
-      // .orElse(s.errors.flatMap(_ => errorLabel.toOption))
-
-      FormInput(
-        p.action,
-        p.actionPosition,
-        p.as,
-        p.className,
-        p.clazz,
-        p.content,
-        p.control,
-        p.disabled,
-        error.orUndefined,
-        p.fluid,
-        p.focus,
-        p.icon,
-        p.iconPosition,
-        p.inline,
-        p.input,
-        p.inverted,
-        p.label,
-        p.labelPosition,
-        p.loading,
-        js.undefined,
-        onTextChange(p),
-        p.required,
-        p.size,
-        p.tabIndex,
-        p.tpe,
-        p.transparent,
-        p.width,
-        s.displayValue
-      )(
-        p.modifiers :+
-          (^.id := p.id.value) :+
-          (^.onKeyDown ==> onKeyDown(p, s)) :+
-          (^.onBlur --> submit(p, s)): _*
-      )
     }
-  }
 
-  protected def buildComponent[EV[_], A] =
-    implicit val propsReuse: Reusability[Props[EV, A]] = Reusability.never
+    def validate(
+      displayValue:  String,
+      validFormat:   InputValidFormat[A],
+      onValidChange: FormInputEV.ChangeCallback[Boolean],
+      cb:            EitherErrors[A] => Callback = _ => Callback.empty
+    ): Callback = {
+      val validated = validFormat.getValid(displayValue)
+      onValidChange(validated.isRight) >> cb(validated)
+    }
 
-    ScalaComponent
-      .builder[Props[EV, A]]
-      .getDerivedStateFromPropsAndState[State] { (props, stateOpt) =>
-        val newValue = props.valGet
-        // Force new value from props if the prop changes (or we are initializing).
-        stateOpt match {
-          case Some(state) if newValue === state.modelValue => state
-          case Some(state)                                  =>
-            State(
-              newValue,
-              newValue,
-              (newValue.length, newValue.length).some,
-              state.lastKeyCode,
-              state.inputElement,
-              none
+    ScalaFnComponent
+      .withHooks[Props[EV, A]]
+      .useStateBy(props => props.valGet)             // displayValue
+      .useState(none[(Int, Int)])                    // cursor
+      .useRef(0)                                     // lastKeyCode
+      .useRef(none[html.Input])                      // inputElement
+      .useState(none[NonEmptyChain[NonEmptyString]]) // errors
+      .useEffectWithDepsBy((props, _, _, _, _, _) => props.valGet)(
+        (_, displayValue, _, _, _, errors) =>
+          newValue => displayValue.setState(newValue) >> errors.setState(none)
+      )
+      .useEffectOnMountBy((props, displayValue, cursor, lastKeyCode, inputElement, _) =>
+        getInputElement(props.id) >>= (element =>
+          inputElement.set(element) >>
+            audit(
+              props.changeAuditor,
+              props.valGet,
+              displayValue.setState,
+              element,
+              cursor.setState,
+              lastKeyCode.value
             )
-          case None                                         =>
-            State(newValue, newValue, none, 0, none, none)
+        ) >>= (value => validate(value, props.validFormat, props.onValidChange))
+      )
+      .useEffectBy((_, _, cursor, _, inputElement, _) =>
+        (for {
+          i <- inputElement.value
+          c <- cursor.value
+        } yield Callback(i.setSelectionRange(c._1, c._2))).orEmpty
+      )
+      .render { (props, displayValue, cursor, lastKeyCode, inputElement, errors) =>
+        def errorLabel(errors: NonEmptyChain[NonEmptyString]): js.UndefOr[ShorthandB[Label]] = {
+          val vdoms = errors.toList.map[VdomNode](_.value)
+          val list  = vdoms.head +: vdoms.tail.flatMap[VdomNode](e => List(<.br, <.br, e))
+          Label(
+            content = React.Fragment(list: _*),
+            clazz = props.errorClazz,
+            pointing = props.errorPointing
+          )(^.position.absolute)
         }
+
+
+        val error: Option[Boolean | VdomNode | Label | Unit] = props.error.toOption
+          .flatMap[Boolean | VdomNode | Label | Unit] {
+            _ match {
+              case b: Boolean => errors.value.map(errorLabel).getOrElse(b).toOption
+              case e          => // We can't pattern match against NonEmptyString, but we know it is one.
+                val nes = e.asInstanceOf[NonEmptyString]
+                errors.value
+                  .map(ve => errorLabel(nes +: ve))
+                  .getOrElse(errorLabel(NonEmptyChain(nes)))
+                  .toOption
+            }
+          }
+          .orElse(errors.value.flatMap(x => errorLabel(x).toOption))
+
+        val onTextChange: ReactEventFromInput => Callback =
+          (e: ReactEventFromInput) => {
+            // Capture the value outside setState, react reuses the events
+            val v = e.target.value
+            audit(
+              props.changeAuditor,
+              v,
+              displayValue.setState,
+              inputElement.value,
+              cursor.setState,
+              lastKeyCode.value
+            ).flatMap(newS =>
+              // First update the internal state, then call the outside listener
+              errors.setState(none) >>
+                props.onTextChange(newS) >>
+                validate(displayValue.value, props.validFormat, props.onValidChange)
+            )
+          }
+
+        val submit: Callback =
+          validate(
+            displayValue.value,
+            props.validFormat,
+            props.onValidChange,
+            { validated =>
+              val validatedCB = validated match {
+                case Right(a) =>
+                  implicit val eq = props.eq
+
+                  // Only set if resulting A changed.
+                  if (props.ev.get(props.value).exists(_ =!= a))
+                    props.valSet(a)
+                  else // A didn't change, but redisplay formatted string.
+                    displayValue.setState(props.valGet)
+                case Left(e)  =>
+                  errors.setState(e.some)
+              }
+              validatedCB >> props.onBlur(validated)
+            }
+          )
+
+        val onKeyDown: ReactKeyboardEventFromInput => Callback = e =>
+          // TODO keyCode can be undefined (despite the facade). This happens when selecting a value in form auto-fill.
+          if (e.keyCode === KeyCode.Enter)
+            submit
+          else
+            lastKeyCode.set(e.keyCode) >> cursor.setState(none)
+
+        FormInput(
+          action = props.action,
+          actionPosition = props.actionPosition,
+          as = props.as,
+          className = props.className,
+          clazz = props.clazz,
+          content = props.content,
+          control = props.control,
+          disabled = props.disabled,
+          error = error.orUndefined,
+          fluid = props.fluid,
+          focus = props.focus,
+          icon = props.icon,
+          iconPosition = props.iconPosition,
+          inline = props.inline,
+          input = props.input,
+          inverted = props.inverted,
+          label = props.label,
+          labelPosition = props.labelPosition,
+          loading = props.loading,
+          onChangeE = onTextChange,
+          required = props.required,
+          size = props.size,
+          tabIndex = props.tabIndex,
+          tpe = props.tpe,
+          transparent = props.transparent,
+          width = props.width,
+          value = displayValue.value
+        )(
+          props.modifiers :+
+            (^.id := props.id.value) :+
+            (^.onKeyDown ==> onKeyDown) :+
+            (^.onBlur --> submit): _*
+        )
       }
-      .renderBackend[Backend[EV, A]]
-      .componentDidMount { $ =>
-        $.setStateL(State.inputElement)($.backend.getInputElement($.props.id)) >>
-          $.backend
-            .audit($.props.changeAuditor, $.props.valGet)
-            .flatMap($.backend.validate($.props, _))
-      }
-      .componentDidUpdate(_.backend.setCursorFromState)
-      .configure(Reusability.shouldComponentUpdate)
-      .build
+  }
 
   protected val component = buildComponent[AnyF, Any]
 }

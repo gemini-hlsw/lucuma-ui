@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.38"
+ThisBuild / tlBaseVersion       := "0.39"
 ThisBuild / tlCiReleaseBranches := Seq("master", "scala3")
 
 lazy val reactJS = "17.0.2"
@@ -37,6 +37,11 @@ enablePlugins(NoPublishPlugin)
 addCommandAlias(
   "restartWDS",
   "; demo/fastOptJS/stopWebpackDevServer; demo/fastOptJS/startWebpackDevServer; ~demo/fastOptJS"
+)
+
+addCommandAlias(
+  "stopWDS",
+  "; demo/fastOptJS/stopWebpackDevServer"
 )
 
 lazy val demo =

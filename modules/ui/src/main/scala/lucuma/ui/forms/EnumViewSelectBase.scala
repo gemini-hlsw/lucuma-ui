@@ -25,8 +25,8 @@ import scalajs.js.|
  * Produces a dropdown menu, similar to a combobox. This is a base trait for various styles.
  */
 trait EnumViewSelectBase[EV[_]] {
-  type AA
-  type GG[_]
+  private[forms] type AA
+  private[forms] type GG[_]
 
   val id: String
   val value: EV[GG[AA]]
@@ -105,120 +105,116 @@ trait EnumViewSelectBase[EV[_]] {
   val display: Display[AA]
 
   // set the value in the View from the Select
-  def setter(ddp: FormDropdown.FormDropdownProps): Callback
+  private[forms] def setter(ddp: FormDropdown.FormDropdownProps): Callback
 
   // get the value from the View for setting the Select
-  def getter: js.UndefOr[Dropdown.Value]
+  private[forms] def getter: js.UndefOr[Dropdown.Value]
 
-  val ev: ExternalValue[EV]
+  private[forms] val ev: ExternalValue[EV]
 }
 
 object EnumViewSelectBase {
-  type AnyF[_]      = Any
-  type Props[EV[_]] = EnumViewSelectBase[EV]
+  type AnyF[_]                     = Any
+  private[forms] type Props[EV[_]] = EnumViewSelectBase[EV]
 
   private[forms] val component = buildComponent[AnyF]
 
   private[forms] def buildComponent[EV[_]] =
-    ScalaComponent
-      .builder[Props[EV]]
-      .stateless
-      .render_P { p =>
-        implicit val display = p.display
+    ScalaFnComponent[Props[EV]] { p =>
+      implicit val display = p.display
 
-        FormSelect(
-          additionLabel = js.undefined,
-          additionPosition = js.undefined,
-          allowAdditions = js.undefined,
-          p.as,
-          p.basic,
-          p.button,
-          p.className,
-          p.clazz,
-          p.clearable,
-          p.closeOnBlur,
-          p.closeOnEscape,
-          p.closeOnChange,
-          p.compact,
-          content = js.undefined,
-          control = js.undefined,
-          p.deburr,
-          p.defaultOpen,
-          p.defaultSearchQuery,
-          p.defaultSelectedLabel,
-          p.defaultUpward,
-          defaultValue = js.undefined,
-          p.direction,
-          p.disabled,
-          p.error,
-          p.floating,
-          p.fluid,
-          p.header,
-          p.icon,
-          p.inline,
-          p.item,
-          p.label,
-          p.labeled,
-          lazyLoad = false,
-          p.loading,
-          p.minCharacters.map(_.toDouble),
-          p.multiple,
-          p.noResultsMessage,
-          onAddItem = js.undefined,
-          p.onBlur,
-          p.onBlurE,
-          onChange = js.undefined,
-          (e: ReactEvent, ddp: FormDropdown.FormDropdownProps) =>
-            p.setter(ddp)
-              >> p.onChangeE
-                .map(_(e, ddp))
-                .toOption
-                .orElse(p.onChange.map(_(ddp)).toOption)
-                .getOrEmpty,
-          p.onClick,
-          p.onClickE,
-          p.onClose,
-          p.onCloseE,
-          p.onFocus,
-          p.onFocusE,
-          p.onLabelClick,
-          p.onLabelClickE,
-          p.onMouseDown,
-          p.onMouseDownE,
-          p.onOpen,
-          p.onOpenE,
-          p.onSearchChange,
-          p.onSearchChangeE,
-          p.open,
-          p.openOnFocus,
-          options = p.enumerated.all
-            .filter(v => !p.exclude.contains(v))
-            .map(i => DropdownItem(text = i.shortName, value = p.enumerated.tag(i))),
-          p.placeholder,
-          p.pointing,
-          p.renderLabel,
-          p.required,
-          p.scrolling,
-          p.search,
-          p.searchInput,
-          p.searchQuery,
-          p.selectOnBlur,
-          p.selectOnNavigation,
-          p.selectedLabel,
-          p.simple,
-          p.tabIndex.map(_ match {
-            case s: String => s
-            case s: Int    => s.toDouble
-          }),
-          p.text,
-          p.tpe,
-          p.trigger,
-          p.upward,
-          value = p.getter.getOrElse(null),
-          p.width,
-          p.wrapSelection,
-          p.modifiers :+ (^.id := p.id)
-        )
-      }
-      .build
+      FormSelect(
+        additionLabel = js.undefined,
+        additionPosition = js.undefined,
+        allowAdditions = js.undefined,
+        p.as,
+        p.basic,
+        p.button,
+        p.className,
+        p.clazz,
+        p.clearable,
+        p.closeOnBlur,
+        p.closeOnEscape,
+        p.closeOnChange,
+        p.compact,
+        content = js.undefined,
+        control = js.undefined,
+        p.deburr,
+        p.defaultOpen,
+        p.defaultSearchQuery,
+        p.defaultSelectedLabel,
+        p.defaultUpward,
+        defaultValue = js.undefined,
+        p.direction,
+        p.disabled,
+        p.error,
+        p.floating,
+        p.fluid,
+        p.header,
+        p.icon,
+        p.inline,
+        p.item,
+        p.label,
+        p.labeled,
+        lazyLoad = false,
+        p.loading,
+        p.minCharacters.map(_.toDouble),
+        p.multiple,
+        p.noResultsMessage,
+        onAddItem = js.undefined,
+        p.onBlur,
+        p.onBlurE,
+        onChange = js.undefined,
+        (e: ReactEvent, ddp: FormDropdown.FormDropdownProps) =>
+          p.setter(ddp)
+            >> p.onChangeE
+              .map(_(e, ddp))
+              .toOption
+              .orElse(p.onChange.map(_(ddp)).toOption)
+              .getOrEmpty,
+        p.onClick,
+        p.onClickE,
+        p.onClose,
+        p.onCloseE,
+        p.onFocus,
+        p.onFocusE,
+        p.onLabelClick,
+        p.onLabelClickE,
+        p.onMouseDown,
+        p.onMouseDownE,
+        p.onOpen,
+        p.onOpenE,
+        p.onSearchChange,
+        p.onSearchChangeE,
+        p.open,
+        p.openOnFocus,
+        options = p.enumerated.all
+          .filter(v => !p.exclude.contains(v))
+          .map(i => DropdownItem(text = i.shortName, value = p.enumerated.tag(i))),
+        p.placeholder,
+        p.pointing,
+        p.renderLabel,
+        p.required,
+        p.scrolling,
+        p.search,
+        p.searchInput,
+        p.searchQuery,
+        p.selectOnBlur,
+        p.selectOnNavigation,
+        p.selectedLabel,
+        p.simple,
+        p.tabIndex.map {
+          case s: Double => s.toInt
+          case s: String => s
+        },
+        p.text,
+        p.tpe,
+        p.trigger,
+        p.upward,
+        value = p.getter.getOrElse(null),
+        p.width,
+        p.wrapSelection,
+        p.modifiers :+ (^.id := p.id)
+      )
+    }
 }

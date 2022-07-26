@@ -11,7 +11,6 @@ import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
-import react.common.ReactProps
 import react.common._
 import react.semanticui._
 import react.semanticui.collections.form.FormDropdown
@@ -103,12 +102,12 @@ final case class EnumViewSelect[EV[_], A](
   val display:          Display[A],
   val monoid:           Monoid[DefaultS[Unit]],
   val ev:               ExternalValue[EV]
-) extends ReactProps[EnumViewSelectBase[EV], Unit, Unit](EnumViewSelectBase.buildComponent[EV])
+) extends ReactFnProps[EnumViewSelectBase[EV]](EnumViewSelectBase.buildComponent[EV])
     with EnumViewSelectBase[EV] {
 
-  type AA    = A
-  type GG[X] = Id[A]
-  type FF[X] = DefaultS[X]
+  private[forms] type AA    = A
+  private[forms] type GG[X] = Id[A]
+  private[forms] type FF[X] = DefaultS[X]
 
   override val clearable   = false
   override val multiple    = false
@@ -116,11 +115,11 @@ final case class EnumViewSelect[EV[_], A](
 
   def withMods(mods: TagMod*): EnumViewSelect[EV, A] = copy(modifiers = modifiers ++ mods)
 
-  override def setter(ddp: FormDropdown.FormDropdownProps): Callback =
+  override private[forms] def setter(ddp: FormDropdown.FormDropdownProps): Callback =
     ddp.value.toOption
       .flatMap(v => enumerated.fromTag(v.asInstanceOf[String]))
       .map(v => ev.set(value)(v))
       .orEmpty
 
-  override def getter = ev.get(value).map(enumerated.tag).orUndefined
+  override private[forms] def getter = ev.get(value).map(enumerated.tag).orUndefined
 }

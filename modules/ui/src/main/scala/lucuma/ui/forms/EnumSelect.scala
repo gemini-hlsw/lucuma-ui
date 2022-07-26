@@ -28,43 +28,39 @@ final case class EnumSelect[A](
   val enumerated: Enumerated[A],
   val display:    Display[A],
   val reuse:      Reusability[A]
-) extends ReactProps[EnumSelect[Any], Unit, Unit](EnumSelect.component)
+) extends ReactFnProps[EnumSelect[Any]](EnumSelect.component)
 
 object EnumSelect {
-  type Props[A] = EnumSelect[A]
+  protected type Props[A] = EnumSelect[A]
 
   protected def componentBuilder[A] =
-    ScalaComponent
-      .builder[Props[A]]
-      .stateless
-      .render_P { p =>
-        implicit val display = p.display
+    ScalaFnComponent[Props[A]] { p =>
+      implicit val display = p.display
 
-        <.div(
-          ^.cls := "field",
-          <.label(p.label),
-          Select(
-            placeholder = p.placeholder,
-            fluid = true,
-            disabled = p.disabled,
-            value = p.value.map(i => p.enumerated.tag(i)).orUndefined,
-            options = p.enumerated.all
-              .map(i =>
-                DropdownItem(
-                  text = i.shortName,
-                  value = p.enumerated.tag(i),
-                  disabled = p.disabledItems.contains(i)
-                )
-              ),
-            onChange = (ddp: Dropdown.DropdownProps) =>
-              ddp.value.toOption
-                .flatMap(v => p.enumerated.fromTag(v.asInstanceOf[String]))
-                .map(v => p.onChange(v))
-                .getOrEmpty
-          )
+      <.div(
+        ^.cls := "field",
+        <.label(p.label),
+        Select(
+          placeholder = p.placeholder,
+          fluid = true,
+          disabled = p.disabled,
+          value = p.value.map(i => p.enumerated.tag(i)).orUndefined,
+          options = p.enumerated.all
+            .map(i =>
+              DropdownItem(
+                text = i.shortName,
+                value = p.enumerated.tag(i),
+                disabled = p.disabledItems.contains(i)
+              )
+            ),
+          onChange = (ddp: Dropdown.DropdownProps) =>
+            ddp.value.toOption
+              .flatMap(v => p.enumerated.fromTag(v.asInstanceOf[String]))
+              .map(v => p.onChange(v))
+              .getOrEmpty
         )
-      }
-      .build
+      )
+    }
 
-  val component = componentBuilder[Any]
+  protected val component = componentBuilder[Any]
 }
