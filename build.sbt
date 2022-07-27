@@ -10,7 +10,7 @@ lazy val lucumaCoreVersion      = "0.44.0"
 lazy val monocleVersion         = "3.1.0"
 lazy val mouseVersion           = "1.1.0"
 lazy val reactCommonVersion     = "0.17.0"
-lazy val reactSemanticUIVersion = "0.15.1"
+lazy val reactSemanticUIVersion = "0.16.0"
 lazy val scalaJsReactVersion    = "2.1.1"
 
 lazy val kindProjectorVersion = "0.13.2"
