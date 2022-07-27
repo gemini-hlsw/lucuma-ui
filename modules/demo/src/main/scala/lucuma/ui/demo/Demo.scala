@@ -226,9 +226,8 @@ object FormComponent {
               value = root.zoom(RootModel.epoch),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat =
-                InputValidWedge.fromFormat(Epoch.fromStringNoScheme, "Must be a number"),
-              changeAuditor = ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3)
+              validFormat = MathValidators.epochNoScheme,
+              changeAuditor = ChangeAuditor.maxLength(8).decimal(3).denyNeg
             ),
             FormInputEV(
               id = "opt-epoch",
@@ -236,9 +235,9 @@ object FormComponent {
               value = root.zoom(RootModel.optionalEpoch),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              validFormat =
-                InputValidWedge.fromFormat(Epoch.fromStringNoScheme, "Must be a number").optional,
-              changeAuditor = ChangeAuditor.fromFormat(Epoch.fromStringNoScheme).decimal(3).optional
+              validFormat = MathValidators.epochNoScheme.optional,
+              changeAuditor = ChangeAuditor.maxLength(8).decimal(3).denyNeg.optional,
+              placeholder = "Make it Epoch!"
             ),
             FormInputEV(
               id = "scientific",
