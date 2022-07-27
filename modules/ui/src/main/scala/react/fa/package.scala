@@ -107,6 +107,5 @@ object Rotation {
 private type SBIcon = UndefOr[ShorthandSB[Icon]]
 private type SIcon  = UndefOr[ShorthandS[Icon]]
 
-given Conversion[FontAwesomeIcon, SBIcon]   = _.render
-given Conversion[FontAwesomeIcon, SIcon]    = _.render
-given Conversion[FontAwesomeIcon, VdomNode] = _.render
+given Conversion[FontAwesomeIcon, SBIcon] = _.render
+given Conversion[FontAwesomeIcon, SIcon]  = _.render

@@ -11,6 +11,7 @@ import lucuma.core.optics.SplitEpi
 import react.common.EnumValue
 
 import scala.annotation.targetName
+import scala.scalajs.js
 
 package object implicits {
   implicit class ViewFOpticOps[F[_], A](val self: ViewF[F, A]) extends AnyVal {
@@ -34,7 +35,6 @@ package object implicits {
   }
 
   extension [A](a: A | Unit)(using ev: EnumValue[A])
-    @targetName("undefToJs")
-    def undefToJs: Unit = a.map(ev.value)
+    def undefToJs: js.UndefOr[String] = a.map(ev.value)
 
 }
