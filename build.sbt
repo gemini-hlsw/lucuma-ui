@@ -1,10 +1,10 @@
 val clueVersion            = "0.23.1"
-val lucumaCoreVersion2     = "0.44.0"
-val lucumaCoreVersion      = "0.45-e482287-SNAPSHOT"
+val lucumaCoreVersion2     = "0.45.0"
+val lucumaCoreVersion      = "0.46-3e17ca5-SNAPSHOT"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 
-ThisBuild / tlBaseVersion       := "0.33"
+ThisBuild / tlBaseVersion       := "0.34"
 ThisBuild / tlCiReleaseBranches := Seq("main", "scala3")
 ThisBuild / crossScalaVersions  := Seq("2.13.8", "3.1.2")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
@@ -14,8 +14,8 @@ ThisBuild / scalafixDependencies += "edu.gemini"                     %% "clue-ge
 ThisBuild / scalafixScalaBinaryVersion                               := "2.13"
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
-val scala2Version = "3.1.2"
-val allVersions   = List("3.1.2")
+val scala2Version = "3.1.3"
+val allVersions   = List("3.1.3")
 
 val schemasDependencies = List(
   "org.scalameta" %% "munit"               % munitVersion           % Test,
