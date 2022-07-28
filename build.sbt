@@ -6,12 +6,12 @@ lazy val FUILess = "2.8.7"
 val reactSUI     = "2.0.4"
 
 lazy val catsVersion          = "2.8.0"
-lazy val crystalVersion       = "0.0.0+1-1a49e864-SNAPSHOT"
-lazy val lucumaCoreVersion    = "0.45-e482287-SNAPSHOT"
+lazy val crystalVersion       = "0.0.0+1-3bdffbb2-SNAPSHOT"
+lazy val lucumaCoreVersion    = "0.46-3e17ca5-SNAPSHOT"
 lazy val monocleVersion       = "3.1.0"
 lazy val mouseVersion         = "1.1.0"
 lazy val lucumaRefinedVersion = "0.1.0"
-lazy val lucumaReactVersion   = "1.0-30e8e44-SNAPSHOT"
+lazy val lucumaReactVersion   = "1.0-9b30bcf-SNAPSHOT"
 lazy val scalaJsReactVersion  = "2.1.1"
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
@@ -93,7 +93,6 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-core"              % lucumaCoreVersion,
         // "eu.timepit"                        %%% "singleton-ops"            % singletonOpsVersion,
         "edu.gemini"                        %%% "lucuma-react-common"      % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-cats"        % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-semantic-ui" % lucumaReactVersion,
         "dev.optics"                        %%% "monocle-core"             % monocleVersion,
         "dev.optics"                        %%% "monocle-macro"            % monocleVersion,

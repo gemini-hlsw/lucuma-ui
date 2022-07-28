@@ -33,11 +33,12 @@ import lucuma.refined.*
 import lucuma.ui.forms.FormInputEV
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.input.FilterMode
+import lucuma.ui.syntax.all.*
+import lucuma.ui.syntax.all.given
 import monocle.Focus
 import org.scalajs.dom
-import react.common._
+import react.common.ReactFnProps
 import react.common.style.Css
-import react.fa.given
 import react.semanticui.collections.form.Form
 import react.semanticui.elements.label.LabelPointing
 
