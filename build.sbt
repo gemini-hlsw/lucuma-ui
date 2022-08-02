@@ -1,23 +1,21 @@
 val clueVersion            = "0.23.1"
-val lucumaCoreVersion      = "0.45.0"
+val lucumaCoreVersion2     = "0.45.0"
+val lucumaCoreVersion      = "0.46-32d8501-SNAPSHOT"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 
-ThisBuild / tlBaseVersion       := "0.33"
-ThisBuild / tlCiReleaseBranches := Seq("main")
+ThisBuild / tlBaseVersion       := "0.34"
+ThisBuild / tlCiReleaseBranches := Seq("main", "scala3")
+ThisBuild / crossScalaVersions  := Seq("2.13.8", "3.1.2")
+ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
 ThisBuild / scalafixDependencies += "edu.gemini"                     %% "clue-generator" % clueVersion
 ThisBuild / scalafixScalaBinaryVersion                               := "2.13"
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
-val scala2Version = "2.13.8"
-val allVersions   = List(scala2Version)
-
-val coreDependencies = List(
-  "edu.gemini" %% "clue-core"   % clueVersion,
-  "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
-)
+val scala2Version = "3.1.3"
+val allVersions   = List("3.1.3")
 
 val schemasDependencies = List(
   "org.scalameta" %% "munit"               % munitVersion           % Test,
@@ -31,7 +29,19 @@ val templates =
     .in(file("templates"))
     .enablePlugins(NoPublishPlugin)
     .settings(
-      libraryDependencies ++= coreDependencies
+      libraryDependencies ++= {
+        if (tlIsScala3.value) {
+          Seq(
+            "edu.gemini" %% "clue-core"   % clueVersion,
+            "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
+          )
+        } else {
+          Seq(
+            "edu.gemini" %% "clue-core"   % clueVersion,
+            "edu.gemini" %% "lucuma-core" % lucumaCoreVersion2
+          )
+        }
+      }
     )
 
 val lucumaSchemas =
@@ -39,7 +49,19 @@ val lucumaSchemas =
     .in(file("lucuma-schemas"))
     .settings(
       moduleName := "lucuma-schemas",
-      libraryDependencies ++= coreDependencies,
+      libraryDependencies ++= {
+        if (tlIsScala3.value) {
+          Seq(
+            "edu.gemini" %% "clue-core"   % clueVersion,
+            "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
+          )
+        } else {
+          Seq(
+            "edu.gemini" %% "clue-core"   % clueVersion,
+            "edu.gemini" %% "lucuma-core" % lucumaCoreVersion2
+          )
+        }
+      },
       libraryDependencies ++= schemasDependencies,
       Compile / sourceGenerators += Def.taskDyn {
         val root    = (ThisBuild / baseDirectory).value.toURI.toString
