@@ -114,9 +114,10 @@ trait EnumViewSelectBase[EV[_]] {
 }
 
 object EnumViewSelectBase {
+  type AnyF[_]                     = Any
   private[forms] type Props[EV[_]] = EnumViewSelectBase[EV]
 
-  private[forms] val component = buildComponent[Any]
+  private[forms] val component = buildComponent[AnyF]
 
   private[forms] def buildComponent[EV[_]] =
     ScalaFnComponent[Props[EV]] { p =>
@@ -157,7 +158,7 @@ object EnumViewSelectBase {
         p.labeled,
         lazyLoad = false,
         p.loading,
-        p.minCharacters,
+        p.minCharacters.map(_.toDouble),
         p.multiple,
         p.noResultsMessage,
         onAddItem = js.undefined,
@@ -202,7 +203,10 @@ object EnumViewSelectBase {
         p.selectOnNavigation,
         p.selectedLabel,
         p.simple,
-        p.tabIndex,
+        p.tabIndex.map {
+          case s: Double => s.toInt
+          case s: String => s
+        },
         p.text,
         p.tpe,
         p.trigger,

@@ -4,9 +4,9 @@
 package lucuma.ui.forms
 
 import cats.syntax.all._
-import japgolly.scalajs.react.Callback
-import japgolly.scalajs.react.ReactEventFromInput
+import japgolly.scalajs.react.ReactMonocle._
 import japgolly.scalajs.react._
+import japgolly.scalajs.react.component.builder.Lifecycle.RenderScope
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.ui.input.InputFormat
 import react.common._
@@ -26,7 +26,7 @@ final case class InputEV[EV[_], A](
     (_: A) => Callback.empty, // callback for parents of this component
   onBlur:          InputEV.ChangeCallback[A] = (_: A) => Callback.empty
 )(implicit val ev: ExternalValue[EV])
-    extends ReactFnProps[InputEV[Any, Any]](InputEV.component) {
+    extends ReactFnProps[InputEV[InputEV.AnyF, Any]](InputEV.component) {
   def valGet: String                            = ev.get(value).foldMap(format.reverseGet)
   def valSet(s: String): Callback               = format.getOption(s).map(ev.set(value)).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =
@@ -36,6 +36,7 @@ final case class InputEV[EV[_], A](
 }
 
 object InputEV {
+  type AnyF[_]                            = Any
   protected type Props[EV[_], A]          = InputEV[EV, A]
   protected[forms] type ChangeCallback[A] = A => Callback
 
@@ -45,7 +46,7 @@ object InputEV {
 
   protected val component =
     ScalaFnComponent
-      .withHooks[Props[Any, Any]]
+      .withHooks[Props[AnyF, Any]]
       // final protected case class State(curValue: Option[String], prevValue: String)
       .useState(none[String]) // value
       .useEffectWithDepsBy((props, _) => props.valGet)((_, value) =>

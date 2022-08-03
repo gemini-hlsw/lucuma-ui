@@ -7,11 +7,16 @@ import cats.data.Validated._
 import cats.syntax.all._
 import eu.timepit.refined.api.{Validate => RefinedValidate}
 import eu.timepit.refined.auto._
+import eu.timepit.refined.numeric.NonNegative
+import eu.timepit.refined.numeric.Positive
+import eu.timepit.refined.refineV
+import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
 import lucuma.core.optics._
+import lucuma.core.syntax.string._
 import lucuma.core.validation._
+import lucuma.refined._
 import lucuma.ui.input.FormatUtils._
-import mouse.all._
 
 sealed trait AuditResult extends Product with Serializable
 object AuditResult {
@@ -87,7 +92,7 @@ final case class ChangeAuditor(audit: (String, Int) => AuditResult) { self =>
    * Allows a numeric field to have an exponential part (ie.: e10, e+10 or e-10). Numeric fields
    * don't allow this unless explicitly enabled with this method.
    */
-  def allowExp(digits: PosInt = 2): ChangeAuditor = {
+  def allowExp(digits: PosInt = 2.refined): ChangeAuditor = {
     val SplitExp = s"^([^e]*)((?:e[\\+-]?)?)((?:[1-9]\\d{0,${digits.value - 1}})?)$$".r
 
     ChangeAuditor { (s, c) =>
@@ -241,7 +246,7 @@ object ChangeAuditor {
    *   - maximum number of allowed decimals.
    */
   @inline
-  def bigDecimal(decimals: PosInt = 3): ChangeAuditor =
+  def bigDecimal(decimals: PosInt = 3.refined): ChangeAuditor =
     bigDecimal(none, decimals)
 
   /**
@@ -279,7 +284,7 @@ object ChangeAuditor {
    *   - maximum number of allowed decimals.
    */
   @inline
-  def posBigDecimal(decimals: PosInt = 3): ChangeAuditor =
+  def posBigDecimal(decimals: PosInt = 3.refined): ChangeAuditor =
     posBigDecimal(none, decimals)
 
   /**
@@ -296,15 +301,15 @@ object ChangeAuditor {
     posBigDecimal(integers.some, decimals)
 
   def scientificNotation(
-    decimals:       PosInt = 3,
-    exponentDigits: PosInt = 2
+    decimals:       PosInt = 3.refined,
+    exponentDigits: PosInt = 2.refined
   ): ChangeAuditor =
-    bigDecimal(1, decimals).allowExp(exponentDigits)
+    bigDecimal(1.refined[Positive], decimals).allowExp(exponentDigits)
 
   @inline
   def posScientificNotation(
-    decimals:       PosInt = 3,
-    exponentDigits: PosInt = 2
+    decimals:       PosInt = 3.refined,
+    exponentDigits: PosInt = 2.refined
   ): ChangeAuditor =
     scientificNotation(decimals, exponentDigits).denyNeg
 
@@ -375,7 +380,7 @@ object ChangeAuditor {
    */
   val truncatedRA: ChangeAuditor =
     ChangeAuditor { (str, _) =>
-      val stripped = stripZerosPastNPlaces(str, 3)
+      val stripped = stripZerosPastNPlaces(str, 3.refined)
       val isValid  =
         stripped.split(":").toList match {
           case Nil                                => true // it's just one or more ":"
@@ -402,7 +407,7 @@ object ChangeAuditor {
     ChangeAuditor { (str, _) =>
       val (sign, noSign) =
         if (str.startsWith("+") || str.startsWith("-")) (str.head, str.tail) else ("", str)
-      val stripped       = stripZerosPastNPlaces(noSign, 2)
+      val stripped       = stripZerosPastNPlaces(noSign, 2.refined)
 
       val isValid =
         stripped.split(":").toList match {
@@ -487,7 +492,10 @@ object ChangeAuditor {
     cursorPos: Int,
     decimals:  PosInt
   ): (String, String, Int) = {
-    val postStripped = stripZerosPastNPlaces(str, decimals)
+    val postStripped = stripZerosPastNPlaces(
+      str,
+      refineV[NonNegative](decimals.value).getOrElse(sys.error("Should not happen"))
+    )
     postStripped match {
       case ""   => ("0", postStripped, 0)
       case "-"  => ("-0", postStripped, 0)

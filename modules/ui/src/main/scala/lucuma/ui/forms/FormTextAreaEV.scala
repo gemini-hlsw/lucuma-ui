@@ -37,13 +37,14 @@ final case class FormTextAreaEV[EV[_]](
   width:           js.UndefOr[SemanticWidth] = js.undefined,
   modifiers:       Seq[TagMod] = Seq.empty
 )(implicit val ev: ExternalValue[EV])
-    extends ReactFnProps[FormTextAreaEV[Any]](FormTextAreaEV.component) {
+    extends ReactFnProps[FormTextAreaEV[FormTextAreaEV.AnyF]](FormTextAreaEV.component) {
   def valGet: String = ev.get(value).orEmpty
 
   def valSet: String => Callback = ev.set(value)
 }
 
 object FormTextAreaEV {
+  type AnyF[_]      = Any
   type Props[EV[_]] = FormTextAreaEV[EV]
 
   private def onChange[EV[_]](props: Props[EV], valueView: View[String]): TextArea.Event =
@@ -83,5 +84,5 @@ object FormTextAreaEV {
       )
     )
 
-  protected val component = buildComponent[Any]
+  protected val component = buildComponent[AnyF]
 }

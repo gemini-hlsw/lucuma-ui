@@ -6,8 +6,12 @@ package lucuma.ui
 import cats.Monad
 import crystal.ViewF
 import crystal.ViewOptF
-import crystal.react.reuse.Reuse
+import crystal.react.reuse._
 import lucuma.core.optics.SplitEpi
+import react.common.EnumValue
+
+import scala.annotation.targetName
+import scala.scalajs.js
 
 package object implicits {
   implicit class ViewFOpticOps[F[_], A](val self: ViewF[F, A]) extends AnyVal {
@@ -29,4 +33,8 @@ package object implicits {
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewOptF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
   }
+
+  extension [A](a: A | Unit)(using ev: EnumValue[A])
+    def undefToJs: js.UndefOr[String] = a.map(ev.value)
+
 }

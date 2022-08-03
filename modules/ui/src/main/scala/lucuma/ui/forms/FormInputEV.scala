@@ -70,7 +70,7 @@ final case class FormInputEV[EV[_], A](
   // Only use for extra actions, setting should be done through value.set
   onBlur:          FormInputEV.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) => Callback.empty
 )(implicit val ev: ExternalValue[EV], val eq: Eq[A])
-    extends ReactFnProps[FormInputEV[Any, Any]](FormInputEV.component) {
+    extends ReactFnProps[FormInputEV[FormInputEV.AnyF, Any]](FormInputEV.component) {
 
   def valGet: String = ev.get(value).foldMap(validFormat.reverseGet)
 
@@ -80,6 +80,7 @@ final case class FormInputEV[EV[_], A](
 }
 
 object FormInputEV {
+  type AnyF[_]                     = Any
   protected type Props[EV[_], A]   = FormInputEV[EV, A]
   protected type ChangeCallback[A] = A => Callback
 
@@ -121,6 +122,7 @@ object FormInputEV {
         case AuditResult.Reject                  =>
           setStateCursorFromInput(cursorOffsetForReject) >> CallbackTo(value)
       }
+
     }
 
     def validate(
@@ -174,18 +176,19 @@ object FormInputEV {
           )(^.position.absolute)
         }
 
-        val error: js.UndefOr[ShorthandB[Label]] = props.error
-          .flatMap[ShorthandB[Label]] {
-            (_: Any) match {
-              case b: Boolean => errors.value.map(errorLabel).getOrElse(b)
+        val error: Option[Boolean | VdomNode | Label | Unit] = props.error.toOption
+          .flatMap[Boolean | VdomNode | Label | Unit] {
+            _ match {
+              case b: Boolean => errors.value.map(errorLabel).getOrElse(b).toOption
               case e          => // We can't pattern match against NonEmptyString, but we know it is one.
                 val nes = e.asInstanceOf[NonEmptyString]
                 errors.value
                   .map(ve => errorLabel(nes +: ve))
                   .getOrElse(errorLabel(NonEmptyChain(nes)))
+                  .toOption
             }
           }
-          .orElse(errors.value.orUndefined.flatMap(errorLabel))
+          .orElse(errors.value.flatMap(x => errorLabel(x).toOption))
 
         val onTextChange: ReactEventFromInput => Callback =
           (e: ReactEventFromInput) => {
@@ -236,35 +239,34 @@ object FormInputEV {
             lastKeyCode.set(e.keyCode) >> cursor.setState(none)
 
         FormInput(
-          props.action,
-          props.actionPosition,
-          props.as,
-          props.className,
-          props.clazz,
-          props.content,
-          props.control,
-          props.disabled,
-          error,
-          props.fluid,
-          props.focus,
-          props.icon,
-          props.iconPosition,
-          props.inline,
-          props.input,
-          props.inverted,
-          props.label,
-          props.labelPosition,
-          props.loading,
-          js.undefined,
-          onTextChange,
-          props.placeholder,
-          props.required,
-          props.size,
-          props.tabIndex,
-          props.tpe,
-          props.transparent,
-          props.width,
-          displayValue.value
+          action = props.action,
+          actionPosition = props.actionPosition,
+          as = props.as,
+          className = props.className,
+          clazz = props.clazz,
+          content = props.content,
+          control = props.control,
+          disabled = props.disabled,
+          error = error.orUndefined,
+          fluid = props.fluid,
+          focus = props.focus,
+          icon = props.icon,
+          iconPosition = props.iconPosition,
+          inline = props.inline,
+          input = props.input,
+          inverted = props.inverted,
+          label = props.label,
+          labelPosition = props.labelPosition,
+          loading = props.loading,
+          onChangeE = onTextChange,
+          placeholder = props.placeholder,
+          required = props.required,
+          size = props.size,
+          tabIndex = props.tabIndex,
+          tpe = props.tpe,
+          transparent = props.transparent,
+          width = props.width,
+          value = displayValue.value
         )(
           props.modifiers :+
             (^.id := props.id.value) :+
@@ -274,5 +276,5 @@ object FormInputEV {
       }
   }
 
-  protected val component = buildComponent[Any, Any]
+  protected val component = buildComponent[AnyF, Any]
 }

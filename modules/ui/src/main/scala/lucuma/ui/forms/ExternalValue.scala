@@ -5,10 +5,10 @@ package lucuma.ui.forms
 
 import cats.effect.Async
 import cats.implicits._
-import crystal.ViewF
-import crystal.ViewOptF
+import crystal._
 import crystal.react._
 import crystal.react.implicits._
+import crystal.react.reuse._
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.extra.StateSnapshot
 import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}

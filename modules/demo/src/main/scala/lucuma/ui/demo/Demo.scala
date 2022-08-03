@@ -6,10 +6,13 @@ package lucuma.ui.demo
 import cats.data.NonEmptyChain
 import cats.effect._
 import cats.syntax.all._
+import crystal.ViewF
+import crystal.react._
 import crystal.react.hooks._
+import crystal.react.reuse._
+import eu.timepit.refined._
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.RefinedTypeOps
-import eu.timepit.refined.auto._
 import eu.timepit.refined.boolean.And
 import eu.timepit.refined.boolean.Not
 import eu.timepit.refined.cats._
@@ -26,12 +29,15 @@ import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
 import lucuma.core.math.validation.MathValidators
 import lucuma.core.validation._
+import lucuma.refined.*
 import lucuma.ui.forms.FormInputEV
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.input.FilterMode
+import lucuma.ui.syntax.all.*
+import lucuma.ui.syntax.all.given
 import monocle.Focus
 import org.scalajs.dom
-import react.common._
+import react.common.ReactFnProps
 import react.common.style.Css
 import react.semanticui.collections.form.Form
 import react.semanticui.elements.label.LabelPointing
@@ -60,7 +66,7 @@ object FormComponent {
   final case class RootModel(
     field1:        UpperNES,
     field2:        String,
-    forcedUpper:   String Refined UpperNEPred,
+    forcedUpper:   UpperNES,
     justAnInt:     Int,
     refinedInt:    Int Refined Interval.Closed[0, 2048],
     refinedOdd:    Int Refined Odd,
@@ -76,12 +82,12 @@ object FormComponent {
   object RootModel {
     val Initial: RootModel =
       RootModel(
-        "FIELD",
+        refineV[UpperNEPred]("FIELD").getOrElse(sys.error("Shouldn't happen")),
         "",
-        "UPPER",
+        refineV[UpperNEPred]("UPPER").getOrElse(sys.error("Shouldn't happen")),
         0,
-        0,
-        1,
+        0.refined,
+        refineV[Odd](1).getOrElse(sys.error("Shouldn't happen")),
         0.123456,
         Refined.unsafeApply[BigDecimal, OneToThree](OneBD),
         RightAscension.fromStringHMS.getOption("12:34:56.789876").get,
@@ -116,7 +122,7 @@ object FormComponent {
           <.br,
           Form(
             FormInputEV(
-              id = "field1",
+              id = "field1".refined,
               label = "field1 - uppercased on blur, can't be empty",
               value = root.zoom(RootModel.field1),
               errorClazz = Css("error-label"),
@@ -124,23 +130,23 @@ object FormComponent {
               validFormat = upperNESValidator
             ),
             FormInputEV(
-              id = "field2",
+              id = "field2".refined,
               label = "field2 - can't be empty",
               value = root.zoom(RootModel.field2),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
-              error = NonEmptyString("This is another error"),
+              error = "This is another error".refined,
               validFormat = InputValidWedge(
                 s =>
                   if (s.isEmpty)
-                    NonEmptyChain(NonEmptyString("Can't be empty")).asLeft
+                    NonEmptyChain("Can't be empty".refined[NonEmpty]).asLeft
                   else
                     s.toLowerCase.asRight,
                 identity[String]
               )
             ),
             FormInputEV(
-              id = "forced-upper",
+              id = "forced-upper".refined,
               label = "forced uppercase",
               value = root.zoom(RootModel.forcedUpper),
               errorClazz = Css("error-label"),
@@ -152,7 +158,7 @@ object FormComponent {
               )
             ),
             FormInputEV(
-              id = "just-an-int",
+              id = "just-an-int".refined,
               label = "Just An Int",
               value = root.zoom(RootModel.justAnInt),
               errorClazz = Css("error-label"),
@@ -161,49 +167,49 @@ object FormComponent {
               changeAuditor = ChangeAuditor.int
             ),
             FormInputEV(
-              id = "refined-int",
+              id = "refined-int".refined,
               label = "refined Int - 0 to 2048, input constrained",
               value = root.zoom(RootModel.refinedInt),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = InputValidSplitEpi
                 .refinedInt[ZeroTo2048]
-                .withErrorMessage("Must be in range 0-2048"),
+                .withErrorMessage("Must be in range 0-2048".refined),
               changeAuditor = ChangeAuditor.refinedInt[ZeroTo2048]()
             ),
             FormInputEV(
-              id = "odd-int",
+              id = "odd-int".refined,
               label = "odd Int - validated on blur",
               value = root.zoom(RootModel.refinedOdd),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = InputValidSplitEpi
                 .refinedInt[Odd]
-                .withErrorMessage("Must be an odd integer"),
+                .withErrorMessage("Must be an odd integer".refined),
               changeAuditor = ChangeAuditor.refinedInt[Odd](filterMode = FilterMode.Lax)
             ),
             FormInputEV(
-              id = "big-decimal",
+              id = "big-decimal".refined,
               label = "Big Decimal, 4 decimal places",
               value = root.zoom(RootModel.bigDecimal),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = InputValidSplitEpi.bigDecimal,
-              changeAuditor = ChangeAuditor.bigDecimal(4)
+              changeAuditor = ChangeAuditor.bigDecimal(4.refined)
             ),
+            // FormInputEV(
+            //   id = "refined-big-decimal".refined,
+            //   label = "Refined Big Decimal - 1 decimal place",
+            //   value = root.zoom(RootModel.refinedBigDec),
+            //   errorClazz = Css("error-label"),
+            //   errorPointing = LabelPointing.Below,
+            //   validFormat = InputValidSplitEpi
+            //     .refinedBigDecimal[OneToThree]
+            //     .withErrorMessage("Must be 1.0 to 3.0".refined),
+            //   changeAuditor = ChangeAuditor.accept.decimal(1.refined)
+            // ),
             FormInputEV(
-              id = "refined-big-decimal",
-              label = "Refined Big Decimal - 1 decimal place",
-              value = root.zoom(RootModel.refinedBigDec),
-              errorClazz = Css("error-label"),
-              errorPointing = LabelPointing.Below,
-              validFormat = InputValidSplitEpi
-                .refinedBigDecimal[OneToThree]
-                .withErrorMessage("Must be 1.0 to 3.0"),
-              changeAuditor = ChangeAuditor.accept.decimal(1)
-            ),
-            FormInputEV(
-              id = "ra",
+              id = "ra".refined,
               label = "RA",
               value = root.zoom(RootModel.ra),
               errorClazz = Css("error-label"),
@@ -212,7 +218,7 @@ object FormComponent {
               changeAuditor = ChangeAuditor.truncatedRA
             ),
             FormInputEV(
-              id = "dec",
+              id = "dec".refined,
               label = "Dec",
               value = root.zoom(RootModel.dec),
               errorClazz = Css("error-label"),
@@ -221,26 +227,27 @@ object FormComponent {
               changeAuditor = ChangeAuditor.truncatedDec
             ),
             FormInputEV(
-              id = "epoch",
+              id = "epoch".refined,
               label = "Epoch",
               value = root.zoom(RootModel.epoch),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = MathValidators.epochNoScheme,
-              changeAuditor = ChangeAuditor.maxLength(8).decimal(3).denyNeg
+              changeAuditor = ChangeAuditor.maxLength(8.refined).decimal(3.refined).denyNeg
             ),
             FormInputEV(
-              id = "opt-epoch",
+              id = "opt-epoch".refined,
               label = "Optional Epoch",
               value = root.zoom(RootModel.optionalEpoch),
               errorClazz = Css("error-label"),
               errorPointing = LabelPointing.Below,
               validFormat = MathValidators.epochNoScheme.optional,
-              changeAuditor = ChangeAuditor.maxLength(8).decimal(3).denyNeg.optional,
+              changeAuditor =
+                ChangeAuditor.maxLength(8.refined).decimal(3.refined).denyNeg.optional,
               placeholder = "Make it Epoch!"
             ),
             FormInputEV(
-              id = "scientific",
+              id = "scientific".refined,
               label = "Scientific Notation",
               value = root.zoom(RootModel.scientific),
               errorClazz = Css("error-label"),
