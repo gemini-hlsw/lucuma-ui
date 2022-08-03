@@ -6,12 +6,12 @@ lazy val FUILess = "2.8.7"
 val reactSUI     = "2.0.4"
 
 lazy val catsVersion          = "2.8.0"
-lazy val crystalVersion       = "0.0.0+1-3bdffbb2-SNAPSHOT"
-lazy val lucumaCoreVersion    = "0.46-32d8501-SNAPSHOT"
+lazy val crystalVersion       = "0.31.0"
+lazy val lucumaCoreVersion    = "0.51.0"
 lazy val monocleVersion       = "3.1.0"
 lazy val mouseVersion         = "1.1.0"
 lazy val lucumaRefinedVersion = "0.1.0"
-lazy val lucumaReactVersion   = "1.0-9b30bcf-SNAPSHOT"
+lazy val lucumaReactVersion   = "0.1.0"
 lazy val scalaJsReactVersion  = "2.1.1"
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
