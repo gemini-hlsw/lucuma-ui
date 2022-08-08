@@ -87,19 +87,20 @@ lazy val ui =
     .settings(
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
-        "org.typelevel"                     %%% "cats-core"                % catsVersion,
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"        % scalaJsReactVersion,
-        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"       % scalaJsReactVersion,
-        "edu.gemini"                        %%% "lucuma-core"              % lucumaCoreVersion,
+        "org.typelevel"                     %%% "cats-core"                    % catsVersion,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % scalaJsReactVersion,
+        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % scalaJsReactVersion,
+        "edu.gemini"                        %%% "lucuma-core"                  % lucumaCoreVersion,
         // "eu.timepit"                        %%% "singleton-ops"            % singletonOpsVersion,
-        "edu.gemini"                        %%% "lucuma-react-common"      % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-semantic-ui" % lucumaReactVersion,
-        "dev.optics"                        %%% "monocle-core"             % monocleVersion,
-        "dev.optics"                        %%% "monocle-macro"            % monocleVersion,
-        "com.rpiaggio"                      %%% "crystal"                  % crystalVersion,
+        "edu.gemini"                        %%% "lucuma-react-common"          % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-semantic-ui"     % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-resize-detector" % lucumaReactVersion,
+        "dev.optics"                        %%% "monocle-core"                 % monocleVersion,
+        "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
+        "com.rpiaggio"                      %%% "crystal"                      % crystalVersion,
         // "org.typelevel"                     %%% "mouse"                    % mouseVersion,
-        "edu.gemini"                        %%% "lucuma-core-testkit"      % lucumaCoreVersion % Test,
-        "org.scalameta"                     %%% "munit"                    % "0.7.29"          % Test,
-        "org.typelevel"                     %%% "discipline-munit"         % "1.0.9"           % Test
+        "edu.gemini"                        %%% "lucuma-core-testkit"          % lucumaCoreVersion % Test,
+        "org.scalameta"                     %%% "munit"                        % "0.7.29"          % Test,
+        "org.typelevel"                     %%% "discipline-munit"             % "1.0.9"           % Test
       )
     )
