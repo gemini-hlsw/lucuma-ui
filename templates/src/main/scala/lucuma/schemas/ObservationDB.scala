@@ -8,7 +8,6 @@ import lucuma.core.enums
 import lucuma.core.model
 import lucuma.core.model._
 import lucuma.core.model.sequence._
-import lucuma.core.math
 import lucuma.core.math.dimensional._
 import lucuma.core.math.BrightnessUnits._
 // gql: import io.circe.refined._
@@ -52,6 +51,7 @@ trait ObservationDB {
     type CatalogName                         = enums.CatalogName
     type CloudExtinction                     = enums.CloudExtinction
     type CoolStarTemperature                 = enums.CoolStarTemperature
+    type DatasetQaState                      = enums.DatasetQaState
     type DatasetStage                        = enums.DatasetStage
     type EphemerisKeyType                    = enums.EphemerisKeyType
     type FluxDensityContinuumIntegratedUnits = Units Of FluxDensityContinuum[Integrated]
@@ -100,51 +100,11 @@ trait ObservationDB {
     type SkyBackground                       = enums.SkyBackground
     type SpectroscopyCapabilities            = enums.SpectroscopyCapabilities
     type StellarLibrarySpectrum              = enums.StellarLibrarySpectrum
+    type StepQaState                         = enums.StepQaState
     type StepStage                           = enums.StepStage
     type StepType                            = enums.StepType
     type TacCategory                         = enums.TacCategory
     type ToOActivation                       = enums.ToOActivation
     type WaterVapor                          = enums.WaterVapor
-  }
-
-  object Types {
-    type BandNormalizedIntegrated       = model.SpectralDefinition.BandNormalized[Integrated]
-    type BandNormalizedSurface          = model.SpectralDefinition.BandNormalized[Surface]
-    type BrightnessIntegrated           = Measure[BigDecimal] Of Brightness[Integrated]
-    type BrightnessSurface              = Measure[BigDecimal] Of Brightness[Surface]
-    type BlackBody                      = model.UnnormalizedSED.BlackBody
-    type CoolStarModel                  = model.UnnormalizedSED.CoolStarModel
-    type Coordinates                    = math.Coordinates
-    type Declination                    = math.Declination
-    type Duration                       = java.time.Duration
-    type EmissionLineIntegrated         = model.EmissionLine[Integrated]
-    type EmissionLineSurface            = model.EmissionLine[Surface]
-    type EmissionLinesIntegrated        = model.SpectralDefinition.EmissionLines[Integrated]
-    type EmissionLinesSurface           = model.SpectralDefinition.EmissionLines[Surface]
-    type FluxDensityContinuumIntegrated = Measure[BigDecimal] Of FluxDensityContinuum[Integrated]
-    type FluxDensityContinuumSurface    = Measure[BigDecimal] Of FluxDensityContinuum[Surface]
-    type Galaxy                         = model.UnnormalizedSED.Galaxy
-    type GaussianSource                 = model.SourceProfile.Gaussian
-    type HiiRegion                      = model.UnnormalizedSED.HIIRegion
-    type LineFluxIntegrated             = Measure[BigDecimal] Of LineFlux[Integrated]
-    type LineFluxSurface                = Measure[BigDecimal] Of LineFlux[Surface]
-    type Parallax                       = math.Parallax
-    type Planet                         = model.UnnormalizedSED.Planet
-    type PlanetaryNebula                = model.UnnormalizedSED.PlanetaryNebula
-    type PointSource                    = model.SourceProfile.Point
-    type PosAngleConstraint             = model.PosAngleConstraint
-    type PowerLaw                       = model.UnnormalizedSED.PowerLaw
-    type ProperMotion                   = math.ProperMotion
-    type ProperMotionDeclination        = math.ProperMotion.Dec
-    type ProperMotionRA                 = math.ProperMotion.RA
-    type Proposal                       = model.Proposal
-    type Quasar                         = model.UnnormalizedSED.Quasar
-    type RadialVelocity                 = math.RadialVelocity
-    type RightAscension                 = math.RightAscension
-    type Sidereal                       = model.SiderealTracking
-    type StellarLibrary                 = model.UnnormalizedSED.StellarLibrary
-    type UniformSource                  = model.SourceProfile.Uniform
-    type UserDefined                    = model.UnnormalizedSED.UserDefined
-    type Wavelength                     = math.Wavelength
   }
 }

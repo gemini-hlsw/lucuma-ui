@@ -1,0 +1,221 @@
+query {
+  observations {
+    matches {
+    	id
+      execution {
+        executionConfig {
+          ...on GmosNorthExecutionConfig {
+            visits {
+              id
+              created
+              startTime
+              endTime
+              duration {
+                microseconds
+              }
+              staticConfigN:staticConfig {
+                stageMode
+                detector
+                mosPreImaging
+              }
+              steps {
+                id
+                created
+                startTime
+                endTime
+                duration {
+                  microseconds
+                }
+                instrumentConfig {
+                  exposure {
+                    microseconds
+                  }
+                  readout {
+                    xBin
+                    yBin
+                    ampCount
+                    ampGain
+                    ampReadMode
+                  }
+                  dtax
+                  roi
+                  gratingConfig {
+                    gratingN:grating
+                    order
+                    wavelength {
+                      picometers
+                    }
+                  }
+                  filterN:filter
+                  fpu {
+                    customMask {
+                      filename
+                      slitWidth
+                    }
+                    builtinN:builtin
+                  }
+                }
+                stepConfig {
+                  stepType
+                  ...on Gcal {
+                    continuum
+                    arcs
+                    filter
+                    diffuser
+                    shutter
+                  }
+                  ...on Science {
+                    offset {
+                      p {
+                        microarcseconds
+                      }
+                      q {
+                        microarcseconds
+                      }
+                    }
+                    
+                  }
+                }
+                stepEvents {
+                  id
+                  received
+                  payload {
+                    sequenceType
+                    stepStage
+                  }
+                }
+                stepQaState
+                datasetEvents {
+                  id
+                  received
+                  datasetId {
+                    index
+                  }
+                }
+                datasets {
+                  id {
+                    index
+                  }
+                  filename
+                  qaState
+                }
+              }
+              sequenceEvents {
+                id
+                received
+                payload {
+                  command
+                }
+              }              
+            }
+          }
+          ...on GmosSouthExecutionConfig {
+            visits {
+              id
+              created
+              startTime
+              endTime
+              duration {
+                microseconds
+              }             
+              staticConfigS:staticConfig {
+                stageMode
+                detector
+                mosPreImaging
+              }
+              steps {
+                id
+                created
+                startTime
+                endTime
+                duration {
+                  microseconds
+                }
+                instrumentConfig {
+                  exposure {
+                    microseconds
+                  }
+                  readout {
+                    xBin
+                    yBin
+                    ampCount
+                    ampGain
+                    ampReadMode
+                  }
+                  dtax
+                  roi
+                  gratingConfig {
+                    gratingS:grating
+                    order
+                    wavelength {
+                      picometers
+                    }
+                  }
+                  filterS:filter
+                  fpu {
+                    customMask {
+                      filename
+                      slitWidth
+                    }
+                    builtinS:builtin
+                  }
+                }
+                stepConfig {
+                  stepType
+                  ...on Gcal {
+                    continuum
+                    arcs
+                    filter
+                    diffuser
+                    shutter
+                  }
+                  ...on Science {
+                    offset {
+                      p {
+                        microarcseconds
+                      }
+                      q {
+                        microarcseconds
+                      }
+                    }
+                    
+                  }
+                }
+                stepEvents {
+                  id
+                  received
+                  payload {
+                    sequenceType
+                    stepStage
+                  }
+                }
+                stepQaState
+                datasetEvents {
+                  id
+                  received
+                  datasetId {
+                    index
+                  }
+                }
+                datasets {
+                  id {
+                    index
+                  }
+                  filename
+                  qaState
+                }
+              }
+              sequenceEvents {
+                id
+                received
+                payload {
+                  command
+                }
+              }
+            }
+          }          
+        }
+      }
+    }
+  }
+}

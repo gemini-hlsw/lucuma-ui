@@ -14,3 +14,4 @@ package object decoders
     with PosAngleDecoders
     with ProposalDecoders
     with ExposureTimeModeDecoders
+    with VisitDecoders
