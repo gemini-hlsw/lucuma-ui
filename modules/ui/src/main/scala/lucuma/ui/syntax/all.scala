@@ -3,21 +3,24 @@
 
 package lucuma.ui.syntax
 
+import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.CtorType
+import japgolly.scalajs.react.component.Scala
 import japgolly.scalajs.react.component.ScalaFn
 import japgolly.scalajs.react.component.ScalaForwardRef
 import japgolly.scalajs.react.vdom._
 import japgolly.scalajs.react.vdom.html_<^._
 import react.common.Css
+import react.common.GenericComponentP
 import react.common.GenericComponentPA
 import react.common.GenericComponentPAC
 import react.common.GenericComponentPACF
 import react.common.GenericComponentPC
+import react.common.GenericFnComponentP
 import react.common.GenericFnComponentPA
 import react.common.GenericFnComponentPAC
 import react.common.GenericFnComponentPC
 import react.common.ReactRender
-import react.common.implicits._
 
 import scala.scalajs.js
 import scala.scalajs.js.UndefOr
@@ -49,6 +52,14 @@ trait render:
 
   type ClassPACF[P <: js.Object, F <: js.Object] = GenericComponentPACF[P, ?, F]
   given Conversion[ClassPACF[?, ?], VdomNode] = _.render.vdomElement
+
+  type ClassP[P <: js.Object] = GenericComponentP[P]
+  given Conversion[ClassP[?], UndefOr[VdomNode]] = _.render.vdomElement
+  given Conversion[ClassP[?], VdomNode]          = _.render.vdomElement
+
+  type FnP[P <: js.Object] = GenericFnComponentP[P]
+  given Conversion[FnP[?], VdomNode] = _.render
+
 end render
 
 object render extends render
@@ -63,23 +74,33 @@ object css extends css
 trait mod:
   // Syntaxis for apply
   extension [P <: js.Object, A](c: GenericFnComponentPC[P, A])
-    def apply(children: VdomNode*): A = c.withChildren(children)
+    inline def apply(children: VdomNode*): A = c.withChildren(children)
 
   extension [P <: js.Object, A](c: GenericFnComponentPA[P, A])
-    def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
+    inline def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
 
   extension [P <: js.Object, A](c: GenericFnComponentPAC[P, A])
-    def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
+    inline def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
 
   extension [P <: js.Object, A](c: GenericComponentPAC[P, A])
-    def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
+    inline def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
+
+  extension [P <: js.Object, A](c: GenericComponentPC[P, A])
+    inline def apply(children: VdomNode*): A = c.withChildren(children)
 
   given propsForwardRef2Component[Props, R, CT[-p, +u] <: CtorType[p, u]]
     : Conversion[ReactRender[Props, CT, ScalaForwardRef.Unmounted[Props, R]], VdomNode] =
     _.toUnmounted
 
+  extension [A](c: js.UndefOr[A => Callback])
+    def toJs: js.UndefOr[js.Function1[A, Unit]] = c.map(x => (a: A) => x(a).runNow())
+
   given fnProps2Component[Props, CT[-p, +u] <: CtorType[p, u]]
     : Conversion[ReactRender[Props, CT, ScalaFn.Unmounted[Props]], VdomElement] =
+    _.toUnmounted
+
+  given props2Component[Props, S, B, CT[-p, +u] <: CtorType[p, u]]
+    : Conversion[ReactRender[Props, CT, Scala.Unmounted[Props, S, B]], VdomElement] =
     _.toUnmounted
 
 end mod
