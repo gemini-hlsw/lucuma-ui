@@ -1,0 +1,94 @@
+{
+  "visits": [
+    {
+      "id": "v-7d093b73-3ac7-4886-bb34-0005bcb53ba4",
+      "created": "2022-08-22T18:18:46.236929950Z",
+      "startTime": "2022-08-22T18:18:56.336Z",
+      "endTime": "2022-08-22T18:26:36.809Z",
+      "duration": {
+        "microseconds": 460473000
+      },
+      "staticConfigS": {
+        "stageMode": "FOLLOW_XY",
+        "detector": "HAMAMATSU",
+        "mosPreImaging": "IS_NOT_MOS_PRE_IMAGING"
+      },
+      "steps": [
+        {
+          "id": "s-f1214814-93c8-4cdb-848b-8a69e61fc754",
+          "created": "2022-08-22T18:19:03.230191206Z",
+          "startTime": "2022-08-22T18:26:42.092Z",
+          "endTime": "2022-08-22T18:26:36.809Z",
+          "duration": {
+            "microseconds": 0
+          },
+          "instrumentConfig": {
+            "exposure": {
+              "microseconds": 120000000
+            },
+            "readout": {
+              "xBin": "ONE",
+              "yBin": "ONE",
+              "ampCount": "THREE",
+              "ampGain": "LOW",
+              "ampReadMode": "SLOW"
+            },
+            "dtax": "ZERO",
+            "roi": "FULL_FRAME",
+            "gratingConfig": null,
+            "filterS": null,
+            "fpu": null
+          },
+          "stepConfig": {
+            "stepType": "SCIENCE",
+            "offset": {
+              "p": {
+                "microarcseconds": 0
+              },
+              "q": {
+                "microarcseconds": 0
+              }
+            }
+          },
+          "stepEvents": [
+            {
+              "id": "e-5",
+              "received": "2022-08-22T18:26:42.092Z",
+              "payload": {
+                "sequenceType": "SCIENCE",
+                "stepStage": "END_STEP"
+              }
+            },
+            {
+              "id": "e-4",
+              "received": "2022-08-22T18:26:36.809Z",
+              "payload": {
+                "sequenceType": "SCIENCE",
+                "stepStage": "START_STEP"
+              }
+            }
+          ],
+          "stepQaState": null,
+          "datasetEvents": [],
+          "datasets": []
+        }
+      ],
+      "sequenceEvents": [
+        {
+          "id": "e-2",
+          "received": "2022-08-22T18:18:56.336Z",
+          "payload": {
+            "command": "START"
+          }
+        },
+        {
+          "id": "e-3",
+          "received": "2022-08-22T18:20:42.047Z",
+          "payload": {
+            "command": "STOP"
+          }
+        }
+      ]
+    }
+  ]
+}
