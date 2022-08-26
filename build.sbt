@@ -34,7 +34,8 @@ val templates =
     )
 
 val lucumaSchemas =
-  project
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Pure)
     .in(file("lucuma-schemas"))
     .settings(
       moduleName := "lucuma-schemas",
