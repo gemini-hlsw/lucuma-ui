@@ -22,7 +22,7 @@ enum Theme(val tag: String, val clazz: Css):
     }
 
 object Theme:
-  val Default: Theme = Theme.Light
+  val Default: Theme = Theme.Dark
 
   def init[F[_]](using F: Sync[F]): F[Theme] =
     Default.setup >> F.pure(Default)
