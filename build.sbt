@@ -5,7 +5,7 @@ val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 val kittensVersion         = "3.0.0-M4"
 
-ThisBuild / tlBaseVersion       := "0.36"
+ThisBuild / tlBaseVersion       := "0.37"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.1.3")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
@@ -34,7 +34,8 @@ val templates =
     )
 
 val lucumaSchemas =
-  project
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Pure)
     .in(file("lucuma-schemas"))
     .settings(
       moduleName := "lucuma-schemas",
