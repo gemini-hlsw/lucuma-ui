@@ -1,5 +1,5 @@
-ThisBuild / tlBaseVersion       := "0.41"
-ThisBuild / tlCiReleaseBranches := Seq("master", "scala3")
+ThisBuild / tlBaseVersion       := "0.42"
+ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
 lazy val FUILess = "2.8.7"
@@ -7,7 +7,8 @@ val reactSUI     = "2.0.4"
 
 lazy val catsVersion          = "2.8.0"
 lazy val crystalVersion       = "0.31.1"
-lazy val lucumaCoreVersion    = "0.51.0"
+lazy val kittensVersion       = "3.0.0-M4"
+lazy val lucumaCoreVersion    = "0.53.0"
 lazy val monocleVersion       = "3.1.0"
 lazy val mouseVersion         = "1.1.0"
 lazy val lucumaRefinedVersion = "0.1.0"
@@ -28,9 +29,7 @@ ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
 ThisBuild / scalaVersion             := "3.1.3"
 ThisBuild / crossScalaVersions       := Seq("3.1.3")
-ThisBuild / scalacOptions ++= Seq(
-  "-language:implicitConversions"
-)
+ThisBuild / scalacOptions ++= Seq("-language:implicitConversions")
 
 enablePlugins(NoPublishPlugin)
 
@@ -88,6 +87,7 @@ lazy val ui =
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"                % catsVersion,
+        "org.typelevel"                     %%% "kittens"                  % kittensVersion,
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"        % scalaJsReactVersion,
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"       % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"              % lucumaCoreVersion,

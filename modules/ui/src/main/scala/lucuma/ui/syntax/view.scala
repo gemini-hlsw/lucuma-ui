@@ -1,40 +1,33 @@
 // Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package lucuma.ui
+package lucuma.ui.syntax
 
 import cats.Monad
+import cats.Monoid
 import crystal.ViewF
 import crystal.ViewOptF
-import crystal.react.reuse._
+import crystal.react.reuse.*
 import lucuma.core.optics.SplitEpi
-import react.common.EnumValue
 
 import scala.annotation.targetName
-import scala.scalajs.js
 
-package object implicits {
-  implicit class ViewFOpticOps[F[_], A](val self: ViewF[F, A]) extends AnyVal {
+trait view:
+  extension [F[_], A](self: ViewF[F, A])
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B]): ViewF[F, B] =
       self.zoom(splitEpi.get)(splitEpi.modify)
-  }
 
-  implicit class ViewOptFOpticOps[F[_], A](val self: ViewOptF[F, A]) extends AnyVal {
+  extension [F[_], A](self: ViewOptF[F, A])
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B]): ViewOptF[F, B] =
       self.zoom(splitEpi.get)(splitEpi.modify)
-  }
 
-  implicit class ReuseViewFOpticOps[F[_], A](val self: Reuse[ViewF[F, A]]) extends AnyVal {
+  extension [F[_], A](self: Reuse[ViewF[F, A]])
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
-  }
 
-  implicit class ReuseViewOptFOpticOps[F[_], A](val self: Reuse[ViewOptF[F, A]]) extends AnyVal {
+  extension [F[_], A](self: Reuse[ViewOptF[F, A]])
+    @targetName("zoomSplitEpiOpt")
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewOptF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
-  }
 
-  extension [A](a: A | Unit)(using ev: EnumValue[A])
-    def undefToJs: js.UndefOr[String] = a.map(ev.value)
-
-}
+object views extends view
