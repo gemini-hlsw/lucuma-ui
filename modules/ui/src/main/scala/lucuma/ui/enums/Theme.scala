@@ -9,7 +9,7 @@ import lucuma.core.util.Enumerated
 import org.scalajs.dom
 import react.common.style.Css
 
-enum Theme(val tag: String, val clazz: Css):
+enum Theme(private val tag: String, val clazz: Css) derives Enumerated:
   case Light extends Theme("light", Css("light-theme"))
   case Dark  extends Theme("dark", Css("dark-theme"))
 
@@ -31,5 +31,3 @@ object Theme:
     F.delay(
       Theme.values.find(theme => dom.document.body.classList.contains(theme.clazz.htmlClass))
     ).flatMap(_.fold(init)(F.pure))
-
-  given Enumerated[Theme] = Enumerated.from(Light, Dark).withTag(_.tag)
