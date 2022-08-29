@@ -93,6 +93,7 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-core"              % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-react-common"      % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-semantic-ui" % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-highcharts"  % lucumaReactVersion,
         "dev.optics"                        %%% "monocle-core"             % monocleVersion,
         "dev.optics"                        %%% "monocle-macro"            % monocleVersion,
         "com.rpiaggio"                      %%% "crystal"                  % crystalVersion,
