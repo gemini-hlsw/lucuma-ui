@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.43"
+ThisBuild / tlBaseVersion       := "0.44"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -86,18 +86,19 @@ lazy val ui =
     .settings(
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
-        "org.typelevel"                     %%% "cats-core"                % catsVersion,
-        "org.typelevel"                     %%% "kittens"                  % kittensVersion,
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"        % scalaJsReactVersion,
-        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"       % scalaJsReactVersion,
-        "edu.gemini"                        %%% "lucuma-core"              % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-react-common"      % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-semantic-ui" % lucumaReactVersion,
-        "dev.optics"                        %%% "monocle-core"             % monocleVersion,
-        "dev.optics"                        %%% "monocle-macro"            % monocleVersion,
-        "com.rpiaggio"                      %%% "crystal"                  % crystalVersion,
-        "edu.gemini"                        %%% "lucuma-core-testkit"      % lucumaCoreVersion % Test,
-        "org.scalameta"                     %%% "munit"                    % "0.7.29"          % Test,
-        "org.typelevel"                     %%% "discipline-munit"         % "1.0.9"           % Test
+        "org.typelevel"                     %%% "cats-core"                    % catsVersion,
+        "org.typelevel"                     %%% "kittens"                      % kittensVersion,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % scalaJsReactVersion,
+        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % scalaJsReactVersion,
+        "edu.gemini"                        %%% "lucuma-core"                  % lucumaCoreVersion,
+        "edu.gemini"                        %%% "lucuma-react-common"          % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-semantic-ui"     % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-resize-detector" % lucumaReactVersion,
+        "dev.optics"                        %%% "monocle-core"                 % monocleVersion,
+        "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
+        "com.rpiaggio"                      %%% "crystal"                      % crystalVersion,
+        "edu.gemini"                        %%% "lucuma-core-testkit"          % lucumaCoreVersion % Test,
+        "org.scalameta"                     %%% "munit"                        % "0.7.29"          % Test,
+        "org.typelevel"                     %%% "discipline-munit"             % "1.0.9"           % Test
       )
     )
