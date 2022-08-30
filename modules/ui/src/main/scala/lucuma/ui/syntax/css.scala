@@ -3,4 +3,12 @@
 
 package lucuma.ui.syntax
 
-object all extends render with mod with css with util with view
+import japgolly.scalajs.react.vdom.*
+import japgolly.scalajs.react.vdom.html_<^.*
+import react.common.Css
+
+trait css:
+  given Conversion[Css, TagMod] =
+    ^.className := _.htmlClass
+
+object css extends css
