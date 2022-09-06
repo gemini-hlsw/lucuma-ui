@@ -7,7 +7,7 @@ val kittensVersion         = "3.0.0-M4"
 
 ThisBuild / tlBaseVersion       := "0.37"
 ThisBuild / tlCiReleaseBranches := Seq("main")
-ThisBuild / crossScalaVersions  := Seq("3.1.3")
+ThisBuild / crossScalaVersions  := Seq("3.2.0")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
