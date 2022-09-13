@@ -134,15 +134,16 @@ class DecodersSuite extends InputStreamSuite {
           SpectralDefinition.EmissionLines(
             SortedMap(
               Wavelength.unsafeFromInt(1000000)    -> EmissionLine(
-                BigDecimal(1).refined.withUnit[KilometersPerSecond],
-                BigDecimal(1).refined.withUnit[WattsPerMeter2].toMeasureTagged
+                BigDecimal(1).refined[Positive].withUnit[KilometersPerSecond],
+                BigDecimal(1).refined[Positive].withUnit[WattsPerMeter2].toMeasureTagged
               ),
               Wavelength.unsafeFromInt(1000000000) -> EmissionLine(
-                BigDecimal(1).refined.withUnit[KilometersPerSecond],
-                BigDecimal(1).refined.withUnit[ErgsPerSecondCentimeter2].toMeasureTagged
+                BigDecimal(1).refined[Positive].withUnit[KilometersPerSecond],
+                BigDecimal(1).refined[Positive].withUnit[ErgsPerSecondCentimeter2].toMeasureTagged
               )
             ),
-            BigDecimal(12).refined
+            BigDecimal(12)
+              .refined[Positive]
               .withUnit[ErgsPerSecondCentimeter2Angstrom]
               .toMeasureTagged
           )
