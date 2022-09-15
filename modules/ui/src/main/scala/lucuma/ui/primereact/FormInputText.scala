@@ -39,7 +39,7 @@ final case class FormInputText(
 object FormInputText {
   val component = ScalaFnComponent[FormInputText] { props =>
     val group = <.div(
-      PrimeStyles.InputGroup |+| PrimeStyles.FormField |+| props.groupClass.toOption.orEmpty,
+      PrimeStyles.InputGroup |+| LucumaStyles.FormField |+| props.groupClass.toOption.orEmpty,
       props.preAddons.toVdomArray(p =>
         (p: Any) match {
           case b: CButton.Builder => b.build

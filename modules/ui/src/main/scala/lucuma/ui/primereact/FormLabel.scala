@@ -8,7 +8,6 @@ import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import react.common.*
-import react.primereact.PrimeStyles
 
 import scalajs.js
 import scalajs.js.JSConverters.*
@@ -17,7 +16,7 @@ object FormLabel {
   def apply(
     htmlFor: NonEmptyString
   ) = <.label(
-    PrimeStyles.FormFieldLabel,
+    LucumaStyles.FormFieldLabel,
     ^.htmlFor := htmlFor.value
   )
 }

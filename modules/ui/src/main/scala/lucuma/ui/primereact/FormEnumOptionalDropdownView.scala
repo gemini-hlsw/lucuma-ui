@@ -11,7 +11,6 @@ import japgolly.scalajs.react.*
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.*
-import react.primereact.PrimeStyles
 import reactST.primereact.selectitemMod.SelectItem
 
 import scalajs.js
@@ -49,7 +48,7 @@ object FormEnumOptionalDropdownView {
         value = props.value,
         exclude = props.exclude,
         className = props.className,
-        clazz = PrimeStyles.FormField |+| props.clazz.toOption.orEmpty,
+        clazz = LucumaStyles.FormField |+| props.clazz.toOption.orEmpty,
         showClear = props.showClear,
         filter = props.filter,
         showFilterClear = props.showFilterClear,
