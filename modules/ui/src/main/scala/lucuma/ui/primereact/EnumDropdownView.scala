@@ -11,36 +11,41 @@ import lucuma.core.util.Enumerated
 import react.common.*
 import react.primereact.Dropdown
 import react.primereact.SelectItem
-import reactST.primereact.components.{Dropdown => CDropdown}
 
 import scalajs.js
 import scalajs.js.JSConverters.*
 
-object EnumDropdownView:
-  def apply[A](
-    id:              NonEmptyString,
-    value:           View[A],
-    exclude:         Set[A] = Set.empty[A],
-    className:       js.UndefOr[String] = js.undefined,
-    clazz:           js.UndefOr[Css] = js.undefined,
-    filter:          js.UndefOr[Boolean] = js.undefined,
-    showFilterClear: js.UndefOr[Boolean] = js.undefined,
-    disabled:        js.UndefOr[Boolean] = js.undefined,
-    placeholder:     js.UndefOr[String] = js.undefined
-  )(using
-    enumerated:      Enumerated[A],
-    display:         Display[A]
-  ): CDropdown.Builder =
+final case class EnumDropdownView[A](
+  id:              NonEmptyString,
+  value:           View[A],
+  exclude:         Set[A] = Set.empty[A],
+  className:       js.UndefOr[String] = js.undefined,
+  clazz:           js.UndefOr[Css] = js.undefined,
+  filter:          js.UndefOr[Boolean] = js.undefined,
+  showFilterClear: js.UndefOr[Boolean] = js.undefined,
+  disabled:        js.UndefOr[Boolean] = js.undefined,
+  placeholder:     js.UndefOr[String] = js.undefined
+)(using
+  val enumerated:  Enumerated[A],
+  val display:     Display[A]
+) extends ReactFnProps[EnumDropdownView[Any]](EnumDropdownView.component)
+
+object EnumDropdownView {
+  private def buildComponent[A] = ScalaFnComponent[EnumDropdownView[A]] { props =>
     Dropdown(
-      value = value.get,
-      options = enumerated.all
-        .filter(v => !exclude.contains(v))
-        .map(e => SelectItem(label = display.shortName(e), value = e)),
-      id = id.value,
-      className = className,
-      clazz = clazz,
-      filter = filter,
-      showFilterClear = showFilterClear,
-      placeholder = placeholder,
-      onChange = v => value.set(v.asInstanceOf[A])
+      value = props.value.get,
+      options = props.enumerated.all
+        .filter(v => !props.exclude.contains(v))
+        .map(e => SelectItem(label = props.display.shortName(e), value = e)),
+      id = props.id.value,
+      className = props.className,
+      clazz = props.clazz,
+      filter = props.filter,
+      showFilterClear = props.showFilterClear,
+      placeholder = props.placeholder,
+      onChange = v => props.value.set(v.asInstanceOf[A])
     )
+  }
+
+  private val component = buildComponent[Any]
+}

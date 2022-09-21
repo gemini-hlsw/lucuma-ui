@@ -1,5 +1,5 @@
 // For laying out controls. The "Form*" compoents utilize this, too.
-.form-column {
+.pl-form-column {
   display: grid;
   justify-items: start;
   align-items: baseline;
@@ -8,19 +8,19 @@
   row-gap: 1em;
   column-gap: 1em;
 
-  &.compact {
+  &.pl-compact {
     row-gap: 0.5em;
   }
 
-  &.very-compact {
+  &.pl-very-compact {
     row-gap: 0.25em;
   }
 
-  .form-field-label {
+  .pl-form-field-label {
     grid-column: 1;
   }
 
-  .form-field {
+  .pl-form-field {
     grid-column: 2;
     justify-self: stretch;
     margin: 0;
@@ -32,8 +32,8 @@ button.p-component.p-button {
   margin-right: .25em; // this is what the current css does for SUI. Might want to improve.
 
   // Probably will need to 'specialize' for small and large buttons, and compact vs very compact
-  &.compact,
-  &.very-compact {
+  &.pl-compact,
+  &.pl-very-compact {
     padding: .4em .5em;
   }
 }

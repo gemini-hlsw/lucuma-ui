@@ -6,20 +6,19 @@ package lucuma.ui.primereact
 import cats.syntax.all.*
 import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
-import japgolly.scalajs.react.vdom.html_<^.*
 import japgolly.scalajs.react.*
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.*
-import reactST.primereact.selectitemMod.SelectItem
+import react.primereact.Dropdown
+import react.primereact.SelectItem
 
 import scalajs.js
 import scalajs.js.JSConverters.*
 
-final case class FormEnumOptionalDropdownView[A](
+final case class EnumDropdownOptionalView[A](
   id:              NonEmptyString,
   value:           View[Option[A]],
-  label:           js.UndefOr[TagMod] = js.undefined,
   exclude:         Set[A] = Set.empty[A],
   className:       js.UndefOr[String] = js.undefined,
   clazz:           js.UndefOr[Css] = js.undefined,
@@ -31,30 +30,24 @@ final case class FormEnumOptionalDropdownView[A](
 )(using
   val enumerated:  Enumerated[A],
   val display:     Display[A]
-) extends ReactFnProps[FormEnumOptionalDropdownView[Any]](
-      FormEnumOptionalDropdownView.component
-    )
+) extends ReactFnProps[EnumDropdownOptionalView[Any]](EnumDropdownOptionalView.component)
 
-object FormEnumOptionalDropdownView {
-  private type Props[A] = FormEnumOptionalDropdownView[A]
-
-  private def buildComponent[A] = ScalaFnComponent[FormEnumOptionalDropdownView[A]] { props =>
-    import props.given
-
-    React.Fragment(
-      props.label.map(l => FormLabel(htmlFor = props.id)(l)),
-      EnumOptionalDropdownView(
-        id = props.id,
-        value = props.value,
-        exclude = props.exclude,
-        className = props.className,
-        clazz = LucumaStyles.FormField |+| props.clazz.toOption.orEmpty,
-        showClear = props.showClear,
-        filter = props.filter,
-        showFilterClear = props.showFilterClear,
-        disabled = props.disabled,
-        placeholder = props.placeholder
-      )
+object EnumDropdownOptionalView {
+  private def buildComponent[A] = ScalaFnComponent[EnumDropdownOptionalView[A]] { props =>
+    Dropdown(
+      id = props.id.value,
+      value = props.value.get.orUndefined,
+      options = props.enumerated.all
+        .filter(v => !props.exclude.contains(v))
+        .map(e => SelectItem(label = props.display.shortName(e), value = e)),
+      showClear = props.showClear,
+      className = props.className,
+      clazz = props.clazz,
+      filter = props.filter,
+      showFilterClear = props.showFilterClear,
+      placeholder = props.placeholder,
+      disabled = props.disabled,
+      onChange = v => props.value.set(if (js.isUndefined(v)) none else v.asInstanceOf[A].some)
     )
   }
 

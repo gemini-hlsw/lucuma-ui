@@ -15,15 +15,15 @@ import reactST.primereact.selectitemMod.SelectItem
 
 import scalajs.js
 import scalajs.js.JSConverters.*
-import lucuma.core.enums.Half.A
 
-final case class FormEnumDropdownView[A](
+final case class FormEnumDropdownOptionalView[A](
   id:              NonEmptyString,
-  value:           View[A],
-  label:           js.UndefOr[String] = js.undefined,
+  value:           View[Option[A]],
+  label:           js.UndefOr[TagMod] = js.undefined,
   exclude:         Set[A] = Set.empty[A],
   className:       js.UndefOr[String] = js.undefined,
   clazz:           js.UndefOr[Css] = js.undefined,
+  showClear:       Boolean = true,
   filter:          js.UndefOr[Boolean] = js.undefined,
   showFilterClear: js.UndefOr[Boolean] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
@@ -31,22 +31,26 @@ final case class FormEnumDropdownView[A](
 )(using
   val enumerated:  Enumerated[A],
   val display:     Display[A]
-) extends ReactFnProps[FormEnumDropdownView[Any]](FormEnumDropdownView.component)
+) extends ReactFnProps[FormEnumDropdownOptionalView[Any]](
+      FormEnumDropdownOptionalView.component
+    )
 
-object FormEnumDropdownView {
-  private def buildComponent[A] = ScalaFnComponent[FormEnumDropdownView[A]] { props =>
+object FormEnumDropdownOptionalView {
+  private def buildComponent[A] = ScalaFnComponent[FormEnumDropdownOptionalView[A]] { props =>
     import props.given
 
     React.Fragment(
       props.label.map(l => FormLabel(htmlFor = props.id)(l)),
-      EnumDropdownView(
+      EnumDropdownOptionalView(
         id = props.id,
         value = props.value,
         exclude = props.exclude,
         className = props.className,
         clazz = LucumaStyles.FormField |+| props.clazz.toOption.orEmpty,
+        showClear = props.showClear,
         filter = props.filter,
         showFilterClear = props.showFilterClear,
+        disabled = props.disabled,
         placeholder = props.placeholder
       )
     )
