@@ -6,8 +6,8 @@ package lucuma.ui.primereact
 import cats.syntax.all.*
 import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
-import japgolly.scalajs.react.vdom.html_<^.*
 import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.*
