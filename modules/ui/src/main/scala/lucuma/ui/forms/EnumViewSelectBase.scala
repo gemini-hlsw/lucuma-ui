@@ -204,7 +204,7 @@ object EnumViewSelectBase {
         p.selectedLabel,
         p.simple,
         p.tabIndex.map {
-          case s: Double => s.toInt
+          case s: Int    => s
           case s: String => s
         },
         p.text,
