@@ -17,13 +17,14 @@ import scalajs.js
 import scalajs.js.JSConverters.*
 
 final case class FormEnumDropdownOptionalView[A](
-  id:              NonEmptyString,
-  value:           View[Option[A]],
-  label:           js.UndefOr[TagMod] = js.undefined,
-  exclude:         Set[A] = Set.empty[A],
-  className:       js.UndefOr[String] = js.undefined,
-  clazz:           js.UndefOr[Css] = js.undefined,
-  showClear:       Boolean = true,
+  id:        NonEmptyString,
+  value:     View[Option[A]],
+  label:     js.UndefOr[TagMod] = js.undefined,
+  exclude:   Set[A] = Set.empty[A],
+  className: js.UndefOr[String] = js.undefined,
+  clazz:     js.UndefOr[Css] = js.undefined,
+  showClear: Boolean =
+    true, // The default in `Dropdown` is false, but in this case we usually want true.
   filter:          js.UndefOr[Boolean] = js.undefined,
   showFilterClear: js.UndefOr[Boolean] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
