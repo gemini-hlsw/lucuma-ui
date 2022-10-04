@@ -24,7 +24,7 @@
     "url-loader": "^4.1.0",
     "webpack-dev-server-status-bar": "^1.1.2",
     "webpack-cli": "^3.3.2",
-    "postcss": "^8.4.16",
+    "postcss": "^8.4.17",
     "mini-css-extract-plugin": "^1.6.2",
     "webpack-dev-server": "^3.11.0",
     "css-loader": "^5.2.7",
