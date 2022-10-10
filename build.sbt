@@ -1,19 +1,20 @@
-ThisBuild / tlBaseVersion       := "0.44"
+ThisBuild / tlBaseVersion       := "0.45"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
 lazy val FUILess = "2.8.7"
 val reactSUI     = "2.0.4"
 
-lazy val catsVersion          = "2.8.0"
-lazy val crystalVersion       = "0.31.6"
-lazy val kittensVersion       = "3.0.0"
-lazy val lucumaCoreVersion    = "0.57.0"
-lazy val monocleVersion       = "3.1.0"
-lazy val mouseVersion         = "1.1.0"
-lazy val lucumaRefinedVersion = "0.1.0"
-lazy val lucumaReactVersion   = "0.8.0"
-lazy val scalaJsReactVersion  = "2.1.1"
+lazy val catsVersion              = "2.8.0"
+lazy val crystalVersion           = "0.32.0"
+lazy val kittensVersion           = "3.0.0"
+lazy val lucumaCoreVersion        = "0.57.0"
+lazy val monocleVersion           = "3.1.0"
+lazy val mouseVersion             = "1.1.0"
+lazy val lucumaPrimeStylesVersion = "0.2.3"
+lazy val lucumaRefinedVersion     = "0.1.0"
+lazy val lucumaReactVersion       = "0.9.0"
+lazy val scalaJsReactVersion      = "2.1.1"
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
@@ -92,10 +93,13 @@ lazy val ui =
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"                  % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-react-common"          % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-font-awesome"    % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-semantic-ui"     % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-resize-detector" % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-prime-react"     % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-tanstack-table"  % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-floatingui"      % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-prime-react"     % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-prime-styles"          % lucumaPrimeStylesVersion,
         "dev.optics"                        %%% "monocle-core"                 % monocleVersion,
         "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
         "com.rpiaggio"                      %%% "crystal"                      % crystalVersion,

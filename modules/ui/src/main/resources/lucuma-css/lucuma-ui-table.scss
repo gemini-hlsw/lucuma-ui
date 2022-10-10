@@ -1,0 +1,97 @@
+.pl-react-table {
+  @at-root {
+    table#{&} {
+      border-collapse: collapse;
+      border-spacing: 0;
+      table-layout: fixed;
+    }
+  }
+
+  .p-datatable-thead>tr>th {
+    white-space: nowrap;
+    overflow: overlay;
+  }
+
+  .p-datatable-tbody>tr>td {
+    padding: 6px;
+    white-space: nowrap;
+    overflow: overlay;
+  }
+
+  &.pl-compact {
+    .p-datatable-thead>tr>th {
+      padding: 0.25em 0.25em;
+    }
+
+    .p-datatable-tbody>tr>td {
+      padding: 0.5em 0.25em;
+    }
+  }
+
+  &.pl-very-compact {
+    .p-datatable-thead>tr>th {
+      padding: 0.25em 0.6em;
+    }
+
+    .p-datatable-tbody>tr>td {
+      padding: 0.4em 0.6em;
+    }
+  }
+
+  thead {
+    margin: 0;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+
+    tr {
+      th {
+        position: relative;
+      }
+    }
+  }
+
+  .pl-sortable-col {
+    user-select: none;
+  }
+
+  thead:not(.pl-head-resizing) {
+    .pl-sortable-col {
+      cursor: pointer;
+    }
+  }
+
+  thead.pl-head-resizing {
+    cursor: col-resize;
+  }
+
+  .pl-resizer {
+    position: absolute;
+    right: 0;
+    top: 0;
+    height: 100%;
+    width: 8px;
+    cursor: col-resize;
+    user-select: none;
+    touch-action: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .pl-resizer.pl-col-resizing {
+    background: var(--surface-100);
+    opacity: 1;
+    z-index: 10000;
+  }
+
+  @media (hover: hover) {
+    .pl-resizer {
+      opacity: 0;
+    }
+
+    thead:not(.pl-head-resizing) *:hover>.pl-resizer {
+      opacity: 1;
+    }
+  }
+}
