@@ -137,6 +137,7 @@ private val baseHTMLRenderer: HTMLTableRenderer[Any] =
     override protected val TfootClass: Css   = Css("p-datatable-tfoot")
     override protected val TfootTrClass: Css = Css.Empty
     override protected val TfootThClass: Css = Css.Empty
+    override protected val EmptyMessage: Css = Css("p-datatable-emptymessage")
 
     override protected val ResizerClass: Css         = Css("pl-resizer")
     override protected val IsResizingTHeadClass: Css = Css("pl-head-resizing")
