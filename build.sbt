@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.46"
+ThisBuild / tlBaseVersion       := "0.47"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -6,14 +6,14 @@ lazy val FUILess = "2.8.7"
 val reactSUI     = "2.0.4"
 
 lazy val catsVersion              = "2.8.0"
-lazy val crystalVersion           = "0.32.1"
+lazy val crystalVersion           = "0.32.2"
 lazy val kittensVersion           = "3.0.0"
 lazy val lucumaCoreVersion        = "0.57.0"
 lazy val monocleVersion           = "3.1.0"
 lazy val mouseVersion             = "1.1.0"
 lazy val lucumaPrimeStylesVersion = "0.2.3"
 lazy val lucumaRefinedVersion     = "0.1.0"
-lazy val lucumaReactVersion       = "0.10.0"
+lazy val lucumaReactVersion       = "0.11.0"
 lazy val scalaJsReactVersion      = "2.1.1"
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
