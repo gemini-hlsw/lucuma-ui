@@ -19,7 +19,6 @@ final case class EnumDropdownView[A](
   id:              NonEmptyString,
   value:           View[A],
   exclude:         Set[A] = Set.empty[A],
-  className:       js.UndefOr[String] = js.undefined,
   clazz:           js.UndefOr[Css] = js.undefined,
   filter:          js.UndefOr[Boolean] = js.undefined,
   showFilterClear: js.UndefOr[Boolean] = js.undefined,
@@ -32,18 +31,19 @@ final case class EnumDropdownView[A](
 
 object EnumDropdownView {
   private def buildComponent[A] = ScalaFnComponent[EnumDropdownView[A]] { props =>
+    import props.given
+
     Dropdown(
       value = props.value.get,
       options = props.enumerated.all
         .filter(v => !props.exclude.contains(v))
         .map(e => SelectItem(label = props.display.shortName(e), value = e)),
       id = props.id.value,
-      className = props.className,
       clazz = props.clazz,
       filter = props.filter,
       showFilterClear = props.showFilterClear,
       placeholder = props.placeholder,
-      onChange = v => props.value.set(v.asInstanceOf[A])
+      onChange = v => props.value.set(v)
     )
   }
 
