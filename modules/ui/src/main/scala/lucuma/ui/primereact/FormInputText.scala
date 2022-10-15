@@ -19,7 +19,7 @@ import reactST.primereact.components.{Button => CButton}
 
 import scalajs.js
 
-final case class FormInputText(
+case class FormInputText(
   id:               NonEmptyString,
   value:            js.UndefOr[String] = js.undefined,
   label:            js.UndefOr[TagMod] = js.undefined,
@@ -34,10 +34,10 @@ final case class FormInputText(
   onBlur:           js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
   onChange:         js.UndefOr[ReactEventFromInput => Callback] = js.undefined,
   onKeyDown:        js.UndefOr[ReactKeyboardEventFromInput => Callback] = js.undefined
-) extends ReactFnProps[FormInputText](FormInputText.component)
+) extends ReactFnProps(FormInputText.component)
 
 object FormInputText {
-  val component = ScalaFnComponent[FormInputText] { props =>
+  private val component = ScalaFnComponent[FormInputText] { props =>
     val group = <.div(
       PrimeStyles.InputGroup |+| LucumaStyles.FormField |+| props.groupClass.toOption.orEmpty,
       props.preAddons.toVdomArray(p =>
@@ -57,13 +57,14 @@ object FormInputText {
         onChange = props.onChange,
         onKeyDown = props.onKeyDown
       ),
-      props.postAddons.toVdomArray(p =>
+      props.postAddons.zipWithIndex.toVdomArray { (p, i) =>
+        val key = s"${props.id.value}-post-add-on-$i"
         (p: Any) match {
-          case b: CButton.Builder => b.build
+          case b: CButton.Builder => b.withKey(key).build
           case t: TagMod          =>
-            <.span(t, Css("p-inputgroup-addon"))
+            <.span(^.key := key, t, Css("p-inputgroup-addon"))
         }
-      )
+      }
     )
 
     val input = props.tooltip.fold(group)(tt => group.withTooltip(tt, props.tooltipPlacement))
