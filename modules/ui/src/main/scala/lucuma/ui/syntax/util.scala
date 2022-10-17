@@ -4,6 +4,7 @@
 package lucuma.ui.syntax
 
 import cats.Monoid
+import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.React
 import japgolly.scalajs.react.vdom.html_<^.*
 import react.common.EnumValue
@@ -17,5 +18,7 @@ trait util:
   given Monoid[VdomNode] = new Monoid[VdomNode]:
     val empty: VdomNode                             = EmptyVdom
     def combine(x: VdomNode, y: VdomNode): VdomNode = React.Fragment(x, y)
+
+  extension (c: Callback.type) def pprintln[T](a: T): Callback = Callback(_root_.pprint.pprintln(a))
 
 object util extends util

@@ -15,6 +15,7 @@ lazy val lucumaPrimeStylesVersion = "0.2.3"
 lazy val lucumaRefinedVersion     = "0.1.0"
 lazy val lucumaReactVersion       = "0.11.0"
 lazy val scalaJsReactVersion      = "2.1.1"
+lazy val pprintVersion            = "0.8.0"
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
@@ -103,6 +104,7 @@ lazy val ui =
         "dev.optics"                        %%% "monocle-core"                 % monocleVersion,
         "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
         "com.rpiaggio"                      %%% "crystal"                      % crystalVersion,
+        "com.lihaoyi"                       %%% "pprint"                       % pprintVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit"          % lucumaCoreVersion % Test,
         "org.scalameta"                     %%% "munit"                        % "0.7.29"          % Test,
         "org.typelevel"                     %%% "discipline-munit"             % "1.0.9"           % Test
