@@ -22,13 +22,10 @@ trait PrimeTableProps[T] extends HTMLTableProps[T]:
   def celled: Boolean
   def compact: js.UndefOr[Compact]
 
-  private def when[T: Monoid](cond: Boolean, value: => T): T =
-    if (cond) value else Monoid[T].empty
-
   override val extraTableClasses: Css =
-    when(hoverableRows, Css("p-datatable-hoverable-rows")) |+|
-      when(striped, Css("pl-striped-table")) |+|
-      when(celled, Css("pl-celled-table")) |+|
+    Css("p-datatable-hoverable-rows").when_(hoverableRows) |+|
+      Css("pl-striped-table").when_(striped) |+|
+      Css("pl-celled-table").when_(celled) |+|
       compact.toOption
         .map(_ match
           case Compact.Very => Css("pl-very-compact")
