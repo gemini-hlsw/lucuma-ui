@@ -10,7 +10,8 @@
   // Cell 
   .p-datatable-thead>tr>th {
     white-space: nowrap;
-    overflow: overlay;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .p-datatable-tbody>tr>td {
