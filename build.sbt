@@ -29,8 +29,8 @@ addCommandAlias(
 
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
-ThisBuild / scalaVersion             := "3.2.1-RC2"
-ThisBuild / crossScalaVersions       := Seq("3.2.1-RC2")
+ThisBuild / scalaVersion             := "3.2.1-RC4"
+ThisBuild / crossScalaVersions       := Seq("3.2.1-RC4")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions")
 
 enablePlugins(NoPublishPlugin)
