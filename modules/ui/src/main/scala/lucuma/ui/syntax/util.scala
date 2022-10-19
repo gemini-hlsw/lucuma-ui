@@ -16,7 +16,7 @@ trait util:
     def undefToJs: js.UndefOr[String] = a.map(ev.value)
 
   given Monoid[VdomNode] = new Monoid[VdomNode]:
-    val empty: VdomNode                             = EmptyVdom
+    val empty: VdomNode = EmptyVdom
     def combine(x: VdomNode, y: VdomNode): VdomNode = React.Fragment(x, y)
 
   extension (c: Callback.type) def pprintln[T](a: T): Callback = Callback(_root_.pprint.pprintln(a))

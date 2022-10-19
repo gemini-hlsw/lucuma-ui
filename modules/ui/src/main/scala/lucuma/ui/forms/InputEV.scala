@@ -27,8 +27,8 @@ final case class InputEV[EV[_], A](
   onBlur:          InputEV.ChangeCallback[A] = (_: A) => Callback.empty
 )(implicit val ev: ExternalValue[EV])
     extends ReactFnProps[InputEV[InputEV.AnyF, Any]](InputEV.component) {
-  def valGet: String                            = ev.get(value).foldMap(format.reverseGet)
-  def valSet(s: String): Callback               = format.getOption(s).map(ev.set(value)).getOrEmpty
+  def valGet: String = ev.get(value).foldMap(format.reverseGet)
+  def valSet(s: String): Callback = format.getOption(s).map(ev.set(value)).getOrEmpty
   val onBlurC: InputEV.ChangeCallback[String]   =
     (s: String) => format.getOption(s).map(onBlur).getOrEmpty
   val onChangeC: InputEV.ChangeCallback[String] =
