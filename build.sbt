@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.48"
+ThisBuild / tlBaseVersion       := "0.49"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -6,14 +6,14 @@ lazy val FUILess = "2.8.7"
 val reactSUI     = "2.0.4"
 
 lazy val catsVersion              = "2.8.0"
-lazy val crystalVersion           = "0.32.2"
+lazy val crystalVersion           = "0.33.0"
 lazy val kittensVersion           = "3.0.0"
 lazy val lucumaCoreVersion        = "0.57.0"
 lazy val monocleVersion           = "3.1.0"
 lazy val mouseVersion             = "1.1.0"
 lazy val lucumaPrimeStylesVersion = "0.2.3"
 lazy val lucumaRefinedVersion     = "0.1.0"
-lazy val lucumaReactVersion       = "0.11.0"
+lazy val lucumaReactVersion       = "0.12.0"
 lazy val scalaJsReactVersion      = "2.1.1"
 lazy val pprintVersion            = "0.8.0"
 
@@ -103,7 +103,7 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-prime-styles"          % lucumaPrimeStylesVersion,
         "dev.optics"                        %%% "monocle-core"                 % monocleVersion,
         "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
-        "com.rpiaggio"                      %%% "crystal"                      % crystalVersion,
+        "edu.gemini"                        %%% "crystal"                      % crystalVersion,
         "com.lihaoyi"                       %%% "pprint"                       % pprintVersion,
         "edu.gemini"                        %%% "lucuma-core-testkit"          % lucumaCoreVersion % Test,
         "org.scalameta"                     %%% "munit"                        % "0.7.29"          % Test,
