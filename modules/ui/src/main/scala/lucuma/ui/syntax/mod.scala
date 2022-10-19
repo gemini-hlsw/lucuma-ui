@@ -27,19 +27,19 @@ import scala.scalajs.js.UndefOr
 trait mod:
   // Syntaxis for apply
   extension [P <: js.Object, A](c: GenericFnComponentPC[P, A])
-    inline def apply(children: VdomNode*): A = c.withChildren(children)
+    inline def apply(children:     VdomNode*): A = c.withChildren(children)
 
   extension [P <: js.Object, A](c: GenericFnComponentPA[P, A])
-    inline def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
+    inline def apply(modifiers:    TagMod*): A = c.addModifiers(modifiers)
 
   extension [P <: js.Object, A](c: GenericFnComponentPAC[P, A])
-    inline def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
+    inline def apply(modifiers:    TagMod*): A = c.addModifiers(modifiers)
 
   extension [P <: js.Object, A](c: GenericComponentPAC[P, A])
-    inline def apply(modifiers: TagMod*): A = c.addModifiers(modifiers)
+    inline def apply(modifiers:    TagMod*): A = c.addModifiers(modifiers)
 
   extension [P <: js.Object, A](c: GenericComponentPC[P, A])
-    inline def apply(children: VdomNode*): A = c.withChildren(children)
+    inline def apply(children:     VdomNode*): A = c.withChildren(children)
 
   given propsForwardRef2Component[Props, R, CT[-p, +u] <: CtorType[p, u]]
     : Conversion[ReactRender[Props, CT, ScalaForwardRef.Unmounted[Props, R]], VdomNode] =
