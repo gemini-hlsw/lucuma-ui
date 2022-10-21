@@ -27,13 +27,68 @@
   }
 }
 
-// For styling of buttons in primereact for different "compactness"
+// For styling of buttons in primereact for different "compactness" and "size"
 button.p-component.p-button {
   margin-right: .25em; // this is what the current css does for SUI. Might want to improve.
 
-  // Probably will need to 'specialize' for small and large buttons, and compact vs very compact
-  &.pl-compact,
-  &.pl-very-compact {
-    padding: .4em .5em;
+  &.pl-compact {
+    padding: 0.39285714em;
+  }
+
+  svg.svg-inline--fa {
+    width: 1.5em;
+  }
+
+  .p-button-icon-left {
+    margin-right: 0.2em;
+  }
+
+  .p-button-icon-right {
+    margin-left: 0.2em;
+  }
+
+  // default size is Medium
+  &.pl-mini {
+    font-size: 0.78571429rem;
+  }
+
+  &.pl-tiny {
+    font-size: 0.85714286rem;
+  }
+
+  &.p-button-sm,
+  &.pl-small {
+    font-size: 0.92857143rem;
+  }
+
+  &.p-button-lg,
+  &.pl-large {
+    font-size: 1.14285714rem;
+  }
+
+  // unfortunately, primereact uses `scaling factors` to scala the `lg` and `sm` component. It also 
+  // seems to apply these to padding, which we don't want. Change the scaling factors seemed inappropriate
+  // because it would affect many more componenents, so I had to copy the padding value for the medium button.
+  &.p-button-sm,
+  &.p-button-lg {
+    &:not(.pl-compact) {
+      padding: 0.78571429em;
+    }
+
+    .p-button-icon {
+      font-size: inherit;
+    }
+  }
+
+  &.pl-big {
+    font-size: 1.28571429rem;
+  }
+
+  &.pl-huge {
+    font-size: 1.42857143rem;
+  }
+
+  &.pl-massive {
+    font-size: 1.71428571rem;
   }
 }

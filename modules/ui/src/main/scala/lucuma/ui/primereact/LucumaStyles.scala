@@ -8,8 +8,20 @@ import react.common._
 
 trait LucumaStyles {
 
+  // compact is used for form columns and buttons
   val Compact: Css     = Css("pl-compact")
+  // not used for buttons, at least not at the moment
   val VeryCompact: Css = Css("pl-very-compact")
+
+  // currently used for buttons
+  val Mini: Css    = Css("pl-mini")
+  val Tiny: Css    = Css("pl-tiny")
+  val Small: Css   = Css("pl-small")
+  val Medium: Css  = Css("pl-medium")
+  val Large: Css   = Css("pl-large")
+  val Big: Css     = Css("pl-big")
+  val Huge: Css    = Css("pl-huge")
+  val Massive: Css = Css("pl-massive")
 
   val FormColumn: Css            = Css("pl-form-column")
   val FormColumnCompact: Css     = FormColumn |+| Compact
