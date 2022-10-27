@@ -37,12 +37,12 @@ object ColumnSelector:
           .drop(1)
           .map { column =>
             val colId = column.id
-            DropdownItem()(^.key := colId)(
+            DropdownItem()(^.key := colId.value)(
               <.div(
                 Checkbox(
-                  label = props.columnNames(ColumnId(colId)),
+                  label = props.columnNames(colId),
                   checked = column.getIsVisible(),
-                  onChange = (value: Boolean) => Callback(column.toggleVisibility())
+                  onChange = (value: Boolean) => column.toggleVisibility()
                 )
               )
             )
