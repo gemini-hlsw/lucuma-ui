@@ -4,15 +4,14 @@
 package lucuma.ui.primereact
 
 import cats.syntax.all._
-import eu.timepit.refined.types.string.NonEmptyString
 import crystal.react.View
+import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._
 import react.common.*
 import react.primereact.Checkbox
 
 import scalajs.js
-import reactST.tanstackTableCore.tanstackTableCoreStrings.onChange
 
 final case class CheckboxView(
   id:       NonEmptyString,
