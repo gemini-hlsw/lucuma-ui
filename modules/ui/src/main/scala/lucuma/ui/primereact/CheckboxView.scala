@@ -20,7 +20,7 @@ case class CheckboxView(
   inputId:  js.UndefOr[String] = js.undefined, // id of the input element
   disabled: js.UndefOr[Boolean] = js.undefined,
   clazz:    js.UndefOr[Css] = js.undefined
-) extends ReactFnProps[CheckboxView](CheckboxView.component)
+) extends ReactFnProps(CheckboxView.component)
 
 object CheckboxView {
   private val component = ScalaFnComponent[CheckboxView] { props =>
