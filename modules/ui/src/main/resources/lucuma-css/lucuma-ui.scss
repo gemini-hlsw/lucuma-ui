@@ -1,3 +1,19 @@
+:root {
+  // unfortunately, primereact uses `scaling factors` to scala the `lg` and `sm` components. It also 
+  // seems to apply these to padding, which we don't want. Change the scaling factors seemed inappropriate
+  // because it would affect many more componenents, so I had to copy the padding value for the medium button.
+  --button-padding: 0.78571429em;
+  --compact-button-padding: 0.39285714em;
+
+  --button-mini-font-size: 0.78571429rem;
+  --button-tiny-font-size: 0.85714286rem;
+  --button-small-font-size: 0.92857143rem;
+  --button-large-font-size: 1.14285714rem;
+  --button-big-font-size: 1.28571429rem;
+  --button-huge-font-size: 1.42857143rem;
+  --button-massive-font-size: 1.71428571rem;
+}
+
 // For laying out controls. The "Form*" compoents utilize this, too.
 .pl-form-column {
   display: grid;
@@ -32,7 +48,7 @@ button.p-component.p-button {
   margin-right: .25em; // this is what the current css does for SUI. Might want to improve.
 
   &.pl-compact {
-    padding: 0.39285714em;
+    padding: var(--compact-button-padding);
   }
 
   svg.svg-inline--fa {
@@ -49,30 +65,27 @@ button.p-component.p-button {
 
   // default size is Medium
   &.pl-mini {
-    font-size: 0.78571429rem;
+    font-size: var(--button-mini-font-size);
   }
 
   &.pl-tiny {
-    font-size: 0.85714286rem;
+    font-size: var(--button-tiny-font-size);
   }
 
   &.p-button-sm,
   &.pl-small {
-    font-size: 0.92857143rem;
+    font-size: var(--button-small-font-size);
   }
 
   &.p-button-lg,
   &.pl-large {
-    font-size: 1.14285714rem;
+    font-size: var(--button-large-font-size);
   }
 
-  // unfortunately, primereact uses `scaling factors` to scala the `lg` and `sm` component. It also 
-  // seems to apply these to padding, which we don't want. Change the scaling factors seemed inappropriate
-  // because it would affect many more componenents, so I had to copy the padding value for the medium button.
   &.p-button-sm,
   &.p-button-lg {
     &:not(.pl-compact) {
-      padding: 0.78571429em;
+      padding: var(--button-padding);
     }
 
     .p-button-icon {
@@ -81,14 +94,46 @@ button.p-component.p-button {
   }
 
   &.pl-big {
-    font-size: 1.28571429rem;
+    font-size: var(--button-big-font-siz);
   }
 
   &.pl-huge {
-    font-size: 1.42857143rem;
+    font-size: var(--button-huge-font-size);
   }
 
   &.pl-massive {
-    font-size: 1.71428571rem;
+    font-size: var(--button-massive-font-size);
   }
+}
+
+.pl-checkbox-with-label {
+  display: inline-block;
+
+  label {
+    padding-left: 0.5em;
+  }
+}
+
+.p-component.p-tooltip.p-tooltip-active {
+  &.p-tooltip-right .p-tooltip-arrow {
+    border-right-color: var(--text-color);
+  }
+  
+  &.p-tooltip-left .p-tooltip-arrow {
+    border-left-color: var(--text-color);
+  }
+  
+  &.p-tooltip-top .p-tooltip-arrow {
+    border-top-color: var(--text-color);
+  }
+  
+  &.p-tooltip-bottom .p-tooltip-arrow {
+    border-bottom-color: var(--text-color);
+  }
+  
+  .p-tooltip-text {
+    font-size: smaller;
+    border: 1px solid var(--text-color);
+  }
+
 }
