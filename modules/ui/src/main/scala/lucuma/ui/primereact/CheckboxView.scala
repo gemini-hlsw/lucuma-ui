@@ -13,7 +13,7 @@ import react.primereact.Checkbox
 
 import scalajs.js
 
-final case class CheckboxView(
+case class CheckboxView(
   id:       NonEmptyString,
   value:    View[Boolean],
   label:    String,
