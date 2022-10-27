@@ -3,6 +3,7 @@
 
 package lucuma.ui.table
 
+import cats.syntax.all.*
 import lucuma.react.SizePx
 import lucuma.react.table.ColumnDef
 
@@ -10,30 +11,32 @@ import scalajs.js.JSConverters.*
 
 enum ColumnSize:
   case FixedSize(size: SizePx) extends ColumnSize
-  case Resizeable(initial: SizePx, min: Option[SizePx] = None, max: Option[SizePx] = None)
+  case Resizable(initial: SizePx, min: Option[SizePx] = None, max: Option[SizePx] = None)
       extends ColumnSize
 
 object ColumnSize:
+  object Resizable:
+    def apply(initial: SizePx, min: SizePx, max: SizePx): Resizable =
+      Resizable(initial, min.some, max.some)
+
   extension [T, V](col: ColumnDef.Single[T, V])
-    def withSize(size: ColumnSize): ColumnDef.Single[T, V] = size match
-      case FixedSize(size)               =>
-        col.copy(size = size, enableResizing = false)
-      case Resizeable(initial, min, max) =>
-        col.copy(
-          size = initial,
-          minSize = min.orUndefined,
-          maxSize = max.orUndefined,
-          enableResizing = true
-        )
+    def setColumnSize(size: ColumnSize): ColumnDef.Single[T, V] = size match
+      case FixedSize(size)              =>
+        col.setSize(size).setEnableResizing(false)
+      case Resizable(initial, min, max) =>
+        col
+          .setSize(initial)
+          .setMinSize(min.orUndefined)
+          .setMaxSize(max.orUndefined)
+          .setEnableResizing(true)
 
   extension [T, V](col: ColumnDef.Group[T])
-    def withSize(size: ColumnSize): ColumnDef.Group[T] = size match
-      case FixedSize(size)               =>
-        col.copy(size = size, enableResizing = false)
-      case Resizeable(initial, min, max) =>
-        col.copy(
-          size = initial,
-          minSize = min.orUndefined,
-          maxSize = max.orUndefined,
-          enableResizing = true
-        )
+    def setColumnSize(size: ColumnSize): ColumnDef.Group[T] = size match
+      case FixedSize(size)              =>
+        col.setSize(size).setEnableResizing(false)
+      case Resizable(initial, min, max) =>
+        col
+          .setSize(initial)
+          .setMinSize(min.orUndefined)
+          .setMaxSize(max.orUndefined)
+          .setEnableResizing(true)
