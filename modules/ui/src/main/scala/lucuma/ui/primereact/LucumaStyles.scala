@@ -29,6 +29,8 @@ trait LucumaStyles {
 
   val FormField: Css      = Css("pl-form-field")
   val FormFieldLabel: Css = Css("pl-form-field-label")
+
+  val CheckboxWithLabel: Css = Css("pl-checkbox-with-label")
 }
 
 object LucumaStyles extends LucumaStyles
