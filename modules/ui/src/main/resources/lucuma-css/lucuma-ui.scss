@@ -151,3 +151,34 @@ button.p-component.p-button {
     margin-right: 0;
   }
 }
+
+// fix precedence problem with the Divider
+.p-divider.p-component {
+  &.p-divider-horizontal {
+    &.p-divider-solid:before {
+      border-top-style: solid;
+    }
+
+    &.p-divider-dashed:before {
+      border-top-style: dashed;
+    }
+
+    &.p-divider-dotted:before {
+      border-top-style: dotted
+    }
+  }
+
+  &.p-divider-vertical {
+    &.p-divider-solid:before {
+      border-left-style: solid;
+    }
+
+    &.p-divider-dashed:before {
+      border-left-style: dashed;
+    }
+
+    &.p-divider-dotted:before {
+      border-left-style: dotted
+    }
+  }
+}
