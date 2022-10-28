@@ -14,6 +14,13 @@
   --button-massive-font-size: 1.71428571rem;
 }
 
+.p-component {
+  &.pl-inverted {
+    background: var(--text-color);
+    color: var(--surface-ground);
+  }
+}
+
 // For laying out controls. The "Form*" compoents utilize this, too.
 .pl-form-column {
   display: grid;
@@ -118,19 +125,19 @@ button.p-component.p-button {
   &.p-tooltip-right .p-tooltip-arrow {
     border-right-color: var(--text-color);
   }
-  
+
   &.p-tooltip-left .p-tooltip-arrow {
     border-left-color: var(--text-color);
   }
-  
+
   &.p-tooltip-top .p-tooltip-arrow {
     border-top-color: var(--text-color);
   }
-  
+
   &.p-tooltip-bottom .p-tooltip-arrow {
     border-bottom-color: var(--text-color);
   }
-  
+
   .p-tooltip-text {
     font-size: smaller;
     border: 1px solid var(--text-color);
@@ -138,6 +145,7 @@ button.p-component.p-button {
 }
 
 .p-component.p-dialog {
+
   // if the dialog doesn't have a footer, give the content some bottom padding.
   // Note: Padding was removed from the bottom of the content because the scroll bars
   // extend down to the bottom of the padding - which seemed odd in the prescence of a
@@ -146,6 +154,7 @@ button.p-component.p-button {
   div:last-child.p-dialog-content {
     padding-bottom: 1rem;
   }
+
   // don't have margin for the last button
   .p-dialog-footer .p-button:last-child {
     margin-right: 0;

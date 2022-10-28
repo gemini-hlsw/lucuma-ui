@@ -7,6 +7,7 @@ import cats.syntax.all._
 import react.common._
 
 trait LucumaStyles {
+  val Inverted: Css = Css("pl-inverted")
 
   // compact is used for form columns and buttons
   val Compact: Css     = Css("pl-compact")
