@@ -135,5 +135,19 @@ button.p-component.p-button {
     font-size: smaller;
     border: 1px solid var(--text-color);
   }
+}
 
+.p-component.p-dialog {
+  // if the dialog doesn't have a footer, give the content some bottom padding.
+  // Note: Padding was removed from the bottom of the content because the scroll bars
+  // extend down to the bottom of the padding - which seemed odd in the prescence of a
+  // footer. You can also use an empty div for the footer which probably would look
+  // better with scrolling content.
+  div:last-child.p-dialog-content {
+    padding-bottom: 1rem;
+  }
+  // don't have margin for the last button
+  .p-dialog-footer .p-button:last-child {
+    margin-right: 0;
+  }
 }
