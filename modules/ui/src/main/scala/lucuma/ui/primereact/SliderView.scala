@@ -16,18 +16,19 @@ import scalajs.js
 import scalajs.js.JSConverters.*
 
 case class SliderView(
-  id:       NonEmptyString,
-  value:    View[Double],
-  label:    String,
-  disabled: js.UndefOr[Boolean] = js.undefined,
-  clazz:    js.UndefOr[Css] = js.undefined
+  id:         NonEmptyString,
+  value:      View[Double],
+  label:      String,
+  disabled:   js.UndefOr[Boolean] = js.undefined,
+  clazz:      js.UndefOr[Css] = js.undefined,
+  labelClass: js.UndefOr[Css] = js.undefined
 ) extends ReactFnProps(SliderView.component)
 
 object SliderView {
   private val component = ScalaFnComponent[SliderView] { props =>
     <.div(
       props.clazz.getOrElse(Css.Empty),
-      <.label(^.htmlFor := props.id.value, props.label),
+      <.label(^.htmlFor := props.id.value, props.label, props.labelClass.toOption.orEmpty),
       Slider(id = props.id.value,
              value = props.value.get,
              onChange = props.value.set,
