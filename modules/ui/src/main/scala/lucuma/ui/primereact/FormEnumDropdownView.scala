@@ -26,11 +26,15 @@ final case class FormEnumDropdownView[A](
   filter:          js.UndefOr[Boolean] = js.undefined,
   showFilterClear: js.UndefOr[Boolean] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
-  placeholder:     js.UndefOr[String] = js.undefined
+  placeholder:     js.UndefOr[String] = js.undefined,
+  modifiers:       Seq[TagMod] = Seq.empty
 )(using
   val enumerated:  Enumerated[A],
   val display:     Display[A]
-) extends ReactFnProps[FormEnumDropdownView[Any]](FormEnumDropdownView.component)
+) extends ReactFnProps(FormEnumDropdownView.component):
+  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)     = addModifiers(mods)
+  def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormEnumDropdownView {
   private def buildComponent[A] = ScalaFnComponent[FormEnumDropdownView[A]] { props =>
@@ -45,7 +49,8 @@ object FormEnumDropdownView {
         clazz = LucumaStyles.FormField |+| props.clazz.toOption.orEmpty,
         filter = props.filter,
         showFilterClear = props.showFilterClear,
-        placeholder = props.placeholder
+        placeholder = props.placeholder,
+        modifiers = props.modifiers
       )
     )
   }

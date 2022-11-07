@@ -33,8 +33,12 @@ case class FormInputText(
   tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
   onBlur:           js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
   onChange:         js.UndefOr[ReactEventFromInput => Callback] = js.undefined,
-  onKeyDown:        js.UndefOr[ReactKeyboardEventFromInput => Callback] = js.undefined
-) extends ReactFnProps(FormInputText.component)
+  onKeyDown:        js.UndefOr[ReactKeyboardEventFromInput => Callback] = js.undefined,
+  modifiers:        Seq[TagMod] = Seq.empty
+) extends ReactFnProps(FormInputText.component):
+  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)     = addModifiers(mods)
+  def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormInputText {
   private val component = ScalaFnComponent[FormInputText] { props =>
@@ -55,7 +59,8 @@ object FormInputText {
         placeholder = props.placeholder,
         onBlur = props.onBlur,
         onChange = props.onChange,
-        onKeyDown = props.onKeyDown
+        onKeyDown = props.onKeyDown,
+        modifiers = props.modifiers
       ),
       props.postAddons.zipWithIndex.toVdomArray { (p, i) =>
         val key = s"${props.id.value}-post-add-on-$i"

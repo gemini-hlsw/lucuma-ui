@@ -48,11 +48,15 @@ final case class FormInputTextView[A](
   changeAuditor: ChangeAuditor = ChangeAuditor.accept,
   onTextChange:  String => Callback = _ => Callback.empty,
   onValidChange: FormInputTextView.ChangeCallback[Boolean] = _ => Callback.empty,
-  onBlur:        FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) => Callback.empty
+  onBlur:        FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) =>
+    Callback.empty,
+  modifiers:     Seq[TagMod] = Seq.empty
 )(using val eq:  Eq[A])
-    extends ReactFnProps[FormInputTextView[Any]](FormInputTextView.component) {
+    extends ReactFnProps(FormInputTextView.component):
   def stringValue: String = validFormat.reverseGet(value.get)
-}
+  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)     = addModifiers(mods)
+  def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormInputTextView {
   protected type Props[A]          = FormInputTextView[A]
@@ -212,7 +216,8 @@ object FormInputTextView {
           onChange = onTextChange,
           onKeyDown = onKeyDown,
           placeholder = props.placeholder,
-          value = displayValue.value
+          value = displayValue.value,
+          modifiers = props.modifiers
         )
       }
   }

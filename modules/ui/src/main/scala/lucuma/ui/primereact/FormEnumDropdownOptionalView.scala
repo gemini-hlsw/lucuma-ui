@@ -27,13 +27,15 @@ final case class FormEnumDropdownOptionalView[A](
   filter:          js.UndefOr[Boolean] = js.undefined,
   showFilterClear: js.UndefOr[Boolean] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
-  placeholder:     js.UndefOr[String] = js.undefined
+  placeholder:     js.UndefOr[String] = js.undefined,
+  modifiers:       Seq[TagMod] = Seq.empty
 )(using
   val enumerated:  Enumerated[A],
   val display:     Display[A]
-) extends ReactFnProps[FormEnumDropdownOptionalView[Any]](
-      FormEnumDropdownOptionalView.component
-    )
+) extends ReactFnProps(FormEnumDropdownOptionalView.component):
+  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)     = addModifiers(mods)
+  def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormEnumDropdownOptionalView {
   private def buildComponent[A] = ScalaFnComponent[FormEnumDropdownOptionalView[A]] { props =>
@@ -50,7 +52,8 @@ object FormEnumDropdownOptionalView {
         filter = props.filter,
         showFilterClear = props.showFilterClear,
         disabled = props.disabled,
-        placeholder = props.placeholder
+        placeholder = props.placeholder,
+        modifiers = props.modifiers
       )
     )
   }

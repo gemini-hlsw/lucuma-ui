@@ -8,6 +8,7 @@ import cats.syntax.all.*
 import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.*
@@ -26,11 +27,15 @@ final case class EnumDropdownOptionalView[A](
   filter:          js.UndefOr[Boolean] = js.undefined,
   showFilterClear: js.UndefOr[Boolean] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
-  placeholder:     js.UndefOr[String] = js.undefined
+  placeholder:     js.UndefOr[String] = js.undefined,
+  modifiers:       Seq[TagMod] = Seq.empty
 )(using
   val enumerated:  Enumerated[A],
   val display:     Display[A]
-) extends ReactFnProps[EnumDropdownOptionalView[Any]](EnumDropdownOptionalView.component)
+) extends ReactFnProps[EnumDropdownOptionalView[Any]](EnumDropdownOptionalView.component):
+  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)     = addModifiers(mods)
+  def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object EnumDropdownOptionalView {
   private def buildComponent[A] = ScalaFnComponent[EnumDropdownOptionalView[A]] { props =>
@@ -48,7 +53,8 @@ object EnumDropdownOptionalView {
       showFilterClear = props.showFilterClear,
       placeholder = props.placeholder,
       disabled = props.disabled,
-      onChange = v => props.value.set(v)
+      onChange = v => props.value.set(v),
+      modifiers = props.modifiers
     )
   }
 
