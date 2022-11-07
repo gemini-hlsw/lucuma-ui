@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.55"
+ThisBuild / tlBaseVersion       := "0.56"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"

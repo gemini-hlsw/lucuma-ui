@@ -21,8 +21,12 @@ case class SliderView(
   label:      String,
   disabled:   js.UndefOr[Boolean] = js.undefined,
   clazz:      js.UndefOr[Css] = js.undefined,
-  labelClass: js.UndefOr[Css] = js.undefined
-) extends ReactFnProps(SliderView.component)
+  labelClass: js.UndefOr[Css] = js.undefined,
+  modifiers:  Seq[TagMod] = Seq.empty
+) extends ReactFnProps(SliderView.component):
+  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)     = addModifiers(mods)
+  def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object SliderView {
   private val component = ScalaFnComponent[SliderView] { props =>
@@ -33,7 +37,8 @@ object SliderView {
              value = props.value.get,
              onChange = props.value.set,
              disabled = props.disabled,
-             clazz = props.clazz
+             clazz = props.clazz,
+             modifiers = props.modifiers
       )
     )
   }
