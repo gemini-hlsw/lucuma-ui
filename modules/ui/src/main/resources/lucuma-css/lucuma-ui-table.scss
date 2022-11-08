@@ -87,7 +87,7 @@
   }
 
   // Striped
-  .p-datatable-tbody>tr.row-even {
+  &.pl-striped-table>.p-datatable-tbody>tr.row-even {
     background-color: var(--surface-50);
   }
 
