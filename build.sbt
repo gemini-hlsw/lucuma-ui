@@ -13,7 +13,7 @@ lazy val monocleVersion           = "3.1.0"
 lazy val mouseVersion             = "1.1.0"
 lazy val lucumaPrimeStylesVersion = "0.2.8"
 lazy val lucumaRefinedVersion     = "0.1.0"
-lazy val lucumaReactVersion       = "0.20.0"
+lazy val lucumaReactVersion       = "0.21.0"
 lazy val scalaJsReactVersion      = "2.1.1"
 lazy val pprintVersion            = "0.8.0"
 
