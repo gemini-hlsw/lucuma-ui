@@ -44,7 +44,7 @@ object FormInputText {
   private val component = ScalaFnComponent[FormInputText] { props =>
     val group = <.div(
       PrimeStyles.InputGroup |+| LucumaStyles.FormField |+| props.groupClass.toOption.orEmpty,
-      props.preAddons.toVdomArray(p =>
+      props.preAddons.toTagMod(p =>
         (p: Any) match {
           case b: CButton.Builder => b.build
           case t: TagMod          =>
@@ -62,12 +62,11 @@ object FormInputText {
         onKeyDown = props.onKeyDown,
         modifiers = props.modifiers
       ),
-      props.postAddons.zipWithIndex.toVdomArray { (p, i) =>
-        val key = s"${props.id.value}-post-add-on-$i"
+      props.postAddons.toTagMod { p =>
         (p: Any) match {
-          case b: CButton.Builder => b.withKey(key).build
+          case b: CButton.Builder => b.build
           case t: TagMod          =>
-            <.span(^.key := key, t, Css("p-inputgroup-addon"))
+            <.span(t, Css("p-inputgroup-addon"))
         }
       }
     )
