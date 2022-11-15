@@ -15,11 +15,6 @@ ThisBuild / scalafixDependencies += "edu.gemini"                     %% "clue-ge
 ThisBuild / scalafixScalaBinaryVersion                               := "2.13"
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
-val schemasDependencies = List(
-  "org.scalameta" %% "munit"               % munitVersion           % Test,
-  "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectVersion % Test
-)
-
 lazy val root = tlCrossRootProject.aggregate(lucumaSchemas)
 
 val templates =
@@ -40,11 +35,12 @@ val lucumaSchemas =
     .settings(
       moduleName := "lucuma-schemas",
       libraryDependencies ++= Seq(
-        "edu.gemini"    %% "clue-core"   % clueVersion,
-        "edu.gemini"    %% "lucuma-core" % lucumaCoreVersion,
-        "org.typelevel" %% "kittens"     % kittensVersion
+        "edu.gemini"    %%% "clue-core"           % clueVersion,
+        "edu.gemini"    %%% "lucuma-core"         % lucumaCoreVersion,
+        "org.typelevel" %%% "kittens"             % kittensVersion,
+        "org.scalameta" %%% "munit"               % munitVersion           % Test,
+        "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffectVersion % Test
       ),
-      libraryDependencies ++= schemasDependencies,
       Compile / sourceGenerators += Def.taskDyn {
         val root    = (ThisBuild / baseDirectory).value.toURI.toString
         val from    = (templates / Compile / sourceDirectory).value
