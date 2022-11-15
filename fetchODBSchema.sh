@@ -2,4 +2,5 @@
 
 # gq https://lucuma-odb-development.herokuapp.com/odb --introspect >templates/src/main/resources/lucuma/schemas/ObservationDB.graphql
 # gq http://localhost:8083/odb --introspect >templates/src/main/resources/lucuma/schemas/ObservationDB.graphql
-gq https://lucuma-odb-master.herokuapp.com/odb --introspect >templates/src/main/resources/lucuma/schemas/ObservationDB.graphql
+# gq https://lucuma-odb-master.herokuapp.com/odb --introspect >templates/src/main/resources/lucuma/schemas/ObservationDB.graphql
+gq http://172.28.98.72:8082/odb -H 'Authorization: Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJpc3MiOiJsdWN1bWEtc3NvIiwic3ViIjoiMTIzMCIsImF1ZCI6Imx1Y3VtYSIsImV4cCI6MjI3NDAyMjg5OCwibmJmIjoxNjQzMzAyODk4LCJpYXQiOjE2NDMzMDI4OTgsCiAgImx1Y3VtYS11c2VyIiA6IHsKICAgICJ0eXBlIiA6ICJzZXJ2aWNlIiwKICAgICJpZCIgOiAidS00Y2UiLAogICAgIm5hbWUiIDogInRlc3Qtc2VydmljZSIKICB9Cn0.SyEjk7XvfItVNGG_erPvM_wShFONnFEGryGU5FqvPGfMPfeuE2CotikzTNZMzUG9ZoT6lsMtDkiVWcQ3ctO7fn__eBbpTmB7GWG0mChbe7hIctHgWoJttgkTC5Kuz0InyPlXKS_-X1MhXuWtCn3tAPBU4VVIQpiP5skCn94fv_AE37BjvTNhuQX2cRl1oLI1-lD6_DcJSxC9qUjDwoN3EGXVKmeqOY8pjYhH9fxQNaBXebD0nMmNu-XZHOcGyJ-yOweFtE1RgpaSw2vylmDig-QoykDEZVvE76RkIPuAoTzNiS2O5iO30_Yfh3rgqExZoNnOK1jKFf-ViFDxH_sEkQ' --introspect >templates/src/main/resources/lucuma/schemas/ObservationDB.graphql
