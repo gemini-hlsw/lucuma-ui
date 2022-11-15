@@ -4,6 +4,7 @@
 package lucuma.schemas.decoders
 
 import cats.effect._
+import fs2.io.file._
 import io.circe.Decoder
 import io.circe.Json
 import io.circe.parser._
@@ -14,22 +15,12 @@ import java.io.FileInputStream
 import java.nio.file.Paths
 
 trait InputStreamSuite extends CatsEffectSuite {
-  def inputStream(f: File): Resource[IO, FileInputStream] =
-    Resource.make {
-      IO.blocking(new FileInputStream(f)) // build
-    } { inStream =>
-      IO.blocking(inStream.close()).handleErrorWith(_ => IO.unit) // release
-    }
 
   def jsonResult(jsonFile: String): IO[Json] = {
-    val url  = getClass.getResource(jsonFile)
-    val file = Paths.get(url.toURI).toFile
+    val path = Path(s"lucuma-schemas/src/test/resources") / jsonFile
 
-    inputStream(file).use { inStream =>
-      for {
-        str  <- IO.blocking(scala.io.Source.fromInputStream(inStream).mkString)
-        json <- IO.fromEither(parse(str))
-      } yield json
+    Files[IO].readUtf8(path).compile.string.flatMap { str =>
+      IO.fromEither(parse(str))
     }
   }
 
