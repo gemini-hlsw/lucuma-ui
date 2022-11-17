@@ -1506,6 +1506,7 @@ type ConstraintSet {
 type ConstraintSetGroup {
   observationIds: [ObservationId!]!
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
+  programId: ProgramId!
   constraintSet: ConstraintSet!
 }
 
@@ -2268,7 +2269,7 @@ type Query {
   executionEvents(WHERE: WhereExecutionEvent, OFFSET: ExecutionEventId, LIMIT: NonNegInt): ExecutionEventSelectResult!
   filterTypeMeta: [FilterTypeMeta!]!
   observation(observationId: ObservationId!): Observation
-  observations(WHERE: WhereObservation, OFFSET: ObservationId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ObservationSelectResult!
+  observations(programId: ProgramId, WHERE: WhereObservation, OFFSET: ObservationId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ObservationSelectResult!
   partnerMeta: [PartnerMeta!]!
   program(programId: ProgramId!): Program
   programs(WHERE: WhereProgram, OFFSET: ProgramId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ProgramSelectResult!
