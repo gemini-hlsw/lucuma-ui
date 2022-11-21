@@ -16,6 +16,14 @@ pull_request_rules:
   - status-success=Build and Test (ubuntu-latest, 3.2.1-RC4, temurin@17)
   actions:
     merge: {}
+- name: Label css PRs
+  conditions:
+  - files~=^modules/css/
+  actions:
+    label:
+      add:
+      - css
+      remove: []
 - name: Label demo PRs
   conditions:
   - files~=^modules/demo/

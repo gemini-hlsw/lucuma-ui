@@ -110,3 +110,41 @@ lazy val ui =
         "org.typelevel"                     %%% "discipline-munit"             % "1.0.9"           % Test
       )
     )
+
+// for publishing CSS to npm
+lazy val npmPublish = taskKey[Unit]("Run npm publish")
+lazy val css        = project
+  .in(file("modules/css"))
+  .dependsOn(ui)
+  .enablePlugins(LucumaCssPlugin, NoPublishPlugin)
+  .settings(
+    npmPublish := {
+      import scala.sys.process._
+      val _      = (Compile / lucumaCss).value
+      val cssDir = target.value / "lucuma-css"
+      IO.write(
+        cssDir / "package.json",
+        s"""|{
+            |  "name": "lucuma-ui-css",
+            |  "version": "${version.value}"
+            |}
+            |""".stripMargin
+      )
+      Process(List("npm", "publish"), cssDir).!
+    }
+  )
+
+ThisBuild / githubWorkflowPublishPreamble +=
+  WorkflowStep.Use(
+    UseRef.Public("actions", "setup-node", "v3"),
+    Map(
+      "node-version" -> "18"
+    )
+  )
+
+ThisBuild / githubWorkflowPublish ++= Seq(
+  WorkflowStep.Sbt(List("css/npmPublish"),
+                   name = Some("NPM Publish"),
+                   env = Map("NODE_AUTH_TOKEN" -> s"$${{ secrets.NPM_REPO_TOKEN }}")
+  )
+)
