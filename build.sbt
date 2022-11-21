@@ -131,7 +131,7 @@ lazy val css        = project
             |}
             |""".stripMargin
       )
-      Process(List("npm", "publish"), cssDir).!
+      Process(List("npm", "publish"), cssDir).!!
     }
   )
 
@@ -139,7 +139,8 @@ ThisBuild / githubWorkflowPublishPreamble +=
   WorkflowStep.Use(
     UseRef.Public("actions", "setup-node", "v3"),
     Map(
-      "node-version" -> "18"
+      "node-version" -> "18",
+      "registry-url" -> "https://registry.npmjs.org"
     )
   )
 
