@@ -126,7 +126,8 @@ lazy val css        = project
         cssDir / "package.json",
         s"""|{
             |  "name": "lucuma-ui-css",
-            |  "version": "${version.value}"
+            |  "version": "${version.value}",
+            |  "license": "${licenses.value.head._1}"
             |}
             |""".stripMargin
       )
