@@ -131,7 +131,7 @@ lazy val css        = project
             |}
             |""".stripMargin
       )
-      Process(List("npm", "publish"), cssDir).!
+      Process(List("npm", "publish"), cssDir).!!
     }
   )
 
