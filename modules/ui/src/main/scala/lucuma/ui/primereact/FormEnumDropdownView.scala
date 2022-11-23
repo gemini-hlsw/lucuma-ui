@@ -49,6 +49,7 @@ object FormEnumDropdownView {
         clazz = LucumaStyles.FormField |+| props.clazz.toOption.orEmpty,
         filter = props.filter,
         showFilterClear = props.showFilterClear,
+        disabled = props.disabled,
         placeholder = props.placeholder,
         modifiers = props.modifiers
       )

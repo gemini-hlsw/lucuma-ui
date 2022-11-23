@@ -43,6 +43,12 @@
   }
 }
 
+// Make the dropdown size match the input, and the input group addons, too
+.p-component.p-dropdown .p-dropdown-label.p-inputtext,
+.p-inputgroup .p-inputgroup-addon {
+  line-height: 1.15;
+}
+
 // For styling of buttons in primereact for different "compactness" and "size"
 button.p-component.p-button {
   margin-right: .25em; // this is what the current css does for SUI. Might want to improve.
