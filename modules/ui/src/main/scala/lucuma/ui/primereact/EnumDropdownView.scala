@@ -3,22 +3,22 @@
 
 package lucuma.ui.primereact
 
-import crystal.react.View
+import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.*
-import react.primereact.Dropdown
+import react.primereact.DropdownOptional
 import react.primereact.SelectItem
 
 import scalajs.js
 import scalajs.js.JSConverters.*
 
-final case class EnumDropdownView[A](
+final case class EnumDropdownView[V[_], A](
   id:              NonEmptyString,
-  value:           View[A],
+  value:           V[A],
   exclude:         Set[A] = Set.empty[A],
   clazz:           js.UndefOr[Css] = js.undefined,
   filter:          js.UndefOr[Boolean] = js.undefined,
@@ -28,17 +28,20 @@ final case class EnumDropdownView[A](
   modifiers:       Seq[TagMod] = Seq.empty
 )(using
   val enumerated:  Enumerated[A],
-  val display:     Display[A]
-) extends ReactFnProps[EnumDropdownView[Any]](EnumDropdownView.component):
+  val display:     Display[A],
+  val vl:          ViewLike[V]
+) extends ReactFnProps(EnumDropdownView.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)     = addModifiers(mods)
   def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object EnumDropdownView {
-  private def buildComponent[A] = ScalaFnComponent[EnumDropdownView[A]] { props =>
+  private type AnyF[_] = Any
+
+  private def buildComponent[V[_], A] = ScalaFnComponent[EnumDropdownView[V, A]] { props =>
     import props.given
 
-    Dropdown(
+    DropdownOptional(
       value = props.value.get,
       options = props.enumerated.all
         .filter(v => !props.exclude.contains(v))
@@ -49,10 +52,10 @@ object EnumDropdownView {
       showFilterClear = props.showFilterClear,
       disabled = props.disabled,
       placeholder = props.placeholder,
-      onChange = v => props.value.set(v),
+      onChange = v => props.value.set(v.get),
       modifiers = props.modifiers
     )
   }
 
-  private val component = buildComponent[Any]
+  private val component = buildComponent[AnyF, Any]
 }

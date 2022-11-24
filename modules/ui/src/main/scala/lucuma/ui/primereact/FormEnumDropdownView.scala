@@ -4,7 +4,6 @@
 package lucuma.ui.primereact
 
 import cats.syntax.all.*
-import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
@@ -12,14 +11,13 @@ import lucuma.core.enums.Half.A
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.*
-import reactST.primereact.selectitemMod.SelectItem
 
 import scalajs.js
 import scalajs.js.JSConverters.*
 
-final case class FormEnumDropdownView[A](
+final case class FormEnumDropdownView[V[_], A](
   id:              NonEmptyString,
-  value:           View[A],
+  value:           V[A],
   label:           js.UndefOr[String] = js.undefined,
   exclude:         Set[A] = Set.empty[A],
   clazz:           js.UndefOr[Css] = js.undefined,
@@ -30,14 +28,17 @@ final case class FormEnumDropdownView[A](
   modifiers:       Seq[TagMod] = Seq.empty
 )(using
   val enumerated:  Enumerated[A],
-  val display:     Display[A]
+  val display:     Display[A],
+  val vl:          ViewLike[V]
 ) extends ReactFnProps(FormEnumDropdownView.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)     = addModifiers(mods)
   def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormEnumDropdownView {
-  private def buildComponent[A] = ScalaFnComponent[FormEnumDropdownView[A]] { props =>
+  private type AnyF[_] = Any
+
+  private def buildComponent[V[_], A] = ScalaFnComponent[FormEnumDropdownView[V, A]] { props =>
     import props.given
 
     React.Fragment(
@@ -56,5 +57,5 @@ object FormEnumDropdownView {
     )
   }
 
-  private val component = buildComponent[Any]
+  private val component = buildComponent[AnyF, Any]
 }

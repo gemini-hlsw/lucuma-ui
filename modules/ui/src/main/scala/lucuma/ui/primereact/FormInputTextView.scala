@@ -6,7 +6,6 @@ package lucuma.ui.primereact
 import cats.*
 import cats.data.NonEmptyChain
 import cats.syntax.all.*
-import crystal.react.View
 import eu.timepit.refined.cats.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
@@ -33,7 +32,7 @@ import scalajs.js.JSConverters._
 /**
  * FormInput component that uses a crystal View to share the content of the field
  */
-final case class FormInputTextView[A](
+final case class FormInputTextView[V[_], A](
   id:            NonEmptyString,
   label:         js.UndefOr[TagMod] = js.undefined,
   preAddons:     List[TagMod | CButton.Builder] = List.empty,
@@ -43,7 +42,7 @@ final case class FormInputTextView[A](
   disabled:      js.UndefOr[Boolean] = js.undefined,
   error:         js.UndefOr[NonEmptyString] = js.undefined,
   placeholder:   js.UndefOr[String] = js.undefined,
-  value:         View[A],
+  value:         V[A],
   validFormat:   InputValidFormat[A] = InputValidSplitEpi.id,
   changeAuditor: ChangeAuditor = ChangeAuditor.accept,
   onTextChange:  String => Callback = _ => Callback.empty,
@@ -51,22 +50,24 @@ final case class FormInputTextView[A](
   onBlur:        FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) =>
     Callback.empty,
   modifiers:     Seq[TagMod] = Seq.empty
-)(using val eq:  Eq[A])
+)(using val eq:  Eq[A], val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextView.component):
-  def stringValue: String = validFormat.reverseGet(value.get)
+  def stringValue: String = value.get.foldMap(validFormat.reverseGet)
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)     = addModifiers(mods)
   def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormInputTextView {
-  protected type Props[A]          = FormInputTextView[A]
+  type AnyF[_] = Any
+
+  protected type Props[V[_], A]    = FormInputTextView[V, A]
   protected type ChangeCallback[A] = A => Callback
 
   // queries the dom based on id. Onus is on user to make id's unique.
   private def getInputElement(id: NonEmptyString): CallbackTo[Option[html.Input]] =
     CallbackTo(Option(document.querySelector(s"#${id.value}").asInstanceOf[html.Input]))
 
-  protected def buildComponent[A] = {
+  protected def buildComponent[V[_], A] = {
     def audit(
       auditor:         ChangeAuditor,
       value:           String,
@@ -114,7 +115,7 @@ object FormInputTextView {
     }
 
     ScalaFnComponent
-      .withHooks[Props[A]]
+      .withHooks[Props[V, A]]
       .useStateBy(props => props.stringValue)        // displayValue
       .useState(none[(Int, Int)])                    // cursor
       .useRef(0)                                     // lastKeyCode
@@ -144,6 +145,8 @@ object FormInputTextView {
         } yield Callback(i.setSelectionRange(c._1, c._2))).orEmpty
       )
       .render { (props, displayValue, cursor, lastKeyCode, inputElement, errors) =>
+        import props.given
+
         val errorChain: Option[NonEmptyChain[NonEmptyString]] =
           (props.error.toOption, errors.value) match {
             case (Some(a), Some(b)) => (a +: b).some
@@ -181,10 +184,8 @@ object FormInputTextView {
             { validated =>
               val validatedCB = validated match {
                 case Right(a) =>
-                  implicit val eq = props.eq
-
                   // Only set if resulting A changed.
-                  if (props.value.get =!= a)
+                  if (props.value.get.exists(_ =!= a))
                     props.value.set(a)
                   else // A didn't change, but redisplay formatted string.
                     displayValue.setState(props.stringValue)
@@ -222,5 +223,5 @@ object FormInputTextView {
       }
   }
 
-  protected val component = buildComponent[Any]
+  protected val component = buildComponent[AnyF, Any]
 }

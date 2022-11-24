@@ -4,7 +4,6 @@
 package lucuma.ui.primereact
 
 import cats.syntax.all._
-import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._
@@ -13,26 +12,31 @@ import react.primereact.Checkbox
 
 import scalajs.js
 
-case class CheckboxView(
-  id:        NonEmptyString,
-  value:     View[Boolean],
-  label:     String,
-  inputId:   js.UndefOr[String] = js.undefined, // id of the input element
-  disabled:  js.UndefOr[Boolean] = js.undefined,
-  clazz:     js.UndefOr[Css] = js.undefined,
-  modifiers: Seq[TagMod] = Seq.empty
-) extends ReactFnProps(CheckboxView.component):
+case class CheckboxView[V[_]](
+  id:           NonEmptyString,
+  value:        V[Boolean],
+  label:        String,
+  inputId:      js.UndefOr[String] = js.undefined, // id of the input element
+  disabled:     js.UndefOr[Boolean] = js.undefined,
+  clazz:        js.UndefOr[Css] = js.undefined,
+  modifiers:    Seq[TagMod] = Seq.empty
+)(using val vl: ViewLike[V])
+    extends ReactFnProps(CheckboxView.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)     = addModifiers(mods)
   def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object CheckboxView {
-  private val component = ScalaFnComponent[CheckboxView] { props =>
+  private type AnyF[_] = Any
+
+  private def buildComponent[V[_]] = ScalaFnComponent[CheckboxView[V]] { props =>
+    import props.given
+
     <.div(
       LucumaStyles.CheckboxWithLabel,
       Checkbox(
         id = props.id.value,
-        checked = props.value.get,
+        checked = props.value.get.exists(identity),
         onChange = props.value.set,
         inputId = props.inputId,
         disabled = props.disabled,
@@ -42,4 +46,6 @@ object CheckboxView {
       <.label(^.htmlFor := props.id.value, props.label)
     )
   }
+
+  private val component = buildComponent[AnyF]
 }
