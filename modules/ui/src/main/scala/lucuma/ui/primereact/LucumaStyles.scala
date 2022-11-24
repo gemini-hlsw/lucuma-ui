@@ -30,7 +30,8 @@ trait LucumaStyles {
   val FormField: Css      = Css("pl-form-field")
   val FormFieldLabel: Css = Css("pl-form-field-label")
 
-  val CheckboxWithLabel: Css = Css("pl-checkbox-with-label")
+  val CheckboxWithLabel: Css    = Css("pl-checkbox-with-label")
+  val RadioButtonWithLabel: Css = Css("pl-radiobutton-with-label")
 }
 
 object LucumaStyles extends LucumaStyles
