@@ -47,6 +47,7 @@ final case class FormInputTextView[V[_], A](
   changeAuditor: ChangeAuditor = ChangeAuditor.accept,
   onTextChange:  String => Callback = _ => Callback.empty,
   onValidChange: FormInputTextView.ChangeCallback[Boolean] = _ => Callback.empty,
+  onFocus:       js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
   onBlur:        FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) =>
     Callback.empty,
   modifiers:     Seq[TagMod] = Seq.empty
@@ -213,6 +214,7 @@ object FormInputTextView {
           disabled = props.disabled,
           preAddons = props.preAddons,
           postAddons = props.postAddons,
+          onFocus = props.onFocus,
           onBlur = _ => submit,
           onChange = onTextChange,
           onKeyDown = onKeyDown,
