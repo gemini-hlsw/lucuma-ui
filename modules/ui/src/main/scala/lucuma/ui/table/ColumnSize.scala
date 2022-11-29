@@ -9,10 +9,15 @@ import lucuma.react.table.ColumnDef
 
 import scalajs.js.JSConverters.*
 
-enum ColumnSize:
-  case FixedSize(size: SizePx) extends ColumnSize
-  case Resizable(initial: SizePx, min: Option[SizePx] = None, max: Option[SizePx] = None)
-      extends ColumnSize
+enum ColumnSize(
+  val initial:      SizePx,
+  val minSize:      Option[SizePx] = None,
+  val maxSize:      Option[SizePx] = None,
+  val enableResize: Boolean
+):
+  case FixedSize(size: SizePx) extends ColumnSize(size, size.some, size.some, false)
+  case Resizable(size: SizePx, min: Option[SizePx] = None, max: Option[SizePx] = None)
+      extends ColumnSize(size, min, max, true)
 
 object ColumnSize:
   object Resizable:
@@ -20,23 +25,17 @@ object ColumnSize:
       Resizable(initial, min.some, max.some)
 
   extension [T, V](col: ColumnDef.Single[T, V])
-    def setColumnSize(size: ColumnSize): ColumnDef.Single[T, V] = size match
-      case FixedSize(size)              =>
-        col.setSize(size).setEnableResizing(false)
-      case Resizable(initial, min, max) =>
-        col
-          .setSize(initial)
-          .setMinSize(min.orUndefined)
-          .setMaxSize(max.orUndefined)
-          .setEnableResizing(true)
+    def setColumnSize(size: ColumnSize): ColumnDef.Single[T, V] =
+      col
+        .setSize(size.initial)
+        .setMinSize(size.minSize.orUndefined)
+        .setMaxSize(size.maxSize.orUndefined)
+        .setEnableResizing(size.enableResize)
 
   extension [T, V](col: ColumnDef.Group[T])
-    def setColumnSize(size: ColumnSize): ColumnDef.Group[T] = size match
-      case FixedSize(size)              =>
-        col.setSize(size).setEnableResizing(false)
-      case Resizable(initial, min, max) =>
-        col
-          .setSize(initial)
-          .setMinSize(min.orUndefined)
-          .setMaxSize(max.orUndefined)
-          .setEnableResizing(true)
+    def setColumnSize(size: ColumnSize): ColumnDef.Group[T] =
+      col
+        .setSize(size.initial)
+        .setMinSize(size.minSize.orUndefined)
+        .setMaxSize(size.maxSize.orUndefined)
+        .setEnableResizing(size.enableResize)
