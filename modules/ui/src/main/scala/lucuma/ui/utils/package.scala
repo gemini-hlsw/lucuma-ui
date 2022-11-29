@@ -42,7 +42,7 @@ val versionDateFormatter: DateTimeFormatter =
 val versionDateTimeFormatter: DateTimeFormatter =
   DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").withZone(ZoneId.from(ZoneOffset.UTC))
 
-extension [A, B, C, D](list: List[(A, B, C, D)]) // TODO Move to utils
+extension [A, B, C, D](list: List[(A, B, C, D)])
   def unzip4: (List[A], List[B], List[C], List[D]) =
     list.foldRight((List.empty[A], List.empty[B], List.empty[C], List.empty[D]))((tuple, accum) =>
       (tuple._1 :: accum._1, tuple._2 :: accum._2, tuple._3 :: accum._3, tuple._4 :: accum._4)
