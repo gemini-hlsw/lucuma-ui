@@ -4,22 +4,22 @@
 package lucuma.ui.utils
 
 import cats.Monad
-import cats.syntax.all.*
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import crystal.ViewF
-import coulomb.Quantity
-import scala.annotation.targetName
-import monocle.function.Index.index
-import monocle.function.At.at
-import lucuma.core.util.Enumerated
 import cats.data.NonEmptyList
-import lucuma.core.optics.*
+import cats.syntax.all.*
+import coulomb.Quantity
 import crystal.ViewF
 import crystal.ViewOptF
 import crystal.react.ReuseViewOptF
 import crystal.react.reuse.*
+import lucuma.core.optics.*
+import lucuma.core.util.Enumerated
+import monocle.function.At.at
+import monocle.function.Index.index
+
+import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import scala.annotation.targetName
 
 def abbreviate(s: String, maxLength: Int): String =
   if (s.length > maxLength) s"${s.substring(0, maxLength)}\u2026" else s

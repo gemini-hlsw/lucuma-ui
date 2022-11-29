@@ -3,10 +3,10 @@
 
 package lucuma.ui.utils
 
-import japgolly.scalajs.react.*
-import japgolly.scalajs.react.vdom.*
-import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
 import eu.timepit.refined.api.Refined
+import japgolly.scalajs.react.*
+import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
+import japgolly.scalajs.react.vdom.*
 
 def linkOverride(f: => DefaultS[Unit]): ReactMouseEvent => Callback =
   e => {
