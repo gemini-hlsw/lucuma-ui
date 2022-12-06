@@ -25,6 +25,8 @@ import lucuma.core.model.sequence.StepConfig
 import lucuma.schemas.model.*
 
 import java.time.Instant
+import lucuma.core.enums.Instrument
+import io.circe.DecodingFailure
 
 trait VisitDecoders:
   given Decoder[DatasetEvent] = Decoder.instance(c =>
@@ -171,3 +173,15 @@ trait VisitDecoders:
       Decoder[Visit.GmosNorth].widen,
       Decoder[Visit.GmosSouth].widen
     ).reduceLeft(_ or _)
+
+  given decoderExecutionVisitsGmosNorth: Decoder[ExecutionVisits.GmosNorth] = semiauto.deriveDecoder
+
+  given decoderExecutionVisitsGmosSouth: Decoder[ExecutionVisits.GmosSouth] = semiauto.deriveDecoder
+
+  given Decoder[ExecutionVisits] = Decoder.instance(c =>
+    c.downField("instrument").as[Instrument].flatMap {
+      case Instrument.GmosNorth => c.as[ExecutionVisits.GmosNorth]
+      case Instrument.GmosSouth => c.as[ExecutionVisits.GmosSouth]
+      case _                    => DecodingFailure("Only Gmos supported", c.history).asLeft
+    }
+  )
