@@ -7,11 +7,13 @@ import cats.syntax.all.*
 import eu.timepit.refined.types.numeric.PosInt
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
+import io.circe.DecodingFailure
 import io.circe.HCursor
 import io.circe.generic.semiauto
 import io.circe.refined.given
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.DatasetStage
+import lucuma.core.enums.Instrument
 import lucuma.core.enums.SequenceCommand
 import lucuma.core.enums.SequenceType
 import lucuma.core.enums.StepQaState
@@ -25,8 +27,6 @@ import lucuma.core.model.sequence.StepConfig
 import lucuma.schemas.model.*
 
 import java.time.Instant
-import lucuma.core.enums.Instrument
-import io.circe.DecodingFailure
 
 trait VisitDecoders:
   given Decoder[DatasetEvent] = Decoder.instance(c =>
