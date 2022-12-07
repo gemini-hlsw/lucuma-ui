@@ -7,11 +7,13 @@ import cats.syntax.all.*
 import eu.timepit.refined.types.numeric.PosInt
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
+import io.circe.DecodingFailure
 import io.circe.HCursor
 import io.circe.generic.semiauto
 import io.circe.refined.given
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.DatasetStage
+import lucuma.core.enums.Instrument
 import lucuma.core.enums.SequenceCommand
 import lucuma.core.enums.SequenceType
 import lucuma.core.enums.StepQaState
@@ -171,3 +173,15 @@ trait VisitDecoders:
       Decoder[Visit.GmosNorth].widen,
       Decoder[Visit.GmosSouth].widen
     ).reduceLeft(_ or _)
+
+  given decoderExecutionVisitsGmosNorth: Decoder[ExecutionVisits.GmosNorth] = semiauto.deriveDecoder
+
+  given decoderExecutionVisitsGmosSouth: Decoder[ExecutionVisits.GmosSouth] = semiauto.deriveDecoder
+
+  given Decoder[ExecutionVisits] = Decoder.instance(c =>
+    c.downField("instrument").as[Instrument].flatMap {
+      case Instrument.GmosNorth => c.as[ExecutionVisits.GmosNorth]
+      case Instrument.GmosSouth => c.as[ExecutionVisits.GmosSouth]
+      case _                    => DecodingFailure("Only Gmos supported", c.history).asLeft
+    }
+  )

@@ -16,16 +16,21 @@ import org.typelevel.cats.time.given
 
 import java.time.Instant
 
-sealed trait StepRecord derives Eq {
+sealed trait StepRecord derives Eq:
+  def id: Step.Id
   def created: Instant
+  def startTime: Option[Instant]
+  def endTime: Option[Instant]
+  def duration: Option[NonNegDuration]
+  def instrumentConfig: DynamicConfig
   def stepConfig: StepConfig
   def stepEvents: List[StepEvent]
-  def startTime: Option[Instant]
-  def duration: Option[NonNegDuration]
-}
+  def stepQaState: Option[StepQaState]
+  def datasetEvents: List[DatasetEvent]
+  def datasets: List[Dataset]
 
-object StepRecord {
-  final case class GmosNorth protected[schemas] (
+object StepRecord:
+  case class GmosNorth protected[schemas] (
     id:               Step.Id,
     created:          Instant,
     startTime:        Option[Instant],
@@ -40,7 +45,7 @@ object StepRecord {
   ) extends StepRecord
       derives Eq
 
-  final case class GmosSouth protected[schemas] (
+  case class GmosSouth protected[schemas] (
     id:               Step.Id,
     created:          Instant,
     startTime:        Option[Instant],
@@ -54,4 +59,3 @@ object StepRecord {
     datasets:         List[Dataset]
   ) extends StepRecord
       derives Eq
-}
