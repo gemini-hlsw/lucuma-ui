@@ -36,90 +36,93 @@ trait PrimeTableProps[T] extends HTMLTableProps[T]:
         .orEmpty
 
 case class PrimeTable[T](
-  table:         Table[T],
-  hoverableRows: Boolean = true,
-  striped:       Boolean = false,
-  celled:        Boolean = false,
-  compact:       js.UndefOr[Compact] = js.undefined,
-  tableMod:      TagMod = TagMod.empty,
-  headerMod:     TagMod = TagMod.empty,
-  headerRowMod:  raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
+  table:              Table[T],
+  hoverableRows:      Boolean = true,
+  striped:            Boolean = false,
+  celled:             Boolean = false,
+  compact:            js.UndefOr[Compact] = js.undefined,
+  tableMod:           TagMod = TagMod.empty,
+  headerMod:          TagMod = TagMod.empty,
+  headerRowMod:       raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
     TagMod.empty,
-  headerCellMod: raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
-  bodyMod:       TagMod = TagMod.empty,
-  rowMod:        raw.mod.Row[T] => TagMod = (_: raw.mod.Row[T]) => TagMod.empty,
-  cellMod:       raw.mod.Cell[T, Any] => TagMod = (_: raw.mod.Cell[T, Any]) => TagMod.empty,
-  footerMod:     TagMod = TagMod.empty,
-  footerRowMod:  raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
+  headerCellMod:      raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
+  bodyMod:            TagMod = TagMod.empty,
+  rowMod:             raw.mod.Row[T] => TagMod = (_: raw.mod.Row[T]) => TagMod.empty,
+  cellMod:            raw.mod.Cell[T, Any] => TagMod = (_: raw.mod.Cell[T, Any]) => TagMod.empty,
+  footerMod:          TagMod = TagMod.empty,
+  footerRowMod:       raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
     TagMod.empty,
-  footerCellMod: raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
-  emptyMessage:  VdomNode = EmptyVdom
+  footerCellMod:      raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
+  emptyMessage:       VdomNode = EmptyVdom,
+  renderSubComponent: raw.mod.Row[T] => Option[VdomNode] = (_: raw.mod.Row[T]) => none
 ) extends ReactFnProps(PrimeTable.component)
     with PrimeTableProps[T]
 
 case class PrimeVirtualizedTable[T](
-  table:            Table[T],
-  estimateSize:     Int => SizePx,
+  table:              Table[T],
+  estimateSize:       Int => SizePx,
   // Table options
-  hoverableRows:    Boolean = true,
-  striped:          Boolean = false,
-  celled:           Boolean = false,
-  compact:          js.UndefOr[Compact] = js.undefined,
-  containerMod:     TagMod = TagMod.empty,
-  containerRef:     js.UndefOr[Ref.Simple[HTMLDivElement]] = js.undefined,
-  tableMod:         TagMod = TagMod.empty,
-  headerMod:        TagMod = TagMod.empty,
-  headerRowMod:     raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
+  hoverableRows:      Boolean = true,
+  striped:            Boolean = false,
+  celled:             Boolean = false,
+  compact:            js.UndefOr[Compact] = js.undefined,
+  containerMod:       TagMod = TagMod.empty,
+  containerRef:       js.UndefOr[Ref.Simple[HTMLDivElement]] = js.undefined,
+  tableMod:           TagMod = TagMod.empty,
+  headerMod:          TagMod = TagMod.empty,
+  headerRowMod:       raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
     TagMod.empty,
-  headerCellMod:    raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
-  bodyMod:          TagMod = TagMod.empty,
-  rowMod:           raw.mod.Row[T] => TagMod = (_: raw.mod.Row[T]) => TagMod.empty,
-  cellMod:          raw.mod.Cell[T, Any] => TagMod = (_: raw.mod.Cell[T, Any]) => TagMod.empty,
-  footerMod:        TagMod = TagMod.empty,
-  footerRowMod:     raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
+  headerCellMod:      raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
+  bodyMod:            TagMod = TagMod.empty,
+  rowMod:             raw.mod.Row[T] => TagMod = (_: raw.mod.Row[T]) => TagMod.empty,
+  cellMod:            raw.mod.Cell[T, Any] => TagMod = (_: raw.mod.Cell[T, Any]) => TagMod.empty,
+  footerMod:          TagMod = TagMod.empty,
+  footerRowMod:       raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
     TagMod.empty,
-  footerCellMod:    raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
-  emptyMessage:     VdomNode = EmptyVdom,
+  footerCellMod:      raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
+  emptyMessage:       VdomNode = EmptyVdom,
+  renderSubComponent: raw.mod.Row[T] => Option[VdomNode] = (_: raw.mod.Row[T]) => none,
   // Virtual options
-  overscan:         js.UndefOr[Int] = js.undefined,
-  getItemKey:       js.UndefOr[Int => rawVirtual.mod.Key] = js.undefined,
-  onChange:         js.UndefOr[HTMLTableVirtualizer => Callback] = js.undefined,
-  virtualizerRef:   js.UndefOr[NonEmptyRef.Simple[Option[HTMLTableVirtualizer]]] = js.undefined,
-  debugVirtualizer: js.UndefOr[Boolean] = js.undefined
+  overscan:           js.UndefOr[Int] = js.undefined,
+  getItemKey:         js.UndefOr[Int => rawVirtual.mod.Key] = js.undefined,
+  onChange:           js.UndefOr[HTMLTableVirtualizer => Callback] = js.undefined,
+  virtualizerRef:     js.UndefOr[NonEmptyRef.Simple[Option[HTMLTableVirtualizer]]] = js.undefined,
+  debugVirtualizer:   js.UndefOr[Boolean] = js.undefined
 ) extends ReactFnProps(PrimeVirtualizedTable.component)
     with HTMLVirtualizedTableProps[T]
     with PrimeTableProps[T]
 
 case class PrimeAutoHeightVirtualizedTable[T](
-  table:             Table[T],
-  estimateSize:      Int => SizePx,
+  table:              Table[T],
+  estimateSize:       Int => SizePx,
   // Table options
-  hoverableRows:     Boolean = true,
-  striped:           Boolean = false,
-  celled:            Boolean = false,
-  compact:           js.UndefOr[Compact] = js.undefined,
-  containerMod:      TagMod = TagMod.empty,
-  containerRef:      js.UndefOr[Ref.Simple[HTMLDivElement]] = js.undefined,
-  innerContainerMod: TagMod = TagMod.empty,
-  tableMod:          TagMod = TagMod.empty,
-  headerMod:         TagMod = TagMod.empty,
-  headerRowMod:      raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
+  hoverableRows:      Boolean = true,
+  striped:            Boolean = false,
+  celled:             Boolean = false,
+  compact:            js.UndefOr[Compact] = js.undefined,
+  containerMod:       TagMod = TagMod.empty,
+  containerRef:       js.UndefOr[Ref.Simple[HTMLDivElement]] = js.undefined,
+  innerContainerMod:  TagMod = TagMod.empty,
+  tableMod:           TagMod = TagMod.empty,
+  headerMod:          TagMod = TagMod.empty,
+  headerRowMod:       raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
     TagMod.empty,
-  headerCellMod:     raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
-  bodyMod:           TagMod = TagMod.empty,
-  rowMod:            raw.mod.Row[T] => TagMod = (_: raw.mod.Row[T]) => TagMod.empty,
-  cellMod:           raw.mod.Cell[T, Any] => TagMod = (_: raw.mod.Cell[T, Any]) => TagMod.empty,
-  footerMod:         TagMod = TagMod.empty,
-  footerRowMod:      raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
+  headerCellMod:      raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
+  bodyMod:            TagMod = TagMod.empty,
+  rowMod:             raw.mod.Row[T] => TagMod = (_: raw.mod.Row[T]) => TagMod.empty,
+  cellMod:            raw.mod.Cell[T, Any] => TagMod = (_: raw.mod.Cell[T, Any]) => TagMod.empty,
+  footerMod:          TagMod = TagMod.empty,
+  footerRowMod:       raw.mod.CoreHeaderGroup[T] => TagMod = (_: raw.mod.CoreHeaderGroup[T]) =>
     TagMod.empty,
-  footerCellMod:     raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
-  emptyMessage:      VdomNode = EmptyVdom,
+  footerCellMod:      raw.mod.Header[T, Any] => TagMod = (_: raw.mod.Header[T, Any]) => TagMod.empty,
+  emptyMessage:       VdomNode = EmptyVdom,
+  renderSubComponent: raw.mod.Row[T] => Option[VdomNode] = (_: raw.mod.Row[T]) => none,
   // Virtual options
-  overscan:          js.UndefOr[Int] = js.undefined,
-  getItemKey:        js.UndefOr[Int => rawVirtual.mod.Key] = js.undefined,
-  onChange:          js.UndefOr[HTMLTableVirtualizer => Callback] = js.undefined,
-  virtualizerRef:    js.UndefOr[NonEmptyRef.Simple[Option[HTMLTableVirtualizer]]] = js.undefined,
-  debugVirtualizer:  js.UndefOr[Boolean] = js.undefined
+  overscan:           js.UndefOr[Int] = js.undefined,
+  getItemKey:         js.UndefOr[Int => rawVirtual.mod.Key] = js.undefined,
+  onChange:           js.UndefOr[HTMLTableVirtualizer => Callback] = js.undefined,
+  virtualizerRef:     js.UndefOr[NonEmptyRef.Simple[Option[HTMLTableVirtualizer]]] = js.undefined,
+  debugVirtualizer:   js.UndefOr[Boolean] = js.undefined
 ) extends ReactFnProps(PrimeAutoHeightVirtualizedTable.component)
     with HTMLAutoHeightVirtualizedTableProps[T]
     with PrimeTableProps[T]
