@@ -8,4 +8,4 @@ trait ExecutionVisits:
 
 object ExecutionVisits:
   case class GmosNorth(visits: List[Visit.GmosNorth]) extends ExecutionVisits
-  case class GmosSouth(visits: List[Visit.GmosNorth]) extends ExecutionVisits
+  case class GmosSouth(visits: List[Visit.GmosSouth]) extends ExecutionVisits
