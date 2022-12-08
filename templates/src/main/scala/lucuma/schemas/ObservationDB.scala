@@ -9,6 +9,7 @@ import lucuma.core.model
 import lucuma.core.model._
 import lucuma.core.model.sequence._
 import lucuma.core.math.dimensional._
+import lucuma.core.util._
 import lucuma.core.math.BrightnessUnits._
 // gql: import io.circe.refined._
 

@@ -67,7 +67,7 @@ class DecodersSuite extends InputStreamSuite {
         ),
         SourceProfile.Point(
           SpectralDefinition.BandNormalized(
-            UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral),
+            UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral).some,
             SortedMap(
               Band.SloanU ->
                 BigDecimal(14.147)
@@ -171,7 +171,7 @@ class DecodersSuite extends InputStreamSuite {
         ),
         SourceProfile.Uniform(
           SpectralDefinition.BandNormalized(
-            UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral),
+            UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral).some,
             SortedMap(
               Band.B -> BigDecimal(12.63)
                 .withUnit[VegaMagnitudePerArcsec2]
