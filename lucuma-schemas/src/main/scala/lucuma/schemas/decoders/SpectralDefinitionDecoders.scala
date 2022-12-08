@@ -18,6 +18,7 @@ import lucuma.core.math.units._
 import lucuma.core.model.EmissionLine
 import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.UnnormalizedSED
+import lucuma.core.util._
 
 import scala.collection.immutable.SortedMap
 
@@ -38,7 +39,7 @@ trait SpectralDefinitionDecoders {
     Decoder.instance(c =>
       for {
         bn           <- c.downField("bandNormalized").as[HCursor]
-        sed          <- bn.downField("sed").as[UnnormalizedSED]
+        sed          <- bn.downField("sed").as[Option[UnnormalizedSED]]
         brightnesses <- bn.downField("brightnesses").as[List[(Band, BrightnessMeasure[T])]]
       } yield SpectralDefinition.BandNormalized(sed, SortedMap.from(brightnesses))
     )

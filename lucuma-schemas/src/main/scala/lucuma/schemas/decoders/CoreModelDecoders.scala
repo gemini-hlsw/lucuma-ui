@@ -28,6 +28,7 @@ import lucuma.core.math.dimensional._
 import lucuma.core.math.units.CentimetersPerSecond
 import lucuma.core.math.units.MetersPerSecond
 import lucuma.core.model.NonNegDuration
+import lucuma.core.util.*
 
 import java.time.Duration
 import java.time.temporal.ChronoUnit
@@ -90,14 +91,14 @@ trait CoreModelDecoders {
 
   private val pmraµasDecoder: Decoder[ProperMotion.RA] =
     Decoder.decodeLong
-      .map(ProperMotion.RA.microarcsecondsPerYear.reverseGet)
+      .map(ProperMotion.RA.microarcsecondsPerYear.get)
 
   implicit val pmraDecoder: Decoder[ProperMotion.RA] =
     Decoder.instance(_.downField("microarcsecondsPerYear").as[ProperMotion.RA](pmraµasDecoder))
 
   private val pmdecµasDecoder: Decoder[ProperMotion.Dec] =
     Decoder.decodeLong
-      .map(ProperMotion.Dec.microarcsecondsPerYear.reverseGet)
+      .map(ProperMotion.Dec.microarcsecondsPerYear.get)
 
   implicit val pmdecDecoder: Decoder[ProperMotion.Dec] =
     Decoder.instance(_.downField("microarcsecondsPerYear").as[ProperMotion.Dec](pmdecµasDecoder))
