@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.59"
+ThisBuild / tlBaseVersion       := "0.60"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -13,7 +13,7 @@ lazy val monocleVersion           = "3.1.0"
 lazy val mouseVersion             = "1.1.0"
 lazy val lucumaPrimeStylesVersion = "0.2.8"
 lazy val lucumaRefinedVersion     = "0.1.0"
-lazy val lucumaReactVersion       = "0.24.0-2-439c840-20221208T213645Z-SNAPSHOT"
+lazy val lucumaReactVersion       = "0.25.0"
 lazy val scalaJsReactVersion      = "2.1.1"
 lazy val pprintVersion            = "0.8.1"
 
