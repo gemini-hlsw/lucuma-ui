@@ -8,6 +8,7 @@ import cats.data.Ior
 import cats.derived.*
 import cats.syntax.all.given
 import eu.timepit.refined.cats.given
+import lucuma.core.enums.SequenceType
 import lucuma.core.model.NonNegDuration
 import lucuma.core.model.sequence.StaticConfig
 import lucuma.core.util.WithUid
@@ -20,7 +21,7 @@ import org.typelevel.cats.time.given
 
 import java.time.Instant
 
-sealed trait Visit derives Eq {
+sealed trait Visit derives Eq:
   def id: Visit.Id
   def created: Instant
   def startTime: Option[Instant]
@@ -29,9 +30,16 @@ sealed trait Visit derives Eq {
   def staticConfig: StaticConfig
   def steps: List[StepRecord]
   def sequenceEvents: List[SequenceEvent]
-}
 
-object Visit extends WithUid('v'.refined) {
+  // Remove these implementations when the API supports querying by type directly.
+  // See https://app.shortcut.com/lucuma/story/1853/separate-visit-steps-by-sequence-type
+  def acquisitionSteps: List[StepRecord] =
+    steps.filter(_.stepEvents.headOption.map(_.sequenceType).contains_(SequenceType.Acquisition))
+
+  def scienceSteps: List[StepRecord] =
+    steps.filter(_.stepEvents.headOption.map(_.sequenceType).contains_(SequenceType.Acquisition))
+
+object Visit extends WithUid('v'.refined):
   final case class GmosNorth protected[schemas] (
     id:             Visit.Id,
     created:        Instant,
@@ -55,4 +63,3 @@ object Visit extends WithUid('v'.refined) {
     sequenceEvents: List[SequenceEvent]
   ) extends Visit
       derives Eq
-}
