@@ -5,12 +5,16 @@ package lucuma.schemas.decoders
 
 import cats.effect.IO
 import cats.syntax.all.{_, given}
+import eu.timepit.refined.numeric.Positive
 import lucuma.core.enums.GmosAmpCount
 import lucuma.core.enums.GmosAmpGain
 import lucuma.core.enums.GmosAmpReadMode
 import lucuma.core.enums.GmosDtax
+import lucuma.core.enums.GmosGratingOrder
 import lucuma.core.enums.GmosRoi
 import lucuma.core.enums.GmosSouthDetector
+import lucuma.core.enums.GmosSouthFpu
+import lucuma.core.enums.GmosSouthGrating
 import lucuma.core.enums.GmosSouthStageMode
 import lucuma.core.enums.GmosXBinning
 import lucuma.core.enums.GmosYBinning
@@ -19,14 +23,10 @@ import lucuma.core.enums.SequenceCommand
 import lucuma.core.enums.SequenceType
 import lucuma.core.enums.StepStage
 import lucuma.core.math.Offset
+import lucuma.core.math.Wavelength
 import lucuma.core.model.ExecutionEvent
 import lucuma.core.model.NonNegDuration
-import lucuma.core.model.sequence.DynamicConfig
-import lucuma.core.model.sequence.GmosCcdMode
-import lucuma.core.model.sequence.StaticConfig
-import lucuma.core.model.sequence.Step
-import lucuma.core.model.sequence.StepConfig
-import lucuma.refined.*
+import lucuma.core.model.sequence.*
 import lucuma.refined.*
 import lucuma.schemas.model.SequenceEvent
 import lucuma.schemas.model.StepEvent
@@ -69,9 +69,15 @@ class VisitDecodersSuite extends InputStreamSuite {
             ),
             dtax = GmosDtax.Zero,
             roi = GmosRoi.FullFrame,
-            gratingConfig = none,
+            gratingConfig = GmosGratingConfig
+              .South(
+                grating = GmosSouthGrating.R600_G5324,
+                order = GmosGratingOrder.Zero,
+                wavelength = Wavelength(520000.refined[Positive])
+              )
+              .some,
             filter = none,
-            fpu = none
+            fpu = GmosFpuMask.Builtin(GmosSouthFpu.LongSlit_1_00).some
           ),
           stepConfig = StepConfig.Science(Offset(Offset.P.Zero, Offset.Q.Zero)),
           stepEvents = List(

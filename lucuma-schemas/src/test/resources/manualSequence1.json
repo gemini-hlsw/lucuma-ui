@@ -31,7 +31,13 @@
               },
               "dtax": "ZERO",
               "roi": "CCD2",
-              "grating": null,
+              "gratingConfig": {
+                "grating": "R600_G5324",
+                "order": "ZERO",
+                "wavelength": {
+                  "picometers": 520000
+                }
+              },
               "filter": "R_PRIME",
               "fpu": null
             },
@@ -86,7 +92,7 @@
               },
               "dtax": "ZERO",
               "roi": "CENTRAL_STAMP",
-              "grating": null,
+              "gratingConfig": null,
               "filter": "R_PRIME",
               "fpu": {
                 "builtin": "LONG_SLIT_1_00"

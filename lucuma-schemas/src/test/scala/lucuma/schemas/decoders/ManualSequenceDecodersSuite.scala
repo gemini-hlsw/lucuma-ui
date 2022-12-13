@@ -3,10 +3,13 @@
 
 package lucuma.schemas.decoders
 
-import cats.syntax.all._
-import lucuma.core.enums._
+import cats.syntax.all.*
+import eu.timepit.refined.numeric.Positive
+import lucuma.core.enums.*
 import lucuma.core.math.Offset
-import lucuma.core.model.sequence._
+import lucuma.core.math.Wavelength
+import lucuma.core.model.sequence.*
+import lucuma.refined.*
 
 import java.time.Duration
 import java.util.UUID
@@ -38,7 +41,13 @@ class ManualSequenceDecodersSuite extends InputStreamSuite {
                   ),
                   dtax = GmosDtax.Zero,
                   roi = GmosRoi.Ccd2,
-                  gratingConfig = none,
+                  gratingConfig = GmosGratingConfig
+                    .South(
+                      grating = GmosSouthGrating.R600_G5324,
+                      order = GmosGratingOrder.Zero,
+                      wavelength = Wavelength(520000.refined[Positive])
+                    )
+                    .some,
                   filter = GmosSouthFilter.RPrime.some,
                   fpu = none
                 ),

@@ -8,12 +8,12 @@
       "duration": {
         "microseconds": 460473000
       },
-      "staticConfigS": {
+      "staticS": {
         "stageMode": "FOLLOW_XY",
         "detector": "HAMAMATSU",
         "mosPreImaging": "IS_NOT_MOS_PRE_IMAGING"
       },
-      "steps": [
+      "stepsS": [
         {
           "id": "s-f1214814-93c8-4cdb-848b-8a69e61fc754",
           "created": "2022-08-22T18:19:03.230191206Z",
@@ -35,9 +35,18 @@
             },
             "dtax": "ZERO",
             "roi": "FULL_FRAME",
-            "gratingConfig": null,
-            "filterS": null,
-            "fpu": null
+            "gratingConfig": {
+              "grating": "R600_G5324",
+              "order": "ZERO",
+              "wavelength": {
+                "picometers": 520000
+              }
+            },
+            "filter": null,
+            "fpu": {
+              "customMask": null,
+              "builtin": "LONG_SLIT_1_00"
+            }
           },
           "stepConfig": {
             "stepType": "SCIENCE",

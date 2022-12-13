@@ -117,8 +117,8 @@ fragment northSequenceFields on GmosNorthAtom {
       }
       dtax
       roi
-      grating {
-        disperser
+      gratingConfig {
+        grating
         order
         wavelength {
           picometers
@@ -173,8 +173,8 @@ fragment southSequenceFields on GmosSouthAtom {
       }
       dtax
       roi
-      grating {
-        disperser
+      gratingConfig {
+        grating
         order
         wavelength {
           picometers

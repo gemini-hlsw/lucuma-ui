@@ -62,7 +62,7 @@ trait VisitDecoders:
     for
       index    <- c.downField("id").downField("index").as[PosInt]
       filename <- c.downField("filename").as[NonEmptyString]
-      qaState  <- c.downField("qaState").as[DatasetQaState]
+      qaState  <- c.downField("qaState").as[Option[DatasetQaState]]
     yield Dataset(index, filename, qaState)
   )
 
@@ -75,10 +75,10 @@ trait VisitDecoders:
       duration         <- c.downField("duration").as[Option[NonNegDuration]]
       instrumentConfig <- c.downField("instrumentConfig").as[DynamicConfig.GmosNorth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
-      stepEvents       <- c.downField("stepEvents").as[List[StepEvent]]
+      stepEvents       <- c.downField("stepEvents").as[Option[List[StepEvent]]]
       stepQaState      <- c.downField("stepQaState").as[Option[StepQaState]]
-      datasetEvents    <- c.downField("datasetEvents").as[List[DatasetEvent]]
-      datasets         <- c.downField("datasets").as[List[Dataset]]
+      datasetEvents    <- c.downField("datasetEvents").as[Option[List[DatasetEvent]]]
+      datasets         <- c.downField("datasets").as[Option[List[Dataset]]]
     yield StepRecord.GmosNorth(
       id,
       created,
@@ -87,10 +87,10 @@ trait VisitDecoders:
       duration,
       instrumentConfig,
       stepConfig,
-      stepEvents,
+      stepEvents.orEmpty,
       stepQaState,
-      datasetEvents,
-      datasets
+      datasetEvents.orEmpty,
+      datasets.orEmpty
     )
   )
 
@@ -103,10 +103,10 @@ trait VisitDecoders:
       duration         <- c.downField("duration").as[Option[NonNegDuration]]
       instrumentConfig <- c.downField("instrumentConfig").as[DynamicConfig.GmosSouth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
-      stepEvents       <- c.downField("stepEvents").as[List[StepEvent]]
+      stepEvents       <- c.downField("stepEvents").as[Option[List[StepEvent]]]
       stepQaState      <- c.downField("stepQaState").as[Option[StepQaState]]
-      datasetEvents    <- c.downField("datasetEvents").as[List[DatasetEvent]]
-      datasets         <- c.downField("datasets").as[List[Dataset]]
+      datasetEvents    <- c.downField("datasetEvents").as[Option[List[DatasetEvent]]]
+      datasets         <- c.downField("datasets").as[Option[List[Dataset]]]
     yield StepRecord.GmosSouth(
       id,
       created,
@@ -115,10 +115,10 @@ trait VisitDecoders:
       duration,
       instrumentConfig,
       stepConfig,
-      stepEvents,
+      stepEvents.orEmpty,
       stepQaState,
-      datasetEvents,
-      datasets
+      datasetEvents.orEmpty,
+      datasets.orEmpty
     )
   )
 
@@ -131,8 +131,8 @@ trait VisitDecoders:
       startTime      <- c.downField("startTime").as[Option[Instant]]
       endTime        <- c.downField("endTime").as[Option[Instant]]
       duration       <- c.downField("duration").as[Option[NonNegDuration]]
-      staticConfig   <- c.downField("staticConfigN").as[StaticConfig.GmosNorth]
-      steps          <- c.downField("steps").as[List[StepRecord.GmosNorth]]
+      staticConfig   <- c.downField("staticN").as[StaticConfig.GmosNorth]
+      steps          <- c.downField("stepsN").as[List[StepRecord.GmosNorth]]
       sequenceEvents <- c.downField("sequenceEvents").as[List[SequenceEvent]]
     yield Visit.GmosNorth(
       id,
@@ -153,8 +153,8 @@ trait VisitDecoders:
       startTime      <- c.downField("startTime").as[Option[Instant]]
       endTime        <- c.downField("endTime").as[Option[Instant]]
       duration       <- c.downField("duration").as[Option[NonNegDuration]]
-      staticConfig   <- c.downField("staticConfigS").as[StaticConfig.GmosSouth]
-      steps          <- c.downField("steps").as[List[StepRecord.GmosSouth]]
+      staticConfig   <- c.downField("staticS").as[StaticConfig.GmosSouth]
+      steps          <- c.downField("stepsS").as[List[StepRecord.GmosSouth]]
       sequenceEvents <- c.downField("sequenceEvents").as[List[SequenceEvent]]
     yield Visit.GmosSouth(
       id,
