@@ -37,7 +37,7 @@ sealed trait Visit derives Eq:
     steps.filter(_.stepEvents.headOption.map(_.sequenceType).contains_(SequenceType.Acquisition))
 
   def scienceSteps: List[StepRecord] =
-    steps.filter(_.stepEvents.headOption.map(_.sequenceType).contains_(SequenceType.Acquisition))
+    steps.filter(_.stepEvents.headOption.map(_.sequenceType).contains_(SequenceType.Science))
 
 object Visit extends WithUid('v'.refined):
   final case class GmosNorth protected[schemas] (
