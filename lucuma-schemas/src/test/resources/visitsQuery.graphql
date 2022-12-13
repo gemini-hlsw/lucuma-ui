@@ -1,9 +1,9 @@
 query {
-  observations {
-    matches {
+  observation(observationId:"o-2") {
     	id
       execution {
         executionConfig {
+          instrument
           ...on GmosNorthExecutionConfig {
             visits {
               id
@@ -13,92 +13,16 @@ query {
               duration {
                 microseconds
               }
-              staticConfigN:staticConfig {
+              staticN:staticConfig {
                 stageMode
                 detector
                 mosPreImaging
+                nodAndShuffle {
+                  ...nodAndShuffleFields
+                }                
               }
-              steps {
-                id
-                created
-                startTime
-                endTime
-                duration {
-                  microseconds
-                }
-                instrumentConfig {
-                  exposure {
-                    microseconds
-                  }
-                  readout {
-                    xBin
-                    yBin
-                    ampCount
-                    ampGain
-                    ampReadMode
-                  }
-                  dtax
-                  roi
-                  gratingConfig {
-                    gratingN:grating
-                    order
-                    wavelength {
-                      picometers
-                    }
-                  }
-                  filterN:filter
-                  fpu {
-                    customMask {
-                      filename
-                      slitWidth
-                    }
-                    builtinN:builtin
-                  }
-                }
-                stepConfig {
-                  stepType
-                  ...on Gcal {
-                    continuum
-                    arcs
-                    filter
-                    diffuser
-                    shutter
-                  }
-                  ...on Science {
-                    offset {
-                      p {
-                        microarcseconds
-                      }
-                      q {
-                        microarcseconds
-                      }
-                    }
-                    
-                  }
-                }
-                stepEvents {
-                  id
-                  received
-                  payload {
-                    sequenceType
-                    stepStage
-                  }
-                }
-                stepQaState
-                datasetEvents {
-                  id
-                  received
-                  datasetId {
-                    index
-                  }
-                }
-                datasets {
-                  id {
-                    index
-                  }
-                  filename
-                  qaState
-                }
+              stepsN:steps {
+								...gmosNorthStepRecordFields
               }
               sequenceEvents {
                 id
@@ -118,92 +42,16 @@ query {
               duration {
                 microseconds
               }             
-              staticConfigS:staticConfig {
+              staticS:staticConfig {
                 stageMode
                 detector
                 mosPreImaging
+                nodAndShuffle {
+                  ...nodAndShuffleFields
+                }
               }
-              steps {
-                id
-                created
-                startTime
-                endTime
-                duration {
-                  microseconds
-                }
-                instrumentConfig {
-                  exposure {
-                    microseconds
-                  }
-                  readout {
-                    xBin
-                    yBin
-                    ampCount
-                    ampGain
-                    ampReadMode
-                  }
-                  dtax
-                  roi
-                  gratingConfig {
-                    gratingS:grating
-                    order
-                    wavelength {
-                      picometers
-                    }
-                  }
-                  filterS:filter
-                  fpu {
-                    customMask {
-                      filename
-                      slitWidth
-                    }
-                    builtinS:builtin
-                  }
-                }
-                stepConfig {
-                  stepType
-                  ...on Gcal {
-                    continuum
-                    arcs
-                    filter
-                    diffuser
-                    shutter
-                  }
-                  ...on Science {
-                    offset {
-                      p {
-                        microarcseconds
-                      }
-                      q {
-                        microarcseconds
-                      }
-                    }
-                    
-                  }
-                }
-                stepEvents {
-                  id
-                  received
-                  payload {
-                    sequenceType
-                    stepStage
-                  }
-                }
-                stepQaState
-                datasetEvents {
-                  id
-                  received
-                  datasetId {
-                    index
-                  }
-                }
-                datasets {
-                  id {
-                    index
-                  }
-                  filename
-                  qaState
-                }
+              stepsS:steps {
+                ...gmosSouthStepRecordFields
               }
               sequenceEvents {
                 id
@@ -217,5 +65,193 @@ query {
         }
       }
     }
+  }
+  
+fragment nodAndShuffleFields on GmosNodAndShuffle {
+  posA {
+    p {
+      microarcseconds
+    }
+    q {
+      microarcseconds
+    }
+  }
+  posB {
+    p {
+      microarcseconds
+    }
+    q {
+      microarcseconds
+    }
+  }
+  eOffset
+  shuffleOffset
+  shuffleCycles
+}
+
+fragment gmosNorthStepRecordFields on GmosNorthStepRecord {
+  id
+  created
+  startTime
+  endTime
+  duration {
+    microseconds
+  }
+  instrumentConfig {
+    exposure {
+      microseconds
+    }
+    readout {
+      xBin
+      yBin
+      ampCount
+      ampGain
+      ampReadMode
+    }
+    dtax
+    roi
+    gratingConfig {
+      grating
+      order
+      wavelength {
+        picometers
+      }
+    }
+    filter
+    fpu {
+      customMask {
+        filename
+        slitWidth
+      }
+      builtin
+    }
+  }
+  stepConfig {
+    stepType
+    ...on Gcal {
+      continuum
+      arcs
+      filter
+      diffuser
+      shutter
+    }
+    ...on Science {
+      offset {
+        p {
+          microarcseconds
+        }
+        q {
+          microarcseconds
+        }
+      }
+
+    }
+  }
+  stepEvents {
+    id
+    received
+    payload {
+      sequenceType
+      stepStage
+    }
+  }
+  stepQaState
+  datasetEvents {
+    id
+    received
+    datasetId {
+      index
+    }
+  }
+  datasets {
+    id {
+      index
+    }
+    filename
+    qaState
+  }
+}
+
+
+fragment gmosSouthStepRecordFields on GmosSouthStepRecord {
+	id
+  created
+  startTime
+  endTime
+  duration {
+    microseconds
+  }
+  instrumentConfig {
+    exposure {
+      microseconds
+    }
+    readout {
+      xBin
+      yBin
+      ampCount
+      ampGain
+      ampReadMode
+    }
+    dtax
+    roi
+    gratingConfig {
+      grating
+      order
+      wavelength {
+        picometers
+      }
+    }
+    filter
+    fpu {
+      customMask {
+        filename
+        slitWidth
+      }
+      builtin
+    }
+  }
+  stepConfig {
+    stepType
+    ...on Gcal {
+      continuum
+      arcs
+      filter
+      diffuser
+      shutter
+    }
+    ...on Science {
+      offset {
+        p {
+          microarcseconds
+        }
+        q {
+          microarcseconds
+        }
+      }
+
+    }
+  }
+  stepEvents {
+    id
+    received
+    payload {
+      sequenceType
+      stepStage
+    }
+  }
+  stepQaState
+  datasetEvents {
+    id
+    received
+    datasetId {
+      index
+    }
+  }
+  datasets {
+    id {
+      index
+    }
+    filename
+    qaState
   }
 }

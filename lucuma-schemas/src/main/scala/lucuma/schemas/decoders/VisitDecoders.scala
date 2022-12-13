@@ -131,8 +131,8 @@ trait VisitDecoders:
       startTime      <- c.downField("startTime").as[Option[Instant]]
       endTime        <- c.downField("endTime").as[Option[Instant]]
       duration       <- c.downField("duration").as[Option[NonNegDuration]]
-      staticConfig   <- c.downField("staticConfigN").as[StaticConfig.GmosNorth]
-      steps          <- c.downField("steps").as[List[StepRecord.GmosNorth]]
+      staticConfig   <- c.downField("staticN").as[StaticConfig.GmosNorth]
+      steps          <- c.downField("stepsN").as[List[StepRecord.GmosNorth]]
       sequenceEvents <- c.downField("sequenceEvents").as[List[SequenceEvent]]
     yield Visit.GmosNorth(
       id,
@@ -153,8 +153,8 @@ trait VisitDecoders:
       startTime      <- c.downField("startTime").as[Option[Instant]]
       endTime        <- c.downField("endTime").as[Option[Instant]]
       duration       <- c.downField("duration").as[Option[NonNegDuration]]
-      staticConfig   <- c.downField("staticConfigS").as[StaticConfig.GmosSouth]
-      steps          <- c.downField("steps").as[List[StepRecord.GmosSouth]]
+      staticConfig   <- c.downField("staticS").as[StaticConfig.GmosSouth]
+      steps          <- c.downField("stepsS").as[List[StepRecord.GmosSouth]]
       sequenceEvents <- c.downField("sequenceEvents").as[List[SequenceEvent]]
     yield Visit.GmosSouth(
       id,
