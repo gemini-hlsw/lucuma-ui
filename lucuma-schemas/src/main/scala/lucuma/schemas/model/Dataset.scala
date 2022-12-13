@@ -10,5 +10,5 @@ import eu.timepit.refined.types.numeric.PosInt
 import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.enums.DatasetQaState
 
-final case class Dataset(index: PosInt, filename: NonEmptyString, qaState: DatasetQaState)
+final case class Dataset(index: PosInt, filename: NonEmptyString, qaState: Option[DatasetQaState])
     derives Eq
