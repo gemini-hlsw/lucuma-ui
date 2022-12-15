@@ -44,14 +44,16 @@ object EnumDropdown {
       options = props.enumerated.all
         .filter(v => !props.exclude.contains(v))
         .map(e =>
-          SelectItem(label = props.display.shortName(e),
-                     value = e,
-                     disabled = props.disabledItems.contains(e)
+          SelectItem(
+            label = props.display.shortName(e),
+            value = e,
+            disabled = props.disabledItems.contains(e)
           )
         ),
       clazz = props.clazz,
       filter = props.filter,
       showFilterClear = props.showFilterClear,
+      disabled = props.disabled,
       placeholder = props.placeholder,
       onChange = props.onChange,
       modifiers = props.modifiers
