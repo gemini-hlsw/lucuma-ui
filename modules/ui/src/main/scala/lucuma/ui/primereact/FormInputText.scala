@@ -25,6 +25,7 @@ case class FormInputText(
   label:            js.UndefOr[TagMod] = js.undefined,
   preAddons:        List[TagMod | CButton.Builder] = List.empty,
   postAddons:       List[TagMod | CButton.Builder] = List.empty,
+  size:             js.UndefOr[PlSize] = js.undefined,
   groupClass:       js.UndefOr[Css] = js.undefined,
   inputClass:       js.UndefOr[Css] = js.undefined,
   disabled:         js.UndefOr[Boolean] = js.undefined,
@@ -43,19 +44,24 @@ case class FormInputText(
 
 object FormInputText {
   private val component = ScalaFnComponent[FormInputText] { props =>
-    val group = <.div(
-      PrimeStyles.InputGroup |+| LucumaStyles.FormField |+| props.groupClass.toOption.orEmpty,
-      props.preAddons.toTagMod(p =>
+    val sizeCls = props.size.toOption.map(_.cls).orEmpty
+
+    def buildAddons(addons: List[TagMod | CButton.Builder]) =
+      addons.toTagMod(p =>
         (p: Any) match {
           case b: CButton.Builder => b.build
           case t: TagMod          =>
-            <.span(t, Css("p-inputgroup-addon"))
+            <.span(t, PrimeStyles.InputGroupAddon |+| sizeCls)
         }
-      ),
+      )
+
+    val group = <.div(
+      PrimeStyles.InputGroup |+| LucumaStyles.FormField |+| props.groupClass.toOption.orEmpty,
+      buildAddons(props.preAddons),
       InputText(
         id = props.id.value,
         value = props.value,
-        clazz = props.inputClass.toOption.orEmpty,
+        clazz = props.inputClass.toOption.orEmpty |+| sizeCls,
         disabled = props.disabled,
         placeholder = props.placeholder,
         onFocus = props.onFocus,
@@ -64,19 +70,13 @@ object FormInputText {
         onKeyDown = props.onKeyDown,
         modifiers = props.modifiers
       ),
-      props.postAddons.toTagMod { p =>
-        (p: Any) match {
-          case b: CButton.Builder => b.build
-          case t: TagMod          =>
-            <.span(t, Css("p-inputgroup-addon"))
-        }
-      }
+      buildAddons(props.postAddons)
     )
 
     val input = props.tooltip.fold(group)(tt => group.withTooltip(tt, props.tooltipPlacement))
 
     React.Fragment(
-      props.label.map(l => FormLabel(htmlFor = props.id)(l)),
+      props.label.map(l => FormLabel(htmlFor = props.id, size = props.size)(l)),
       input
     )
   }

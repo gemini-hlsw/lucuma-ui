@@ -14,9 +14,11 @@ import scalajs.js.JSConverters.*
 
 object FormLabel {
   def apply(
-    htmlFor: NonEmptyString
+    htmlFor: NonEmptyString,
+    size:    js.UndefOr[PlSize] = js.undefined
   ) = <.label(
     LucumaStyles.FormFieldLabel,
+    size.toOption.map(_.cls).orEmpty,
     ^.htmlFor := htmlFor.value
   )
 }
