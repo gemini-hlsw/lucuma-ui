@@ -5,13 +5,13 @@
   --button-padding: 0.78571429em;
   --compact-button-padding: 0.39285714em;
 
-  --button-mini-font-size: 0.78571429rem;
-  --button-tiny-font-size: 0.85714286rem;
-  --button-small-font-size: 0.92857143rem;
-  --button-large-font-size: 1.14285714rem;
-  --button-big-font-size: 1.28571429rem;
-  --button-huge-font-size: 1.42857143rem;
-  --button-massive-font-size: 1.71428571rem;
+  --pl-mini-font-size: 0.78571429rem;
+  --pl-tiny-font-size: 0.85714286rem;
+  --pl-small-font-size: 0.92857143rem;
+  --pl-large-font-size: 1.14285714rem;
+  --pl-big-font-size: 1.28571429rem;
+  --pl-huge-font-size: 1.42857143rem;
+  --pl-massive-font-size: 1.71428571rem;
 }
 
 // For laying out controls. The "Form*" compoents utilize this, too.
@@ -49,7 +49,7 @@
   line-height: 1.15;
 }
 
-// For styling of buttons in primereact for different "compactness" and "size"
+// For styling of buttons in primereact for different "compactness" and adjust other sizing
 button.p-component.p-button {
   margin-right: .25em; // this is what the current css does for SUI. Might want to improve.
 
@@ -68,30 +68,41 @@ button.p-component.p-button {
   .p-button-icon-right {
     margin-left: 0.2em;
   }
+}
 
+.p-buttonset button.p-component.p-button {
+  margin-right: 0;
+}
+
+// For different sizes of buttons and text inputs and dropdowns
+.p-component.p-inputtext,
+.p-inputgroup .p-inputgroup-addon,
+.p-component.p-dropdown-panel,
+.pl-form-field-label,
+button.p-component.p-button {
   // default size is Medium
   &.pl-mini {
-    font-size: var(--button-mini-font-size);
+    font-size: var(--pl-mini-font-size);
   }
 
   &.pl-tiny {
-    font-size: var(--button-tiny-font-size);
+    font-size: var(--pl-tiny-font-size);
   }
 
   &.p-button-sm,
   &.pl-small {
-    font-size: var(--button-small-font-size);
+    font-size: var(--pl-small-font-size);
   }
 
   &.p-button-lg,
   &.pl-large {
-    font-size: var(--button-large-font-size);
+    font-size: var(--pl-large-font-size);
   }
 
   &.p-button-sm,
   &.p-button-lg {
     &:not(.pl-compact) {
-      padding: var(--button-padding);
+      padding: var(--pl-padding);
     }
 
     .p-button-icon {
@@ -100,15 +111,47 @@ button.p-component.p-button {
   }
 
   &.pl-big {
-    font-size: var(--button-big-font-size);
+    font-size: var(--pl-big-font-size);
   }
 
   &.pl-huge {
-    font-size: var(--button-huge-font-size);
+    font-size: var(--pl-huge-font-size);
   }
 
   &.pl-massive {
-    font-size: var(--button-massive-font-size);
+    font-size: var(--pl-massive-font-size);
+  }
+}
+
+// the dropdown label needs different handling
+.p-component.p-dropdown {
+  // default size is Medium
+  &.pl-mini .p-dropdown-label.p-inputtext {
+    font-size: var(--pl-mini-font-size);
+  }
+
+  &.pl-tiny .p-dropdown-label.p-inputtext {
+    font-size: var(--pl-tiny-font-size);
+  }
+
+  &.pl-small .p-dropdown-label.p-inputtext {
+    font-size: var(--pl-small-font-size);
+  }
+
+  &.pl-large .p-dropdown-label.p-inputtext {
+    font-size: var(--pl-large-font-size);
+  }
+
+  &.pl-big .p-dropdown-label.p-inputtext {
+    font-size: var(--pl-big-font-size);
+  }
+
+  &.pl-huge .p-dropdown-label.p-inputtext {
+    font-size: var(--pl-huge-font-size);
+  }
+
+  &.pl-massive .p-dropdown-label.p-inputtext {
+    font-size: var(--pl-massive-font-size);
   }
 }
 

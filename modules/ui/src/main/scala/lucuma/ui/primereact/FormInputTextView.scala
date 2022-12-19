@@ -37,6 +37,7 @@ final case class FormInputTextView[V[_], A](
   label:         js.UndefOr[TagMod] = js.undefined,
   preAddons:     List[TagMod | CButton.Builder] = List.empty,
   postAddons:    List[TagMod | CButton.Builder] = List.empty,
+  size:          js.UndefOr[PlSize] = js.undefined,
   groupClass:    js.UndefOr[Css] = js.undefined,
   inputClass:    js.UndefOr[Css] = js.undefined,
   disabled:      js.UndefOr[Boolean] = js.undefined,
@@ -207,6 +208,7 @@ object FormInputTextView {
         FormInputText(
           id = props.id,
           label = props.label,
+          size = props.size,
           groupClass = props.groupClass,
           inputClass =
             error.map(_ => PrimeStyles.Invalid).orEmpty |+| props.inputClass.toOption.orEmpty,
