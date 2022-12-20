@@ -18,7 +18,7 @@ import scalajs.js.JSConverters.*
 final case class FormEnumDropdownView[V[_], A](
   id:              NonEmptyString,
   value:           V[A],
-  label:           js.UndefOr[String] = js.undefined,
+  label:           js.UndefOr[TagMod] = js.undefined,
   exclude:         Set[A] = Set.empty[A],
   clazz:           js.UndefOr[Css] = js.undefined,
   panelClass:      js.UndefOr[Css] = js.undefined,
