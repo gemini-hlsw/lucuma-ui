@@ -2,8 +2,8 @@
   // unfortunately, primereact uses `scaling factors` to scala the `lg` and `sm` components. It also 
   // seems to apply these to padding, which we don't want. Change the scaling factors seemed inappropriate
   // because it would affect many more componenents, so I had to copy the padding value for the medium button.
-  --button-padding: 0.78571429em;
-  --compact-button-padding: 0.39285714em;
+  --pl-button-padding: 0.78571429em;
+  --pl-compact-button-padding: 0.39285714em;
 
   --pl-mini-font-size: 0.78571429rem;
   --pl-tiny-font-size: 0.85714286rem;
@@ -50,11 +50,11 @@
 }
 
 // For styling of buttons in primereact for different "compactness" and adjust other sizing
-button.p-component.p-button {
+.p-component.p-button {
   margin-right: .25em; // this is what the current css does for SUI. Might want to improve.
 
   &.pl-compact {
-    padding: var(--compact-button-padding);
+    padding: var(--pl-compact-button-padding);
   }
 
   svg.svg-inline--fa {
@@ -70,16 +70,12 @@ button.p-component.p-button {
   }
 }
 
-.p-buttonset button.p-component.p-button {
-  margin-right: 0;
-}
-
 // For different sizes of buttons and text inputs and dropdowns
 .p-component.p-inputtext,
 .p-inputgroup .p-inputgroup-addon,
 .p-component.p-dropdown-panel,
 .pl-form-field-label,
-button.p-component.p-button {
+.p-component.p-button {
   // default size is Medium
   &.pl-mini {
     font-size: var(--pl-mini-font-size);
@@ -102,7 +98,7 @@ button.p-component.p-button {
   &.p-button-sm,
   &.p-button-lg {
     &:not(.pl-compact) {
-      padding: var(--pl-padding);
+      padding: var(--pl-button-padding);
     }
 
     .p-button-icon {
