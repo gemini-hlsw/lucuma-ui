@@ -35,6 +35,7 @@ import scalajs.js.JSConverters._
 final case class FormInputTextView[V[_], A](
   id:            NonEmptyString,
   label:         js.UndefOr[TagMod] = js.undefined,
+  units:         js.UndefOr[String] = js.undefined,
   preAddons:     List[TagMod | CButton.Builder] = List.empty,
   postAddons:    List[TagMod | CButton.Builder] = List.empty,
   size:          js.UndefOr[PlSize] = js.undefined,
@@ -58,6 +59,9 @@ final case class FormInputTextView[V[_], A](
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)     = addModifiers(mods)
   def apply(mods:             TagMod*)     = addModifiers(mods)
+  def addPostAddons(addons: List[TagMod | CButton.Builder]) =
+    copy(postAddons = this.postAddons ++ addons)
+  def withPostAddons(addons: (TagMod | CButton.Builder)*) = addPostAddons(addons.toList)
 
 object FormInputTextView {
   type AnyF[_] = Any
@@ -208,6 +212,7 @@ object FormInputTextView {
         FormInputText(
           id = props.id,
           label = props.label,
+          units = props.units,
           size = props.size,
           groupClass = props.groupClass,
           inputClass =

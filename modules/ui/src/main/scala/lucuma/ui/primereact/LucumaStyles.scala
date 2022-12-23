@@ -32,6 +32,11 @@ trait LucumaStyles {
 
   val CheckboxWithLabel: Css    = Css("pl-checkbox-with-label")
   val RadioButtonWithLabel: Css = Css("pl-radiobutton-with-label")
+
+  val BlendedAddon: Css = Css("pl-blended-addon")
+
+  val IconPrefix: Css = Css("pi")
+  val IconTimes: Css  = IconPrefix |+| Css("pi-times")
 }
 
 object LucumaStyles extends LucumaStyles

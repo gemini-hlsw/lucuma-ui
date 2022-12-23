@@ -23,6 +23,7 @@ case class FormInputText(
   id:               NonEmptyString,
   value:            js.UndefOr[String] = js.undefined,
   label:            js.UndefOr[TagMod] = js.undefined,
+  units:            js.UndefOr[String] = js.undefined,
   preAddons:        List[TagMod | CButton.Builder] = List.empty,
   postAddons:       List[TagMod | CButton.Builder] = List.empty,
   size:             js.UndefOr[PlSize] = js.undefined,
@@ -41,6 +42,9 @@ case class FormInputText(
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)     = addModifiers(mods)
   def apply(mods:             TagMod*)     = addModifiers(mods)
+  def addPostAddons(addons: List[TagMod | CButton.Builder]) =
+    copy(postAddons = this.postAddons ++ addons)
+  def withPostAddons(addons: (TagMod | CButton.Builder)*) = addPostAddons(addons.toList)
 
 object FormInputText {
   private val component = ScalaFnComponent[FormInputText] { props =>
@@ -54,6 +58,11 @@ object FormInputText {
             <.span(t, PrimeStyles.InputGroupAddon |+| sizeCls)
         }
       )
+
+    // units are always first
+    val postAddons = props.units.fold(buildAddons(props.postAddons)) { units =>
+      buildAddons(<.span(^.cls := LucumaStyles.BlendedAddon.htmlClass, units) :: props.postAddons)
+    }
 
     val group = <.div(
       PrimeStyles.InputGroup |+| LucumaStyles.FormField |+| props.groupClass.toOption.orEmpty,
@@ -70,7 +79,7 @@ object FormInputText {
         onKeyDown = props.onKeyDown,
         modifiers = props.modifiers
       ),
-      buildAddons(props.postAddons)
+      postAddons
     )
 
     val input = props.tooltip.fold(group)(tt => group.withTooltip(tt, props.tooltipPlacement))
