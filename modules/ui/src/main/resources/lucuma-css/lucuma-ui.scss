@@ -4,6 +4,8 @@
   // because it would affect many more componenents, so I had to copy the padding value for the medium button.
   --pl-button-padding: 0.78571429em;
   --pl-compact-button-padding: 0.39285714em;
+  --pl-very-compact-button-padding-top: 0.11em;
+  --pl-very-compact-button-padding-right: 0.5em;
 
   --pl-mini-font-size: 0.78571429rem;
   --pl-tiny-font-size: 0.85714286rem;
@@ -55,6 +57,10 @@
 
   &.pl-compact {
     padding: var(--pl-compact-button-padding);
+  }
+
+  &.pl-very-compact {
+    padding: var(--pl-very-compact-button-padding-top) var(--pl-very-compact-button-padding-right);
   }
 
   svg.svg-inline--fa {
