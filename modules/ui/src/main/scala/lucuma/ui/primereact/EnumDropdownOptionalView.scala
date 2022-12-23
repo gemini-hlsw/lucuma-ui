@@ -62,7 +62,7 @@ object EnumDropdownOptionalView {
       showFilterClear = props.showFilterClear,
       placeholder = props.placeholder,
       disabled = props.disabled,
-      onChange = v => props.value.set(v.get.some),
+      onChange = v => props.value.set(v),
       onChangeE = props.onChangeE,
       modifiers = props.modifiers
     )
