@@ -52,11 +52,10 @@ extension [A](
 )(using Eq[Option[A]])
   def clearable: FormInputTextView[View, Option[A]] =
     input.value.get.filter(_ => input.disabled.contains(false)).fold(input) { _ =>
-      val newAddon   =
-        <.span(^.cls := (LucumaStyles.ClearButton |+| LucumaStyles.IconTimes).htmlClass,
+      val newAddon =
+        <.span(^.cls := (LucumaStyles.BlendedAddon |+| LucumaStyles.IconTimes).htmlClass,
                ^.onClick --> input.value.set(none)
         )
-      val postAddons = newAddon :: input.postAddons
-      val groupClass = input.groupClass.toOption.orEmpty |+| LucumaStyles.ClearableInput
-      input.copy(postAddons = postAddons, groupClass = groupClass)
+      // will go before other addons, but the units will still be first.
+      input.copy(postAddons = newAddon :: input.postAddons)
     }

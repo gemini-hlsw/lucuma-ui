@@ -229,13 +229,22 @@
   }
 }
 
-// clearable inputs
-.p-inputgroup.pl-clearable-input {
+// "blended" addons for inputtext groups. Includes units and the clearable icon.
+.p-inputgroup:has(.pl-blended-addon) {
+  .p-inputgroup-addon:has(.pl-blended-addon):has(+.p-inputgroup-addon),
   .p-inputtext {
     border-right: none;
   }
 
-  .p-inputgroup-addon:has(.pl-clear-button) {
+  .p-inputtext.p-disabled ~ .p-inputgroup-addon:has(.pl-blended-addon) {
+    opacity: 0.5;
+  }
+
+  .p-inputgroup-addon:has(.pl-blended-addon) {
+    border-left: none;
+  }
+
+  .p-inputgroup-addon:has(.pl-blended-addon) {
     background-color: var(--surface-0);
   }
 }
