@@ -228,3 +228,14 @@
     }
   }
 }
+
+// clearable inputs
+.p-inputgroup.pl-clearable-input {
+  .p-inputtext {
+    border-right: none;
+  }
+
+  .p-inputgroup-addon:has(.pl-clear-button) {
+    background-color: var(--surface-0);
+  }
+}

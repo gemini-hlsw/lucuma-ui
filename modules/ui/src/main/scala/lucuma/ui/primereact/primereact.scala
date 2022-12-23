@@ -6,6 +6,8 @@ package lucuma.ui.primereact
 import cats.Eq
 import cats.derived.*
 import cats.syntax.all.*
+import crystal.react.View
+import japgolly.scalajs.react.vdom.html_<^.*
 import react.common.Css
 import react.primereact.Button
 import react.primereact.InputText
@@ -44,3 +46,17 @@ extension (input: InputText)
   def big     = input.copy(clazz = input.clazz.toOption.orEmpty |+| LucumaStyles.Big)
   def huge    = input.copy(clazz = input.clazz.toOption.orEmpty |+| LucumaStyles.Huge)
   def massive = input.copy(clazz = input.clazz.toOption.orEmpty |+| LucumaStyles.Massive)
+
+extension [A](
+  input: FormInputTextView[View, Option[A]]
+)(using Eq[Option[A]])
+  def clearable: FormInputTextView[View, Option[A]] =
+    input.value.get.filter(_ => input.disabled.contains(false)).fold(input) { _ =>
+      val newAddon   =
+        <.span(^.cls := (LucumaStyles.ClearButton |+| LucumaStyles.IconTimes).htmlClass,
+               ^.onClick --> input.value.set(none)
+        )
+      val postAddons = newAddon :: input.postAddons
+      val groupClass = input.groupClass.toOption.orEmpty |+| LucumaStyles.ClearableInput
+      input.copy(postAddons = postAddons, groupClass = groupClass)
+    }
