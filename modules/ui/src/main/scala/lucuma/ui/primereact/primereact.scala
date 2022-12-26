@@ -51,7 +51,7 @@ extension [A](
   input: FormInputTextView[View, Option[A]]
 )(using Eq[Option[A]])
   def clearable: FormInputTextView[View, Option[A]] =
-    input.value.get.filter(_ => input.disabled.contains(false)).fold(input) { _ =>
+    input.value.get.filter(_ => input.disabled.forall(_ === false)).fold(input) { _ =>
       val newAddon =
         <.span(^.cls := (LucumaStyles.BlendedAddon |+| LucumaStyles.IconTimes).htmlClass,
                ^.onClick --> input.value.set(none)
