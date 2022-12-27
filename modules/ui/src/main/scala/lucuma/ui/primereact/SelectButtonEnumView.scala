@@ -22,6 +22,8 @@ case class SelectButtonEnumView[V[_], A](
   groupClass:     js.UndefOr[Css] = js.undefined,
   buttonClass:    js.UndefOr[Css] = js.undefined,
   size:           js.UndefOr[PlSize] = js.undefined,
+  itemTemplate:   js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  onChange:       A => Callback = (_: A) => Callback.empty,
   modifiers:      Seq[TagMod] = Seq.empty
 )(using
   val enumerated: Enumerated[A],
@@ -47,7 +49,8 @@ object SelectButtonEnumView {
             SelectItem(s, label = props.display.shortName(s), clazz = props.buttonClass)
           },
           clazz = props.groupClass,
-          onChange = props.view.set
+          itemTemplate = props.itemTemplate,
+          onChange = (a: A) => props.view.set(a) *> props.onChange(a)
         )
       }
     )
