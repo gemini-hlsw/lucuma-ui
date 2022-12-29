@@ -9,13 +9,13 @@ lazy val catsVersion              = "2.9.0"
 lazy val crystalVersion           = "0.33.8"
 lazy val kittensVersion           = "3.0.0"
 lazy val lucumaCoreVersion        = "0.60.0"
+lazy val lucumaPrimeStylesVersion = "0.2.9"
+lazy val lucumaReactVersion       = "0.29.0"
+lazy val lucumaRefinedVersion     = "0.1.0"
 lazy val monocleVersion           = "3.1.0"
 lazy val mouseVersion             = "1.1.0"
-lazy val lucumaPrimeStylesVersion = "0.2.9"
-lazy val lucumaRefinedVersion     = "0.1.0"
-lazy val lucumaReactVersion       = "0.28.0"
-lazy val scalaJsReactVersion      = "2.1.1"
 lazy val pprintVersion            = "0.8.1"
+lazy val scalaJsReactVersion      = "2.1.1"
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
