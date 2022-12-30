@@ -22,7 +22,6 @@
   justify-items: start;
   align-items: baseline;
   align-self: start;
-  grid-template-columns: [label] auto [field] 1fr;
   row-gap: 1em;
   column-gap: 1em;
 
@@ -34,12 +33,19 @@
     row-gap: 0.25em;
   }
 
-  .pl-form-field-label {
-    grid-column: 1;
+  &:not(.pl-linear-column) {
+    grid-template-columns: [label] auto [field] 1fr;
+
+    .pl-form-field-label {
+      grid-column: 1;
+    }
+
+    .pl-form-field {
+      grid-column: 2;
+    }
   }
 
   .pl-form-field {
-    grid-column: 2;
     justify-self: stretch;
     margin: 0;
   }
@@ -170,19 +176,19 @@
   &.p-tooltip-right .p-tooltip-arrow {
     border-right-color: var(--text-color);
   }
-  
+
   &.p-tooltip-left .p-tooltip-arrow {
     border-left-color: var(--text-color);
   }
-  
+
   &.p-tooltip-top .p-tooltip-arrow {
     border-top-color: var(--text-color);
   }
-  
+
   &.p-tooltip-bottom .p-tooltip-arrow {
     border-bottom-color: var(--text-color);
   }
-  
+
   .p-tooltip-text {
     font-size: smaller;
     border: 1px solid var(--text-color);
@@ -242,7 +248,7 @@
     border-right: none;
   }
 
-  .p-inputtext.p-disabled ~ .p-inputgroup-addon:has(.pl-blended-addon) {
+  .p-inputtext.p-disabled~.p-inputgroup-addon:has(.pl-blended-addon) {
     opacity: 0.5;
   }
 
