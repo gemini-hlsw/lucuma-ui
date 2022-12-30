@@ -26,6 +26,7 @@ trait LucumaStyles {
   val FormColumn: Css            = Css("pl-form-column")
   val FormColumnCompact: Css     = FormColumn |+| Compact
   val FormColumnVeryCompact: Css = FormColumn |+| VeryCompact
+  val LinearColumn: Css          = Css("pl-linear-column")
 
   val FormField: Css      = Css("pl-form-field")
   val FormFieldLabel: Css = Css("pl-form-field-label")
