@@ -276,11 +276,13 @@ input FluxDensity {
 input FluxDensityContinuumIntegratedInput {
   value: PosBigDecimal!
   units: FluxDensityContinuumIntegratedUnits!
+  error: PosBigDecimal
 }
 
 input FluxDensityContinuumSurfaceInput {
   value: PosBigDecimal!
   units: FluxDensityContinuumSurfaceUnits!
+  error: PosBigDecimal
 }
 
 input GaussianInput {
@@ -1383,7 +1385,7 @@ type Angle {
 }
 
 type AsterismGroup {
-  observationIds: [ObservationId!]!
+  program: Program!
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
   asterism: [Target!]!
 }
@@ -1433,17 +1435,17 @@ type BandBrightnessSurface {
 }
 
 interface BandNormalized {
-  sed: UnnormalizedSed!
+  sed: UnnormalizedSed
 }
 
 type BandNormalizedIntegrated implements BandNormalized {
   brightnesses: [BandBrightnessIntegrated!]!
-  sed: UnnormalizedSed!
+  sed: UnnormalizedSed
 }
 
 type BandNormalizedSurface implements BandNormalized {
   brightnesses: [BandBrightnessSurface!]!
-  sed: UnnormalizedSed!
+  sed: UnnormalizedSed
 }
 
 enum BrightnessIntegratedUnits {
@@ -1504,9 +1506,7 @@ type ConstraintSet {
 }
 
 type ConstraintSetGroup {
-  observationIds: [ObservationId!]!
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
-  programId: ProgramId!
   constraintSet: ConstraintSet!
 }
 
@@ -1717,6 +1717,7 @@ type FixedExposureMode {
 type FluxDensityContinuumIntegrated {
   value: PosBigDecimal!
   units: FluxDensityContinuumIntegratedUnits!
+  error: PosBigDecimal
 }
 
 enum FluxDensityContinuumIntegratedUnits {
@@ -1727,6 +1728,7 @@ enum FluxDensityContinuumIntegratedUnits {
 type FluxDensityContinuumSurface {
   value: PosBigDecimal!
   units: FluxDensityContinuumSurfaceUnits!
+  error: PosBigDecimal
 }
 
 enum FluxDensityContinuumSurfaceUnits {
@@ -2030,10 +2032,41 @@ type Intensive implements ProposalClass {
   totalTime: NonNegDuration!
 }
 
-type ItcSuccess {
+type ItcResultSet {
+  programId: ProgramId!
+  observationId: ObservationId!
+  result: ItcResult!
+  all: [ItcResult!]
+}
+
+interface ItcResult {
+  status: ItcStatus!
+}
+
+enum ItcStatus {
+  SUCCESS
+  MISSING_PARAMS
+  SERVICE_ERROR
+}
+
+type ItcSuccess implements ItcResult {
+  status: ItcStatus!
+  targetId: TargetId!
   exposureTime: NonNegDuration!
   exposures: NonNegInt!
   signalToNoise: PosBigDecimal!
+}
+
+type ItcMissingParams implements ItcResult {
+  status: ItcStatus!
+  targetId: TargetId
+  params: [String!]!
+}
+
+type ItcServiceError implements ItcResult {
+  status: ItcStatus!
+  targetId: TargetId!
+  message: String!
 }
 
 type LargeProgram implements ProposalClass {
@@ -2121,7 +2154,6 @@ type Observation {
   constraintSet: ConstraintSet!
   scienceRequirements: ScienceRequirements!
   observingMode: ObservingMode
-  itc(useCache: Boolean! = true): ItcSuccess
   manualConfig: ManualConfig
   execution: Execution!
 }
@@ -2268,6 +2300,7 @@ type Query {
   datasets(WHERE: WhereDataset, OFFSET: DatasetIdInput, LIMIT: NonNegInt): DatasetSelectResult!
   executionEvents(WHERE: WhereExecutionEvent, OFFSET: ExecutionEventId, LIMIT: NonNegInt): ExecutionEventSelectResult!
   filterTypeMeta: [FilterTypeMeta!]!
+  itc(programId: ProgramId!, observationId: ObservationId!, useCache: Boolean! = true): ItcResultSet
   observation(observationId: ObservationId!): Observation
   observations(programId: ProgramId, WHERE: WhereObservation, OFFSET: ObservationId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ObservationSelectResult!
   partnerMeta: [PartnerMeta!]!
@@ -2570,9 +2603,9 @@ type TargetEnvironmentGroupSelectResult {
 }
 
 type TargetGroup {
-  observationIds: [ObservationId!]!
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
   target: Target!
+  program: Program! @deprecated
 }
 
 type TargetGroupSelectResult {
