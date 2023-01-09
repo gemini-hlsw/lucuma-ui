@@ -1,2 +1,2 @@
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 addSbtPlugin("edu.gemini" % "sbt-lucuma-lib" % "0.10.7")
