@@ -3,8 +3,6 @@
 
 package lucuma.ui.table
 
-import react.semanticui.collections.table.TableCompact.Compact
-
 sealed trait Compact
 
 object Compact extends Compact:
