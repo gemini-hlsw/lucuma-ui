@@ -2,8 +2,6 @@ ThisBuild / tlBaseVersion       := "0.65"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
-lazy val FUILess = "2.8.7"
-val reactSUI     = "2.0.4"
 
 lazy val catsVersion              = "2.9.0"
 lazy val crystalVersion           = "0.33.8"
@@ -62,9 +60,8 @@ lazy val demo =
       webpackResources                      := (baseDirectory.value / "webpack") * "*.js",
       webpackDevServerPort                  := 7800,
       Compile / npmDependencies ++= Seq(
-        "react"             -> reactJS,
-        "react-dom"         -> reactJS,
-        "semantic-ui-react" -> reactSUI
+        "react"     -> reactJS,
+        "react-dom" -> reactJS
       ),
       webpackMonitoredFiles / includeFilter := "*",
       useYarn                               := true,
@@ -95,7 +92,6 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-core"                  % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-react-common"          % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-font-awesome"    % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-semantic-ui"     % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-resize-detector" % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-tanstack-table"  % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-floatingui"      % lucumaReactVersion,
