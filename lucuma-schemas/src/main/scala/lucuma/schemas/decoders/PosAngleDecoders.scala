@@ -23,18 +23,20 @@ trait PosAngleDecoders {
       ops: => List[CursorOp]
     ): Decoder.Result[PosAngleConstraint] =
       (n, a) match {
-        case ("FIXED", Some(a))               => PosAngleConstraint.Fixed(a).asRight
-        case ("FIXED", None)                  => missingAngle("FIXED", ops)
-        case ("ALLOW_FLIP", Some(a))          => PosAngleConstraint.AllowFlip(a).asRight
-        case ("ALLOW_FLIP", None)             => missingAngle("ALLOW_FLIP", ops)
-        case ("AVERAGE_PARALLACTIC", None)    => PosAngleConstraint.AverageParallactic.asRight
-        case ("AVERAGE_PARALLACTIC", Some(a)) => PosAngleConstraint.ParallacticOverride(a).asRight
-        case _                                => DecodingFailure(s"Unknown constraint type `$n``", ops).asLeft
+        case ("FIXED", Some(a))                => PosAngleConstraint.Fixed(a).asRight
+        case ("FIXED", None)                   => missingAngle("FIXED", ops)
+        case ("ALLOW_FLIP", Some(a))           => PosAngleConstraint.AllowFlip(a).asRight
+        case ("ALLOW_FLIP", None)              => missingAngle("ALLOW_FLIP", ops)
+        case ("AVERAGE_PARALLACTIC", _)        => PosAngleConstraint.AverageParallactic.asRight
+        case ("PARALLACTIC_OVERRIDE", Some(a)) => PosAngleConstraint.ParallacticOverride(a).asRight
+        case ("PARALLACTIC_OVERRIDE", None)    => missingAngle("PARALLACTIC_OVERRIDE", ops)
+        case ("UNBOUNDED", _)                  => PosAngleConstraint.Unbounded.asRight
+        case _                                 => DecodingFailure(s"Unknown constraint type `$n``", ops).asLeft
       }
 
     Decoder.instance { c =>
       for {
-        n <- c.downField("constraint").as[String]
+        n <- c.downField("mode").as[String]
         a <- c.downField("angle").as[Option[Angle]]
         p <- toPac(n, a, c.history)
       } yield p
