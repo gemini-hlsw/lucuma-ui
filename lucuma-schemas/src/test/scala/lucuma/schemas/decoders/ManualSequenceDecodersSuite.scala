@@ -9,9 +9,9 @@ import lucuma.core.enums.*
 import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
 import lucuma.core.model.sequence.*
+import lucuma.core.syntax.timespan._
 import lucuma.refined.*
 
-import java.time.Duration
 import java.util.UUID
 
 class ManualSequenceDecodersSuite extends InputStreamSuite {
@@ -31,7 +31,7 @@ class ManualSequenceDecodersSuite extends InputStreamSuite {
               Step.GmosSouth(
                 id = Step.Id.fromUuid(UUID.fromString("fd1419b1-2de4-4718-b508-a42923e4b696")),
                 instrumentConfig = DynamicConfig.GmosSouth(
-                  exposure = Duration.ofSeconds(10),
+                  exposure = 10.secTimeSpan,
                   readout = GmosCcdMode(
                     xBin = GmosXBinning.Two,
                     yBin = GmosYBinning.Two,
@@ -53,11 +53,11 @@ class ManualSequenceDecodersSuite extends InputStreamSuite {
                 ),
                 stepConfig = StepConfig.Science(Offset.microarcseconds.reverseGet((0, 0))),
                 time = StepTime(
-                  configChange = Duration.ofSeconds(7),
-                  exposure = Duration.ofSeconds(10),
-                  readout = Duration.ofMillis(71400),
-                  write = Duration.ofSeconds(10),
-                  total = Duration.ofMillis(98400)
+                  configChange = 7.secTimeSpan,
+                  exposure = 10.secTimeSpan,
+                  readout = 71400.msTimeSpan,
+                  write = 10.secTimeSpan,
+                  total = 98400.msTimeSpan
                 ),
                 breakpoint = Breakpoint.Disabled
               )
@@ -69,7 +69,7 @@ class ManualSequenceDecodersSuite extends InputStreamSuite {
               Step.GmosSouth(
                 id = Step.Id.fromUuid(UUID.fromString("a190bf63-493f-4689-886d-effb29983de7")),
                 instrumentConfig = DynamicConfig.GmosSouth(
-                  exposure = Duration.ofSeconds(20),
+                  exposure = 20.secTimeSpan,
                   readout = GmosCcdMode(
                     xBin = GmosXBinning.One,
                     yBin = GmosYBinning.One,
@@ -85,11 +85,11 @@ class ManualSequenceDecodersSuite extends InputStreamSuite {
                 ),
                 stepConfig = StepConfig.Science(Offset.microarcseconds.reverseGet((10000000, 0))),
                 time = StepTime(
-                  configChange = Duration.ofSeconds(7),
-                  exposure = Duration.ofSeconds(20),
-                  readout = Duration.ofMillis(71400),
-                  write = Duration.ofSeconds(10),
-                  total = Duration.ofMillis(108400)
+                  configChange = 7.secTimeSpan,
+                  exposure = 20.secTimeSpan,
+                  readout = 71400.msTimeSpan,
+                  write = 10.secTimeSpan,
+                  total = 108400.msTimeSpan
                 ),
                 breakpoint = Breakpoint.Disabled
               )
@@ -97,7 +97,7 @@ class ManualSequenceDecodersSuite extends InputStreamSuite {
           )
         ),
         science = List.empty,
-        setupTime = Duration.ofSeconds(1080)
+        setupTime = 1080.secTimeSpan
       )
 
     assertParsedStreamEquals("/manualSequence1.json", expected)

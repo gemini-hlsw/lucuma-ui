@@ -14,6 +14,7 @@ import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.Instrument
 import lucuma.core.enums.StepType
 import lucuma.core.model.sequence._
+import lucuma.core.util.TimeSpan
 
 import java.time.Duration
 
@@ -117,7 +118,7 @@ trait SequenceDecoders {
     Decoder.instance(c =>
       for {
         static      <- c.downField("staticN").as[StaticConfig.GmosNorth]
-        setupTime   <- c.downField("plannedTime").downField("setup").as[Duration]
+        setupTime   <- c.downField("plannedTime").downField("setup").as[TimeSpan]
         acquisition <- c.downField("acquisitionN").downField("atoms").as[List[Atom.GmosNorth]]
         science     <- c.downField("scienceN").downField("atoms").as[List[Atom.GmosNorth]]
       } yield ManualConfig.GmosNorth(static, setupTime, acquisition, science)
@@ -127,7 +128,7 @@ trait SequenceDecoders {
     Decoder.instance(c =>
       for {
         static      <- c.downField("staticS").as[StaticConfig.GmosSouth]
-        setupTime   <- c.downField("plannedTime").downField("setup").as[Duration]
+        setupTime   <- c.downField("plannedTime").downField("setup").as[TimeSpan]
         acquisition <- c.downField("acquisitionS").downField("atoms").as[List[Atom.GmosSouth]]
         science     <- c.downField("scienceS").downField("atoms").as[List[Atom.GmosSouth]]
       } yield ManualConfig.GmosSouth(static, setupTime, acquisition, science)

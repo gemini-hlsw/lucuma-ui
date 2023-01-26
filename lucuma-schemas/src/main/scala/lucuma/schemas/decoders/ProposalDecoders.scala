@@ -17,6 +17,7 @@ import lucuma.core.model.Partner
 import lucuma.core.model.Proposal
 import lucuma.core.model.ProposalClass
 import lucuma.core.model.ProposalClass._
+import lucuma.core.util.TimeSpan
 
 import scala.collection.immutable.SortedMap
 
@@ -93,7 +94,7 @@ trait ProposalDecoders {
       _         <- c.downField("__typename").as[String].flatMap(validateTypename("LargeProgram"))
       minPct    <- c.downField("minPercentTime").as[IntPercent]
       minPctTot <- c.downField("minPercentTotalTime").as[IntPercent]
-      totTime   <- c.downField("totalTime").as[NonNegDuration]
+      totTime   <- c.downField("totalTime").as[TimeSpan]
     } yield LargeProgram(minPct, minPctTot, totTime)
   )
 
@@ -102,7 +103,7 @@ trait ProposalDecoders {
       _         <- c.downField("__typename").as[String].flatMap(validateTypename("Intensive"))
       minPct    <- c.downField("minPercentTime").as[IntPercent]
       minPctTot <- c.downField("minPercentTotalTime").as[IntPercent]
-      totTime   <- c.downField("totalTime").as[NonNegDuration]
+      totTime   <- c.downField("totalTime").as[TimeSpan]
     } yield Intensive(minPct, minPctTot, totTime)
   )
 

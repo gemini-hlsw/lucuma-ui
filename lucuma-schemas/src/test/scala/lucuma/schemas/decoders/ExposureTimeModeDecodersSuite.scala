@@ -8,8 +8,7 @@ import eu.timepit.refined.numeric.Positive
 import lucuma.core.model.ExposureTimeMode
 import lucuma.core.model.NonNegDuration
 import lucuma.refined._
-
-import java.time.Duration
+import lucuma.core.syntax.timespan.*
 
 class ExposureTimeModeDecodersSuite extends InputStreamSuite {
   test("SignalToNoise decoder") {
@@ -22,9 +21,7 @@ class ExposureTimeModeDecodersSuite extends InputStreamSuite {
 
   test("FixedExposure decoder") {
     val expected: ExposureTimeMode =
-      ExposureTimeMode.FixedExposure(count = 99.refined,
-                                     NonNegDuration.unsafeFrom(Duration.ofNanos(47000))
-      )
+      ExposureTimeMode.FixedExposure(count = 99.refined, 47.µsTimeSpan)
     assertParsedStreamEquals("/fixedExposure.json", expected)
   }
 }

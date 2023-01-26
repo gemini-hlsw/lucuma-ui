@@ -1,5 +1,5 @@
 {
-  "constraint": "AVERAGE_PARALLACTIC",
+  "mode": "PARALLACTIC_OVERRIDE",
   "angle": {
     "microarcseconds": 151200000000
   }

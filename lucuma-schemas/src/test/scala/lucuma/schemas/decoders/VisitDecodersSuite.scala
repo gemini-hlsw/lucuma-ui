@@ -25,15 +25,15 @@ import lucuma.core.enums.StepStage
 import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
 import lucuma.core.model.ExecutionEvent
-import lucuma.core.model.NonNegDuration
 import lucuma.core.model.sequence.*
+import lucuma.core.syntax.timespan.*
+import lucuma.core.util.TimeSpan
 import lucuma.refined.*
 import lucuma.schemas.model.SequenceEvent
 import lucuma.schemas.model.StepEvent
 import lucuma.schemas.model.StepRecord
 import lucuma.schemas.model.Visit
 
-import java.time.Duration
 import java.time.Instant
 import java.util.UUID
 
@@ -44,7 +44,7 @@ class VisitDecodersSuite extends InputStreamSuite {
       created = Instant.parse("2022-08-22T18:18:46.236929950Z"),
       startTime = Instant.parse("2022-08-22T18:18:56.336Z").some,
       endTime = Instant.parse("2022-08-22T18:26:36.809Z").some,
-      duration = NonNegDuration.unsafeFrom(Duration.ofNanos(460473000000L)).some,
+      duration = 460473.msTimeSpan.some,
       staticConfig = StaticConfig.GmosSouth(
         GmosSouthStageMode.FollowXy,
         GmosSouthDetector.Hamamatsu,
@@ -57,9 +57,9 @@ class VisitDecodersSuite extends InputStreamSuite {
           created = Instant.parse("2022-08-22T18:19:03.230191206Z"),
           startTime = Instant.parse("2022-08-22T18:26:42.092Z").some,
           endTime = Instant.parse("2022-08-22T18:26:36.809Z").some,
-          duration = NonNegDuration.zero.some,
+          duration = TimeSpan.Min.some,
           instrumentConfig = DynamicConfig.GmosSouth(
-            exposure = Duration.ofNanos(120000000000L),
+            exposure = 120.secTimeSpan,
             readout = GmosCcdMode(
               xBin = GmosXBinning.One,
               yBin = GmosYBinning.One,
