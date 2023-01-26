@@ -7,8 +7,8 @@ import eu.timepit.refined._
 import eu.timepit.refined.numeric.Positive
 import lucuma.core.model.ExposureTimeMode
 import lucuma.core.model.NonNegDuration
-import lucuma.refined._
 import lucuma.core.syntax.timespan.*
+import lucuma.refined._
 
 class ExposureTimeModeDecodersSuite extends InputStreamSuite {
   test("SignalToNoise decoder") {

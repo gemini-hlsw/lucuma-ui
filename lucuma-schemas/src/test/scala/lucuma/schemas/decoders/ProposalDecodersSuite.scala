@@ -27,8 +27,7 @@ class ProposalDecodersSuite extends InputStreamSuite {
     val expected =
       Proposal(
         title = "Classy Proposal".refined[NonEmpty].some,
-        proposalClass =
-          LargeProgram(77.refined, 88.refined, 660.µsTimeSpan),
+        proposalClass = LargeProgram(77.refined, 88.refined, 660.µsTimeSpan),
         category = TacCategory.ExoplanetHostStar.some,
         toOActivation = ToOActivation.Standard,
         abstrakt = None,

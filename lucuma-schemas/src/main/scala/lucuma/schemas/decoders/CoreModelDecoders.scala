@@ -148,17 +148,18 @@ trait CoreModelDecoders {
             .toRight(DecodingFailure(s"Invalid TimeSpan $field: $t", c.history))
         }
 
-      c.downField("microseconds").as[Long].flatMap { µs =>
-        TimeSpan
-          .FromMicroseconds
-          .getOption(µs)
-          .toRight(DecodingFailure(s"Invalid TimeSpan microseconds: $µs", c.history))
-      } orElse
-        from("milliseconds", TimeSpan.FromMilliseconds) orElse
-        from("seconds",      TimeSpan.FromSeconds     ) orElse
-        from("minutes",      TimeSpan.FromMinutes     ) orElse
-        from("hours",        TimeSpan.FromHours       ) orElse
-        from("iso",          TimeSpan.FromString      ) orElse
-        DecodingFailure(s"Could not parse duration value", c.history).asLeft
+      c.downField("microseconds")
+        .as[Long]
+        .flatMap { µs =>
+          TimeSpan.FromMicroseconds
+            .getOption(µs)
+            .toRight(DecodingFailure(s"Invalid TimeSpan microseconds: $µs", c.history))
+        }
+        .orElse(from("milliseconds", TimeSpan.FromMilliseconds))
+        .orElse(from("seconds", TimeSpan.FromSeconds))
+        .orElse(from("minutes", TimeSpan.FromMinutes))
+        .orElse(from("hours", TimeSpan.FromHours))
+        .orElse(from("iso", TimeSpan.FromString))
+        .orElse(DecodingFailure(s"Could not parse duration value", c.history).asLeft)
     }
 }
