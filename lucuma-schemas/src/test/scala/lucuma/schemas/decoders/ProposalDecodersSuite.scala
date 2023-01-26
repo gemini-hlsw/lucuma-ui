@@ -16,9 +16,9 @@ import lucuma.core.model.Partner
 import lucuma.core.model.Proposal
 import lucuma.core.model.ProposalClass.LargeProgram
 import lucuma.core.model.ZeroTo100
+import lucuma.core.syntax.timespan.*
 import lucuma.refined._
 
-import java.time.Duration
 import scala.collection.immutable.SortedMap
 
 class ProposalDecodersSuite extends InputStreamSuite {
@@ -27,8 +27,7 @@ class ProposalDecodersSuite extends InputStreamSuite {
     val expected =
       Proposal(
         title = "Classy Proposal".refined[NonEmpty].some,
-        proposalClass =
-          LargeProgram(77.refined, 88.refined, NonNegDuration.unsafeFrom(Duration.ofNanos(660000))),
+        proposalClass = LargeProgram(77.refined, 88.refined, 660.µsTimeSpan),
         category = TacCategory.ExoplanetHostStar.some,
         toOActivation = ToOActivation.Standard,
         abstrakt = None,

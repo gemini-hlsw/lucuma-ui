@@ -8,10 +8,10 @@ import cats.derived.*
 import cats.syntax.all.given
 import eu.timepit.refined.cats.given
 import lucuma.core.enums.StepQaState
-import lucuma.core.model.NonNegDuration
 import lucuma.core.model.sequence.DynamicConfig
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
+import lucuma.core.util.TimeSpan
 import org.typelevel.cats.time.given
 
 import java.time.Instant
@@ -21,7 +21,7 @@ sealed trait StepRecord derives Eq:
   def created: Instant
   def startTime: Option[Instant]
   def endTime: Option[Instant]
-  def duration: Option[NonNegDuration]
+  def duration: Option[TimeSpan]
   def instrumentConfig: DynamicConfig
   def stepConfig: StepConfig
   def stepEvents: List[StepEvent]
@@ -35,7 +35,7 @@ object StepRecord:
     created:          Instant,
     startTime:        Option[Instant],
     endTime:          Option[Instant],
-    duration:         Option[NonNegDuration],
+    duration:         Option[TimeSpan],
     instrumentConfig: DynamicConfig.GmosNorth,
     stepConfig:       StepConfig,
     stepEvents:       List[StepEvent],
@@ -50,7 +50,7 @@ object StepRecord:
     created:          Instant,
     startTime:        Option[Instant],
     endTime:          Option[Instant],
-    duration:         Option[NonNegDuration],
+    duration:         Option[TimeSpan],
     instrumentConfig: DynamicConfig.GmosSouth,
     stepConfig:       StepConfig,
     stepEvents:       List[StepEvent],

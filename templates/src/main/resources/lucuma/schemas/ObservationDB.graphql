@@ -35,7 +35,7 @@ input AirMassRangeInput {
 
 type Allocation {
   partner: Partner!
-  duration: NonNegDuration!
+  duration: TimeSpan!
 }
 
 input AngleInput {
@@ -265,7 +265,7 @@ input FastTurnaroundInput {
 
 input FixedExposureModeInput {
   count: NonNegInt!
-  time: NonNegDurationInput!
+  time: TimeSpanInput!
 }
 
 input FluxDensity {
@@ -448,7 +448,7 @@ enum GmosNorthDetector {
 }
 
 type GmosNorthDynamic {
-  exposure: NonNegDuration!
+  exposure: TimeSpan!
   readout: GmosCcdMode!
   dtax: GmosDtax!
   roi: GmosRoi!
@@ -458,7 +458,7 @@ type GmosNorthDynamic {
 }
 
 input GmosNorthDynamicInput {
-  exposure: NonNegDurationInput!
+  exposure: TimeSpanInput!
   readout: GmosCcdReadoutInput!
   dtax: GmosDtax!
   roi: GmosRoi!
@@ -581,7 +581,7 @@ type GmosNorthStepRecord {
   created: Timestamp!
   startTime: Timestamp
   endTime: Timestamp
-  duration: NonNegDuration!
+  duration: TimeSpan!
   instrumentConfig: GmosNorthDynamic!
   stepConfig: StepConfig!
   stepEvents: [StepEvent!]!
@@ -595,7 +595,7 @@ type GmosNorthVisitRecord {
   created: Timestamp!
   startTime: Timestamp
   endTime: Timestamp
-  duration: NonNegDuration!
+  duration: TimeSpan!
   staticConfig: GmosNorthStatic!
   steps: [GmosNorthStepRecord!]!
   sequenceEvents: [SequenceEvent!]!
@@ -621,7 +621,7 @@ enum GmosSouthDetector {
 }
 
 type GmosSouthDynamic {
-  exposure: NonNegDuration!
+  exposure: TimeSpan!
   readout: GmosCcdMode!
   dtax: GmosDtax!
   roi: GmosRoi!
@@ -631,7 +631,7 @@ type GmosSouthDynamic {
 }
 
 input GmosSouthDynamicInput {
-  exposure: NonNegDurationInput!
+  exposure: TimeSpanInput!
   readout: GmosCcdReadoutInput!
   dtax: GmosDtax!
   roi: GmosRoi!
@@ -754,7 +754,7 @@ type GmosSouthStepRecord {
   created: Timestamp!
   startTime: Timestamp
   endTime: Timestamp
-  duration: NonNegDuration!
+  duration: TimeSpan!
   instrumentConfig: GmosSouthDynamic!
   stepConfig: StepConfig!
   stepEvents: [StepEvent!]!
@@ -768,7 +768,7 @@ type GmosSouthVisitRecord {
   created: Timestamp!
   startTime: Timestamp
   endTime: Timestamp
-  duration: NonNegDuration!
+  duration: TimeSpan
   staticConfig: GmosSouthStatic!
   steps: [GmosSouthStepRecord!]!
   sequenceEvents: [SequenceEvent!]!
@@ -782,13 +782,13 @@ input HourAngleRangeInput {
 input IntensiveInput {
   minPercentTime: IntPercent
   minPercentTotalTime: IntPercent
-  totalTime: NonNegDurationInput
+  totalTime: TimeSpanInput
 }
 
 input LargeProgramInput {
   minPercentTime: IntPercent
   minPercentTotalTime: IntPercent
-  totalTime: NonNegDurationInput
+  totalTime: TimeSpanInput
 }
 
 input LineFluxIntegratedInput {
@@ -871,14 +871,6 @@ type Mutation {
   updateObservations(input: UpdateObservationsInput!): UpdateObservationsResult!
   updatePrograms(input: UpdateProgramsInput!): UpdateProgramsResult!
   updateTargets(input: UpdateTargetsInput!): UpdateTargetsResult!
-}
-
-input NonNegDurationInput {
-  microseconds: PosLong
-  milliseconds: NonNegBigDecimal
-  seconds: NonNegBigDecimal
-  minutes: NonNegBigDecimal
-  hours: NonNegBigDecimal
 }
 
 input NonsiderealInput {
@@ -1100,7 +1092,7 @@ input SequenceEventPayloadInput {
 input SetAllocationInput {
   programId: ProgramId!
   partner: Partner!
-  duration: DurationInput!
+  duration: TimeSpanInput!
 }
 
 type SetAllocationResult {
@@ -1474,7 +1466,7 @@ type CatalogInfo {
 
 enum CatalogName {
   SIMBAD
-  HORIZON
+  IMPORT
   GAIA
 }
 
@@ -1608,20 +1600,22 @@ type DirectorsTime implements ProposalClass {
 
 scalar DmsString
 
-type Duration {
+type TimeSpan {
   microseconds: Long!
   milliseconds: BigDecimal!
   seconds: BigDecimal!
   minutes: BigDecimal!
   hours: BigDecimal!
+  iso: String!
 }
 
-input DurationInput {
+input TimeSpanInput {
   microseconds: Long
   milliseconds: BigDecimal
   seconds: BigDecimal
   minutes: BigDecimal
   hours: BigDecimal
+  iso: String
 }
 
 type ElevationRange {
@@ -1711,7 +1705,7 @@ type FilterTypeMeta {
 
 type FixedExposureMode {
   count: NonNegInt!
-  time: NonNegDuration!
+  time: TimeSpan!
 }
 
 type FluxDensityContinuumIntegrated {
@@ -2029,7 +2023,7 @@ scalar IntPercent
 type Intensive implements ProposalClass {
   minPercentTime: IntPercent!
   minPercentTotalTime: IntPercent!
-  totalTime: NonNegDuration!
+  totalTime: TimeSpan!
 }
 
 type ItcResultSet {
@@ -2052,7 +2046,7 @@ enum ItcStatus {
 type ItcSuccess implements ItcResult {
   status: ItcStatus!
   targetId: TargetId!
-  exposureTime: NonNegDuration!
+  exposureTime: TimeSpan!
   exposures: NonNegInt!
   signalToNoise: PosBigDecimal!
 }
@@ -2072,7 +2066,7 @@ type ItcServiceError implements ItcResult {
 type LargeProgram implements ProposalClass {
   minPercentTime: IntPercent!
   minPercentTotalTime: IntPercent!
-  totalTime: NonNegDuration!
+  totalTime: TimeSpan!
 }
 
 type LineFluxIntegrated {
@@ -2103,15 +2097,6 @@ interface ManualConfig {
 scalar NonEmptyString
 
 scalar NonNegBigDecimal
-
-type NonNegDuration {
-  microseconds: NonNegLong!
-  milliseconds: NonNegBigDecimal!
-  seconds: NonNegBigDecimal!
-  minutes: NonNegBigDecimal!
-  hours: NonNegBigDecimal!
-  iso: String!
-}
 
 scalar NonNegInt
 
@@ -2189,18 +2174,18 @@ enum PlanetaryNebulaSpectrum {
 }
 
 type PlannedTime {
-  setup: NonNegDuration!
+  setup: TimeSpan!
   acquisition: [StepTime!]!
   acquisitionTotal: StepTime!
   science: [StepTime!]!
   scienceTotal: StepTime!
-  total: NonNegDuration!
+  total: TimeSpan!
 }
 
 type PlannedTimeSummary {
-  pi: NonNegDuration!
-  uncharged: NonNegDuration!
-  execution: NonNegDuration!
+  pi: TimeSpan!
+  uncharged: TimeSpan!
+  execution: TimeSpan!
 }
 
 type PoorWeather implements ProposalClass {
@@ -2540,11 +2525,11 @@ enum StepStage {
 }
 
 type StepTime {
-  configChange: NonNegDuration!
-  exposure: NonNegDuration!
-  readout: NonNegDuration!
-  write: NonNegDuration!
-  total: NonNegDuration!
+  configChange: TimeSpan!
+  exposure: TimeSpan!
+  readout: TimeSpan!
+  write: TimeSpan!
+  total: TimeSpan!
 }
 
 type SystemVerification implements ProposalClass {

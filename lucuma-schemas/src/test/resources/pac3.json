@@ -1,5 +1,5 @@
 {
-  "constraint": "FIXED",
+  "mode": "FIXED",
   "angle": {
     "microarcseconds": 151200000000
   }

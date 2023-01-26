@@ -11,6 +11,7 @@ import eu.timepit.refined.cats.given
 import lucuma.core.enums.SequenceType
 import lucuma.core.model.NonNegDuration
 import lucuma.core.model.sequence.StaticConfig
+import lucuma.core.util.TimeSpan
 import lucuma.core.util.WithUid
 import lucuma.refined.*
 import monocle.Focus
@@ -26,7 +27,7 @@ sealed trait Visit derives Eq:
   def created: Instant
   def startTime: Option[Instant]
   def endTime: Option[Instant]
-  def duration: Option[NonNegDuration]
+  def duration: Option[TimeSpan]
   def staticConfig: StaticConfig
   def steps: List[StepRecord]
   def sequenceEvents: List[SequenceEvent]
@@ -45,7 +46,7 @@ object Visit extends WithUid('v'.refined):
     created:        Instant,
     startTime:      Option[Instant],
     endTime:        Option[Instant],
-    duration:       Option[NonNegDuration],
+    duration:       Option[TimeSpan],
     staticConfig:   StaticConfig.GmosNorth,
     steps:          List[StepRecord.GmosNorth],
     sequenceEvents: List[SequenceEvent]
@@ -57,7 +58,7 @@ object Visit extends WithUid('v'.refined):
     created:        Instant,
     startTime:      Option[Instant],
     endTime:        Option[Instant],
-    duration:       Option[NonNegDuration],
+    duration:       Option[TimeSpan],
     staticConfig:   StaticConfig.GmosSouth,
     steps:          List[StepRecord.GmosSouth],
     sequenceEvents: List[SequenceEvent]

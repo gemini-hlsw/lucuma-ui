@@ -7,8 +7,8 @@ import cats.syntax.all._
 import lucuma.core.enums._
 import lucuma.core.math.Offset
 import lucuma.core.model.sequence._
+import lucuma.core.syntax.timespan._
 
-import java.time.Duration
 import java.util.UUID
 
 class GeneratedSequenceDecodersSuite extends InputStreamSuite {
@@ -28,7 +28,7 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
               Step.GmosNorth(
                 id = Step.Id.fromUuid(UUID.fromString("1ece00d1-03f6-4823-ab74-9069fef089ae")),
                 instrumentConfig = DynamicConfig.GmosNorth(
-                  exposure = Duration.ofSeconds(10),
+                  exposure = 10.secTimeSpan,
                   readout = GmosCcdMode(
                     xBin = GmosXBinning.Two,
                     yBin = GmosYBinning.Two,
@@ -44,11 +44,11 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
                 ),
                 stepConfig = StepConfig.Science(Offset.microarcseconds.reverseGet((0, 0))),
                 time = StepTime(
-                  configChange = Duration.ofSeconds(7),
-                  exposure = Duration.ofSeconds(10),
-                  readout = Duration.ofMillis(71400),
-                  write = Duration.ofSeconds(10),
-                  total = Duration.ofMillis(98400)
+                  configChange = 7.secTimeSpan,
+                  exposure = 10.secTimeSpan,
+                  readout = 71400.msTimeSpan,
+                  write = 10.secTimeSpan,
+                  total = 98400.msTimeSpan
                 ),
                 breakpoint = Breakpoint.Disabled
               )
@@ -63,7 +63,7 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
               Step.GmosNorth(
                 id = Step.Id.fromUuid(UUID.fromString("f3769281-55cd-4d87-bcac-6dc18dbf512a")),
                 instrumentConfig = DynamicConfig.GmosNorth(
-                  exposure = Duration.ofSeconds(10),
+                  exposure = 10.secTimeSpan,
                   readout = GmosCcdMode(
                     xBin = GmosXBinning.Two,
                     yBin = GmosYBinning.Two,
@@ -79,18 +79,18 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
                 ),
                 stepConfig = StepConfig.Science(Offset.microarcseconds.reverseGet((0, 0))),
                 time = StepTime(
-                  configChange = Duration.ofSeconds(7),
-                  exposure = Duration.ofSeconds(10),
-                  readout = Duration.ofMillis(71400),
-                  write = Duration.ofSeconds(10),
-                  total = Duration.ofMillis(98400)
+                  configChange = 7.secTimeSpan,
+                  exposure = 10.secTimeSpan,
+                  readout = 71400.msTimeSpan,
+                  write = 10.secTimeSpan,
+                  total = 98400.msTimeSpan
                 ),
                 breakpoint = Breakpoint.Disabled
               ),
               Step.GmosNorth(
                 id = Step.Id.fromUuid(UUID.fromString("6bf2856b-abeb-417d-aff8-2125c99f25fe")),
                 instrumentConfig = DynamicConfig.GmosNorth(
-                  exposure = Duration.ofSeconds(20),
+                  exposure = 20.secTimeSpan,
                   readout = GmosCcdMode(
                     xBin = GmosXBinning.One,
                     yBin = GmosYBinning.One,
@@ -106,18 +106,18 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
                 ),
                 stepConfig = StepConfig.Science(Offset.microarcseconds.reverseGet((10000000, 0))),
                 time = StepTime(
-                  configChange = Duration.ofSeconds(7),
-                  exposure = Duration.ofSeconds(20),
-                  readout = Duration.ofMillis(71400),
-                  write = Duration.ofSeconds(10),
-                  total = Duration.ofMillis(108400)
+                  configChange = 7.secTimeSpan,
+                  exposure = 20.secTimeSpan,
+                  readout = 71400.msTimeSpan,
+                  write = 10.secTimeSpan,
+                  total = 108400.msTimeSpan
                 ),
                 breakpoint = Breakpoint.Disabled
               ),
               Step.GmosNorth(
                 id = Step.Id.fromUuid(UUID.fromString("f7442252-6eac-4c6e-bfea-ee4ab824fd78")),
                 instrumentConfig = DynamicConfig.GmosNorth(
-                  exposure = Duration.ofSeconds(40),
+                  exposure = 40.secTimeSpan,
                   readout = GmosCcdMode(
                     xBin = GmosXBinning.One,
                     yBin = GmosYBinning.One,
@@ -133,11 +133,11 @@ class GeneratedSequenceDecodersSuite extends InputStreamSuite {
                 ),
                 stepConfig = StepConfig.Science(Offset.microarcseconds.reverseGet((0, 0))),
                 time = StepTime(
-                  configChange = Duration.ofSeconds(7),
-                  exposure = Duration.ofSeconds(40),
-                  readout = Duration.ofMillis(71400),
-                  write = Duration.ofSeconds(10),
-                  total = Duration.ofMillis(128400)
+                  configChange = 7.secTimeSpan,
+                  exposure = 40.secTimeSpan,
+                  readout = 71400.msTimeSpan,
+                  write = 10.secTimeSpan,
+                  total = 128400.msTimeSpan
                 ),
                 breakpoint = Breakpoint.Disabled
               )
