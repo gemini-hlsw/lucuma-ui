@@ -24,6 +24,7 @@ import lucuma.core.model.sequence.DynamicConfig
 import lucuma.core.model.sequence.StaticConfig
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
+import lucuma.core.util.TimeSpan
 import lucuma.schemas.model.*
 
 import java.time.Instant
@@ -72,7 +73,7 @@ trait VisitDecoders:
       created          <- c.downField("created").as[Instant]
       startTime        <- c.downField("startTime").as[Option[Instant]]
       endTime          <- c.downField("endTime").as[Option[Instant]]
-      duration         <- c.downField("duration").as[Option[NonNegDuration]]
+      duration         <- c.downField("duration").as[Option[TimeSpan]]
       instrumentConfig <- c.downField("instrumentConfig").as[DynamicConfig.GmosNorth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
       stepEvents       <- c.downField("stepEvents").as[Option[List[StepEvent]]]
@@ -100,7 +101,7 @@ trait VisitDecoders:
       created          <- c.downField("created").as[Instant]
       startTime        <- c.downField("startTime").as[Option[Instant]]
       endTime          <- c.downField("endTime").as[Option[Instant]]
-      duration         <- c.downField("duration").as[Option[NonNegDuration]]
+      duration         <- c.downField("duration").as[Option[TimeSpan]]
       instrumentConfig <- c.downField("instrumentConfig").as[DynamicConfig.GmosSouth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
       stepEvents       <- c.downField("stepEvents").as[Option[List[StepEvent]]]
@@ -130,7 +131,7 @@ trait VisitDecoders:
       created        <- c.downField("created").as[Instant]
       startTime      <- c.downField("startTime").as[Option[Instant]]
       endTime        <- c.downField("endTime").as[Option[Instant]]
-      duration       <- c.downField("duration").as[Option[NonNegDuration]]
+      duration       <- c.downField("duration").as[Option[TimeSpan]]
       staticConfig   <- c.downField("staticN").as[StaticConfig.GmosNorth]
       steps          <- c.downField("stepsN").as[List[StepRecord.GmosNorth]]
       sequenceEvents <- c.downField("sequenceEvents").as[List[SequenceEvent]]
@@ -152,7 +153,7 @@ trait VisitDecoders:
       created        <- c.downField("created").as[Instant]
       startTime      <- c.downField("startTime").as[Option[Instant]]
       endTime        <- c.downField("endTime").as[Option[Instant]]
-      duration       <- c.downField("duration").as[Option[NonNegDuration]]
+      duration       <- c.downField("duration").as[Option[TimeSpan]]
       staticConfig   <- c.downField("staticS").as[StaticConfig.GmosSouth]
       steps          <- c.downField("stepsS").as[List[StepRecord.GmosSouth]]
       sequenceEvents <- c.downField("sequenceEvents").as[List[SequenceEvent]]

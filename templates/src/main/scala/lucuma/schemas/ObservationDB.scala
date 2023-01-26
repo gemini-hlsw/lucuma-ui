@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2022 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package lucuma.schemas
@@ -11,6 +11,8 @@ import lucuma.core.model.sequence._
 import lucuma.core.math.dimensional._
 import lucuma.core.util._
 import lucuma.core.math.BrightnessUnits._
+
+// gql: import clue.BigNumberEncoders._
 // gql: import io.circe.refined._
 
 @GraphQLSchema
@@ -23,6 +25,7 @@ trait ObservationDB {
     type ProgramId        = Program.Id
     type StepId           = Step.Id
     type TargetId         = Target.Id
+    type UserId           = User.Id
     type VisitId          = Visit.Id
     // Basic types
     type BigDecimal       = scala.BigDecimal
@@ -41,7 +44,8 @@ trait ObservationDB {
     type PosInt           = eu.timepit.refined.types.numeric.PosInt
     type PosLong          = eu.timepit.refined.types.numeric.PosLong
     // Time
-    type Instant          = java.time.Instant
+    // type Instant          = java.time.Instant
+    type Timestamp        = lucuma.core.util.Timestamp
   }
 
   object Enums {
@@ -96,7 +100,7 @@ trait ObservationDB {
     type PlanetSpectrum                      = enums.PlanetSpectrum
     type PlanetaryNebulaSpectrum             = enums.PlanetaryNebulaSpectrum
     type QuasarSpectrum                      = enums.QuasarSpectrum
-    type ScienceRequirementMode              = enums.ScienceMode
+    type ScienceMode                         = enums.ScienceMode
     type SequenceCommand                     = enums.SequenceCommand
     type SkyBackground                       = enums.SkyBackground
     type SpectroscopyCapabilities            = enums.SpectroscopyCapabilities

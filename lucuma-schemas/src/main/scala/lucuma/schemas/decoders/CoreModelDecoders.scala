@@ -11,6 +11,7 @@ import coulomb.syntax._
 import eu.timepit.refined.types.numeric.NonNegLong
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
+import io.circe.DecodingFailure
 import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.math.Angle
@@ -28,6 +29,7 @@ import lucuma.core.math.dimensional._
 import lucuma.core.math.units.CentimetersPerSecond
 import lucuma.core.math.units.MetersPerSecond
 import lucuma.core.model.NonNegDuration
+import lucuma.core.optics.Format
 import lucuma.core.util.*
 
 import java.time.Duration
@@ -135,4 +137,29 @@ trait CoreModelDecoders {
       q <- c.downField("q").as[Offset.Component[Axis.Q]]
     } yield Offset(p, q)
   )
+
+  // Copied from lucuma-odb for now ...
+  implicit val timeSpanDecoder: Decoder[TimeSpan] =
+    Decoder.instance { c =>
+      def from[T: Decoder](field: String, format: Format[T, TimeSpan]): Decoder.Result[TimeSpan] =
+        c.downField(field).as[T].flatMap { t =>
+          format
+            .getOption(t)
+            .toRight(DecodingFailure(s"Invalid TimeSpan $field: $t", c.history))
+        }
+
+      c.downField("microseconds")
+        .as[Long]
+        .flatMap { µs =>
+          TimeSpan.FromMicroseconds
+            .getOption(µs)
+            .toRight(DecodingFailure(s"Invalid TimeSpan microseconds: $µs", c.history))
+        }
+        .orElse(from("milliseconds", TimeSpan.FromMilliseconds))
+        .orElse(from("seconds", TimeSpan.FromSeconds))
+        .orElse(from("minutes", TimeSpan.FromMinutes))
+        .orElse(from("hours", TimeSpan.FromHours))
+        .orElse(from("iso", TimeSpan.FromString))
+        .orElse(DecodingFailure(s"Could not parse duration value", c.history).asLeft)
+    }
 }
