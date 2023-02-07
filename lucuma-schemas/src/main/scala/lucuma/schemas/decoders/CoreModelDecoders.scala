@@ -25,6 +25,7 @@ import lucuma.core.math.ProperMotion
 import lucuma.core.math.RadialVelocity
 import lucuma.core.math.RightAscension
 import lucuma.core.math.Wavelength
+import lucuma.core.math.WavelengthRange
 import lucuma.core.math.dimensional._
 import lucuma.core.math.units.CentimetersPerSecond
 import lucuma.core.math.units.MetersPerSecond
@@ -121,6 +122,10 @@ trait CoreModelDecoders {
 
   implicit val wavelengthDecoder: Decoder[Wavelength] = Decoder.instance(
     _.downField("picometers").as[PosInt].map(Wavelength.apply)
+  )
+
+  implicit val wavelengthRangeDecoder: Decoder[WavelengthRange] = Decoder.instance(
+    _.downField("picometers").as[PosInt].map(WavelengthRange.apply)
   )
 
   private def offsetComponentDecoder[A]: Decoder[Offset.Component[A]] = Decoder.instance(

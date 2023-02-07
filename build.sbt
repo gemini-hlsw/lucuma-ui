@@ -1,12 +1,12 @@
 val clueVersion            = "0.23.2"
 val lucumaCoreVersion2     = "0.45.0"
-val lucumaCoreVersion      = "0.63.2"
+val lucumaCoreVersion      = "0.64.0"
 val fs2Version             = "3.5.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 val kittensVersion         = "3.0.0"
 
-ThisBuild / tlBaseVersion       := "0.40"
+ThisBuild / tlBaseVersion       := "0.41"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.2.2")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")

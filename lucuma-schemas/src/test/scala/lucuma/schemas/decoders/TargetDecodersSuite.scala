@@ -3,10 +3,10 @@
 
 package lucuma.schemas.decoders
 
-import cats.Order._
-import cats.syntax.all._
-import coulomb._
-import coulomb.syntax._
+import cats.Order.*
+import cats.syntax.all.*
+import coulomb.*
+import coulomb.syntax.*
 import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.types.numeric.PosBigDecimal
@@ -16,7 +16,8 @@ import io.circe.Decoder
 import lucuma.core.enums.Band
 import lucuma.core.enums.CatalogName
 import lucuma.core.enums.GalaxySpectrum
-import lucuma.core.math.BrightnessUnits._
+import lucuma.core.math.BrightnessUnits.*
+import lucuma.core.math.BrightnessValue
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
@@ -25,8 +26,8 @@ import lucuma.core.math.ProperMotion
 import lucuma.core.math.RadialVelocity
 import lucuma.core.math.RightAscension
 import lucuma.core.math.Wavelength
-import lucuma.core.math.dimensional._
-import lucuma.core.math.units._
+import lucuma.core.math.dimensional.*
+import lucuma.core.math.units.*
 import lucuma.core.model.CatalogInfo
 import lucuma.core.model.EmissionLine
 import lucuma.core.model.SiderealTracking
@@ -34,7 +35,7 @@ import lucuma.core.model.SourceProfile
 import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.Target
 import lucuma.core.model.UnnormalizedSED
-import lucuma.refined._
+import lucuma.refined.*
 
 import scala.collection.immutable.SortedMap
 
@@ -70,39 +71,39 @@ class DecodersSuite extends InputStreamSuite {
             UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral).some,
             SortedMap(
               Band.SloanU ->
-                BigDecimal(14.147)
+                BrightnessValue(14.147)
                   .withUnit[ABMagnitude]
                   .toMeasureTagged
-                  .withError(BigDecimal(0.005)),
-              Band.SloanG -> BigDecimal(12.924)
+                  .withError(BrightnessValue(0.005)),
+              Band.SloanG -> BrightnessValue(12.924)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BigDecimal(0.002)),
-              Band.SloanR -> BigDecimal(12.252)
+                .withError(BrightnessValue(0.002)),
+              Band.SloanR -> BrightnessValue(12.252)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BigDecimal(0.002)),
-              Band.SloanI -> BigDecimal(11.888)
+                .withError(BrightnessValue(0.002)),
+              Band.SloanI -> BrightnessValue(11.888)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BigDecimal(0.002)),
-              Band.SloanZ -> BigDecimal(11.636)
+                .withError(BrightnessValue(0.002)),
+              Band.SloanZ -> BrightnessValue(11.636)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BigDecimal(0.002)),
-              Band.B      -> BigDecimal(12.7).withUnit[VegaMagnitude].toMeasureTagged,
-              Band.J      -> BigDecimal(10.279)
+                .withError(BrightnessValue(0.002)),
+              Band.B      -> BrightnessValue(12.7).withUnit[VegaMagnitude].toMeasureTagged,
+              Band.J      -> BrightnessValue(10.279)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BigDecimal(0.001)),
-              Band.H      -> BigDecimal(9.649)
+                .withError(BrightnessValue(0.001)),
+              Band.H      -> BrightnessValue(9.649)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BigDecimal(0.012)),
-              Band.K      -> BigDecimal(9.425)
+                .withError(BrightnessValue(0.012)),
+              Band.K      -> BrightnessValue(9.425)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BigDecimal(0.017))
+                .withError(BrightnessValue(0.017))
             )
           )
         ),
@@ -173,24 +174,24 @@ class DecodersSuite extends InputStreamSuite {
           SpectralDefinition.BandNormalized(
             UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral).some,
             SortedMap(
-              Band.B -> BigDecimal(12.63)
+              Band.B -> BrightnessValue(12.63)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged,
-              Band.V -> BigDecimal(13.96)
+              Band.V -> BrightnessValue(13.96)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged,
-              Band.J -> BigDecimal(9.552)
+              Band.J -> BrightnessValue(9.552)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BigDecimal(0.016)),
-              Band.H -> BigDecimal(8.907)
+                .withError(BrightnessValue(0.016)),
+              Band.H -> BrightnessValue(8.907)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BigDecimal(0.017)),
-              Band.K -> BigDecimal(8.665)
+                .withError(BrightnessValue(0.017)),
+              Band.K -> BrightnessValue(8.665)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BigDecimal(0.028))
+                .withError(BrightnessValue(0.028))
             )
           )
         ),

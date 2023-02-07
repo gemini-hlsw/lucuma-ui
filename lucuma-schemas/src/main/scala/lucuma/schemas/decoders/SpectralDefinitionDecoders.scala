@@ -3,22 +3,23 @@
 
 package lucuma.schemas.decoders
 
-import cats.Order._
-import cats.syntax.all._
-import coulomb._
+import cats.Order.*
+import cats.syntax.all.*
+import coulomb.*
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import io.circe.Decoder
 import io.circe.HCursor
-import io.circe.refined._
+import io.circe.refined.*
 import lucuma.core.enums.Band
-import lucuma.core.math.BrightnessUnits._
+import lucuma.core.math.BrightnessUnits.*
+import lucuma.core.math.BrightnessValue
 import lucuma.core.math.Wavelength
-import lucuma.core.math.dimensional._
-import lucuma.core.math.units._
+import lucuma.core.math.dimensional.*
+import lucuma.core.math.units.*
 import lucuma.core.model.EmissionLine
 import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.UnnormalizedSED
-import lucuma.core.util._
+import lucuma.core.util.*
 
 import scala.collection.immutable.SortedMap
 
@@ -32,7 +33,7 @@ trait SpectralDefinitionDecoders {
         for {
           v <- c.as[BrightnessMeasure[T]]
           b <- c.downField("band").as[Band]
-          e <- c.downField("error").as[Option[BigDecimal]]
+          e <- c.downField("error").as[Option[BrightnessValue]]
         } yield (b, Measure.errorTagged.replace(e)(v))
       )
 
