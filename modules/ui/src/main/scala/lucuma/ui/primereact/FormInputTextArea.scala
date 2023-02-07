@@ -21,7 +21,7 @@ import scalajs.js
 
 case class FormInputTextArea(
   id:               NonEmptyString,
-  value:            js.UndefOr[String] = js.undefined,
+  value:            String,
   label:            js.UndefOr[TagMod] = js.undefined,
   size:             js.UndefOr[PlSize] = js.undefined,
   autoResize:       js.UndefOr[Boolean] = js.undefined,
@@ -39,7 +39,9 @@ object FormInputTextArea:
 
     val group = <.div(
       LucumaStyles.FormField,
-      InputTextarea(autoResize = props.autoResize)(^.id := props.id.value)(props.modifiers: _*)
+      InputTextarea(autoResize = props.autoResize)(^.id := props.id.value, ^.value := props.value)(
+        props.modifiers: _*
+      )
     )
 
     val input = props.tooltip.fold(group)(tt => group.withTooltip(tt, props.tooltipPlacement))
