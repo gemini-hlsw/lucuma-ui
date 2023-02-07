@@ -165,7 +165,7 @@ object FormComponent {
               value = root.zoom(RootModel.refinedInt),
               validFormat = InputValidSplitEpi
                 .refinedInt[ZeroTo2048]
-                .withErrorMessage("Must be in range 0-2048".refined),
+                .withErrorMessage(_ => "Must be in range 0-2048".refined),
               changeAuditor = ChangeAuditor.refinedInt[ZeroTo2048]()
             ),
             FormInputTextView(
@@ -174,7 +174,7 @@ object FormComponent {
               value = root.zoom(RootModel.refinedOdd),
               validFormat = InputValidSplitEpi
                 .refinedInt[Odd]
-                .withErrorMessage("Must be an odd integer".refined),
+                .withErrorMessage(_ => "Must be an odd integer".refined),
               changeAuditor = ChangeAuditor.refinedInt[Odd](filterMode = FilterMode.Lax)
             ),
             FormInputTextView(

@@ -3,7 +3,6 @@
 
 package lucuma.ui.input
 
-import cats.data.Validated._
 import cats.syntax.all._
 import eu.timepit.refined.api.{Validate => RefinedValidate}
 import eu.timepit.refined.auto._
@@ -367,11 +366,12 @@ object ChangeAuditor {
     val newStr = formatFn(s)
     val valid  = filterMode match {
       case Strict => InputValidSplitEpi.refinedString[P].getValid(newStr)
-      case Lax    => newStr.validNec[String]
+      case Lax    => newStr.asRight
     }
     valid match {
-      case Invalid(_) => AuditResult.reject
-      case Valid(_)   => if (newStr == s) AuditResult.accept else AuditResult.newString(newStr)
+      case Left(_)  => AuditResult.reject
+      case Right(_) =>
+        if (newStr == s) AuditResult.accept else AuditResult.newString(newStr)
     }
   }
 
