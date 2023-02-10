@@ -44,7 +44,6 @@ trait ObservationDB {
     type PosInt           = eu.timepit.refined.types.numeric.PosInt
     type PosLong          = eu.timepit.refined.types.numeric.PosLong
     // Time
-    // type Instant          = java.time.Instant
     type Timestamp        = lucuma.core.util.Timestamp
   }
 

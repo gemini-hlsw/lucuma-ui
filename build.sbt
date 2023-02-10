@@ -1,4 +1,4 @@
-val clueVersion            = "0.23.2"
+val clueVersion            = "0.24.1"
 val lucumaCoreVersion2     = "0.45.0"
 val lucumaCoreVersion      = "0.67.0"
 val fs2Version             = "3.5.0"
@@ -16,12 +16,37 @@ ThisBuild / scalafixDependencies += "edu.gemini"                     %% "clue-ge
 ThisBuild / scalafixScalaBinaryVersion                               := "2.13"
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
-lazy val root = tlCrossRootProject.aggregate(lucumaSchemas)
+lazy val root = tlCrossRootProject.aggregate(model, testkit, lucumaSchemas)
+
+val model =
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Pure)
+    .in(file("model"))
+    .settings(
+      moduleName := "lucuma-schemas-model",
+      libraryDependencies ++= Seq(
+        "edu.gemini"    %%% "lucuma-core" % lucumaCoreVersion,
+        "org.typelevel" %%% "kittens"     % kittensVersion
+      )
+    )
+
+val testkit =
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Pure)
+    .in(file("testkit"))
+    .dependsOn(model)
+    .settings(
+      moduleName := "lucuma-schemas-testkit",
+      libraryDependencies ++= Seq(
+        "edu.gemini" %%% "lucuma-core-testkit" % lucumaCoreVersion
+      )
+    )
 
 val templates =
   project
     .in(file("templates"))
     .enablePlugins(NoPublishPlugin)
+    .dependsOn(model.jvm)
     .settings(
       libraryDependencies ++= Seq(
         "edu.gemini" %% "clue-core"   % clueVersion,
@@ -33,12 +58,11 @@ val lucumaSchemas =
   crossProject(JVMPlatform, JSPlatform)
     .crossType(CrossType.Pure)
     .in(file("lucuma-schemas"))
+    .dependsOn(model)
     .settings(
       moduleName := "lucuma-schemas",
       libraryDependencies ++= Seq(
         "edu.gemini"    %%% "clue-core"           % clueVersion,
-        "edu.gemini"    %%% "lucuma-core"         % lucumaCoreVersion,
-        "org.typelevel" %%% "kittens"             % kittensVersion,
         "co.fs2"        %%% "fs2-io"              % fs2Version             % Test,
         "org.scalameta" %%% "munit"               % munitVersion           % Test,
         "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffectVersion % Test
