@@ -53,7 +53,7 @@
               }
             ],
             "fluxDensityContinuum": {
-              "value": 12,
+              "value": 0.12,
               "units": "ERG_PER_S_PER_CM_SQUARED_PER_A"
             }
           }
