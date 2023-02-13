@@ -51,8 +51,8 @@ trait SpectralDefinitionDecoders {
   ): Decoder[EmissionLine[T]] =
     Decoder.instance(c =>
       for {
-        lw <- c.downField("lineWidth").as[Quantity[PosBigDecimal, KilometersPerSecond]]
-        lf <- c.downField("lineFlux").as[Measure[PosBigDecimal] Of LineFlux[T]]
+        lw <- c.downField("lineWidth").as[LineWidthQuantity]
+        lf <- c.downField("lineFlux").as[LineFluxMeasure[T]]
       } yield EmissionLine[T](lw, lf)
     )
 
@@ -71,8 +71,7 @@ trait SpectralDefinitionDecoders {
     for {
       el  <- c.downField("emissionLines").as[HCursor]
       ls  <- el.downField("lines").as[List[(Wavelength, EmissionLine[T])]]
-      fdc <-
-        el.downField("fluxDensityContinuum").as[Measure[PosBigDecimal] Of FluxDensityContinuum[T]]
+      fdc <- el.downField("fluxDensityContinuum").as[FluxDensityContinuumMeasure[T]]
     } yield SpectralDefinition.EmissionLines(SortedMap.from(ls), fdc)
   }
 

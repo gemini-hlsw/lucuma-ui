@@ -21,6 +21,9 @@ import lucuma.core.math.BrightnessValue
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
+import lucuma.core.math.FluxDensityContinuumValue
+import lucuma.core.math.LineFluxValue
+import lucuma.core.math.LineWidthValue
 import lucuma.core.math.Parallax
 import lucuma.core.math.ProperMotion
 import lucuma.core.math.RadialVelocity
@@ -71,39 +74,47 @@ class DecodersSuite extends InputStreamSuite {
             UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral).some,
             SortedMap(
               Band.SloanU ->
-                BrightnessValue(14.147)
+                BrightnessValue
+                  .unsafeFrom(14.147)
                   .withUnit[ABMagnitude]
                   .toMeasureTagged
-                  .withError(BrightnessValue(0.005)),
-              Band.SloanG -> BrightnessValue(12.924)
+                  .withError(BrightnessValue.unsafeFrom(0.005)),
+              Band.SloanG -> BrightnessValue
+                .unsafeFrom(12.924)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.002)),
-              Band.SloanR -> BrightnessValue(12.252)
+                .withError(BrightnessValue.unsafeFrom(0.002)),
+              Band.SloanR -> BrightnessValue
+                .unsafeFrom(12.252)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.002)),
-              Band.SloanI -> BrightnessValue(11.888)
+                .withError(BrightnessValue.unsafeFrom(0.002)),
+              Band.SloanI -> BrightnessValue
+                .unsafeFrom(11.888)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.002)),
-              Band.SloanZ -> BrightnessValue(11.636)
+                .withError(BrightnessValue.unsafeFrom(0.002)),
+              Band.SloanZ -> BrightnessValue
+                .unsafeFrom(11.636)
                 .withUnit[ABMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.002)),
-              Band.B      -> BrightnessValue(12.7).withUnit[VegaMagnitude].toMeasureTagged,
-              Band.J      -> BrightnessValue(10.279)
+                .withError(BrightnessValue.unsafeFrom(0.002)),
+              Band.B      -> BrightnessValue.unsafeFrom(12.7).withUnit[VegaMagnitude].toMeasureTagged,
+              Band.J      -> BrightnessValue
+                .unsafeFrom(10.279)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.001)),
-              Band.H      -> BrightnessValue(9.649)
+                .withError(BrightnessValue.unsafeFrom(0.001)),
+              Band.H      -> BrightnessValue
+                .unsafeFrom(9.649)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.012)),
-              Band.K      -> BrightnessValue(9.425)
+                .withError(BrightnessValue.unsafeFrom(0.012)),
+              Band.K      -> BrightnessValue
+                .unsafeFrom(9.425)
                 .withUnit[VegaMagnitude]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.017))
+                .withError(BrightnessValue.unsafeFrom(0.017))
             )
           )
         ),
@@ -135,16 +146,16 @@ class DecodersSuite extends InputStreamSuite {
           SpectralDefinition.EmissionLines(
             SortedMap(
               Wavelength.unsafeFromIntPicometers(1000000)    -> EmissionLine(
-                BigDecimal(1).refined[Positive].withUnit[KilometersPerSecond],
-                BigDecimal(1).refined[Positive].withUnit[WattsPerMeter2].toMeasureTagged
+                LineWidthValue.unsafeFrom(1).withUnit[KilometersPerSecond],
+                LineFluxValue.unsafeFrom(1).withUnit[WattsPerMeter2].toMeasureTagged
               ),
               Wavelength.unsafeFromIntPicometers(1000000000) -> EmissionLine(
-                BigDecimal(1).refined[Positive].withUnit[KilometersPerSecond],
-                BigDecimal(1).refined[Positive].withUnit[ErgsPerSecondCentimeter2].toMeasureTagged
+                LineWidthValue.unsafeFrom(1).withUnit[KilometersPerSecond],
+                LineFluxValue.unsafeFrom(1).withUnit[ErgsPerSecondCentimeter2].toMeasureTagged
               )
             ),
-            BigDecimal(12)
-              .refined[Positive]
+            FluxDensityContinuumValue
+              .unsafeFrom(0.12)
               .withUnit[ErgsPerSecondCentimeter2Angstrom]
               .toMeasureTagged
           )
@@ -174,24 +185,29 @@ class DecodersSuite extends InputStreamSuite {
           SpectralDefinition.BandNormalized(
             UnnormalizedSED.Galaxy(GalaxySpectrum.Spiral).some,
             SortedMap(
-              Band.B -> BrightnessValue(12.63)
+              Band.B -> BrightnessValue
+                .unsafeFrom(12.63)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged,
-              Band.V -> BrightnessValue(13.96)
+              Band.V -> BrightnessValue
+                .unsafeFrom(13.96)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged,
-              Band.J -> BrightnessValue(9.552)
+              Band.J -> BrightnessValue
+                .unsafeFrom(9.552)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.016)),
-              Band.H -> BrightnessValue(8.907)
+                .withError(BrightnessValue.unsafeFrom(0.016)),
+              Band.H -> BrightnessValue
+                .unsafeFrom(8.907)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.017)),
-              Band.K -> BrightnessValue(8.665)
+                .withError(BrightnessValue.unsafeFrom(0.017)),
+              Band.K -> BrightnessValue
+                .unsafeFrom(8.665)
                 .withUnit[VegaMagnitudePerArcsec2]
                 .toMeasureTagged
-                .withError(BrightnessValue(0.028))
+                .withError(BrightnessValue.unsafeFrom(0.028))
             )
           )
         ),
