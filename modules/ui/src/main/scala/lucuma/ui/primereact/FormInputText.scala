@@ -8,6 +8,7 @@ import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.typed.primereact.components.{Button => CButton}
 import org.scalajs.dom.Element
 import org.scalajs.dom.HTMLInputElement
 import react.common.*
@@ -15,7 +16,6 @@ import react.floatingui
 import react.floatingui.syntax.*
 import react.primereact.InputText
 import react.primereact.PrimeStyles
-import reactST.primereact.components.{Button => CButton}
 
 import scalajs.js
 
@@ -50,23 +50,15 @@ object FormInputText {
   private val component = ScalaFnComponent[FormInputText] { props =>
     val sizeCls = props.size.toOption.map(_.cls).orEmpty
 
-    def buildAddons(addons: List[TagMod | CButton.Builder]) =
-      addons.toTagMod(p =>
-        (p: Any) match {
-          case b: CButton.Builder => b.build
-          case t: TagMod          =>
-            <.span(t, PrimeStyles.InputGroupAddon |+| sizeCls)
-        }
-      )
-
     // units are always first
-    val postAddons = props.units.fold(buildAddons(props.postAddons)) { units =>
-      buildAddons(<.span(^.cls := LucumaStyles.BlendedAddon.htmlClass, units) :: props.postAddons)
+    val postAddons = props.units.fold(props.postAddons.build(props.size)) { units =>
+      (<.span(^.cls := LucumaStyles.BlendedAddon.htmlClass, units) :: props.postAddons)
+        .build(props.size)
     }
 
     val group = <.div(
       PrimeStyles.InputGroup |+| LucumaStyles.FormField |+| props.groupClass.toOption.orEmpty,
-      buildAddons(props.preAddons),
+      props.preAddons.build(props.size),
       InputText(
         id = props.id.value,
         value = props.value,

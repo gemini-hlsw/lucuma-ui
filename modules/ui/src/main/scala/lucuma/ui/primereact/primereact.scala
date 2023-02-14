@@ -8,10 +8,12 @@ import cats.derived.*
 import cats.syntax.all.*
 import crystal.react.View
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.typed.StBuildingComponent
+import lucuma.typed.primereact.components.{Button => CButton}
 import react.common.Css
 import react.primereact.Button
 import react.primereact.InputText
-import reactST.StBuildingComponent
+import react.primereact.PrimeStyles
 
 import scalajs.js
 
@@ -59,3 +61,11 @@ extension [A](
       // will go before other addons, but the units will still be first.
       input.copy(postAddons = newAddon :: input.postAddons)
     }
+
+extension (addons: List[TagMod | CButton.Builder])
+  private[primereact] def build(size: js.UndefOr[PlSize]): TagMod = addons.toTagMod(a =>
+    a match {
+      case b: CButton.Builder => b.build
+      case t: TagMod          => <.span(t, PrimeStyles.InputGroupAddon |+| size.toOption.map(_.cls).orEmpty)
+    }
+  )
