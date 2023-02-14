@@ -7,7 +7,7 @@ import cats.Eq
 import cats.Order
 import cats.data.NonEmptyList
 import cats.data.NonEmptySet
-import cats.kernel.instances.sortedMap._
+import cats.kernel.instances.sortedMap.*
 import coulomb.Quantity
 import eu.timepit.refined.api.RefType
 import io.circe.Json
@@ -16,10 +16,11 @@ import japgolly.scalajs.react.ReactCats._
 import japgolly.scalajs.react.Reusability
 import lucuma.core.data.EnumZipper
 import lucuma.core.geom.Area
-import lucuma.core.math._
-import lucuma.core.math.dimensional._
-import lucuma.core.model._
-import lucuma.core.model.sequence._
+import lucuma.core.math.BrightnessUnits.*
+import lucuma.core.math.*
+import lucuma.core.math.dimensional.*
+import lucuma.core.model.*
+import lucuma.core.model.sequence.*
 import lucuma.core.util.Enumerated
 import lucuma.core.util.NewType
 import lucuma.core.util.WithGid
@@ -109,45 +110,47 @@ trait ModelReusabiltyInstances
     with UtilReusabilityInstances
     with MathReusabilityInstances
     with TimeReusabilityInstances {
-  given gidReuse[Id <: WithGid#Id]: Reusability[Id]                    = Reusability.by(_.value)
-  given uidReuse[Id <: WithUid#Id]: Reusability[Id]                    = Reusability.by(_.toUuid)
-  given Reusability[OrcidId]                                           = Reusability.by(_.value.toString)
-  given Reusability[OrcidProfile]                                      = Reusability.byEq
-  given Reusability[Partner]                                           = Reusability.byEq
-  given Reusability[StandardRole]                                      = Reusability.byEq
-  given Reusability[StandardUser]                                      = Reusability.byEq
-  given Reusability[CatalogInfo]                                       = Reusability.byEq
-  given siderealTrackingReuse: Reusability[SiderealTracking]           = Reusability.byEq
-  given Reusability[UnnormalizedSED]                                   = Reusability.byEq
-  given Reusability[SourceProfile]                                     = Reusability.byEq
-  given Reusability[User]                                              = Reusability.byEq
-  given Reusability[Offset]                                            = Reusability.byEq
-  given Reusability[Wavelength]                                        = Reusability.byEq
-  given spectralDefinitionReuse[T]: Reusability[SpectralDefinition[T]] = Reusability.byEq
-  given Reusability[Semester]                                          = Reusability.byEq
-  given Reusability[EphemerisKey]                                      = Reusability.byEq
-  given Reusability[Target.Sidereal]                                   = Reusability.byEq
-  given Reusability[Target.Nonsidereal]                                = Reusability.byEq
-  given Reusability[Target]                                            = Reusability.byEq
-  given Reusability[ElevationRange.AirMass]                            = Reusability.byEq
-  given Reusability[ElevationRange.HourAngle]                          = Reusability.byEq
-  given Reusability[ElevationRange]                                    = Reusability.byEq
-  given Reusability[ConstraintSet]                                     = Reusability.byEq
-  given Reusability[ProposalClass]                                     = Reusability.byEq
-  given Reusability[Proposal]                                          = Reusability.byEq
+  given gidReuse[Id <: WithGid#Id]: Reusability[Id]          = Reusability.by(_.value)
+  given uidReuse[Id <: WithUid#Id]: Reusability[Id]          = Reusability.by(_.toUuid)
+  given Reusability[OrcidId]                                 = Reusability.by(_.value.toString)
+  given Reusability[OrcidProfile]                            = Reusability.byEq
+  given Reusability[Partner]                                 = Reusability.byEq
+  given Reusability[StandardRole]                            = Reusability.byEq
+  given Reusability[StandardUser]                            = Reusability.byEq
+  given Reusability[CatalogInfo]                             = Reusability.byEq
+  given siderealTrackingReuse: Reusability[SiderealTracking] = Reusability.byEq
+  given Reusability[UnnormalizedSED]                         = Reusability.byEq
+  given Reusability[SourceProfile]                           = Reusability.byEq
+  given Reusability[User]                                    = Reusability.byEq
+  given Reusability[Offset]                                  = Reusability.byEq
+  given Reusability[Wavelength]                              = Reusability.byEq
+  given spectralDefinitionReuse[T](using
+    Eq[BrightnessMeasure[T]]
+  ): Reusability[SpectralDefinition[T]] = Reusability.byEq
+  given Reusability[Semester]                                = Reusability.byEq
+  given Reusability[EphemerisKey]                            = Reusability.byEq
+  given Reusability[Target.Sidereal]                         = Reusability.byEq
+  given Reusability[Target.Nonsidereal]                      = Reusability.byEq
+  given Reusability[Target]                                  = Reusability.byEq
+  given Reusability[ElevationRange.AirMass]                  = Reusability.byEq
+  given Reusability[ElevationRange.HourAngle]                = Reusability.byEq
+  given Reusability[ElevationRange]                          = Reusability.byEq
+  given Reusability[ConstraintSet]                           = Reusability.byEq
+  given Reusability[ProposalClass]                           = Reusability.byEq
+  given Reusability[Proposal]                                = Reusability.byEq
   // Sequences
-  given Reusability[GmosNodAndShuffle]                                 = Reusability.byEq
-  given Reusability[GmosCcdMode]                                       = Reusability.byEq
-  given Reusability[GmosGratingConfig]                                 = Reusability.byEq
-  given gmosFpuMaskReuse[T: Eq]: Reusability[GmosFpuMask[T]]           = Reusability.byEq
-  given Reusability[StaticConfig]                                      = Reusability.byEq
-  given Reusability[StepConfig]                                        = Reusability.byEq
-  given Reusability[StepTime]                                          = Reusability.byEq
-  given Reusability[Step]                                              = Reusability.byEq
-  given Reusability[Atom]                                              = Reusability.byEq
-  given Reusability[ManualConfig]                                      = Reusability.byEq
-  given Reusability[ExecutionSequence]                                 = Reusability.byEq
-  given Reusability[FutureExecutionConfig]                             = Reusability.byEq
+  given Reusability[GmosNodAndShuffle]                       = Reusability.byEq
+  given Reusability[GmosCcdMode]                             = Reusability.byEq
+  given Reusability[GmosGratingConfig]                       = Reusability.byEq
+  given gmosFpuMaskReuse[T: Eq]: Reusability[GmosFpuMask[T]] = Reusability.byEq
+  given Reusability[StaticConfig]                            = Reusability.byEq
+  given Reusability[StepConfig]                              = Reusability.byEq
+  given Reusability[StepTime]                                = Reusability.byEq
+  given Reusability[Step]                                    = Reusability.byEq
+  given Reusability[Atom]                                    = Reusability.byEq
+  given Reusability[ManualConfig]                            = Reusability.byEq
+  given Reusability[ExecutionSequence]                       = Reusability.byEq
+  given Reusability[FutureExecutionConfig]                   = Reusability.byEq
 }
 
 package object reusability
