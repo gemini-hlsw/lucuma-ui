@@ -12,19 +12,9 @@ object PosAngleConstraintSubquery
     extends GraphQLSubquery.Typed[ObservationDB, PosAngleConstraint]("PosAngleConstraint"):
   override val subquery: String = """
         {
-          cloudExtinction
-          imageQuality
-          skyBackground
-          waterVapor
-          elevationRange {
-            airMass {
-              min
-              max
-            }
-            hourAngle {
-              minHours
-              maxHours
-            }
+          mode
+          angle {
+            microarcseconds
           }
         }
       """
