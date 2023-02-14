@@ -11,6 +11,7 @@ import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.validation.*
+import lucuma.typed.primereact.components.{Button => CButton}
 import lucuma.ui.input.AuditResult
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.reusability.*
@@ -22,7 +23,6 @@ import org.scalajs.dom.html
 import react.common.*
 import react.primereact.InputText
 import react.primereact.PrimeStyles
-import reactST.primereact.components.{Button => CButton}
 
 import scala.scalajs.js
 import scala.scalajs.js.|

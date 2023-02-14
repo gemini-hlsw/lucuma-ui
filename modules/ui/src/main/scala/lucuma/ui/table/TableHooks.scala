@@ -13,7 +13,7 @@ import japgolly.scalajs.react.hooks.CustomHook
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import lucuma.core.util.NewType
 import lucuma.react.table.*
-import reactST.{tanstackTableCore => raw}
+import lucuma.typed.{tanstackTableCore => raw}
 
 import scalajs.js.JSConverters.*
 import scalajs.js
