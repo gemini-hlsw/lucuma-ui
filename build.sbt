@@ -53,8 +53,6 @@ val modelTests =
       libraryDependencies ++= Seq(
         "org.scalameta" %%% "munit"            % munitVersion           % Test,
         "org.typelevel" %%% "discipline-munit" % disciplineMUnitVersion % Test
-
-        // "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffectVersion % Test
       )
     )
 
