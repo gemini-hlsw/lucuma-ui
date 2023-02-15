@@ -82,7 +82,7 @@ trait MathReusabilityInstances {
   given Reusability[Range.Exclusive]                                  = Reusability.by(x => (x.start, x.end, x.step))
   given Reusability[Range.Inclusive]                                  = Reusability.by(x => (x.start, x.end, x.step))
   given Reusability[Area]                                             = Reusability.byEq
-  given Reusability[WavelengthRange]                                  = Reusability.byEq
+  given Reusability[WavelengthDelta]                                  = Reusability.byEq
 }
 
 /**
