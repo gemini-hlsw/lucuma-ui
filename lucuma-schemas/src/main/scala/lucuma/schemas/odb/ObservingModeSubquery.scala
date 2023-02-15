@@ -6,10 +6,10 @@ package lucuma.schemas.odb
 import clue.GraphQLSubquery
 import lucuma.schemas.ObservationDB
 import lucuma.schemas.decoders.given
-import lucuma.schemas.model.ScienceMode
+import lucuma.schemas.model.ObservingMode
 
-object ScienceModeSubquery
-    extends GraphQLSubquery.Typed[ObservationDB, ScienceMode]("ObservingMode"):
+object ObservingModeSubquery
+    extends GraphQLSubquery.Typed[ObservationDB, ObservingMode]("ObservingMode"):
   override val subquery: String = """
         {
           gmosNorthLongSlit {

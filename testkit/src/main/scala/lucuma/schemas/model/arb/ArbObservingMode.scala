@@ -20,21 +20,21 @@ import lucuma.core.model.arb.ArbExposureTimeMode
 import lucuma.core.util.arb.ArbEnumerated.*
 import lucuma.core.util.arb.ArbGid.*
 import lucuma.schemas.model.CentralWavelength
-import lucuma.schemas.model.ScienceMode
+import lucuma.schemas.model.ObservingMode
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary
 import org.scalacheck.Cogen
 import org.scalacheck.Gen
 
-trait ArbScienceMode {
+trait ArbObservingMode {
   import ArbExposureTimeMode.given
   import ArbOffset.*
   import ArbRefined.*
   import ArbWavelength.*
   import ArbWavelengthDither.given
 
-  given Arbitrary[ScienceMode.GmosNorthLongSlit] =
-    Arbitrary[ScienceMode.GmosNorthLongSlit](
+  given Arbitrary[ObservingMode.GmosNorthLongSlit] =
+    Arbitrary[ObservingMode.GmosNorthLongSlit](
       for {
         initialGrating            <- arbitrary[GmosNorthGrating]
         grating                   <- arbitrary[GmosNorthGrating]
@@ -58,7 +58,7 @@ trait ArbScienceMode {
         explicitWavelengthDithers <- arbitrary[Option[NonEmptyList[WavelengthDither]]]
         defaultSpatialOffsets     <- arbitrary[NonEmptyList[Offset.Q]]
         explicitSpatialOffsets    <- arbitrary[Option[NonEmptyList[Offset.Q]]]
-      } yield ScienceMode.GmosNorthLongSlit(
+      } yield ObservingMode.GmosNorthLongSlit(
         initialGrating,
         grating,
         initialFilter,
@@ -84,8 +84,8 @@ trait ArbScienceMode {
       )
     )
 
-  given Arbitrary[ScienceMode.GmosSouthLongSlit] =
-    Arbitrary[ScienceMode.GmosSouthLongSlit](
+  given Arbitrary[ObservingMode.GmosSouthLongSlit] =
+    Arbitrary[ObservingMode.GmosSouthLongSlit](
       for {
         initialGrating            <- arbitrary[GmosSouthGrating]
         grating                   <- arbitrary[GmosSouthGrating]
@@ -109,7 +109,7 @@ trait ArbScienceMode {
         explicitWavelengthDithers <- arbitrary[Option[NonEmptyList[WavelengthDither]]]
         defaultSpatialOffsets     <- arbitrary[NonEmptyList[Offset.Q]]
         explicitSpatialOffsets    <- arbitrary[Option[NonEmptyList[Offset.Q]]]
-      } yield ScienceMode.GmosSouthLongSlit(
+      } yield ObservingMode.GmosSouthLongSlit(
         initialGrating,
         grating,
         initialFilter,
@@ -135,14 +135,14 @@ trait ArbScienceMode {
       )
     )
 
-  given Arbitrary[ScienceMode] = Arbitrary[ScienceMode](
+  given Arbitrary[ObservingMode] = Arbitrary[ObservingMode](
     Gen.oneOf(
-      arbitrary[ScienceMode.GmosNorthLongSlit],
-      arbitrary[ScienceMode.GmosSouthLongSlit]
+      arbitrary[ObservingMode.GmosNorthLongSlit],
+      arbitrary[ObservingMode.GmosSouthLongSlit]
     )
   )
 
-  given Cogen[ScienceMode.GmosNorthLongSlit] =
+  given Cogen[ObservingMode.GmosNorthLongSlit] =
     Cogen[
       (GmosNorthGrating,
        GmosNorthGrating,
@@ -194,7 +194,7 @@ trait ArbScienceMode {
         )
       )
 
-  given Cogen[ScienceMode.GmosSouthLongSlit] =
+  given Cogen[ObservingMode.GmosSouthLongSlit] =
     Cogen[
       (GmosSouthGrating,
        GmosSouthGrating,
@@ -246,13 +246,13 @@ trait ArbScienceMode {
         )
       )
 
-  given Cogen[ScienceMode] =
-    Cogen[Either[ScienceMode.GmosNorthLongSlit, ScienceMode.GmosSouthLongSlit]]
+  given Cogen[ObservingMode] =
+    Cogen[Either[ObservingMode.GmosNorthLongSlit, ObservingMode.GmosSouthLongSlit]]
       .contramap {
-        case n: ScienceMode.GmosNorthLongSlit => n.asLeft
-        case s: ScienceMode.GmosSouthLongSlit => s.asRight
+        case n: ObservingMode.GmosNorthLongSlit => n.asLeft
+        case s: ObservingMode.GmosSouthLongSlit => s.asRight
       }
 
 }
 
-object ArbScienceMode extends ArbScienceMode
+object ArbObservingMode extends ArbObservingMode

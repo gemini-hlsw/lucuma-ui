@@ -21,29 +21,29 @@ import monocle.Lens
 import monocle.Prism
 import monocle.macros.GenPrism
 
-sealed abstract class ScienceMode(val instrument: Instrument) extends Product with Serializable
+sealed abstract class ObservingMode(val instrument: Instrument) extends Product with Serializable
     derives Eq {
   def isCustomized: Boolean
 
   def fpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match {
-    case n: ScienceMode.GmosNorthLongSlit => n.fpu.asLeft.some
-    case s: ScienceMode.GmosSouthLongSlit => s.fpu.asRight.some
+    case n: ObservingMode.GmosNorthLongSlit => n.fpu.asLeft.some
+    case s: ObservingMode.GmosSouthLongSlit => s.fpu.asRight.some
   }
 
   def siteFor: Site = this match {
-    case n: ScienceMode.GmosNorthLongSlit => Site.GN
-    case s: ScienceMode.GmosSouthLongSlit => Site.GS
+    case n: ObservingMode.GmosNorthLongSlit => Site.GN
+    case s: ObservingMode.GmosSouthLongSlit => Site.GS
   }
 
   def toBasicConfiguration: BasicConfiguration = this match {
-    case n: ScienceMode.GmosNorthLongSlit =>
+    case n: ObservingMode.GmosNorthLongSlit =>
       BasicConfiguration.GmosNorthLongSlit(n.grating, n.filter, n.fpu, n.centralWavelength)
-    case s: ScienceMode.GmosSouthLongSlit =>
+    case s: ObservingMode.GmosSouthLongSlit =>
       BasicConfiguration.GmosSouthLongSlit(s.grating, s.filter, s.fpu, s.centralWavelength)
   }
 }
 
-object ScienceMode:
+object ObservingMode:
   given Decoder[WavelengthDither] =
     Decoder.instance(c =>
       for {
@@ -51,7 +51,7 @@ object ScienceMode:
       } yield WavelengthDither.intPicometers.get(p)
     )
 
-  given Decoder[ScienceMode] =
+  given Decoder[ObservingMode] =
     Decoder
       .instance(c =>
         c.downField("gmosNorthLongSlit")
@@ -84,7 +84,7 @@ object ScienceMode:
     explicitWavelengthDithers: Option[NonEmptyList[WavelengthDither]],
     defaultSpatialOffsets:     NonEmptyList[Offset.Q],
     explicitSpatialOffsets:    Option[NonEmptyList[Offset.Q]]
-  ) extends ScienceMode(Instrument.GmosNorth)
+  ) extends ObservingMode(Instrument.GmosNorth)
       derives Eq:
     def isCustomized: Boolean =
       initialGrating =!= grating ||
@@ -185,7 +185,7 @@ object ScienceMode:
     explicitWavelengthDithers: Option[NonEmptyList[WavelengthDither]],
     defaultSpatialOffsets:     NonEmptyList[Offset.Q],
     explicitSpatialOffsets:    Option[NonEmptyList[Offset.Q]]
-  ) extends ScienceMode(Instrument.GmosSouth)
+  ) extends ObservingMode(Instrument.GmosSouth)
       derives Eq:
     def isCustomized: Boolean =
       initialGrating =!= grating ||
@@ -262,8 +262,8 @@ object ScienceMode:
     val explicitSpatialOffsets: Lens[GmosSouthLongSlit, Option[NonEmptyList[Offset.Q]]]            =
       Focus[GmosSouthLongSlit](_.explicitSpatialOffsets)
 
-  val gmosNorthLongSlit: Prism[ScienceMode, GmosNorthLongSlit] =
-    GenPrism[ScienceMode, GmosNorthLongSlit]
+  val gmosNorthLongSlit: Prism[ObservingMode, GmosNorthLongSlit] =
+    GenPrism[ObservingMode, GmosNorthLongSlit]
 
-  val gmosSouthLongSlit: Prism[ScienceMode, GmosSouthLongSlit] =
-    GenPrism[ScienceMode, GmosSouthLongSlit]
+  val gmosSouthLongSlit: Prism[ObservingMode, GmosSouthLongSlit] =
+    GenPrism[ObservingMode, GmosSouthLongSlit]
