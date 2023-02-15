@@ -25,6 +25,14 @@ pull_request_rules:
       add:
       - lucuma-schemas
       remove: []
+- name: Label model PRs
+  conditions:
+  - files~=^model/
+  actions:
+    label:
+      add:
+      - model
+      remove: []
 - name: Label templates PRs
   conditions:
   - files~=^templates/
@@ -32,4 +40,20 @@ pull_request_rules:
     label:
       add:
       - templates
+      remove: []
+- name: Label testkit PRs
+  conditions:
+  - files~=^testkit/
+  actions:
+    label:
+      add:
+      - testkit
+      remove: []
+- name: Label tests PRs
+  conditions:
+  - files~=^tests/
+  actions:
+    label:
+      add:
+      - tests
       remove: []

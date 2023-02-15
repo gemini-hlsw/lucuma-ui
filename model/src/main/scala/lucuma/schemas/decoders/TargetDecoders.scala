@@ -19,6 +19,7 @@ import lucuma.core.model.EphemerisKey
 import lucuma.core.model.SiderealTracking
 import lucuma.core.model.SourceProfile
 import lucuma.core.model.Target
+import lucuma.schemas.model.TargetWithId
 
 trait TargetDecoders {
 
@@ -63,4 +64,11 @@ trait TargetDecoders {
       Decoder[Target.Sidereal].widen,
       Decoder[Target.Nonsidereal].widen
     ).reduceLeft(_ or _)
+
+  given Decoder[TargetWithId] = Decoder.instance(c =>
+    for {
+      id     <- c.get[Target.Id]("id")
+      target <- c.as[Target]
+    } yield TargetWithId(id, target)
+  )
 }

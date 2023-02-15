@@ -25,7 +25,8 @@ import lucuma.core.math.ProperMotion
 import lucuma.core.math.RadialVelocity
 import lucuma.core.math.RightAscension
 import lucuma.core.math.Wavelength
-import lucuma.core.math.WavelengthRange
+import lucuma.core.math.WavelengthDelta
+import lucuma.core.math.WavelengthDither
 import lucuma.core.math.dimensional._
 import lucuma.core.math.units.CentimetersPerSecond
 import lucuma.core.math.units.MetersPerSecond
@@ -37,11 +38,10 @@ import java.time.Duration
 import java.time.temporal.ChronoUnit
 
 trait CoreModelDecoders {
-
-  implicit def quantityDecoder[N: Decoder, U]: Decoder[Quantity[N, U]] =
+  given quantityDecoder[N: Decoder, U]: Decoder[Quantity[N, U]] =
     Decoder.instance(_.as[N].map(_.withUnit[U]))
 
-  implicit def taggedMeasureDecoder[N: Decoder, T](implicit
+  given taggedMeasureDecoder[N: Decoder, T](using
     unitDecoder: Decoder[Units Of T]
   ): Decoder[Measure[N] Of T] =
     Decoder.instance(c =>
@@ -51,7 +51,7 @@ trait CoreModelDecoders {
       } yield u.withValueTagged(v)
     )
 
-  implicit val epochDecoder: Decoder[Epoch] =
+  given epochDecoder: Decoder[Epoch] =
     Decoder.decodeString.emap(e =>
       Epoch.fromString.getOption(e).toRight(s"Invalid epoch value: $e")
     )
@@ -62,27 +62,27 @@ trait CoreModelDecoders {
         .toRight(s"Invalid radial velocity $x")
     )
 
-  implicit val rvDecoder: Decoder[RadialVelocity] =
+  given rvDecoder: Decoder[RadialVelocity] =
     Decoder.instance(_.downField("centimetersPerSecond").as[RadialVelocity](rvmsDecoder))
 
   private val pxµasDecoder: Decoder[Parallax] =
     Decoder.decodeLong.map(Parallax.fromMicroarcseconds)
 
-  implicit val pxDecoder: Decoder[Parallax] =
+  given pxDecoder: Decoder[Parallax] =
     Decoder.instance(_.downField("microarcseconds").as[Parallax](pxµasDecoder))
 
-  implicit val angleDecoder: Decoder[Angle] = Decoder.instance(
+  given angleDecoder: Decoder[Angle] = Decoder.instance(
     _.downField("microarcseconds").as[Long].map(Angle.microarcseconds.reverseGet)
   )
 
-  implicit val raDecoder: Decoder[RightAscension] =
+  given raDecoder: Decoder[RightAscension] =
     Decoder.instance(
       _.as[Angle].map(
         (RightAscension.fromAngleExact.getOption _).map(_.getOrElse(RightAscension.Zero))
       )
     )
 
-  implicit val decDecoder: Decoder[Declination] =
+  given decDecoder: Decoder[Declination] =
     Decoder
       .instance(
         _.as[Angle]
@@ -90,53 +90,57 @@ trait CoreModelDecoders {
       )
       .emap(_.toRight("Invalid µarcsec value for declination"))
 
-  implicit val coordDecoder: Decoder[Coordinates] = semiauto.deriveDecoder
+  given Decoder[Coordinates] = semiauto.deriveDecoder
 
   private val pmraµasDecoder: Decoder[ProperMotion.RA] =
     Decoder.decodeLong
       .map(ProperMotion.RA.microarcsecondsPerYear.get)
 
-  implicit val pmraDecoder: Decoder[ProperMotion.RA] =
+  given Decoder[ProperMotion.RA] =
     Decoder.instance(_.downField("microarcsecondsPerYear").as[ProperMotion.RA](pmraµasDecoder))
 
   private val pmdecµasDecoder: Decoder[ProperMotion.Dec] =
     Decoder.decodeLong
       .map(ProperMotion.Dec.microarcsecondsPerYear.get)
 
-  implicit val pmdecDecoder: Decoder[ProperMotion.Dec] =
+  given Decoder[ProperMotion.Dec] =
     Decoder.instance(_.downField("microarcsecondsPerYear").as[ProperMotion.Dec](pmdecµasDecoder))
 
-  implicit val pmDecoder: Decoder[ProperMotion] = semiauto.deriveDecoder[ProperMotion]
+  given Decoder[ProperMotion] = semiauto.deriveDecoder[ProperMotion]
 
-  implicit val durationDecoder: Decoder[Duration] = Decoder.instance(
+  given Decoder[Duration] = Decoder.instance(
     _.downField("microseconds")
       .as[Long]
       .map(l => Duration.of(l, ChronoUnit.MICROS))
   )
 
-  implicit val nonNegDurationDecoder: Decoder[NonNegDuration] = Decoder.instance(
+  given Decoder[NonNegDuration] = Decoder.instance(
     _.downField("microseconds")
       .as[NonNegLong]
       .map(l => NonNegDuration.unsafeFrom(Duration.of(l.value, ChronoUnit.MICROS)))
   )
 
-  implicit val wavelengthDecoder: Decoder[Wavelength] = Decoder.instance(
+  given Decoder[Wavelength] = Decoder.instance(
     _.downField("picometers").as[PosInt].map(Wavelength.apply)
   )
 
-  implicit val wavelengthRangeDecoder: Decoder[WavelengthRange] = Decoder.instance(
-    _.downField("picometers").as[PosInt].map(WavelengthRange.apply)
+  given Decoder[WavelengthDither] = Decoder.instance(
+    _.downField("picometers").as[Int].map(WavelengthDither.intPicometers.get)
+  )
+
+  given Decoder[WavelengthDelta] = Decoder.instance(
+    _.downField("picometers").as[PosInt].map(WavelengthDelta.apply)
   )
 
   private def offsetComponentDecoder[A]: Decoder[Offset.Component[A]] = Decoder.instance(
     _.as[Angle].map(Offset.Component.apply)
   )
 
-  implicit val offsetPComponentDecoder: Decoder[Offset.P] = offsetComponentDecoder[Axis.P]
+  given Decoder[Offset.P] = offsetComponentDecoder[Axis.P]
 
-  implicit val offsetQComponentDecoder: Decoder[Offset.Q] = offsetComponentDecoder[Axis.Q]
+  given Decoder[Offset.Q] = offsetComponentDecoder[Axis.Q]
 
-  implicit val offsetDecoder: Decoder[Offset] = Decoder.instance(c =>
+  given Decoder[Offset] = Decoder.instance(c =>
     for {
       p <- c.downField("p").as[Offset.Component[Axis.P]]
       q <- c.downField("q").as[Offset.Component[Axis.Q]]
@@ -144,7 +148,7 @@ trait CoreModelDecoders {
   )
 
   // Copied from lucuma-odb for now ...
-  implicit val timeSpanDecoder: Decoder[TimeSpan] =
+  given timeSpanDecoder: Decoder[TimeSpan] =
     Decoder.instance { c =>
       def from[T: Decoder](field: String, format: Format[T, TimeSpan]): Decoder.Result[TimeSpan] =
         c.downField(field).as[T].flatMap { t =>
