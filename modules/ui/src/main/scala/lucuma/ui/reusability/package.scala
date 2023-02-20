@@ -25,6 +25,7 @@ import lucuma.core.util.Enumerated
 import lucuma.core.util.NewType
 import lucuma.core.util.WithGid
 import lucuma.core.util.WithUid
+import lucuma.react.table.*
 import react.common.Size
 
 import java.time.Duration
@@ -153,8 +154,21 @@ trait ModelReusabiltyInstances
   given Reusability[FutureExecutionConfig]                   = Reusability.byEq
 }
 
+trait TableReusabilityInstances {
+  given Reusability[ColumnId]                  = Reusability.by(_.value)
+  given Reusability[Visibility]                = Reusability.by(_.value)
+  given Reusability[Map[ColumnId, Visibility]] = Reusability.map
+  given Reusability[ColumnVisibility]          = Reusability.by(_.value)
+  given Reusability[SortDirection]             = Reusability.by(_.toDescending)
+  given Reusability[ColumnSort]                = Reusability.derive
+  given Reusability[Sorting]                   = Reusability.by(_.value)
+  given Reusability[TableState]                =
+    Reusability.by(state => (state.columnVisibility, state.sorting))
+}
+
 package object reusability
     extends UtilReusabilityInstances
     with MathReusabilityInstances
     with ModelReusabiltyInstances
     with TimeReusabilityInstances
+    with TableReusabilityInstances

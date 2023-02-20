@@ -14,6 +14,7 @@ import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import lucuma.core.util.NewType
 import lucuma.react.table.*
 import lucuma.typed.{tanstackTableCore => raw}
+import lucuma.ui.reusability.given
 
 import scalajs.js.JSConverters.*
 import scalajs.js
@@ -24,16 +25,6 @@ case class TableOptionsWithStateStore[F[_], T](
 )
 
 private object TableHooks:
-  private given Reusability[ColumnId]                  = Reusability.by(_.value)
-  private given Reusability[Visibility]                = Reusability.by(_.value)
-  private given Reusability[Map[ColumnId, Visibility]] = Reusability.map
-  private given Reusability[ColumnVisibility]          = Reusability.by(_.value)
-  private given Reusability[SortDirection]             = Reusability.by(_.toDescending)
-  private given Reusability[ColumnSort]                = Reusability.derive
-  private given Reusability[Sorting]                   = Reusability.by(_.value)
-  private given Reusability[TableState]                =
-    Reusability.by(state => (state.columnVisibility, state.sorting))
-
   private object PrefsLoaded extends NewType[Boolean]
   private type PrefsLoaded = PrefsLoaded.Type
 
