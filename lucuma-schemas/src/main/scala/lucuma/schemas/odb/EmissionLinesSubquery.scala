@@ -34,6 +34,6 @@ class EmissionLinesSubquery[T](rootType: String)(using
       """
 
 object EmissionLinesIntegratedSubquery
-    extends BandNormalizedSubquery[Integrated]("EmissionLinesIntegrated")
+    extends EmissionLinesSubquery[Integrated]("EmissionLinesIntegrated")
 
-object EmissionLinesSurfaceSubquery extends BandNormalizedSubquery[Surface]("EmissionLinesSurface")
+object EmissionLinesSurfaceSubquery extends EmissionLinesSubquery[Surface]("EmissionLinesSurface")
