@@ -10,21 +10,17 @@ import lucuma.schemas.model.ObservingMode
 
 object ObservingModeSubquery
     extends GraphQLSubquery.Typed[ObservationDB, ObservingMode]("ObservingMode"):
-  override val subquery: String = """
+  override val subquery: String = s"""
         {
           gmosNorthLongSlit {
             initialGrating
             initialFilter
             initialFpu
-            initialCentralWavelength {
-              picometers
-            }
+            initialCentralWavelength $WavelengthSubquery
             grating
             filter
             fpu
-            centralWavelength {
-              picometers
-            }
+            centralWavelength $WavelengthSubquery
             defaultXBin
             explicitXBin
             defaultYBin
@@ -35,32 +31,20 @@ object ObservingModeSubquery
             explicitAmpGain
             defaultRoi
             explicitRoi
-            defaultWavelengthDithers {
-              picometers
-            }
-            explicitWavelengthDithers {
-              picometers
-            }
-            defaultSpatialOffsets {
-              microarcseconds
-            }
-            explicitSpatialOffsets {
-              microarcseconds
-            }
+            defaultWavelengthDithers $WavelengthDitherSubquery
+            explicitWavelengthDithers $WavelengthDitherSubquery
+            defaultSpatialOffsets $AngleSubquery
+            explicitSpatialOffsets $AngleSubquery
           }
           gmosSouthLongSlit {
             initialGrating
             initialFilter
             initialFpu
-            initialCentralWavelength {
-              picometers
-            }
+            initialCentralWavelength $WavelengthSubquery
             grating
             filter
             fpu
-            centralWavelength {
-              picometers
-            }
+            centralWavelength $WavelengthSubquery
             defaultXBin
             explicitXBin
             defaultYBin
@@ -71,18 +55,10 @@ object ObservingModeSubquery
             explicitAmpGain
             defaultRoi
             explicitRoi
-            defaultWavelengthDithers {
-              picometers
-            }
-            explicitWavelengthDithers {
-              picometers
-            }
-            defaultSpatialOffsets {
-              microarcseconds
-            }
-            explicitSpatialOffsets {
-              microarcseconds
-            }
+            defaultWavelengthDithers $WavelengthDitherSubquery
+            explicitWavelengthDithers $WavelengthDitherSubquery
+            defaultSpatialOffsets $AngleSubquery
+            explicitSpatialOffsets $AngleSubquery
           }
         }
       """

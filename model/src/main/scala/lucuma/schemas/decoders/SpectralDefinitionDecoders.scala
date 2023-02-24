@@ -24,18 +24,21 @@ import lucuma.core.util.*
 import scala.collection.immutable.SortedMap
 
 trait SpectralDefinitionDecoders {
+  def brightnessEntryDecoder[T](using
+    Decoder[Units Of Brightness[T]]
+  ): Decoder[(Band, BrightnessMeasure[T])] =
+    Decoder.instance(c =>
+      for {
+        v <- c.as[BrightnessMeasure[T]]
+        b <- c.downField("band").as[Band]
+        e <- c.downField("error").as[Option[BrightnessValue]]
+      } yield (b, Measure.errorTagged.replace(e)(v))
+    )
 
   implicit def bandNormalizedSpectralDefinitionDecoder[T](implicit
     unitDecoder: Decoder[Units Of Brightness[T]]
   ): Decoder[SpectralDefinition.BandNormalized[T]] = {
-    implicit val brightnessEntryDecoder: Decoder[(Band, BrightnessMeasure[T])] =
-      Decoder.instance(c =>
-        for {
-          v <- c.as[BrightnessMeasure[T]]
-          b <- c.downField("band").as[Band]
-          e <- c.downField("error").as[Option[BrightnessValue]]
-        } yield (b, Measure.errorTagged.replace(e)(v))
-      )
+    given Decoder[(Band, BrightnessMeasure[T])] = brightnessEntryDecoder
 
     Decoder.instance(c =>
       for {

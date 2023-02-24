@@ -1,0 +1,29 @@
+// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
+// For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
+
+package lucuma.schemas.odb
+
+import clue.GraphQLSubquery
+import lucuma.core.model.UnnormalizedSED
+import lucuma.schemas.ObservationDB
+import lucuma.schemas.decoders.given
+
+object UnnormalizedSEDSubquery
+    extends GraphQLSubquery.Typed[ObservationDB, UnnormalizedSED]("UnnormalizedSed"):
+  override val subquery: String = s"""
+        {
+          stellarLibrary
+          coolStar
+          galaxy
+          planet
+          quasar
+          hiiRegion
+          planetaryNebula
+          powerLaw
+          blackBodyTempK
+          fluxDensities {
+            wavelength $WavelengthSubquery
+            density
+          }
+        }
+      """

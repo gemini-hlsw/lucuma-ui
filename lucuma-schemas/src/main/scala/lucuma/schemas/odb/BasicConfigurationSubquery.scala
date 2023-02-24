@@ -10,23 +10,19 @@ import lucuma.schemas.model.BasicConfiguration
 
 object BasicConfigurationSubquery
     extends GraphQLSubquery.Typed[ObservationDB, BasicConfiguration]("ObservingMode"):
-  override val subquery: String = """
+  override val subquery: String = s"""
         {
           gmosNorthLongSlit {
             grating
             filter
             fpu
-            centralWavelength {
-              picometers
-            }
+            centralWavelength $WavelengthSubquery
           }
           gmosSouthLongSlit {
             grating
             filter
             fpu
-            centralWavelength {
-              picometers
-            }
+            centralWavelength $WavelengthSubquery
           }
         }
       """

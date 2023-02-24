@@ -4,15 +4,13 @@
 package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
-import lucuma.core.model.PosAngleConstraint
+import lucuma.core.math.RightAscension
 import lucuma.schemas.ObservationDB
 import lucuma.schemas.decoders.given
 
-object PosAngleConstraintSubquery
-    extends GraphQLSubquery.Typed[ObservationDB, PosAngleConstraint]("PosAngleConstraint"):
-  override val subquery: String = s"""
+object RASubquery extends GraphQLSubquery.Typed[ObservationDB, RightAscension]("RightAscension"):
+  override val subquery: String = """
         {
-          mode
-          angle $AngleSubquery
+          microarcseconds
         }
       """

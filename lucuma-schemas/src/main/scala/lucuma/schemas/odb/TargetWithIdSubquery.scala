@@ -9,33 +9,17 @@ import lucuma.schemas.decoders.given
 import lucuma.schemas.model.TargetWithId
 
 object TargetWithIdSubquery extends GraphQLSubquery.Typed[ObservationDB, TargetWithId]("Target"):
-  // FIXME Replace wavelength, angle, fluxdensity, etc. when subqueries can contain subqueries
-  override val subquery: String = """  
+  override val subquery: String = s"""  
     {
       id
       name
       sidereal {
-        ra {
-          microarcseconds
-        }
-        dec {
-          microarcseconds
-        }
+        ra $RASubquery
+        dec $DecSubquery
         epoch
-        properMotion {
-          ra {
-            microarcsecondsPerYear
-          }
-          dec {
-            microarcsecondsPerYear
-          }
-        }
-        radialVelocity {
-          centimetersPerSecond
-        }
-        parallax {
-          microarcseconds
-        }
+        properMotion $ProperMotionSubquery
+        radialVelocity $RadialVelocitySubquery
+        parallax $AngleSubquery
         catalogInfo {
           name
           id
@@ -44,136 +28,17 @@ object TargetWithIdSubquery extends GraphQLSubquery.Typed[ObservationDB, TargetW
       }
       sourceProfile {
         point {
-          bandNormalized {
-            sed {
-              stellarLibrary
-              coolStar
-              galaxy
-              planet
-              quasar
-              hiiRegion
-              planetaryNebula
-              powerLaw
-              blackBodyTempK
-              fluxDensities {
-                wavelength {
-                  picometers
-                }
-                density
-              }
-            }
-            brightnesses {
-              band
-              value
-              units
-              error
-            }
-          }
-          emissionLines {
-            lines {
-              wavelength {
-                picometers
-              }
-              lineWidth
-              lineFlux {
-                value
-                units
-              }
-            }
-            fluxDensityContinuum {
-              value
-              units
-            }
-          }
+          bandNormalized $BandNormalizedIntegratedSubquery
+          emissionLines $EmissionLinesIntegratedSubquery
         }
         uniform {
-          bandNormalized {
-            sed {
-              stellarLibrary
-              coolStar
-              galaxy
-              planet
-              quasar
-              hiiRegion
-              planetaryNebula
-              powerLaw
-              blackBodyTempK
-              fluxDensities {
-                wavelength {
-                  picometers
-                }
-                density
-              }
-            }
-            brightnesses {
-              band
-              value
-              units
-              error
-            }
-          }
-          emissionLines {
-            lines {
-              wavelength {
-                picometers
-              }
-              lineWidth
-              lineFlux {
-                value
-                units
-              }
-            }
-            fluxDensityContinuum {
-              value
-              units
-            }
-          }
+          bandNormalized $BandNormalizedSurfaceSubquery
+          emissionLines $EmissionLinesSurfaceSubquery
         }
         gaussian {
-          fwhm {
-            microarcseconds
-          }
-          bandNormalized {
-            sed {
-              stellarLibrary
-              coolStar
-              galaxy
-              planet
-              quasar
-              hiiRegion
-              planetaryNebula
-              powerLaw
-              blackBodyTempK
-              fluxDensities {
-                wavelength {
-                  picometers
-                }
-                density
-              }
-            }
-            brightnesses {
-              band
-              value
-              units
-              error
-            }
-          }
-          emissionLines {
-            lines {
-              wavelength {
-                picometers
-              }
-              lineWidth
-              lineFlux {
-                value
-                units
-              }
-            }
-            fluxDensityContinuum {
-              value
-              units
-            }
-          }
+          fwhm $AngleSubquery
+          bandNormalized $BandNormalizedIntegratedSubquery
+          emissionLines $EmissionLinesIntegratedSubquery
         }
       }
     }
