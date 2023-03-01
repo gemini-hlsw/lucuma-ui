@@ -471,7 +471,6 @@ type GmosNorthExecutionConfig implements ExecutionConfig {
   static: GmosNorthStatic!
   acquisition: GmosNorthExecutionSequence!
   science: GmosNorthExecutionSequence!
-  visits: [GmosNorthVisitRecord!]!
   instrument: Instrument!
 }
 
@@ -644,7 +643,6 @@ type GmosSouthExecutionConfig implements ExecutionConfig {
   static: GmosSouthStatic!
   acquisition: GmosSouthExecutionSequence!
   science: GmosSouthExecutionSequence!
-  visits: [GmosSouthVisitRecord!]!
   instrument: Instrument!
 }
 
@@ -1061,6 +1059,7 @@ type RecordGmosSouthVisitResult {
 
 input RightAscensionInput {
   microarcseconds: Long
+  microseconds: Long
   degrees: BigDecimal
   hours: BigDecimal
   hms: HmsString
@@ -1177,7 +1176,12 @@ enum StepType {
 type Subscription {
   observationEdit(input: ObservationEditInput): ObservationEdit!
   programEdit(input: ProgramEditInput): ProgramEdit!
-  targetEdit(targetId: TargetId, programId: ProgramId): TargetEdit!
+  targetEdit(input: TargetEditInput): TargetEdit!
+}
+
+input TargetEditInput {
+  targetId: TargetId
+  programId: ProgramId
 }
 
 input ObservationEditInput {
@@ -1193,7 +1197,7 @@ input SystemVerificationInput {
   minPercentTime: IntPercent
 }
 
-type TargetEdit implements Event {
+type TargetEdit {
   editType: EditType!
   value: Target!
   id: Long!
@@ -2027,40 +2031,15 @@ type Intensive implements ProposalClass {
 }
 
 type ItcResultSet {
-  programId: ProgramId!
-  observationId: ObservationId!
   result: ItcResult!
   all: [ItcResult!]
 }
 
-interface ItcResult {
-  status: ItcStatus!
-}
-
-enum ItcStatus {
-  SUCCESS
-  MISSING_PARAMS
-  SERVICE_ERROR
-}
-
-type ItcSuccess implements ItcResult {
-  status: ItcStatus!
+type ItcResult {
   targetId: TargetId!
   exposureTime: TimeSpan!
   exposures: NonNegInt!
   signalToNoise: PosBigDecimal!
-}
-
-type ItcMissingParams implements ItcResult {
-  status: ItcStatus!
-  targetId: TargetId
-  params: [String!]!
-}
-
-type ItcServiceError implements ItcResult {
-  status: ItcStatus!
-  targetId: TargetId!
-  message: String!
 }
 
 type LargeProgram implements ProposalClass {
@@ -2278,7 +2257,6 @@ enum QuasarSpectrum {
 }
 
 type Query {
-  asterism(observationId: ObservationId!, includeDeleted: Boolean! = false): [Target!]!
   asterismGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): AsterismGroupSelectResult!
   constraintSetGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ConstraintSetGroupSelectResult!
   dataset(observationId: ObservationId!, stepId: StepId!, index: PosInt!): Dataset
@@ -2291,11 +2269,8 @@ type Query {
   partnerMeta: [PartnerMeta!]!
   program(programId: ProgramId!): Program
   programs(WHERE: WhereProgram, OFFSET: ProgramId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ProgramSelectResult!
-  observingModeGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ObservingModeGroupSelectResult!
-  scienceRequirementsGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ScienceRequirementsGroupSelectResult!
+  sequence(programId: ProgramId!, observationId: ObservationId!, useCache: Boolean! = true): SequenceGenerationResult
   target(targetId: TargetId!): Target
-  targetEnvironment(observationId: ObservationId!): TargetEnvironment
-  targetEnvironmentGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): TargetEnvironmentGroupSelectResult!
   targetGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): TargetGroupSelectResult!
   targets(WHERE: WhereTarget, OFFSET: TargetId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): TargetSelectResult!
 }
@@ -2314,7 +2289,8 @@ type RightAscension {
   hms: HmsString!
   hours: BigDecimal!
   degrees: BigDecimal!
-  microarcseconds: Long!
+  microarcseconds: Long! @deprecated
+  microseconds: Long!
 }
 
 type ObservingMode {
@@ -2380,6 +2356,13 @@ type SequenceEventLocation {
 
 type SequenceEventPayload {
   command: SequenceCommand!
+}
+
+type SequenceGenerationResult {
+  programId: ProgramId!
+  observationId: ObservationId!
+  itcResult: ItcResultSet!
+  executionConfig: ExecutionConfig!
 }
 
 enum SequenceType {
