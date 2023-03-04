@@ -31,11 +31,11 @@ final case class EnumDropdownOptionalView[V[_], A](
   size:            js.UndefOr[PlSize] = js.undefined,
   onChangeE:       js.UndefOr[(Option[A], ReactEvent) => Callback] =
     js.undefined, // called after the view is set
-  modifiers:      Seq[TagMod] = Seq.empty
+  modifiers:       Seq[TagMod] = Seq.empty
 )(using
-  val enumerated: Enumerated[A],
-  val display:    Display[A],
-  val vl:         ViewLike[V]
+  val enumerated:  Enumerated[A],
+  val display:     Display[A],
+  val vl:          ViewLike[V]
 ) extends ReactFnProps(EnumDropdownOptionalView.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)     = addModifiers(mods)

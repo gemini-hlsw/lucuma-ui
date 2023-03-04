@@ -17,20 +17,20 @@ import scalajs.js
 import scalajs.js.JSConverters.*
 
 case class EnumDropdown[A](
-  id:                   NonEmptyString,
-  value:                A,
-  exclude:              Set[A] = Set.empty[A],
-  disabledItems:        Set[A] = Set.empty[A],
-  clazz:                js.UndefOr[Css] = js.undefined,
-  panelClass:           js.UndefOr[Css] = js.undefined,
-  filter:               js.UndefOr[Boolean] = js.undefined,
-  showFilterClear:      js.UndefOr[Boolean] = js.undefined,
-  disabled:             js.UndefOr[Boolean] = js.undefined,
-  size:                 js.UndefOr[PlSize] = js.undefined,
-  onChange:             js.UndefOr[A => Callback] = js.undefined,
-  onChangeE:            js.UndefOr[(A, ReactEvent) => Callback] = js.undefined, // called after onChange
-  placeholder:          js.UndefOr[String] = js.undefined,
-  modifiers:            Seq[TagMod] = Seq.empty
+  id:              NonEmptyString,
+  value:           A,
+  exclude:         Set[A] = Set.empty[A],
+  disabledItems:   Set[A] = Set.empty[A],
+  clazz:           js.UndefOr[Css] = js.undefined,
+  panelClass:      js.UndefOr[Css] = js.undefined,
+  filter:          js.UndefOr[Boolean] = js.undefined,
+  showFilterClear: js.UndefOr[Boolean] = js.undefined,
+  disabled:        js.UndefOr[Boolean] = js.undefined,
+  size:            js.UndefOr[PlSize] = js.undefined,
+  onChange:        js.UndefOr[A => Callback] = js.undefined,
+  onChangeE:       js.UndefOr[(A, ReactEvent) => Callback] = js.undefined, // called after onChange
+  placeholder:     js.UndefOr[String] = js.undefined,
+  modifiers:       Seq[TagMod] = Seq.empty
 )(using val enumerated: Enumerated[A], val display: Display[A])
     extends ReactFnProps(EnumDropdown.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)

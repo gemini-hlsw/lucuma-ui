@@ -13,13 +13,13 @@ import react.primereact.Checkbox
 import scalajs.js
 
 case class CheckboxView[V[_]](
-  id:           NonEmptyString,
-  value:        V[Boolean],
-  label:        String,
-  inputId:      js.UndefOr[String] = js.undefined, // id of the input element
-  disabled:     js.UndefOr[Boolean] = js.undefined,
-  clazz:        js.UndefOr[Css] = js.undefined,
-  modifiers:    Seq[TagMod] = Seq.empty
+  id:        NonEmptyString,
+  value:     V[Boolean],
+  label:     String,
+  inputId:   js.UndefOr[String] = js.undefined, // id of the input element
+  disabled:  js.UndefOr[Boolean] = js.undefined,
+  clazz:     js.UndefOr[Css] = js.undefined,
+  modifiers: Seq[TagMod] = Seq.empty
 )(using val vl: ViewLike[V])
     extends ReactFnProps(CheckboxView.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)

@@ -326,7 +326,7 @@ object ChangeAuditor {
    *     because scala, and refined, treat a -0 as a 0.
    */
   def refinedInt[P](filterMode: FilterMode = FilterMode.Strict)(implicit
-    v:                          RefinedValidate[Int, P]
+    v: RefinedValidate[Int, P]
   ): ChangeAuditor = {
 
     val auditor: ChangeAuditor = ChangeAuditor { (str, cursorPos) =>

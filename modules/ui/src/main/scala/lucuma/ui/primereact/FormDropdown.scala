@@ -38,7 +38,7 @@ final case class FormDropdown[V[_], A](
   onChange:         js.UndefOr[A => Callback] = js.undefined,
   onChangeE:        js.UndefOr[(A, ReactEvent) => Callback] = js.undefined, // called after onChange
   modifiers:        Seq[TagMod] = Seq.empty
-)(using val eqAA:   Eq[A])
+)(using val eqAA: Eq[A])
     extends ReactFnProps(FormDropdown.component):
   inline def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   inline def withMods(mods:          TagMod*)     = addModifiers(mods)

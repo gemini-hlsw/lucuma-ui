@@ -31,8 +31,8 @@ case class EnumOptionalDropdown[A](
   onChange:        js.UndefOr[Option[A] => Callback] = js.undefined,
   onChangeE:       js.UndefOr[(Option[A], ReactEvent) => Callback] =
     js.undefined, // called after onChange
-  placeholder:          js.UndefOr[String] = js.undefined,
-  modifiers:            Seq[TagMod] = Seq.empty
+  placeholder:     js.UndefOr[String] = js.undefined,
+  modifiers:       Seq[TagMod] = Seq.empty
 )(using val enumerated: Enumerated[A], val display: Display[A])
     extends ReactFnProps(EnumOptionalDropdown.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
