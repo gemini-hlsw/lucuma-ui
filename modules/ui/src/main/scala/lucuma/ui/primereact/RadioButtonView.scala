@@ -14,18 +14,18 @@ import react.primereact.RadioButton
 import scalajs.js
 
 final case class RadioButtonView[V[_], A](
-  id:       NonEmptyString,
-  value:    A,                                         // The value this radio button will assign to the ExternalValue
-  view:     V[A],
-  label:    NonEmptyString,
-  name:     js.UndefOr[NonEmptyString] = js.undefined, // name of the "radio button group"
-  inputId:  js.UndefOr[String] = js.undefined,
-  disabled: js.UndefOr[Boolean] = js.undefined,
-  clazz:    js.UndefOr[Css] = js.undefined,
-  required: js.UndefOr[Boolean] = js.undefined,
-  onChange: js.UndefOr[(A, Boolean) => Callback] =
+  id:        NonEmptyString,
+  value:     A,                                         // The value this radio button will assign to the ExternalValue
+  view:      V[A],
+  label:     NonEmptyString,
+  name:      js.UndefOr[NonEmptyString] = js.undefined, // name of the "radio button group"
+  inputId:   js.UndefOr[String] = js.undefined,
+  disabled:  js.UndefOr[Boolean] = js.undefined,
+  clazz:     js.UndefOr[Css] = js.undefined,
+  required:  js.UndefOr[Boolean] = js.undefined,
+  onChange:  js.UndefOr[(A, Boolean) => Callback] =
     js.undefined, // shouldn't usually need to use this, the ViewLike is set internally.
-  modifiers:     Seq[TagMod] = Seq.empty
+  modifiers: Seq[TagMod] = Seq.empty
 )(using val eqA: Eq[A], val ev: ViewLike[V])
     extends ReactFnProps(RadioButtonView.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)

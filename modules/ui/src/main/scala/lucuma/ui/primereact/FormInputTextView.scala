@@ -53,7 +53,7 @@ final case class FormInputTextView[V[_], A](
   onBlur:        FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) =>
     Callback.empty,
   modifiers:     Seq[TagMod] = Seq.empty
-)(using val eq:  Eq[A], val vl: ViewLike[V])
+)(using val eq: Eq[A], val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextView.component):
   def stringValue: String = value.get.foldMap(validFormat.reverseGet)
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)

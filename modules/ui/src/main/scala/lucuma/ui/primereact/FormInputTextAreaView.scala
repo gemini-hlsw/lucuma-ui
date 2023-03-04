@@ -45,7 +45,7 @@ final case class FormInputTextAreaView[V[_]](
   tooltip:          js.UndefOr[VdomNode] = js.undefined,
   tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
   modifiers:        Seq[TagMod] = Seq.empty
-)(using val vl:     ViewLike[V])
+)(using val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextAreaView.component):
   inline def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   inline def withMods(mods:          TagMod*)     = addModifiers(mods)

@@ -150,7 +150,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Publish
-        run: sbt '++ ${{ matrix.scala }}' tlRelease
+        run: sbt '++ ${{ matrix.scala }}' tlCiRelease
 
       - name: NPM Publish
         env:
