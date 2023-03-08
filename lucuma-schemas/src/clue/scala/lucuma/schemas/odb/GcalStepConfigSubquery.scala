@@ -5,19 +5,19 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import clue.annotation.*
-import lucuma.schemas.ObservationDB
+import schemas.ObservationDB
 
 @GraphQL
-abstract class GmosCcdModeSubquery extends GraphQLSubquery[ObservationDB]("GmosCcdMode"):
+abstract class GcalStepConfigSubquery extends GraphQLSubquery[ObservationDB]("Gcal"):
   override val subquery: String = """
         {
-          xBin
-          yBin
-          ampCount
-          ampGain
-          ampReadMode
+          continuum
+          arcs
+          filter
+          diffuser
+          shutter
         }
       """
 
 @GraphQLStub
-object GmosCcdModeSubquery
+object GcalStepConfigSubquery

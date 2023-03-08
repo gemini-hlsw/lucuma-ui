@@ -1,4 +1,4 @@
-val clueVersion            = "0.26.0"
+val clueVersion            = "0.27.0"
 val disciplineMUnitVersion = "1.0.9"
 val lucumaCoreVersion      = "0.69.2"
 val fs2Version             = "3.6.1"
@@ -55,17 +55,17 @@ val modelTests =
       )
     )
 
-val templates =
-  project
-    .in(file("templates"))
-    .enablePlugins(NoPublishPlugin)
-    .dependsOn(model.jvm)
-    .settings(
-      libraryDependencies ++= Seq(
-        "edu.gemini" %% "clue-core"   % clueVersion,
-        "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
-      )
-    )
+// val templates =
+//   project
+//     .in(file("templates"))
+//     .enablePlugins(NoPublishPlugin)
+//     .dependsOn(model.jvm)
+//     .settings(
+//       libraryDependencies ++= Seq(
+//         "edu.gemini" %% "clue-core"   % clueVersion,
+//         "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
+//       )
+//     )
 
 val lucumaSchemas =
   crossProject(JVMPlatform, JSPlatform)
@@ -79,23 +79,9 @@ val lucumaSchemas =
         "co.fs2"        %%% "fs2-io"              % fs2Version             % Test,
         "org.scalameta" %%% "munit"               % munitVersion           % Test,
         "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffectVersion % Test
-      ),
-      Compile / sourceGenerators += Def.taskDyn {
-        val root    = (ThisBuild / baseDirectory).value.toURI.toString
-        val from    = (templates / Compile / sourceDirectory).value
-        val to      = (Compile / sourceManaged).value
-        val outFrom = from.toURI.toString.stripSuffix("/").stripPrefix(root)
-        val outTo   = to.toURI.toString.stripSuffix("/").stripPrefix(root)
-        Def.task {
-          (templates / Compile / scalafix)
-            .toTask(s" GraphQLGen --out-from=$outFrom --out-to=$outTo")
-            .value
-          (to ** "*.scala").get
-        }
-      }.taskValue,
-      // Include schema files from templates in jar.
-      Compile / unmanagedResourceDirectories += (templates / Compile / resourceDirectory).value
+      )
     )
     .jsSettings(
       Test / scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
     )
+    .enablePlugins(CluePlugin)
