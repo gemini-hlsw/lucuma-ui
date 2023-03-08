@@ -73,13 +73,14 @@ val lucumaSchemas =
     .in(file("lucuma-schemas"))
     .dependsOn(model)
     .settings(
-      moduleName := "lucuma-schemas",
+      moduleName                    := "lucuma-schemas",
       libraryDependencies ++= Seq(
         "edu.gemini"    %%% "clue-core"           % clueVersion,
         "co.fs2"        %%% "fs2-io"              % fs2Version             % Test,
         "org.scalameta" %%% "munit"               % munitVersion           % Test,
         "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffectVersion % Test
-      )
+      ),
+      Compile / clueSourceDirectory := (ThisBuild / baseDirectory).value / "lucuma-schemas" / "src" / "clue"
     )
     .jsSettings(
       Test / scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))

@@ -5,7 +5,7 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import clue.annotation.*
-import schemas.ObservationDB
+import lucuma.schemas.ObservationDB
 
 @GraphQL
 abstract class GmosCcdModeSubquery extends GraphQLSubquery[ObservationDB]("GmosCcdMode"):
