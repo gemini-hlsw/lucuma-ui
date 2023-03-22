@@ -12,7 +12,7 @@ import lucuma.react.SizePx
 import lucuma.react.table.*
 import lucuma.typed.{tanstackTableCore => raw}
 import lucuma.typed.{tanstackVirtualCore => rawVirtual}
-import org.scalajs.dom.HTMLDivElement
+import org.scalajs.dom.HTMLElement
 import react.common.*
 import react.common.style.Css
 
@@ -71,7 +71,7 @@ case class PrimeVirtualizedTable[T](
   celled:             Boolean = false,
   compact:            js.UndefOr[Compact] = js.undefined,
   containerMod:       TagMod = TagMod.empty,
-  containerRef:       js.UndefOr[Ref.Simple[HTMLDivElement]] = js.undefined,
+  containerRef:       js.UndefOr[Ref.Simple[HTMLElement]] = js.undefined,
   tableMod:           TagMod = TagMod.empty,
   headerMod:          TagMod = TagMod.empty,
   headerRowMod:       raw.buildLibCoreHeadersMod.CoreHeaderGroup[T] => TagMod =
@@ -109,7 +109,7 @@ case class PrimeAutoHeightVirtualizedTable[T](
   celled:             Boolean = false,
   compact:            js.UndefOr[Compact] = js.undefined,
   containerMod:       TagMod = TagMod.empty,
-  containerRef:       js.UndefOr[Ref.Simple[HTMLDivElement]] = js.undefined,
+  containerRef:       js.UndefOr[Ref.Simple[HTMLElement]] = js.undefined,
   innerContainerMod:  TagMod = TagMod.empty,
   tableMod:           TagMod = TagMod.empty,
   headerMod:          TagMod = TagMod.empty,
