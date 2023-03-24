@@ -14,7 +14,7 @@
   --pl-big-font-size: 1.28571429rem;
   --pl-huge-font-size: 1.42857143rem;
   --pl-massive-font-size: 1.71428571rem;
- 
+
   // primereact does not provide a variable for this at all.
   --pl-input-line-height: 1.15;
   // This is available as a SASS variable in the primereact designer. Maybe we add our own
@@ -265,4 +265,16 @@
   .p-inputgroup-addon:has(.pl-blended-addon) {
     background-color: var(--surface-0);
   }
+}
+
+.pending-loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: 0;
+  text-align: center;
+  z-index: 1000;
+  width: 4rem;
+  height: 4rem;
+  font-size: 1em;
 }
