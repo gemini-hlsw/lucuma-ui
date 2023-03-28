@@ -1,5 +1,5 @@
 val disciplineMUnitVersion = "1.0.9"
-val lucumaCoreVersion      = "0.69.2"
+val lucumaCoreVersion      = "0.70.0"
 val fs2Version             = "3.6.1"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
