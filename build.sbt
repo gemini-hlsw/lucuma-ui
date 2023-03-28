@@ -65,7 +65,9 @@ val lucumaSchemas =
         "org.scalameta" %%% "munit"               % munitVersion           % Test,
         "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffectVersion % Test
       ),
-      Compile / clueSourceDirectory := (ThisBuild / baseDirectory).value / "lucuma-schemas" / "src" / "clue"
+      Compile / clueSourceDirectory := (ThisBuild / baseDirectory).value / "lucuma-schemas" / "src" / "clue",
+      // Include schema files in jar.
+      Compile / unmanagedResourceDirectories += (Compile / clueSourceDirectory).value / "resources"
     )
     .jsSettings(
       Test / scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
