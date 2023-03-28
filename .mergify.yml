@@ -33,14 +33,6 @@ pull_request_rules:
       add:
       - model
       remove: []
-- name: Label templates PRs
-  conditions:
-  - files~=^templates/
-  actions:
-    label:
-      add:
-      - templates
-      remove: []
 - name: Label testkit PRs
   conditions:
   - files~=^testkit/
