@@ -1,4 +1,3 @@
-val clueVersion            = "0.27.0"
 val disciplineMUnitVersion = "1.0.9"
 val lucumaCoreVersion      = "0.69.2"
 val fs2Version             = "3.6.1"
@@ -12,7 +11,6 @@ ThisBuild / crossScalaVersions  := Seq("3.2.2")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
-ThisBuild / scalafixDependencies += "edu.gemini"                     %% "clue-generator" % clueVersion
 ThisBuild / scalafixScalaBinaryVersion                               := "2.13"
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 
@@ -75,7 +73,6 @@ val lucumaSchemas =
     .settings(
       moduleName                    := "lucuma-schemas",
       libraryDependencies ++= Seq(
-        "edu.gemini"    %%% "clue-core"           % clueVersion,
         "co.fs2"        %%% "fs2-io"              % fs2Version             % Test,
         "org.scalameta" %%% "munit"               % munitVersion           % Test,
         "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffectVersion % Test
