@@ -53,18 +53,6 @@ val modelTests =
       )
     )
 
-// val templates =
-//   project
-//     .in(file("templates"))
-//     .enablePlugins(NoPublishPlugin)
-//     .dependsOn(model.jvm)
-//     .settings(
-//       libraryDependencies ++= Seq(
-//         "edu.gemini" %% "clue-core"   % clueVersion,
-//         "edu.gemini" %% "lucuma-core" % lucumaCoreVersion
-//       )
-//     )
-
 val lucumaSchemas =
   crossProject(JVMPlatform, JSPlatform)
     .crossType(CrossType.Pure)
