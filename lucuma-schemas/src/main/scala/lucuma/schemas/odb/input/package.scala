@@ -429,3 +429,29 @@ extension (i: BasicConfiguration)
           centralWavelength = o.centralWavelength.value.toInput.assign
         ).assign
       )
+
+extension (er: ElevationRange)
+  def toInput: ElevationRangeInput =
+    er match
+      case ElevationRange.AirMass(min, max)   =>
+        ElevationRangeInput(airMass =
+          // These are actually safe, because min and max in the model are refined [1.0 - 3.0]
+          AirMassRangeInput(
+            min = PosBigDecimal.unsafeFrom(min.value).assign,
+            max = PosBigDecimal.unsafeFrom(max.value).assign
+          ).assign
+        )
+      case ElevationRange.HourAngle(min, max) =>
+        ElevationRangeInput(hourAngle =
+          HourAngleRangeInput(minHours = min.value.assign, maxHours = max.value.assign).assign
+        )
+
+extension (cs: ConstraintSet)
+  def toInput: ConstraintSetInput =
+    ConstraintSetInput(
+      imageQuality = cs.imageQuality.assign,
+      cloudExtinction = cs.cloudExtinction.assign,
+      skyBackground = cs.skyBackground.assign,
+      waterVapor = cs.waterVapor.assign,
+      elevationRange = cs.elevationRange.toInput.assign
+    )
