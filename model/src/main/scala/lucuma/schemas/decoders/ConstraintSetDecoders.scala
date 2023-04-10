@@ -8,7 +8,6 @@ import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.model.ConstraintSet
 import lucuma.core.model.ElevationRange
-import lucuma.schemas.model.ConstraintsSummary
 
 trait ConstraintSetDecoders {
   implicit val airmassRangeDecoder: Decoder[ElevationRange.AirMass] = Decoder.instance { c =>
@@ -32,6 +31,4 @@ trait ConstraintSetDecoders {
   }
 
   given Decoder[ConstraintSet] = semiauto.deriveDecoder
-
-  given Decoder[ConstraintsSummary] = semiauto.deriveDecoder
 }
