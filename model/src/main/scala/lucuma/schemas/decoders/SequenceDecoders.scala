@@ -61,7 +61,9 @@ trait SequenceDecoders {
       for {
         u <- c.downField("continuum").as[Option[GcalContinuum]]
         a <- c.downField("arcs").as[List[GcalArc]]
-        r <- StepConfig.Gcal.Lamp.fromContinuumOrArcs(u, a).leftMap(msg => DecodingFailure(msg, c.history))
+        r <- StepConfig.Gcal.Lamp
+               .fromContinuumOrArcs(u, a)
+               .leftMap(msg => DecodingFailure(msg, c.history))
       } yield r
     }
 
