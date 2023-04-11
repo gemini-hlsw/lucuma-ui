@@ -11,6 +11,9 @@ import io.circe.refined._
 import lucuma.core.enums.Breakpoint
 import lucuma.core.enums.GcalArc
 import lucuma.core.enums.GcalContinuum
+import lucuma.core.enums.GcalDiffuser
+import lucuma.core.enums.GcalFilter
+import lucuma.core.enums.GcalShutter
 import lucuma.core.enums.GmosNorthFpu
 import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.Instrument
@@ -67,7 +70,15 @@ trait SequenceDecoders {
       } yield r
     }
 
-  implicit val gcalStepConfigDecoder: Decoder[StepConfig.Gcal] = semiauto.deriveDecoder
+  implicit val gcalStepConfigDecoder: Decoder[StepConfig.Gcal] =
+    Decoder.instance { c =>
+      for {
+        l <- gcalLampDecoder(c)
+        f <- c.downField("filter").as[GcalFilter]
+        d <- c.downField("diffuser").as[GcalDiffuser]
+        s <- c.downField("shutter").as[GcalShutter]
+      } yield StepConfig.Gcal(l, f, d, s)
+    }
 
   implicit val scienceStepConfigDecoder: Decoder[StepConfig.Science] = semiauto.deriveDecoder
 
