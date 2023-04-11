@@ -1,5 +1,15 @@
 #!/bin/bash
 
+#
+# fetchODBSchema.sh
+#
+# Usage: sh fetchODBSchema.sh [local|staging]
+#
+# Fetches the current version of the ODB schema from either a 'local' ODB
+# instance running on localhost, or else from the 'staging' ODB.  Places it
+# in the proper place in `lucuma-schemas` for use in generating code.
+#
+
 KEY_MESSAGE=$(cat << END
 Define the ODB_API_KEY environment variable to use this script. For example:
 
