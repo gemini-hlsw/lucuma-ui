@@ -10,15 +10,15 @@ import lucuma.core.model.ExposureTimeMode
 
 trait ExposureTimeModeDecoders {
 
-  implicit val decoderSignalToNoise: Decoder[ExposureTimeMode.SignalToNoise] =
+  implicit val decoderSignalToNoise: Decoder[ExposureTimeMode.SignalToNoiseMode] =
     semiauto.deriveDecoder
 
-  implicit val decoderFixedExposure: Decoder[ExposureTimeMode.FixedExposure] =
+  implicit val decoderFixedExposure: Decoder[ExposureTimeMode.FixedExposureMode] =
     semiauto.deriveDecoder
 
   implicit val decoderExposureTimeMode: Decoder[ExposureTimeMode] = Decoder.instance { c =>
     c.downField("signalToNoise")
-      .as[ExposureTimeMode.SignalToNoise]
-      .orElse(c.downField("fixedExposure").as[ExposureTimeMode.FixedExposure])
+      .as[ExposureTimeMode.SignalToNoiseMode]
+      .orElse(c.downField("fixedExposure").as[ExposureTimeMode.FixedExposureMode])
   }
 }

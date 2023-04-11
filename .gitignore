@@ -36,3 +36,5 @@ vars.css
 static/
 common/src/main/publicdev/
 .direnv/
+
+.jvmopts

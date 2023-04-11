@@ -9,6 +9,11 @@ import io.circe.DecodingFailure
 import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.enums.Breakpoint
+import lucuma.core.enums.GcalArc
+import lucuma.core.enums.GcalContinuum
+import lucuma.core.enums.GcalDiffuser
+import lucuma.core.enums.GcalFilter
+import lucuma.core.enums.GcalShutter
 import lucuma.core.enums.GmosNorthFpu
 import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.Instrument
@@ -54,7 +59,26 @@ trait SequenceDecoders {
   implicit val gmosSouthDynamicConfigDecoder: Decoder[DynamicConfig.GmosSouth] =
     semiauto.deriveDecoder
 
-  implicit val gcalStepConfigDecoder: Decoder[StepConfig.Gcal] = semiauto.deriveDecoder
+  implicit val gcalLampDecoder: Decoder[StepConfig.Gcal.Lamp] =
+    Decoder.instance { c =>
+      for {
+        u <- c.downField("continuum").as[Option[GcalContinuum]]
+        a <- c.downField("arcs").as[List[GcalArc]]
+        r <- StepConfig.Gcal.Lamp
+               .fromContinuumOrArcs(u, a)
+               .leftMap(msg => DecodingFailure(msg, c.history))
+      } yield r
+    }
+
+  implicit val gcalStepConfigDecoder: Decoder[StepConfig.Gcal] =
+    Decoder.instance { c =>
+      for {
+        l <- gcalLampDecoder(c)
+        f <- c.downField("filter").as[GcalFilter]
+        d <- c.downField("diffuser").as[GcalDiffuser]
+        s <- c.downField("shutter").as[GcalShutter]
+      } yield StepConfig.Gcal(l, f, d, s)
+    }
 
   implicit val scienceStepConfigDecoder: Decoder[StepConfig.Science] = semiauto.deriveDecoder
 

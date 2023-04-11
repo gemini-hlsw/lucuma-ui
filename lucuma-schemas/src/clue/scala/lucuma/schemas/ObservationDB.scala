@@ -5,10 +5,11 @@ package lucuma.schemas
 
 import clue.annotation.GraphQLSchema
 import lucuma.core.enums
+import lucuma.core.math.SignalToNoise
+import lucuma.core.math.dimensional._
 import lucuma.core.model
 import lucuma.core.model._
 import lucuma.core.model.sequence._
-import lucuma.core.math.dimensional._
 import lucuma.core.util._
 import lucuma.core.math.BrightnessUnits._
 
@@ -43,7 +44,8 @@ trait ObservationDB {
     type PosBigDecimal    = eu.timepit.refined.types.numeric.PosBigDecimal
     type PosInt           = eu.timepit.refined.types.numeric.PosInt
     type PosLong          = eu.timepit.refined.types.numeric.PosLong
-    // Time
+    // Core Types
+    type SignalToNoise    = lucuma.core.math.SignalToNoise
     type Timestamp        = lucuma.core.util.Timestamp
   }
 
