@@ -316,7 +316,8 @@ input GcalConfigurationInput {
 enum GcalContinuum {
   IR_GREY_BODY_LOW
   IR_GREY_BODY_HIGH
-  QUARTZ_HALOGEN
+  QUARTZ_HALOGEN5
+  QUARTZ_HALOGEN100
 }
 
 enum GcalDiffuser {
@@ -468,6 +469,7 @@ input GmosNorthDynamicInput {
 }
 
 type GmosNorthExecutionConfig implements ExecutionConfig {
+  gmosNorth: Boolean! @deprecated
   static: GmosNorthStatic!
   acquisition: GmosNorthExecutionSequence!
   science: GmosNorthExecutionSequence!
@@ -640,6 +642,7 @@ input GmosSouthDynamicInput {
 }
 
 type GmosSouthExecutionConfig implements ExecutionConfig {
+  gmosSouth: Boolean! @deprecated
   static: GmosSouthStatic!
   acquisition: GmosSouthExecutionSequence!
   science: GmosSouthExecutionSequence!
@@ -1109,7 +1112,7 @@ input SiderealInput {
 }
 
 input SignalToNoiseModeInput {
-  value: PosBigDecimal!
+  value: SignalToNoise!
 }
 
 input SourceProfileInput {
@@ -1131,7 +1134,7 @@ input SpectralDefinitionSurfaceInput {
 input SpectroscopyScienceRequirementsInput {
   wavelength: WavelengthInput
   resolution: PosInt
-  signalToNoise: PosBigDecimal
+  signalToNoise: SignalToNoise
   signalToNoiseAt: WavelengthInput
   wavelengthCoverage: WavelengthInput
   focalPlane: FocalPlane
@@ -1389,6 +1392,25 @@ type AsterismGroup {
 type AsterismGroupSelectResult {
   matches: [AsterismGroup!]!
   hasMore: Boolean!
+}
+
+scalar AttachmentId
+
+type Attachment {
+  id: AttachmentId!
+  attachmentType: AttachmentType!
+  fileName: NonEmptyString!
+  description: NonEmptyString
+  checked: Boolean!
+  fileSize: Long!
+  updatedAt: Timestamp!
+  program: Program!
+}
+
+type AttachmentTypeMeta {
+  tag: AttachmentType!
+  shortName: String!
+  longName: String!
 }
 
 enum Band {
@@ -2039,7 +2061,7 @@ type ItcResult {
   targetId: TargetId!
   exposureTime: TimeSpan!
   exposures: NonNegInt!
-  signalToNoise: PosBigDecimal!
+  signalToNoise: SignalToNoise!
 }
 
 type LargeProgram implements ProposalClass {
@@ -2200,6 +2222,7 @@ type Program {
   """Users assigned to this science program"""
   users: [ProgramUser!]!
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
+  attachments: [Attachment!]!
   plannedTime: PlannedTimeSummary!
 }
 
@@ -2258,6 +2281,7 @@ enum QuasarSpectrum {
 
 type Query {
   asterismGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): AsterismGroupSelectResult!
+  attachmentTypeMeta: [AttachmentTypeMeta!]!
   constraintSetGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ConstraintSetGroupSelectResult!
   dataset(observationId: ObservationId!, stepId: StepId!, index: PosInt!): Dataset
   datasets(WHERE: WhereDataset, OFFSET: DatasetIdInput, LIMIT: NonNegInt): DatasetSelectResult!
@@ -2380,8 +2404,10 @@ type Sidereal {
   catalogInfo: CatalogInfo
 }
 
+scalar SignalToNoise
+
 type SignalToNoiseMode {
-  value: PosBigDecimal!
+  value: SignalToNoise!
 }
 
 enum SkyBackground {
@@ -2416,7 +2442,7 @@ enum SpectroscopyCapabilities {
 type SpectroscopyScienceRequirements {
   wavelength: Wavelength
   resolution: PosInt
-  signalToNoise: PosBigDecimal
+  signalToNoise: SignalToNoise
   signalToNoiseAt: Wavelength
   wavelengthCoverage: Wavelength
   focalPlane: FocalPlane
@@ -3040,5 +3066,20 @@ enum Partner {
 
   """United States"""
   US
+}
+
+"""Enumerated type of attachments."""
+enum AttachmentType {
+  """Finder Chart"""
+  FINDER
+
+  """MOS Mask"""
+  MOS_MASK
+
+  """Pre-Imaging"""
+  PRE_IMAGING
+
+  """Proposal"""
+  PROPOSAL
 }
 

@@ -259,11 +259,11 @@ extension (ts: TimeSpan)
 
 extension (etm: ExposureTimeMode)
   def toInput: ExposureTimeModeInput = etm match
-    case FixedExposure(count, time) =>
+    case FixedExposureMode(count, time) =>
       ExposureTimeModeInput(fixedExposure =
         FixedExposureModeInput(count = count, time = time.toInput).assign
       )
-    case SignalToNoise(value)       =>
+    case SignalToNoiseMode(value)       =>
       ExposureTimeModeInput(signalToNoise = SignalToNoiseModeInput(value = value).assign)
 
 extension (p: ProposalClass)
