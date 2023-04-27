@@ -1,0 +1,29 @@
+[
+  {
+    "inclusion": "INCLUDE",
+    "startUtc": "2023-04-01 00:00:00",
+    "end": null
+  },
+  {
+    "inclusion": "INCLUDE",
+    "startUtc": "2023-04-01 00:00:00",
+    "end": {
+      "atUtc": "2023-05-01 00:00:00"
+    }
+  },
+  {
+    "inclusion": "EXCLUDE",
+    "startUtc": "2023-04-01 00:00:00",
+    "end": {
+      "after": {
+        "milliseconds": 864000000
+      },
+      "repeat": {
+        "period": {
+          "milliseconds": 1800000000
+        },
+        "times": 50
+      }
+    }
+  }
+]

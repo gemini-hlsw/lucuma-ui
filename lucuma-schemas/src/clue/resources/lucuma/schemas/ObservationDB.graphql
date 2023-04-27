@@ -903,6 +903,7 @@ input ObservationPropertiesInput {
   posAngleConstraint: PosAngleConstraintInput
   targetEnvironment: TargetEnvironmentInput
   constraintSet: ConstraintSetInput
+  timingWindows: [TimingWindowInput!]
   scienceRequirements: ScienceRequirementsInput
   observingMode: ObservingModeInput
   existence: Existence
@@ -1228,6 +1229,23 @@ input TargetPropertiesInput {
   nonsidereal: NonsiderealInput
   sourceProfile: SourceProfileInput
   existence: Existence
+}
+
+input TimingWindowRepeatInput {
+  period: TimeSpanInput!
+  times: PosInt
+}
+
+input TimingWindowEndInput {
+  atUtc: Timestamp
+  after: TimeSpanInput
+  repeat: TimingWindowRepeatInput
+}
+
+input TimingWindowInput {
+  inclusion: TimingWindowInclusion!
+  startUtc: Timestamp!
+  end: TimingWindowEndInput
 }
 
 input UndeleteObservationsInput {
@@ -2265,6 +2283,33 @@ enum ObsStatus {
   OBSERVED
 }
 
+enum TimingWindowInclusion {
+  INCLUDE
+  EXCLUDE
+}
+
+type TimingWindowRepeat {
+  period: TimeSpan!
+  times: PosInt
+}
+
+type TimingWindowEndAt {
+  atUtc: Timestamp!
+}
+
+type TimingWindowEndAfter {
+  after: TimeSpan!
+  repeat: TimingWindowRepeat
+}
+
+union TimingWindowEnd = TimingWindowEndAt | TimingWindowEndAfter
+
+type TimingWindow {
+  inclusion: TimingWindowInclusion!
+  startUtc: Timestamp!
+  end: TimingWindowEnd
+}
+
 type Observation {
   id: ObservationId!
   existence: Existence!
@@ -2278,6 +2323,7 @@ type Observation {
   program: Program!
   targetEnvironment: TargetEnvironment!
   constraintSet: ConstraintSet!
+  timingWindows: [TimingWindow!]!
   scienceRequirements: ScienceRequirements!
   observingMode: ObservingMode
   manualConfig: ManualConfig

@@ -455,3 +455,35 @@ extension (cs: ConstraintSet)
       waterVapor = cs.waterVapor.assign,
       elevationRange = cs.elevationRange.toInput.assign
     )
+
+extension (twea: TimingWindowRepeat)
+  def toInput: TimingWindowRepeatInput =
+    TimingWindowRepeatInput(
+      period = twea.period.toInput,
+      times = twea.times.orIgnore
+    )
+
+extension (twe: TimingWindowEnd)
+  def toInput: TimingWindowEndInput =
+    TimingWindowEndInput(
+      atUtc = TimingWindowEnd.at.andThen(TimingWindowEnd.At.instant).getOption(twe).orIgnore,
+      after = TimingWindowEnd.after
+        .andThen(TimingWindowEnd.After.duration)
+        .getOption(twe)
+        .map(_.toInput)
+        .orIgnore,
+      repeat = TimingWindowEnd.after
+        .andThen(TimingWindowEnd.After.repeat)
+        .getOption(twe)
+        .flatten
+        .map(_.toInput)
+        .orIgnore
+    )
+
+extension (tw: TimingWindow)
+  def toInput: TimingWindowInput =
+    TimingWindowInput(
+      inclusion = tw.inclusion,
+      startUtc = tw.start,
+      end = tw.end.map(_.toInput).orIgnore
+    )
