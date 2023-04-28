@@ -22,6 +22,7 @@ trait ObservationDB {
     // Ids
     type AtomId           = Atom.Id
     type ExecutionEventId = ExecutionEvent.Id
+    type ObsAttachmentId  = ObsAttachment.Id
     type ObservationId    = Observation.Id
     type ProgramId        = Program.Id
     type StepId           = Step.Id

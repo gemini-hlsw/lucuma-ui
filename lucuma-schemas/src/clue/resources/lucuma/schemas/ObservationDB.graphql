@@ -869,8 +869,10 @@ type Mutation {
   ): UnlinkUserResult!
   updateAsterisms(input: UpdateAsterismsInput!): UpdateAsterismsResult!
   updateDatasets(input: UpdateDatasetsInput!): UpdateDatasetsResult!
+  updateObsAttachments(input: UpdateObsAttachmentsInput!): UpdateObsAttachmentsResult!
   updateObservations(input: UpdateObservationsInput!): UpdateObservationsResult!
   updatePrograms(input: UpdateProgramsInput!): UpdateProgramsResult!
+  updateProposalAttachments(input: UpdateProposalAttachmentsInput!): UpdateProposalAttachmentsResult!
   updateTargets(input: UpdateTargetsInput!): UpdateTargetsResult!
 }
 
@@ -1265,6 +1267,18 @@ type UpdateAsterismsResult {
   hasMore: Boolean!
 }
 
+input UpdateObsAttachmentsInput {
+  programId: ProgramId!
+  SET: ObsAttachmentPropertiesInput!
+  WHERE: WhereObsAttachment
+  LIMIT: NonNegInt
+}
+
+type UpdateObsAttachmentsResult {
+  obsAttachments: [ObsAttachment!]!
+  hasMore: Boolean!
+}
+
 input UpdateDatasetsInput {
   SET: DatasetPropertiesInput!
   WHERE: WhereDataset
@@ -1298,6 +1312,18 @@ input UpdateProgramsInput {
 
 type UpdateProgramsResult {
   programs: [Program!]!
+  hasMore: Boolean!
+}
+
+input UpdateProposalAttachmentsInput {
+  programId: ProgramId!
+  SET: ProposalAttachmentPropertiesInput!
+  WHERE: WhereProposalAttachment
+  LIMIT: NonNegInt
+}
+
+type UpdateProposalAttachmentsResult {
+  proposalAttachments: [ProposalAttachment!]!
   hasMore: Boolean!
 }
 
@@ -1394,11 +1420,11 @@ type AsterismGroupSelectResult {
   hasMore: Boolean!
 }
 
-scalar AttachmentId
+scalar ObsAttachmentId
 
-type Attachment {
-  id: AttachmentId!
-  attachmentType: AttachmentType!
+type ObsAttachment {
+  id: ObsAttachmentId!
+  attachmentType: ObsAttachmentType!
   fileName: NonEmptyString!
   description: NonEmptyString
   checked: Boolean!
@@ -1407,8 +1433,13 @@ type Attachment {
   program: Program!
 }
 
-type AttachmentTypeMeta {
-  tag: AttachmentType!
+input ObsAttachmentPropertiesInput {
+  description: NonEmptyString
+  checked: Boolean
+}
+
+type ObsAttachmentTypeMeta {
+  tag: ObsAttachmentType!
   shortName: String!
   longName: String!
 }
@@ -2222,7 +2253,8 @@ type Program {
   """Users assigned to this science program"""
   users: [ProgramUser!]!
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
-  attachments: [Attachment!]!
+  obsAttachments: [ObsAttachment!]!
+  proposalAttachments: [ProposalAttachment!]!
   plannedTime: PlannedTimeSummary!
 }
 
@@ -2246,6 +2278,27 @@ type ProperMotionDeclination {
 type ProperMotionRA {
   microarcsecondsPerYear: Long!
   milliarcsecondsPerYear: BigDecimal!
+}
+
+type ProposalAttachment {
+  attachmentType: ProposalAttachmentType!
+  fileName: NonEmptyString!
+  description: NonEmptyString
+  checked: Boolean!
+  fileSize: Long!
+  updatedAt: Timestamp!
+  program: Program!
+}
+
+input ProposalAttachmentPropertiesInput {
+  description: NonEmptyString
+  checked: Boolean
+}
+
+type ProposalAttachmentTypeMeta {
+  tag: ProposalAttachmentType!
+  shortName: String!
+  longName: String!
 }
 
 type Proposal {
@@ -2281,7 +2334,7 @@ enum QuasarSpectrum {
 
 type Query {
   asterismGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): AsterismGroupSelectResult!
-  attachmentTypeMeta: [AttachmentTypeMeta!]!
+  obsAttachmentTypeMeta: [ObsAttachmentTypeMeta!]!
   constraintSetGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ConstraintSetGroupSelectResult!
   dataset(observationId: ObservationId!, stepId: StepId!, index: PosInt!): Dataset
   datasets(WHERE: WhereDataset, OFFSET: DatasetIdInput, LIMIT: NonNegInt): DatasetSelectResult!
@@ -2293,6 +2346,7 @@ type Query {
   partnerMeta: [PartnerMeta!]!
   program(programId: ProgramId!): Program
   programs(WHERE: WhereProgram, OFFSET: ProgramId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ProgramSelectResult!
+  proposalAttachmentTypeMeta: [ProposalAttachmentTypeMeta!]!
   sequence(programId: ProgramId!, observationId: ObservationId!, useCache: Boolean! = true): SequenceGenerationResult
   target(targetId: TargetId!): Target
   targetGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): TargetGroupSelectResult!
@@ -2688,6 +2742,35 @@ type WavelengthDither {
   micrometers: BigDecimal!
 }
 
+input WhereObsAttachment {
+  AND: [WhereObsAttachment!]
+  OR: [WhereObsAttachment!]
+  NOT: WhereObsAttachment
+  id: WhereOrderObsAttachmentId
+  fileName: WhereString
+  description: WhereOptionString
+  attachmentType: WhereObsAttachmentType
+  checked: Boolean
+}
+
+input WhereObsAttachmentType {
+  EQ: ObsAttachmentType
+  NEQ: ObsAttachmentType
+  IN: [ObsAttachmentType!]
+  NIN: [ObsAttachmentType!]
+}
+
+input WhereOrderObsAttachmentId {
+  EQ: ObsAttachmentId
+  NEQ: ObsAttachmentId
+  IN: [ObsAttachmentId!]
+  NIN: [ObsAttachmentId!]
+  GT: ObsAttachmentId
+  LT: ObsAttachmentId
+  GTE: ObsAttachmentId
+  LTE: ObsAttachmentId
+}
+
 input WhereDataset {
   observationId: WhereOrderObservationId
   stepId: WhereEqStepId
@@ -2953,6 +3036,23 @@ input WhereProposal {
   partners: WhereProposalPartners
 }
 
+input WhereProposalAttachment {
+  AND: [WhereProposalAttachment!]
+  OR: [WhereProposalAttachment!]
+  NOT: WhereProposalAttachment
+  fileName: WhereString
+  description: WhereOptionString
+  attachmentType: WhereProposalAttachmentType
+  checked: Boolean
+}
+
+input WhereProposalAttachmentType {
+  EQ: ProposalAttachmentType
+  NEQ: ProposalAttachmentType
+  IN: [ProposalAttachmentType!]
+  NIN: [ProposalAttachmentType!]
+}
+
 input WhereProposalClass {
   type: WhereEqProposalClassType
   minPercent: WhereOrderInt
@@ -3011,6 +3111,45 @@ scalar BigDecimal
 
 scalar Long
 
+"""Enumeration of planned time categories"""
+enum PlannedTimeCategory {
+  """Config Change"""
+  CONFIG_CHANGE
+
+  """Exposure"""
+  EXPOSURE
+
+  """Readout"""
+  READOUT
+
+  """Setup"""
+  SETUP
+
+  """Write"""
+  WRITE
+}
+
+"""Enumerated type of observation attachments."""
+enum ObsAttachmentType {
+  """Finder Chart"""
+  FINDER
+
+  """MOS Mask"""
+  MOS_MASK
+
+  """Pre-Imaging"""
+  PRE_IMAGING
+}
+
+"""Enumerated type of proposal attachments."""
+enum ProposalAttachmentType {
+  """Science Case & Design"""
+  SCIENCE
+
+  """Team Info, Previous Use, etc."""
+  TEAM
+}
+
 """Enumerated type of filters."""
 enum FilterType {
   """Broad-Band Filter"""
@@ -3066,20 +3205,5 @@ enum Partner {
 
   """United States"""
   US
-}
-
-"""Enumerated type of attachments."""
-enum AttachmentType {
-  """Finder Chart"""
-  FINDER
-
-  """MOS Mask"""
-  MOS_MASK
-
-  """Pre-Imaging"""
-  PRE_IMAGING
-
-  """Proposal"""
-  PROPOSAL
 }
 

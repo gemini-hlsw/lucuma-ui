@@ -5,7 +5,7 @@ val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
 val kittensVersion         = "3.0.0"
 
-ThisBuild / tlBaseVersion       := "0.49"
+ThisBuild / tlBaseVersion       := "0.51"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.2.2")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
