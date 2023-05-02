@@ -22,6 +22,7 @@ trait ObservationDB {
     // Ids
     type AtomId           = Atom.Id
     type ExecutionEventId = ExecutionEvent.Id
+    type GroupId          = Group.Id
     type ObsAttachmentId  = ObsAttachment.Id
     type ObservationId    = Observation.Id
     type ProgramId        = Program.Id
@@ -42,6 +43,7 @@ trait ObservationDB {
     type NonNegBigDecimal = eu.timepit.refined.types.numeric.NonNegBigDecimal
     type NonNegInt        = eu.timepit.refined.types.numeric.NonNegInt
     type NonNegLong       = eu.timepit.refined.types.numeric.NonNegLong
+    type NonNegShort      = eu.timepit.refined.types.numeric.NonNegShort
     type PosBigDecimal    = eu.timepit.refined.types.numeric.PosBigDecimal
     type PosInt           = eu.timepit.refined.types.numeric.PosInt
     type PosLong          = eu.timepit.refined.types.numeric.PosLong
