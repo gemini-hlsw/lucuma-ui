@@ -113,6 +113,7 @@ trait ObservationDB {
     type StepStage                           = enums.StepStage
     type StepType                            = enums.StepType
     type TacCategory                         = enums.TacCategory
+    type TimingWindowInclusion               = enums.TimingWindowInclusion
     type ToOActivation                       = enums.ToOActivation
     type WaterVapor                          = enums.WaterVapor
   }
