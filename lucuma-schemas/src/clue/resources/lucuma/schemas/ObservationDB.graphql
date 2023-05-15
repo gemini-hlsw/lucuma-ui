@@ -1192,10 +1192,16 @@ type Subscription {
   observationEdit(input: ObservationEditInput): ObservationEdit!
   programEdit(input: ProgramEditInput): ProgramEdit!
   targetEdit(input: TargetEditInput): TargetEdit!
+  groupEdit(input: GroupEditInput): GroupEdit!
 }
 
 input TargetEditInput {
   targetId: TargetId
+  programId: ProgramId
+}
+
+input GroupEditInput {
+  groupId: GroupId
   programId: ProgramId
 }
 
@@ -1215,6 +1221,12 @@ input SystemVerificationInput {
 type TargetEdit {
   editType: EditType!
   value: Target!
+  id: Long!
+}
+
+type GroupEdit {
+  editType: EditType!
+  value: Group!
   id: Long!
 }
 
