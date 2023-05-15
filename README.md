@@ -12,7 +12,7 @@ The purpose of this project is to emit an artifact that:
 
 Contains:
 
-- Schema files in `resources` (eg: `ObservationDB.graphql`). They can be updated with `fetchODBSchema.sh`.
+- Schema files in `resources` (eg: `ObservationDB.graphql`). They can be updated with `fetchODBSchema.sh`. Use the `flake.nix` with `nix develop`, or install [graphqurl](https://www.npmjs.com/package/graphqurl) globally to use.
 - Templates (eg: `ObservationDB.scala`) to map schema scalars and other types to Scala types.
 
 ### Project `lucuma-schemas`
