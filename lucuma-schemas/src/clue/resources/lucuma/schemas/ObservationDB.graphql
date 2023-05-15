@@ -835,6 +835,12 @@ type Mutation {
   addStepEvent(input: AddStepEventInput!): AddStepEventResult!
   cloneObservation(input: CloneObservationInput!): CloneObservationResult!
   cloneTarget(input: CloneTargetInput!): CloneTargetResult!
+
+  """Creates a new observation according to provided parameters."""
+  createGroup(
+    """Group description."""
+    input: CreateGroupInput!
+  ): CreateGroupResult!
   createObservation(input: CreateObservationInput!): CreateObservationResult!
   createProgram(input: CreateProgramInput!): CreateProgramResult!
   createTarget(input: CreateTargetInput!): CreateTargetResult!
@@ -869,8 +875,11 @@ type Mutation {
   ): UnlinkUserResult!
   updateAsterisms(input: UpdateAsterismsInput!): UpdateAsterismsResult!
   updateDatasets(input: UpdateDatasetsInput!): UpdateDatasetsResult!
+  updateGroups(input: UpdateGroupsInput!): UpdateGroupsResult!
+  updateObsAttachments(input: UpdateObsAttachmentsInput!): UpdateObsAttachmentsResult!
   updateObservations(input: UpdateObservationsInput!): UpdateObservationsResult!
   updatePrograms(input: UpdateProgramsInput!): UpdateProgramsResult!
+  updateProposalAttachments(input: UpdateProposalAttachmentsInput!): UpdateProposalAttachmentsResult!
   updateTargets(input: UpdateTargetsInput!): UpdateTargetsResult!
 }
 
@@ -894,9 +903,12 @@ input ObservationPropertiesInput {
   posAngleConstraint: PosAngleConstraintInput
   targetEnvironment: TargetEnvironmentInput
   constraintSet: ConstraintSetInput
+  timingWindows: [TimingWindowInput!]
   scienceRequirements: ScienceRequirementsInput
   observingMode: ObservingModeInput
   existence: Existence
+  groupId: GroupId
+  groupIndex: NonNegShort
 }
 
 type Offset {
@@ -1180,10 +1192,16 @@ type Subscription {
   observationEdit(input: ObservationEditInput): ObservationEdit!
   programEdit(input: ProgramEditInput): ProgramEdit!
   targetEdit(input: TargetEditInput): TargetEdit!
+  groupEdit(input: GroupEditInput): GroupEdit!
 }
 
 input TargetEditInput {
   targetId: TargetId
+  programId: ProgramId
+}
+
+input GroupEditInput {
+  groupId: GroupId
   programId: ProgramId
 }
 
@@ -1206,6 +1224,12 @@ type TargetEdit {
   id: Long!
 }
 
+type GroupEdit {
+  editType: EditType!
+  value: Group!
+  id: Long!
+}
+
 input TargetEnvironmentInput {
   explicitBase: CoordinatesInput
   asterism: [TargetId!]
@@ -1217,6 +1241,23 @@ input TargetPropertiesInput {
   nonsidereal: NonsiderealInput
   sourceProfile: SourceProfileInput
   existence: Existence
+}
+
+input TimingWindowRepeatInput {
+  period: TimeSpanInput!
+  times: PosInt
+}
+
+input TimingWindowEndInput {
+  atUtc: Timestamp
+  after: TimeSpanInput
+  repeat: TimingWindowRepeatInput
+}
+
+input TimingWindowInput {
+  inclusion: TimingWindowInclusion!
+  startUtc: Timestamp!
+  end: TimingWindowEndInput
 }
 
 input UndeleteObservationsInput {
@@ -1265,6 +1306,18 @@ type UpdateAsterismsResult {
   hasMore: Boolean!
 }
 
+input UpdateObsAttachmentsInput {
+  programId: ProgramId!
+  SET: ObsAttachmentPropertiesInput!
+  WHERE: WhereObsAttachment
+  LIMIT: NonNegInt
+}
+
+type UpdateObsAttachmentsResult {
+  obsAttachments: [ObsAttachment!]!
+  hasMore: Boolean!
+}
+
 input UpdateDatasetsInput {
   SET: DatasetPropertiesInput!
   WHERE: WhereDataset
@@ -1273,6 +1326,17 @@ input UpdateDatasetsInput {
 
 type UpdateDatasetsResult {
   datasets: [Dataset!]!
+  hasMore: Boolean!
+}
+
+input UpdateGroupsInput {
+  SET: GroupPropertiesInput!
+  WHERE: WhereGroup
+  LIMIT: NonNegInt
+}
+
+type UpdateGroupsResult {
+  groups: [Group!]!
   hasMore: Boolean!
 }
 
@@ -1298,6 +1362,18 @@ input UpdateProgramsInput {
 
 type UpdateProgramsResult {
   programs: [Program!]!
+  hasMore: Boolean!
+}
+
+input UpdateProposalAttachmentsInput {
+  programId: ProgramId!
+  SET: ProposalAttachmentPropertiesInput!
+  WHERE: WhereProposalAttachment
+  LIMIT: NonNegInt
+}
+
+type UpdateProposalAttachmentsResult {
+  proposalAttachments: [ProposalAttachment!]!
   hasMore: Boolean!
 }
 
@@ -1394,11 +1470,11 @@ type AsterismGroupSelectResult {
   hasMore: Boolean!
 }
 
-scalar AttachmentId
+scalar ObsAttachmentId
 
-type Attachment {
-  id: AttachmentId!
-  attachmentType: AttachmentType!
+type ObsAttachment {
+  id: ObsAttachmentId!
+  attachmentType: ObsAttachmentType!
   fileName: NonEmptyString!
   description: NonEmptyString
   checked: Boolean!
@@ -1407,8 +1483,13 @@ type Attachment {
   program: Program!
 }
 
-type AttachmentTypeMeta {
-  tag: AttachmentType!
+input ObsAttachmentPropertiesInput {
+  description: NonEmptyString
+  checked: Boolean
+}
+
+type ObsAttachmentTypeMeta {
+  tag: ObsAttachmentType!
   shortName: String!
   longName: String!
 }
@@ -1997,6 +2078,93 @@ enum GmosYBinning {
   FOUR
 }
 
+"""A group of observations and other groups."""
+type Group {
+  id: GroupId!
+
+  """Optionally, a name"""
+  name: String
+
+  """Optionally, a description."""
+  description: String
+
+  """
+  How many do we need to complete? If this is null then it means we have to complete them all
+  """
+  minimumRequired: NonNegShort
+
+  """Do they need to be completed in order?"""
+  ordered: Boolean!
+
+  """
+  Is there a minimum required and/or maximum allowed timespan between observations?
+  """
+  minimumInterval: TimeSpan
+  maximumInterval: TimeSpan
+
+  """Contained elements"""
+  elements: [GroupElement!]!
+}
+
+scalar GroupId
+
+"""
+Groups contain observations and other groups. Exactly one will be defined.
+"""
+type GroupElement {
+  parentGroupId: GroupId
+  parentIndex: NonNegShort!
+  group: Group
+  observation: Observation
+}
+
+input GroupPropertiesInput {
+  """Group name (optional)."""
+  name: NonEmptyString
+
+  """Group description (optional)."""
+  description: NonEmptyString
+
+  """
+  Minimum number of elements to be observed. If unspecified then all elements will be observed.
+  """
+  minimumRequired: NonNegShort
+
+  """
+  If true, elements will be observed in order. Defaults to false if left unspecified.
+  """
+  ordered: Boolean
+
+  """
+  If specified, elements will be separated by at least `minimumInterval`.
+  """
+  minimumInterval: TimeSpanInput
+
+  """If specified, elements will be separated by at most `maximumInterval`."""
+  maximumInterval: TimeSpanInput
+
+  """
+  Parent group (optional). If specified then parent index must also be specified.
+  """
+  parentGroup: GroupId
+
+  """
+  Parent index. If unspecified then the element will appear first in the program or parent group (if specified). Cannot be set to null.
+  """
+  parentGroupIndex: NonNegShort
+}
+
+input CreateGroupInput {
+  programId: ProgramId!
+  SET: GroupPropertiesInput
+}
+
+"""The result of creating a new group."""
+type CreateGroupResult {
+  """The newly created group."""
+  group: Group!
+}
+
 enum HiiRegionSpectrum {
   ORION_NEBULA
 }
@@ -2099,6 +2267,8 @@ scalar NonEmptyString
 
 scalar NonNegBigDecimal
 
+scalar NonNegShort
+
 scalar NonNegInt
 
 scalar NonNegLong
@@ -2125,6 +2295,33 @@ enum ObsStatus {
   OBSERVED
 }
 
+enum TimingWindowInclusion {
+  INCLUDE
+  EXCLUDE
+}
+
+type TimingWindowRepeat {
+  period: TimeSpan!
+  times: PosInt
+}
+
+type TimingWindowEndAt {
+  atUtc: Timestamp!
+}
+
+type TimingWindowEndAfter {
+  after: TimeSpan!
+  repeat: TimingWindowRepeat
+}
+
+union TimingWindowEnd = TimingWindowEndAt | TimingWindowEndAfter
+
+type TimingWindow {
+  inclusion: TimingWindowInclusion!
+  startUtc: Timestamp!
+  end: TimingWindowEnd
+}
+
 type Observation {
   id: ObservationId!
   existence: Existence!
@@ -2138,6 +2335,7 @@ type Observation {
   program: Program!
   targetEnvironment: TargetEnvironment!
   constraintSet: ConstraintSet!
+  timingWindows: [TimingWindow!]!
   scienceRequirements: ScienceRequirements!
   observingMode: ObservingMode
   manualConfig: ManualConfig
@@ -2222,8 +2420,15 @@ type Program {
   """Users assigned to this science program"""
   users: [ProgramUser!]!
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
-  attachments: [Attachment!]!
+  obsAttachments: [ObsAttachment!]!
+  proposalAttachments: [ProposalAttachment!]!
   plannedTime: PlannedTimeSummary!
+
+  """Top-level group elements (observations and sub-groups) in the program."""
+  groupElements: [GroupElement!]!
+
+  """All group elements (observations and sub-groups) in the program."""
+  allGroupElements: [GroupElement!]!
 }
 
 scalar ProgramId
@@ -2246,6 +2451,27 @@ type ProperMotionDeclination {
 type ProperMotionRA {
   microarcsecondsPerYear: Long!
   milliarcsecondsPerYear: BigDecimal!
+}
+
+type ProposalAttachment {
+  attachmentType: ProposalAttachmentType!
+  fileName: NonEmptyString!
+  description: NonEmptyString
+  checked: Boolean!
+  fileSize: Long!
+  updatedAt: Timestamp!
+  program: Program!
+}
+
+input ProposalAttachmentPropertiesInput {
+  description: NonEmptyString
+  checked: Boolean
+}
+
+type ProposalAttachmentTypeMeta {
+  tag: ProposalAttachmentType!
+  shortName: String!
+  longName: String!
 }
 
 type Proposal {
@@ -2281,7 +2507,7 @@ enum QuasarSpectrum {
 
 type Query {
   asterismGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): AsterismGroupSelectResult!
-  attachmentTypeMeta: [AttachmentTypeMeta!]!
+  obsAttachmentTypeMeta: [ObsAttachmentTypeMeta!]!
   constraintSetGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ConstraintSetGroupSelectResult!
   dataset(observationId: ObservationId!, stepId: StepId!, index: PosInt!): Dataset
   datasets(WHERE: WhereDataset, OFFSET: DatasetIdInput, LIMIT: NonNegInt): DatasetSelectResult!
@@ -2293,6 +2519,7 @@ type Query {
   partnerMeta: [PartnerMeta!]!
   program(programId: ProgramId!): Program
   programs(WHERE: WhereProgram, OFFSET: ProgramId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ProgramSelectResult!
+  proposalAttachmentTypeMeta: [ProposalAttachmentTypeMeta!]!
   sequence(programId: ProgramId!, observationId: ObservationId!, useCache: Boolean! = true): SequenceGenerationResult
   target(targetId: TargetId!): Target
   targetGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): TargetGroupSelectResult!
@@ -2688,6 +2915,35 @@ type WavelengthDither {
   micrometers: BigDecimal!
 }
 
+input WhereObsAttachment {
+  AND: [WhereObsAttachment!]
+  OR: [WhereObsAttachment!]
+  NOT: WhereObsAttachment
+  id: WhereOrderObsAttachmentId
+  fileName: WhereString
+  description: WhereOptionString
+  attachmentType: WhereObsAttachmentType
+  checked: Boolean
+}
+
+input WhereObsAttachmentType {
+  EQ: ObsAttachmentType
+  NEQ: ObsAttachmentType
+  IN: [ObsAttachmentType!]
+  NIN: [ObsAttachmentType!]
+}
+
+input WhereOrderObsAttachmentId {
+  EQ: ObsAttachmentId
+  NEQ: ObsAttachmentId
+  IN: [ObsAttachmentId!]
+  NIN: [ObsAttachmentId!]
+  GT: ObsAttachmentId
+  LT: ObsAttachmentId
+  GTE: ObsAttachmentId
+  LTE: ObsAttachmentId
+}
+
 input WhereDataset {
   observationId: WhereOrderObservationId
   stepId: WhereEqStepId
@@ -2759,6 +3015,26 @@ input WhereObservation {
   subtitle: WhereOptionString
   status: WhereOrderObsStatus
   activeStatus: WhereOrderObsActiveStatus
+}
+
+input WhereGroup {
+  AND: [WhereGroup!]
+  OR: [WhereGroup!]
+  NOT: WhereGroup
+  id: WhereOrderGroupId
+  name: WhereOptionString
+  description: WhereOptionString
+}
+
+input WhereOrderGroupId {
+  EQ: GroupId
+  NEQ: GroupId
+  IN: [GroupId!]
+  NIN: [GroupId!]
+  GT: GroupId
+  LT: GroupId
+  GTE: GroupId
+  LTE: GroupId
 }
 
 input WhereOptionEqQaState {
@@ -2953,6 +3229,23 @@ input WhereProposal {
   partners: WhereProposalPartners
 }
 
+input WhereProposalAttachment {
+  AND: [WhereProposalAttachment!]
+  OR: [WhereProposalAttachment!]
+  NOT: WhereProposalAttachment
+  fileName: WhereString
+  description: WhereOptionString
+  attachmentType: WhereProposalAttachmentType
+  checked: Boolean
+}
+
+input WhereProposalAttachmentType {
+  EQ: ProposalAttachmentType
+  NEQ: ProposalAttachmentType
+  IN: [ProposalAttachmentType!]
+  NIN: [ProposalAttachmentType!]
+}
+
 input WhereProposalClass {
   type: WhereEqProposalClassType
   minPercent: WhereOrderInt
@@ -3011,6 +3304,45 @@ scalar BigDecimal
 
 scalar Long
 
+"""Enumeration of planned time categories"""
+enum PlannedTimeCategory {
+  """Config Change"""
+  CONFIG_CHANGE
+
+  """Exposure"""
+  EXPOSURE
+
+  """Readout"""
+  READOUT
+
+  """Setup"""
+  SETUP
+
+  """Write"""
+  WRITE
+}
+
+"""Enumerated type of observation attachments."""
+enum ObsAttachmentType {
+  """Finder Chart"""
+  FINDER
+
+  """MOS Mask"""
+  MOS_MASK
+
+  """Pre-Imaging"""
+  PRE_IMAGING
+}
+
+"""Enumerated type of proposal attachments."""
+enum ProposalAttachmentType {
+  """Science Case & Design"""
+  SCIENCE
+
+  """Team Info, Previous Use, etc."""
+  TEAM
+}
+
 """Enumerated type of filters."""
 enum FilterType {
   """Broad-Band Filter"""
@@ -3066,20 +3398,5 @@ enum Partner {
 
   """United States"""
   US
-}
-
-"""Enumerated type of attachments."""
-enum AttachmentType {
-  """Finder Chart"""
-  FINDER
-
-  """MOS Mask"""
-  MOS_MASK
-
-  """Pre-Imaging"""
-  PRE_IMAGING
-
-  """Proposal"""
-  PROPOSAL
 }
 

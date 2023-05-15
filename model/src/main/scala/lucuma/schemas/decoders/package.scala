@@ -15,3 +15,4 @@ package object decoders
     with ProposalDecoders
     with ExposureTimeModeDecoders
     with VisitDecoders
+    with TimingWindowDecoders
