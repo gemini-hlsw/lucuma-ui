@@ -23,12 +23,12 @@ import lucuma.core.model.*
 import lucuma.core.model.sequence.*
 import lucuma.core.util.Enumerated
 import lucuma.core.util.NewType
+import lucuma.core.util.Timestamp
 import lucuma.core.util.WithGid
 import lucuma.core.util.WithUid
 import lucuma.react.table.*
 import react.common.Size
 
-import java.time.Duration
 import java.time.Instant
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.SortedSet
@@ -90,9 +90,9 @@ trait MathReusabilityInstances {
  * reusability of time types
  */
 trait TimeReusabilityInstances {
-  implicit val durationReuse: Reusability[Duration] = Reusability.by(_.getSeconds)
-  implicit val instantReuse: Reusability[Instant]   =
+  implicit val instantReuse: Reusability[Instant]     =
     Reusability.by(i => (i.getEpochSecond, i.getNano))
+  implicit val timestampReuse: Reusability[Timestamp] = Reusability.byEq
 }
 
 /**
