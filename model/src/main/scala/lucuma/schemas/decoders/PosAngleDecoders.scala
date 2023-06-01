@@ -9,6 +9,7 @@ import io.circe.Decoder
 import io.circe.DecodingFailure
 import lucuma.core.math.Angle
 import lucuma.core.model.PosAngleConstraint
+import lucuma.odb.json.angle.decoder.given
 
 trait PosAngleDecoders {
 

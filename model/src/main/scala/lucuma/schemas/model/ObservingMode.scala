@@ -15,6 +15,8 @@ import lucuma.core.enums.*
 import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
 import lucuma.core.math.WavelengthDither
+import lucuma.odb.json.offset.decoder.given
+import lucuma.odb.json.wavelength.decoder.given
 import lucuma.schemas.decoders.given
 import monocle.Focus
 import monocle.Lens

@@ -18,6 +18,7 @@ import lucuma.core.model.Proposal
 import lucuma.core.model.ProposalClass
 import lucuma.core.model.ProposalClass._
 import lucuma.core.util.TimeSpan
+import lucuma.odb.json.time.decoder.given
 
 import scala.collection.immutable.SortedMap
 

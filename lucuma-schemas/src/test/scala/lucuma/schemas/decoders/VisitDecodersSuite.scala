@@ -26,6 +26,7 @@ import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
 import lucuma.core.model.ExecutionEvent
 import lucuma.core.model.sequence.*
+import lucuma.core.model.sequence.gmos.*
 import lucuma.core.syntax.timespan.*
 import lucuma.core.util.TimeSpan
 import lucuma.refined.*
@@ -36,6 +37,7 @@ import lucuma.schemas.model.Visit
 
 import java.time.Instant
 import java.util.UUID
+import lucuma.core.enums.GuideState
 
 class VisitDecodersSuite extends InputStreamSuite {
   val expectedVisits: List[Visit] = List(
@@ -79,7 +81,7 @@ class VisitDecodersSuite extends InputStreamSuite {
             filter = none,
             fpu = GmosFpuMask.Builtin(GmosSouthFpu.LongSlit_1_00).some
           ),
-          stepConfig = StepConfig.Science(Offset(Offset.P.Zero, Offset.Q.Zero)),
+          stepConfig = StepConfig.Science(Offset(Offset.P.Zero, Offset.Q.Zero), GuideState.Enabled),
           stepEvents = List(
             StepEvent(
               id = ExecutionEvent.Id(5.refined),

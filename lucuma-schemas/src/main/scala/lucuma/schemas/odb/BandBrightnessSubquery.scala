@@ -7,11 +7,13 @@ import clue.GraphQLSubquery
 import io.circe.Decoder
 import lucuma.core.enums.Band
 import lucuma.core.math.BrightnessUnits.*
+import lucuma.odb.json.sourceprofile.*
 import lucuma.schemas.ObservationDB
 import lucuma.schemas.decoders.*
 import lucuma.schemas.odb.BandBrightnessSubquery
 
 import scala.collection.immutable.SortedMap
+
 class BandBrightnessSubquery[T](
   rootType:                 String,
   override val dataDecoder: Decoder[(Band, BrightnessMeasure[T])]
@@ -26,15 +28,14 @@ class BandBrightnessSubquery[T](
           error
         }
       """
-
 object BandBrightnessIntegratedSubquery
     extends BandBrightnessSubquery[Integrated](
       "BandBrightnessIntegrated",
-      brightnessEntryDecoder[Integrated]
+      CodecBandBrightness[Integrated]
     )
 
 object BandBrightnessSurfaceSubquery
     extends BandBrightnessSubquery[Surface](
       "BandBrightnessSurface",
-      brightnessEntryDecoder[Surface]
+      CodecBandBrightness[Surface]
     )

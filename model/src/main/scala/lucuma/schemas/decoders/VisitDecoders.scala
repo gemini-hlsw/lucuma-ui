@@ -20,11 +20,14 @@ import lucuma.core.enums.StepQaState
 import lucuma.core.enums.StepStage
 import lucuma.core.model.ExecutionEvent
 import lucuma.core.model.NonNegDuration
-import lucuma.core.model.sequence.DynamicConfig
-import lucuma.core.model.sequence.StaticConfig
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
+import lucuma.core.model.sequence.gmos.DynamicConfig
+import lucuma.core.model.sequence.gmos.StaticConfig
 import lucuma.core.util.TimeSpan
+import lucuma.odb.json.gmos.given
+import lucuma.odb.json.stepconfig.given
+import lucuma.odb.json.time.decoder.given
 import lucuma.schemas.model.*
 
 import java.time.Instant

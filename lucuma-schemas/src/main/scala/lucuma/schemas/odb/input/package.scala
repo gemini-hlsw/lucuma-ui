@@ -5,6 +5,7 @@ package lucuma.schemas.odb.input
 
 import clue.data.Input
 import clue.data.syntax.*
+import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosLong
 import eu.timepit.refined.types.string.NonEmptyString
@@ -261,7 +262,10 @@ extension (etm: ExposureTimeMode)
   def toInput: ExposureTimeModeInput = etm match
     case FixedExposureMode(count, time) =>
       ExposureTimeModeInput(fixedExposure =
-        FixedExposureModeInput(count = count, time = time.toInput).assign
+        FixedExposureModeInput(
+          count = NonNegInt.unsafeFrom(count.value),
+          time = time.toInput
+        ).assign
       )
     case SignalToNoiseMode(value)       =>
       ExposureTimeModeInput(signalToNoise = SignalToNoiseModeInput(value = value).assign)

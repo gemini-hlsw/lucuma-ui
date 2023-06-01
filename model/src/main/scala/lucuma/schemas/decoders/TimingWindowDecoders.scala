@@ -13,6 +13,7 @@ import lucuma.core.model.TimingWindowEnd
 import lucuma.core.model.TimingWindowRepeat
 import lucuma.core.util.TimeSpan
 import lucuma.core.util.Timestamp
+import lucuma.odb.json.time.decoder.given
 
 trait TimingWindowDecoders:
   given Decoder[TimingWindowRepeat] = Decoder.instance(c =>

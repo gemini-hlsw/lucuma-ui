@@ -30,6 +30,8 @@ trait InputStreamSuite extends CatsEffectSuite {
   def assertParsedStreamEquals[A: Decoder](jsonFile: String, expected: A): IO[Unit] =
     for {
       r <- parsedResult[A](jsonFile)
+      // _ <- IO.println("HELLO!!!")
+      // _ <- IO.println(r)
       o <- IO.fromEither(r)
     } yield assertEquals(o, expected)
 

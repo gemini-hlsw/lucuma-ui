@@ -10,9 +10,7 @@ query {
               created
               startTime
               endTime
-              duration {
-                microseconds
-              }
+              duration { microseconds }
               staticN:staticConfig {
                 stageMode
                 detector
@@ -39,9 +37,7 @@ query {
               created
               startTime
               endTime
-              duration {
-                microseconds
-              }             
+              duration { microseconds }             
               staticS:staticConfig {
                 stageMode
                 detector
@@ -69,20 +65,12 @@ query {
   
 fragment nodAndShuffleFields on GmosNodAndShuffle {
   posA {
-    p {
-      microarcseconds
-    }
-    q {
-      microarcseconds
-    }
+    p { microarcseconds }
+    q { microarcseconds }
   }
   posB {
-    p {
-      microarcseconds
-    }
-    q {
-      microarcseconds
-    }
+    p { microarcseconds }
+    q { microarcseconds }
   }
   eOffset
   shuffleOffset
@@ -94,13 +82,9 @@ fragment gmosNorthStepRecordFields on GmosNorthStepRecord {
   created
   startTime
   endTime
-  duration {
-    microseconds
-  }
+  duration { microseconds }
   instrumentConfig {
-    exposure {
-      microseconds
-    }
+    exposure { microseconds }
     readout {
       xBin
       yBin
@@ -113,9 +97,7 @@ fragment gmosNorthStepRecordFields on GmosNorthStepRecord {
     gratingConfig {
       grating
       order
-      wavelength {
-        picometers
-      }
+      wavelength { picometers }
     }
     filter
     fpu {
@@ -137,14 +119,10 @@ fragment gmosNorthStepRecordFields on GmosNorthStepRecord {
     }
     ...on Science {
       offset {
-        p {
-          microarcseconds
-        }
-        q {
-          microarcseconds
-        }
+        p { microarcseconds }
+        q { microarcseconds }
       }
-
+      guiding
     }
   }
   stepEvents {
@@ -178,13 +156,9 @@ fragment gmosSouthStepRecordFields on GmosSouthStepRecord {
   created
   startTime
   endTime
-  duration {
-    microseconds
-  }
+  duration { microseconds }
   instrumentConfig {
-    exposure {
-      microseconds
-    }
+    exposure { microseconds }
     readout {
       xBin
       yBin
@@ -197,9 +171,7 @@ fragment gmosSouthStepRecordFields on GmosSouthStepRecord {
     gratingConfig {
       grating
       order
-      wavelength {
-        picometers
-      }
+      wavelength { picometers }
     }
     filter
     fpu {
@@ -221,12 +193,8 @@ fragment gmosSouthStepRecordFields on GmosSouthStepRecord {
     }
     ...on Science {
       offset {
-        p {
-          microarcseconds
-        }
-        q {
-          microarcseconds
-        }
+        p { microarcseconds }
+        q { microarcseconds }
       }
 
     }

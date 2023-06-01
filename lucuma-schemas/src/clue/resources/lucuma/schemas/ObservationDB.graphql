@@ -55,6 +55,8 @@ input AngleInput {
 
 interface Atom {
   id: AtomId!
+  description: String
+  observeClass: ObserveClass!
 }
 
 scalar AtomId
@@ -246,10 +248,6 @@ input EmissionLinesSurfaceInput {
   fluxDensityContinuum: FluxDensityContinuumSurfaceInput
 }
 
-interface Event {
-  id: Long!
-}
-
 input ExchangeInput {
   minPercentTime: IntPercent
 }
@@ -430,9 +428,10 @@ input GmosNodAndShuffleInput {
 }
 
 type GmosNorthAtom implements Atom {
-  steps: [GmosNorthStep!]!
-  time: StepTime!
   id: AtomId!
+  description: String
+  observeClass: ObserveClass!
+  steps: [GmosNorthStep!]!
 }
 
 input GmosNorthBiasInput {
@@ -471,14 +470,18 @@ input GmosNorthDynamicInput {
 type GmosNorthExecutionConfig implements ExecutionConfig {
   gmosNorth: Boolean! @deprecated
   static: GmosNorthStatic!
-  acquisition: GmosNorthExecutionSequence!
-  science: GmosNorthExecutionSequence!
+  acquisition: GmosNorthExecutionSequence
+  science: GmosNorthExecutionSequence
   instrument: Instrument!
+  setup: SetupTime!
 }
 
-type GmosNorthExecutionSequence {
-  nextAtom: GmosNorthAtom
+type GmosNorthExecutionSequence implements ExecutionSequence {
+  nextAtom: GmosNorthAtom!
   possibleFuture: [GmosNorthAtom!]!
+  hashMore: Boolean!
+  atomCount: PosInt!
+  digest: SequenceDigest!
 }
 
 type GmosNorthFpu {
@@ -522,22 +525,9 @@ input GmosNorthLongSlitInput {
   explicitSpatialOffsets: [OffsetComponentInput!]
 }
 
-type GmosNorthManualConfig implements ManualConfig {
-  static: GmosNorthStatic!
-  acquisition: GmosNorthSequence!
-  science: GmosNorthSequence!
-  instrument: Instrument!
-  plannedTime: PlannedTime!
-}
-
 input GmosNorthScienceInput {
   config: GmosNorthDynamicInput!
   offset: OffsetInput!
-}
-
-type GmosNorthSequence {
-  atoms: [GmosNorthAtom!]!
-  time: StepTime!
 }
 
 enum GmosNorthStageMode {
@@ -566,7 +556,8 @@ type GmosNorthStep implements Step {
   id: StepId!
   breakpoint: Breakpoint!
   stepConfig: StepConfig!
-  time: StepTime!
+  estimate: StepEstimate!
+  observeClass: ObserveClass!
 }
 
 input GmosNorthStepInput {
@@ -603,9 +594,10 @@ type GmosNorthVisitRecord {
 }
 
 type GmosSouthAtom implements Atom {
-  steps: [GmosSouthStep!]!
-  time: StepTime!
   id: AtomId!
+  description: String
+  observeClass: ObserveClass!
+  steps: [GmosSouthStep!]!
 }
 
 input GmosSouthBiasInput {
@@ -644,14 +636,18 @@ input GmosSouthDynamicInput {
 type GmosSouthExecutionConfig implements ExecutionConfig {
   gmosSouth: Boolean! @deprecated
   static: GmosSouthStatic!
-  acquisition: GmosSouthExecutionSequence!
-  science: GmosSouthExecutionSequence!
+  acquisition: GmosSouthExecutionSequence
+  science: GmosSouthExecutionSequence
   instrument: Instrument!
+  setup: SetupTime!
 }
 
-type GmosSouthExecutionSequence {
-  nextAtom: GmosSouthAtom
+type GmosSouthExecutionSequence implements ExecutionSequence {
+  nextAtom: GmosSouthAtom!
   possibleFuture: [GmosSouthAtom!]!
+  hashMore: Boolean!
+  atomCount: PosInt!
+  digest: SequenceDigest!
 }
 
 type GmosSouthFpu {
@@ -695,22 +691,9 @@ input GmosSouthLongSlitInput {
   explicitSpatialOffsets: [OffsetComponentInput!]
 }
 
-type GmosSouthManualConfig implements ManualConfig {
-  static: GmosSouthStatic!
-  acquisition: GmosSouthSequence!
-  science: GmosSouthSequence!
-  instrument: Instrument!
-  plannedTime: PlannedTime!
-}
-
 input GmosSouthScienceInput {
   config: GmosSouthDynamicInput!
   offset: OffsetInput!
-}
-
-type GmosSouthSequence {
-  atoms: [GmosSouthAtom!]!
-  time: StepTime!
 }
 
 enum GmosSouthStageMode {
@@ -739,7 +722,8 @@ type GmosSouthStep implements Step {
   id: StepId!
   breakpoint: Breakpoint!
   stepConfig: StepConfig!
-  time: StepTime!
+  estimate: StepEstimate!
+  observeClass: ObserveClass!
 }
 
 input GmosSouthStepInput {
@@ -892,7 +876,7 @@ input NonsiderealInput {
 type ObservationEdit {
   editType: EditType!
   value: Observation!
-  id: Long!
+  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
 input ObservationPropertiesInput {
@@ -958,7 +942,7 @@ scalar PosLong
 type ProgramEdit {
   editType: EditType!
   value: Program!
-  id: Long!
+  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
 input ProgramPropertiesInput {
@@ -1113,6 +1097,11 @@ type SetAllocationResult {
   allocation: Allocation!
 }
 
+type SetupTime {
+  full: TimeSpan!
+  reacquisition: TimeSpan!
+}
+
 input SiderealInput {
   ra: RightAscensionInput
   dec: DeclinationInput
@@ -1158,7 +1147,8 @@ interface Step {
   id: StepId!
   breakpoint: Breakpoint!
   stepConfig: StepConfig!
-  time: StepTime!
+  estimate: StepEstimate!
+  observeClass: ObserveClass!
 }
 
 interface StepConfig {
@@ -1221,13 +1211,13 @@ input SystemVerificationInput {
 type TargetEdit {
   editType: EditType!
   value: Target!
-  id: Long!
+  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
 type GroupEdit {
   editType: EditType!
   value: Group!
-  id: Long!
+  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
 input TargetEnvironmentInput {
@@ -1577,6 +1567,12 @@ enum CatalogName {
   GAIA
 }
 
+enum ChargeClass {
+  NON_CHARGED
+  PARTNER
+  PROGRAM
+}
+
 type Classical implements ProposalClass {
   minPercentTime: IntPercent!
 }
@@ -1774,6 +1770,7 @@ type Execution {
 
 interface ExecutionConfig {
   instrument: Instrument!
+  setup: SetupTime!
 }
 
 interface ExecutionEvent {
@@ -1793,6 +1790,10 @@ type ExecutionEventSelectResult {
 enum Existence {
   PRESENT
   DELETED
+}
+
+interface ExecutionSequence {
+  digest: SequenceDigest!
 }
 
 type ExposureTimeMode {
@@ -2258,11 +2259,6 @@ enum LineFluxSurfaceUnits {
   ERG_PER_S_PER_CM_SQUARED_PER_ARCSEC_SQUARED
 }
 
-interface ManualConfig {
-  instrument: Instrument!
-  plannedTime: PlannedTime!
-}
-
 scalar NonEmptyString
 
 scalar NonNegBigDecimal
@@ -2331,14 +2327,18 @@ type Observation {
   activeStatus: ObsActiveStatus!
   visualizationTime: Timestamp
   posAngleConstraint: PosAngleConstraint!
-  plannedTime: PlannedTimeSummary!
+  plannedTime: PlannedTimeSummary! @deprecated(reason: "the PlannedTimeSummary type will be replaced")
   program: Program!
   targetEnvironment: TargetEnvironment!
   constraintSet: ConstraintSet!
   timingWindows: [TimingWindow!]!
   scienceRequirements: ScienceRequirements!
   observingMode: ObservingMode
-  manualConfig: ManualConfig
+
+  """
+  The instrument in use for this observation, if the observing mode is set.
+  """
+  instrument: Instrument
   execution: Execution!
 }
 
@@ -2347,6 +2347,15 @@ scalar ObservationId
 type ObservationSelectResult {
   matches: [Observation!]!
   hasMore: Boolean!
+}
+
+enum ObserveClass {
+  SCIENCE
+  PROGRAM_CAL
+  PARTNER_CAL
+  ACQUISITION
+  ACQUISITION_CAL
+  DAY_CAL
 }
 
 type Parallax {
@@ -2373,18 +2382,19 @@ enum PlanetaryNebulaSpectrum {
 }
 
 type PlannedTime {
-  setup: TimeSpan!
-  acquisition: [StepTime!]!
-  acquisitionTotal: StepTime!
-  science: [StepTime!]!
-  scienceTotal: StepTime!
+  charges: [PlannedTimeCharge!]!
   total: TimeSpan!
 }
 
+type PlannedTimeCharge {
+  chargeClass: ChargeClass!
+  time: TimeSpan!
+}
+
 type PlannedTimeSummary {
-  pi: TimeSpan!
-  uncharged: TimeSpan!
-  execution: TimeSpan!
+  pi: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
+  uncharged: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
+  execution: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
 }
 
 type PoorWeather implements ProposalClass {
@@ -2422,7 +2432,7 @@ type Program {
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
   obsAttachments: [ObsAttachment!]!
   proposalAttachments: [ProposalAttachment!]!
-  plannedTime: PlannedTimeSummary!
+  plannedTime: PlannedTimeSummary! @deprecated(reason: "the PlannedTimeSummary type will be replaced")
 
   """Top-level group elements (observations and sub-groups) in the program."""
   groupElements: [GroupElement!]!
@@ -2592,6 +2602,12 @@ enum SequenceCommand {
   STOP
 }
 
+type SequenceDigest {
+  observeClass: ObserveClass!
+  plannedTime: PlannedTime!
+  offsets: [Offset!]!
+}
+
 type SequenceEvent implements ExecutionEvent {
   location: SequenceEventLocation!
   payload: SequenceEventPayload!
@@ -2614,6 +2630,7 @@ type SequenceGenerationResult {
   observationId: ObservationId!
   itcResult: ItcResultSet!
   executionConfig: ExecutionConfig!
+  scienceDigest: SequenceDigest
 }
 
 enum SequenceType {
@@ -2760,11 +2777,44 @@ enum StepStage {
   START_STEP
 }
 
-type StepTime {
-  configChange: TimeSpan!
+type ConfigChangeEstimate {
+  name: String!
+  description: String!
+  estimate: TimeSpan!
+}
+
+type AllConfigChangeEstimates {
+  selected: ConfigChangeEstimate!
+  index: NonNegInt!
+  all: [ConfigChangeEstimate!]!
+  estimate: TimeSpan!
+}
+
+type DatasetEstimate {
   exposure: TimeSpan!
   readout: TimeSpan!
   write: TimeSpan!
+  estimate: TimeSpan!
+}
+
+type DetectorEstimate {
+  name: String!
+  description: String!
+  dataset: DatasetEstimate!
+  count: NonNegInt!
+  estimate: TimeSpan!
+}
+
+type AllDetectorEstimates {
+  selected: DetectorEstimate!
+  index: NonNegInt!
+  all: [DetectorEstimate!]!
+  estimate: TimeSpan!
+}
+
+type StepEstimate {
+  configChange: AllConfigChangeEstimates
+  detector: AllDetectorEstimates
   total: TimeSpan!
 }
 
@@ -3303,24 +3353,6 @@ type q {
 scalar BigDecimal
 
 scalar Long
-
-"""Enumeration of planned time categories"""
-enum PlannedTimeCategory {
-  """Config Change"""
-  CONFIG_CHANGE
-
-  """Exposure"""
-  EXPOSURE
-
-  """Readout"""
-  READOUT
-
-  """Setup"""
-  SETUP
-
-  """Write"""
-  WRITE
-}
 
 """Enumerated type of observation attachments."""
 enum ObsAttachmentType {

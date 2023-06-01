@@ -5,8 +5,8 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import lucuma.core.math.Angle
+import lucuma.odb.json.angle.decoder.given
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.given
 
 object AngleSubquery extends GraphQLSubquery.Typed[ObservationDB, Angle]("Angle"):
   override val subquery: String = """

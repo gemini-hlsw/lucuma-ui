@@ -41,6 +41,7 @@ import lucuma.core.model.UnnormalizedSED
 import lucuma.refined.*
 
 import scala.collection.immutable.SortedMap
+import lucuma.schemas.model.TargetWithId
 
 class DecodersSuite extends InputStreamSuite {
   inline given Predicate[Long, Positive] with
@@ -54,9 +55,43 @@ class DecodersSuite extends InputStreamSuite {
     } yield (id, target)
   }
 
+  // test("HELLO") {
+  //   val str = """
+  //   {
+  //           "sed": {
+  //             "stellarLibrary": null,
+  //             "coolStar": null,
+  //             "galaxy": "SPIRAL",
+  //             "planet": null,
+  //             "quasar": null,
+  //             "hiiRegion": null,
+  //             "planetaryNebula": null,
+  //             "powerLaw": null,
+  //             "blackBodyTempK": null,
+  //             "fluxDensities": null
+  //           },
+  //           "brightnesses": [
+  //             {
+  //               "band": "SLOAN_U",
+  //               "value": "14.147",
+  //               "units": "AB_MAGNITUDE",
+  //               "error": "0.005"
+  //             }
+  //           ]
+  //       }
+  //       """
+
+  //   import io.circe.parser._
+  //   import lucuma.odb.json.sourceprofile.given
+
+  //   val obj = parse(str).flatMap(_.as[SpectralDefinition.BandNormalized[Integrated]])
+  //   println(obj)
+  //   assertEquals(obj, Right(SpectralDefinition.BandNormalized(none, SortedMap.empty)))
+  // }
+
   test("Target decoder - Point - BandNormalized") {
-    val expectedId: Target.Id  = Target.Id(2L.refined)
-    val expectedTarget: Target =
+    val expectedId: Target.Id           = Target.Id(2L.refined)
+    val expectedTarget: Target.Sidereal =
       Target.Sidereal(
         "NGC 5949".refined,
         SiderealTracking(
@@ -118,13 +153,14 @@ class DecodersSuite extends InputStreamSuite {
             )
           )
         ),
-        CatalogInfo(CatalogName.Simbad,
-                    "M   1".refined[NonEmpty],
-                    Option("SNR".refined[NonEmpty])
+        CatalogInfo(
+          CatalogName.Simbad,
+          "M   1".refined[NonEmpty],
+          Option("SNR".refined[NonEmpty])
         ).some
       )
 
-    assertParsedStreamEquals("/t2.json", (expectedId, expectedTarget))
+    assertParsedStreamEquals("/t2.json", TargetWithId(expectedId, expectedTarget))
   }
 
   test("Target decoder - Point - EmissionLines") {
@@ -163,7 +199,7 @@ class DecodersSuite extends InputStreamSuite {
         none
       )
 
-    assertParsedStreamEquals("/t3.json", (expectedId, expectedTarget))
+    assertParsedStreamEquals("/t3.json", TargetWithId(expectedId, expectedTarget))
   }
 
   test("Target decoder - Uniform - BandNormalized") {
@@ -214,6 +250,6 @@ class DecodersSuite extends InputStreamSuite {
         none
       )
 
-    assertParsedStreamEquals("/t4.json", (expectedId, expectedTarget))
+    assertParsedStreamEquals("/t4.json", TargetWithId(expectedId, expectedTarget))
   }
 }

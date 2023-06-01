@@ -5,8 +5,8 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import lucuma.core.math.Wavelength
+import lucuma.odb.json.wavelength.decoder.given
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.given
 
 object WavelengthSubquery extends GraphQLSubquery.Typed[ObservationDB, Wavelength]("Wavelength"):
   override val subquery: String = """

@@ -1,113 +1,118 @@
 query {
-  observation(observationId: "o-5") {
-    execution {
-      executionConfig {
-        instrument
-        ... on GmosNorthExecutionConfig {
-          staticN: static {
-            stageMode
-            detector
-            mosPreImaging
-            nodAndShuffle {
-              ...nodAndShuffleFields
-            }
-          }
-          acquisitionN: acquisition {
-            nextAtom {
-              ...northSequenceFields
-            }
-            possibleFuture {
-              ...northSequenceFields
-            }
-          }
-          scienceN: science {
-            nextAtom {
-              ...northSequenceFields
-            }
-            possibleFuture {
-              ...northSequenceFields
-            }
+  sequence(programId: "p-100", observationId: "o-100") {
+    executionConfig {
+      ... on GmosNorthExecutionConfig {
+        gmosNorth
+        static {
+          stageMode
+          detector
+          mosPreImaging
+          nodAndShuffle {
+            posA { p { microarcseconds } }
           }
         }
-        ... on GmosSouthExecutionConfig {
-          staticS: static {
-            stageMode
-            detector
-            mosPreImaging
-            nodAndShuffle {
-              ...nodAndShuffleFields
-            }
-          }
-          acquisitionS: acquisition {
-            nextAtom {
-              ...southSequenceFields
-            }
-            possibleFuture {
-              ...southSequenceFields
-            }
-          }
-          scienceS: science {
-            nextAtom {
-              ...southSequenceFields
-            }
-            possibleFuture {
-              ...southSequenceFields
-            }
+        acquisition {
+          ...gmosNorthSequence
+        }
+        science {
+          ...gmosNorthSequence
+        }
+        setup {
+          full { microseconds }
+          reacquisition { microseconds }
+        }
+      }
+      ... on GmosSouthExecutionConfig {
+        gmosSouth
+        static {
+          stageMode
+          detector
+          mosPreImaging
+          nodAndShuffle {
+            posA { p { microarcseconds } }
           }
         }
+        acquisition {
+          ...gmosSouthSequence
+        }
+        science {
+          ...gmosSouthSequence
+        }
+        setup {
+          full { microseconds }
+          reacquisition { microseconds }
+        }        
       }
     }
   }
 }
 
-fragment nodAndShuffleFields on GmosNodAndShuffle {
-  posA {
-    p {
-      microarcseconds
-    }
-    q {
-      microarcseconds
-    }
-  }
-  posB {
-    p {
-      microarcseconds
-    }
-    q {
-      microarcseconds
+fragment sequenceDigest on SequenceDigest {
+  observeClass
+  plannedTime {
+    charges {
+      chargeClass
+      time { microseconds }
     }
   }
-  eOffset
-  shuffleOffset
-  shuffleCycles
-}
-
-fragment stepTimeFields on StepTime {
-  configChange {
-    microseconds
-  }
-  exposure {
-    microseconds
-  }
-  readout {
-    microseconds
-  }
-  write {
-    microseconds
-  }
-  total {
-    microseconds
+  offsets {
+    p { microarcseconds }
+    q { microarcseconds }
   }
 }
 
-fragment northSequenceFields on GmosNorthAtom {
+fragment stepConfigFields on StepConfig { 
+  stepType  
+  ... on Gcal {
+    continuum
+    arcs
+    filter
+    diffuser
+    shutter
+  }
+  ... on Science {
+    offset {
+      p { microarcseconds }
+      q { microarcseconds }
+    }
+    guiding
+  }
+  ... on SmartGcal {
+    smartGcalType
+  }
+}
+
+fragment stepEstimateFields on StepEstimate {
+  configChange { 
+    all {
+      name
+      description
+      estimate { microseconds }
+    }
+    index
+  }
+  detector {
+    all {
+      name
+      description
+      dataset {
+        exposure { microseconds }
+        readout { microseconds }
+        write { microseconds }
+      }
+      count
+    }
+    index
+  }
+}
+
+fragment gmosNorthAtom on GmosNorthAtom {
   id
+  description
   steps {
     id
     instrumentConfig {
-      exposure {
-        microseconds
-      }
+      exposure { microseconds }
       readout {
         xBin
         yBin
@@ -120,9 +125,7 @@ fragment northSequenceFields on GmosNorthAtom {
       gratingConfig {
         grating
         order
-        wavelength {
-          picometers
-        }
+        wavelength { picometers }
       }
       filter
       fpu {
@@ -130,40 +133,37 @@ fragment northSequenceFields on GmosNorthAtom {
       }
     }
     stepConfig {
-      stepType
-      ... on Gcal {
-        continuum
-        arcs
-        filter
-        diffuser
-        shutter
-      }
-      ... on Science {
-        offset {
-          p {
-            microarcseconds
-          }
-          q {
-            microarcseconds
-          }
-        }
-      }
+      ...stepConfigFields
     }
-    time {
-      ...stepTimeFields
+    estimate {
+      ...stepEstimateFields
     }
+    observeClass
     breakpoint
   }
 }
 
-fragment southSequenceFields on GmosSouthAtom {
+fragment gmosNorthSequence on GmosNorthExecutionSequence {
+  digest {
+    ...sequenceDigest
+  }
+  nextAtom {
+    ...gmosNorthAtom
+  }
+  possibleFuture {
+    ...gmosNorthAtom
+  }
+  hasMore
+  atomCount
+}
+
+fragment gmosSouthAtom on GmosNorthAtom {
   id
+  description
   steps {
     id
     instrumentConfig {
-      exposure {
-        microseconds
-      }
+      exposure { microseconds }
       readout {
         xBin
         yBin
@@ -176,9 +176,7 @@ fragment southSequenceFields on GmosSouthAtom {
       gratingConfig {
         grating
         order
-        wavelength {
-          picometers
-        }
+        wavelength { picometers }
       }
       filter
       fpu {
@@ -186,28 +184,26 @@ fragment southSequenceFields on GmosSouthAtom {
       }
     }
     stepConfig {
-      stepType
-      ... on Gcal {
-        continuum
-        arcs
-        filter
-        diffuser
-        shutter
-      }
-      ... on Science {
-        offset {
-          p {
-            microarcseconds
-          }
-          q {
-            microarcseconds
-          }
-        }
-      }
+      ...stepConfigFields
     }
-    time {
-      ...stepTimeFields
+    estimate {
+      ...stepEstimateFields
     }
+    observeClass
     breakpoint
   }
+}
+
+fragment gmosSouthSequence on GmosNorthExecutionSequence {
+  digest {
+    ...sequenceDigest
+  }
+  nextAtom {
+    ...gmosSouthAtom
+  }
+  possibleFuture {
+    ...gmosSouthAtom
+  }
+  hasMore
+  atomCount
 }

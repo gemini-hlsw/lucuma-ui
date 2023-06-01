@@ -8,8 +8,8 @@ import io.circe.Decoder
 import lucuma.core.enums.Band
 import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.model.SpectralDefinition
+import lucuma.odb.json.sourceprofile.given
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.*
 
 import scala.collection.immutable.SortedMap
 

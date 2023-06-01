@@ -5,8 +5,8 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import lucuma.core.model.UnnormalizedSED
+import lucuma.odb.json.sourceprofile.given
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.given
 
 object UnnormalizedSEDSubquery
     extends GraphQLSubquery.Typed[ObservationDB, UnnormalizedSED]("UnnormalizedSed"):

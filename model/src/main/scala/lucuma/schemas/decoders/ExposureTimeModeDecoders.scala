@@ -7,6 +7,7 @@ import io.circe.Decoder
 import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.model.ExposureTimeMode
+import lucuma.odb.json.time.decoder.given
 
 trait ExposureTimeModeDecoders {
 

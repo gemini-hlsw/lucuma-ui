@@ -12,6 +12,7 @@ import io.circe.generic.semiauto.*
 import io.circe.refined.*
 import lucuma.core.enums.*
 import lucuma.core.math.Wavelength
+import lucuma.odb.json.wavelength.decoder.given
 import lucuma.schemas.decoders.given
 
 // For when we don't need the whole observing mode, such as in the ObsSummary.
