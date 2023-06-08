@@ -20,6 +20,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import scala.annotation.targetName
+import scala.collection.immutable.SortedMap
 
 def abbreviate(s: String, maxLength: Int): String =
   if (s.length > maxLength) s"${s.substring(0, maxLength)}\u2026" else s
@@ -66,13 +67,21 @@ extension [F[_], K, V](mapView: ViewF[F, Map[K, V]])
       k -> mapView.zoom(at[Map[K, V], K, Option[V]](k)).zoom(_.get)(f => _.map(f))
     )
 
+extension [F[_], K, V](sortedMapView: ViewF[F, SortedMap[K, V]])
+  @targetName("SortedMapView_toListOfViews")
+  def toListOfViews: List[(K, ViewF[F, V])] =
+    // It's safe to "get" since we are only invoking for existing keys.
+    sortedMapView.get.keys.toList.map(k =>
+      k -> sortedMapView.zoom(at[SortedMap[K, V], K, Option[V]](k)).zoom(_.get)(f => _.map(f))
+    )
+
 given [A: Enumerated, B: Enumerated]: Enumerated[(A, B)] =
   Enumerated
     .fromNEL(NonEmptyList.fromListUnsafe((Enumerated[A].all, Enumerated[B].all).tupled))
     .withTag { case (a, b) => s"${Enumerated[A].tag(a)}, ${Enumerated[B].tag(b)} " }
 
 // Coulomb implicits
-extension [F[_], N, U](self:    ViewF[F, Quantity[N, U]])
+extension [F[_], N, U](self:          ViewF[F, Quantity[N, U]])
   def stripQuantity: ViewF[F, N] = self.as(quantityIso[N, U])
 
 extension [F[_], N, U](self: ViewOptF[F, Quantity[N, U]])
