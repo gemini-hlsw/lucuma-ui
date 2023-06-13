@@ -105,22 +105,6 @@ trait CoreModelDecoders {
 
   given Decoder[ProperMotion] = semiauto.deriveDecoder[ProperMotion]
 
-  // given Decoder[Duration] = Decoder.instance(
-  //   _.downField("microseconds")
-  //     .as[Long]
-  //     .map(l => Duration.of(l, ChronoUnit.MICROS))
-  // )
-
-  // given Decoder[NonNegDuration] = Decoder.instance(
-  //   _.downField("microseconds")
-  //     .as[NonNegLong]
-  //     .map(l => NonNegDuration.unsafeFrom(Duration.of(l.value, ChronoUnit.MICROS)))
-  // )
-
-  // given Decoder[Wavelength] = Decoder.instance(
-  //   _.downField("picometers").as[PosInt].map(Wavelength.apply)
-  // )
-
   given Decoder[WavelengthDither] = Decoder.instance(
     _.downField("picometers").as[Int].map(WavelengthDither.intPicometers.get)
   )
@@ -128,44 +112,4 @@ trait CoreModelDecoders {
   given Decoder[WavelengthDelta] = Decoder.instance(
     _.downField("picometers").as[PosInt].map(WavelengthDelta.apply)
   )
-
-  // private def offsetComponentDecoder[A]: Decoder[Offset.Component[A]] = Decoder.instance(
-  //   _.as[Angle].map(Offset.Component.apply)
-  // )
-
-  // given Decoder[Offset.P] = offsetComponentDecoder[Axis.P]
-
-  // given Decoder[Offset.Q] = offsetComponentDecoder[Axis.Q]
-
-  // given Decoder[Offset] = Decoder.instance(c =>
-  //   for {
-  //     p <- c.downField("p").as[Offset.Component[Axis.P]]
-  //     q <- c.downField("q").as[Offset.Component[Axis.Q]]
-  //   } yield Offset(p, q)
-  // )
-
-  // Copied from lucuma-odb for now ...
-  // given timeSpanDecoder: Decoder[TimeSpan] =
-  //   Decoder.instance { c =>
-  //     def from[T: Decoder](field: String, format: Format[T, TimeSpan]): Decoder.Result[TimeSpan] =
-  //       c.downField(field).as[T].flatMap { t =>
-  //         format
-  //           .getOption(t)
-  //           .toRight(DecodingFailure(s"Invalid TimeSpan $field: $t", c.history))
-  //       }
-
-  //     c.downField("microseconds")
-  //       .as[Long]
-  //       .flatMap { µs =>
-  //         TimeSpan.FromMicroseconds
-  //           .getOption(µs)
-  //           .toRight(DecodingFailure(s"Invalid TimeSpan microseconds: $µs", c.history))
-  //       }
-  //       .orElse(from("milliseconds", TimeSpan.FromMilliseconds))
-  //       .orElse(from("seconds", TimeSpan.FromSeconds))
-  //       .orElse(from("minutes", TimeSpan.FromMinutes))
-  //       .orElse(from("hours", TimeSpan.FromHours))
-  //       .orElse(from("iso", TimeSpan.FromString))
-  //       .orElse(DecodingFailure(s"Could not parse duration value", c.history).asLeft)
-  //   }
 }

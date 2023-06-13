@@ -55,40 +55,6 @@ class DecodersSuite extends InputStreamSuite {
     } yield (id, target)
   }
 
-  // test("HELLO") {
-  //   val str = """
-  //   {
-  //           "sed": {
-  //             "stellarLibrary": null,
-  //             "coolStar": null,
-  //             "galaxy": "SPIRAL",
-  //             "planet": null,
-  //             "quasar": null,
-  //             "hiiRegion": null,
-  //             "planetaryNebula": null,
-  //             "powerLaw": null,
-  //             "blackBodyTempK": null,
-  //             "fluxDensities": null
-  //           },
-  //           "brightnesses": [
-  //             {
-  //               "band": "SLOAN_U",
-  //               "value": "14.147",
-  //               "units": "AB_MAGNITUDE",
-  //               "error": "0.005"
-  //             }
-  //           ]
-  //       }
-  //       """
-
-  //   import io.circe.parser._
-  //   import lucuma.odb.json.sourceprofile.given
-
-  //   val obj = parse(str).flatMap(_.as[SpectralDefinition.BandNormalized[Integrated]])
-  //   println(obj)
-  //   assertEquals(obj, Right(SpectralDefinition.BandNormalized(none, SortedMap.empty)))
-  // }
-
   test("Target decoder - Point - BandNormalized") {
     val expectedId: Target.Id           = Target.Id(2L.refined)
     val expectedTarget: Target.Sidereal =
