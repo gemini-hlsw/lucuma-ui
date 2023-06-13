@@ -18,6 +18,7 @@ import lucuma.core.enums.GmosSouthGrating
 import lucuma.core.enums.GmosSouthStageMode
 import lucuma.core.enums.GmosXBinning
 import lucuma.core.enums.GmosYBinning
+import lucuma.core.enums.GuideState
 import lucuma.core.enums.MosPreImaging
 import lucuma.core.enums.SequenceCommand
 import lucuma.core.enums.SequenceType
@@ -37,7 +38,6 @@ import lucuma.schemas.model.Visit
 
 import java.time.Instant
 import java.util.UUID
-import lucuma.core.enums.GuideState
 
 class VisitDecodersSuite extends InputStreamSuite {
   val expectedVisits: List[Visit] = List(

@@ -39,9 +39,9 @@ import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.Target
 import lucuma.core.model.UnnormalizedSED
 import lucuma.refined.*
+import lucuma.schemas.model.TargetWithId
 
 import scala.collection.immutable.SortedMap
-import lucuma.schemas.model.TargetWithId
 
 class DecodersSuite extends InputStreamSuite {
   inline given Predicate[Long, Positive] with

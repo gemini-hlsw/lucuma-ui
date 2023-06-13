@@ -3,29 +3,28 @@
 
 package lucuma.schemas.decoders
 
+import cats.Order.given
+import cats.data.NonEmptyList
 import cats.syntax.all.*
+import eu.timepit.refined.types.numeric.NonNegInt
+import eu.timepit.refined.types.numeric.PosInt
+import eu.timepit.refined.types.string.NonEmptyString
+import lucuma.core.data.Zipper
 import lucuma.core.enums.*
 import lucuma.core.math.Angle
 import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
-import lucuma.core.util.TimeSpan
+import lucuma.core.model.sequence.StepConfig.Gcal
 import lucuma.core.model.sequence.*
 import lucuma.core.model.sequence.gmos.*
 import lucuma.core.syntax.timespan.*
+import lucuma.core.util.TimeSpan
+import lucuma.odb.json.plannedtime
+import lucuma.odb.json.sequence.given
+import lucuma.schemas.ObservationDB.Types.GcalConfigurationInput.diffuser
 
 import java.util.UUID
-import cats.data.NonEmptyList
-import eu.timepit.refined.types.numeric.PosInt
-
-import lucuma.odb.json.sequence.given
-import lucuma.odb.json.plannedtime
 import scala.collection.immutable.SortedSet
-import cats.Order.given
-import eu.timepit.refined.types.string.NonEmptyString
-import lucuma.core.data.Zipper
-import eu.timepit.refined.types.numeric.NonNegInt
-import lucuma.schemas.ObservationDB.Types.GcalConfigurationInput.diffuser
-import lucuma.core.model.sequence.StepConfig.Gcal
 
 class GeneratedSequenceDecodersSuite extends InputStreamSuite {
   test("Generated sequence decoder") {
