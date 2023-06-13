@@ -19,6 +19,7 @@ import lucuma.core.model.EphemerisKey
 import lucuma.core.model.SiderealTracking
 import lucuma.core.model.SourceProfile
 import lucuma.core.model.Target
+import lucuma.odb.json.sourceprofile.given
 import lucuma.schemas.model.TargetWithId
 
 trait TargetDecoders {

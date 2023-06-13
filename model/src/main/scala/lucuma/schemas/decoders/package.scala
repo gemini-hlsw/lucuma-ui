@@ -5,12 +5,8 @@ package lucuma.schemas
 
 package object decoders
     extends CoreModelDecoders
-    with SEDDecoders
-    with SpectralDefinitionDecoders
-    with SourceProfileDecoders
     with TargetDecoders
     with ConstraintSetDecoders
-    with SequenceDecoders
     with PosAngleDecoders
     with ProposalDecoders
     with ExposureTimeModeDecoders

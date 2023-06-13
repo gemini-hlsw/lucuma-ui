@@ -39,6 +39,7 @@ import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.Target
 import lucuma.core.model.UnnormalizedSED
 import lucuma.refined.*
+import lucuma.schemas.model.TargetWithId
 
 import scala.collection.immutable.SortedMap
 
@@ -55,8 +56,8 @@ class DecodersSuite extends InputStreamSuite {
   }
 
   test("Target decoder - Point - BandNormalized") {
-    val expectedId: Target.Id  = Target.Id(2L.refined)
-    val expectedTarget: Target =
+    val expectedId: Target.Id           = Target.Id(2L.refined)
+    val expectedTarget: Target.Sidereal =
       Target.Sidereal(
         "NGC 5949".refined,
         SiderealTracking(
@@ -118,13 +119,14 @@ class DecodersSuite extends InputStreamSuite {
             )
           )
         ),
-        CatalogInfo(CatalogName.Simbad,
-                    "M   1".refined[NonEmpty],
-                    Option("SNR".refined[NonEmpty])
+        CatalogInfo(
+          CatalogName.Simbad,
+          "M   1".refined[NonEmpty],
+          Option("SNR".refined[NonEmpty])
         ).some
       )
 
-    assertParsedStreamEquals("/t2.json", (expectedId, expectedTarget))
+    assertParsedStreamEquals("/t2.json", TargetWithId(expectedId, expectedTarget))
   }
 
   test("Target decoder - Point - EmissionLines") {
@@ -163,7 +165,7 @@ class DecodersSuite extends InputStreamSuite {
         none
       )
 
-    assertParsedStreamEquals("/t3.json", (expectedId, expectedTarget))
+    assertParsedStreamEquals("/t3.json", TargetWithId(expectedId, expectedTarget))
   }
 
   test("Target decoder - Uniform - BandNormalized") {
@@ -214,6 +216,6 @@ class DecodersSuite extends InputStreamSuite {
         none
       )
 
-    assertParsedStreamEquals("/t4.json", (expectedId, expectedTarget))
+    assertParsedStreamEquals("/t4.json", TargetWithId(expectedId, expectedTarget))
   }
 }

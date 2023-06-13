@@ -8,10 +8,10 @@ type AddDatasetEventResult {
   event: DatasetEvent!
 }
 
+"""SequenceEvent creation parameters."""
 input AddSequenceEventInput {
   visitId: VisitId!
-  location: SequenceEventLocationInput!
-  payload: SequenceEventPayloadInput!
+  command: SequenceCommand!
 }
 
 type AddSequenceEventResult {
@@ -38,6 +38,9 @@ type Allocation {
   duration: TimeSpan!
 }
 
+"""
+Create an angle from a signed value.  Choose exactly one of the available units.
+"""
 input AngleInput {
   microarcseconds: Long
   microseconds: BigDecimal
@@ -55,8 +58,13 @@ input AngleInput {
 
 interface Atom {
   id: AtomId!
+  description: String
+  observeClass: ObserveClass!
 }
 
+"""
+AtomId id formatted as `a-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`
+"""
 scalar AtomId
 
 input BandBrightnessIntegratedInput {
@@ -246,10 +254,6 @@ input EmissionLinesSurfaceInput {
   fluxDensityContinuum: FluxDensityContinuumSurfaceInput
 }
 
-interface Event {
-  id: Long!
-}
-
 input ExchangeInput {
   minPercentTime: IntPercent
 }
@@ -306,13 +310,6 @@ enum GcalArc {
   XE_ARC
 }
 
-input GcalConfigurationInput {
-  continuum: GcalContinuum
-  arcs: [GcalArc!]!
-  diffuser: GcalDiffuser!
-  shutter: GcalShutter!
-}
-
 enum GcalContinuum {
   IR_GREY_BODY_LOW
   IR_GREY_BODY_HIGH
@@ -358,12 +355,22 @@ type GmosCcdMode {
   ampReadMode: GmosAmpReadMode!
 }
 
-input GmosCcdReadoutInput {
-  xBin: GmosXBinning!
-  yBin: GmosYBinning!
-  ampCount: GmosAmpCount!
-  ampGain: GmosAmpGain!
-  ampRead: GmosAmpReadMode!
+"""GMOS CCD readout input parameters"""
+input GmosCcdModeInput {
+  """X Binning, defaults to 'ONE'."""
+  xBin: GmosXBinning
+
+  """Y Binning, defaults to 'ONE'."""
+  yBin: GmosYBinning
+
+  """Amp Count, defaults to 'TWELVE'."""
+  ampCount: GmosAmpCount
+
+  """Amp Gain, defaults to 'LOW'"""
+  ampGain: GmosAmpGain
+
+  """Amp Read Mode, defaults to 'SLOW'"""
+  ampRead: GmosAmpReadMode
 }
 
 type GmosCustomMask {
@@ -421,28 +428,32 @@ type GmosNodAndShuffle {
   shuffleCycles: Int!
 }
 
+"""Creation input parameters for GMOS nod and shuffle"""
 input GmosNodAndShuffleInput {
+  """Offset position A"""
   posA: OffsetInput!
+
+  """Offset position B"""
   posB: OffsetInput!
+
+  """Electronic offsetting"""
   eOffset: GmosEOffsetting!
-  shuffleOffset: Int!
-  shuffleCycles: Int!
+
+  """Shuffle offset"""
+  shuffleOffset: PosInt!
+
+  """Shuffle cycles"""
+  shuffleCycles: PosInt!
 }
 
 type GmosNorthAtom implements Atom {
-  steps: [GmosNorthStep!]!
-  time: StepTime!
   id: AtomId!
+  description: String
+  observeClass: ObserveClass!
+  steps: [GmosNorthStep!]!
 }
 
-input GmosNorthBiasInput {
-  config: GmosNorthDynamicInput!
-}
-
-input GmosNorthDarkInput {
-  config: GmosNorthDynamicInput!
-}
-
+"""GmosNorth Detector type"""
 enum GmosNorthDetector {
   E2_V
   HAMAMATSU
@@ -458,27 +469,64 @@ type GmosNorthDynamic {
   fpu: GmosNorthFpu
 }
 
+"""GMOS North instrument configuration input"""
 input GmosNorthDynamicInput {
+  """Exposure time"""
   exposure: TimeSpanInput!
-  readout: GmosCcdReadoutInput!
+
+  """GMOS CCD readout"""
+  readout: GmosCcdModeInput!
+
+  """GMOS detector x offset"""
   dtax: GmosDtax!
+
+  """GMOS region of interest"""
   roi: GmosRoi!
+
+  """GMOS North grating"""
   gratingConfig: GmosNorthGratingConfigInput
+
+  """GMOS North filter"""
   filter: GmosNorthFilter
+
+  """GMOS North FPU"""
   fpu: GmosNorthFpuInput
 }
 
 type GmosNorthExecutionConfig implements ExecutionConfig {
   gmosNorth: Boolean! @deprecated
   static: GmosNorthStatic!
-  acquisition: GmosNorthExecutionSequence!
-  science: GmosNorthExecutionSequence!
+  acquisition: GmosNorthExecutionSequence
+  science: GmosNorthExecutionSequence
   instrument: Instrument!
+  setup: SetupTime!
 }
 
-type GmosNorthExecutionSequence {
-  nextAtom: GmosNorthAtom
+"""Next atom to execute and potential future atoms."""
+type GmosNorthExecutionSequence implements ExecutionSequence {
+  """Next atom to execute."""
+  nextAtom: GmosNorthAtom!
+
+  """(Prefix of the) remaining atoms to execute, if any."""
   possibleFuture: [GmosNorthAtom!]!
+
+  """
+  Whether there are more anticipated atoms than those that appear in
+  'possibleFuture'.
+  """
+  hasMore: Boolean!
+
+  """
+  Total count of anticipated atoms, including 'nextAtom', 'possibleFuture' and
+  any remaining atoms not included in 'possibleFuture'.
+  """
+  atomCount: PosInt!
+
+  """
+  Sequence digest (including all anticipated future values regardless of
+  whether they appear in 'possibleFuture').
+  """
+  digest: SequenceDigest!
 }
 
 type GmosNorthFpu {
@@ -486,14 +534,13 @@ type GmosNorthFpu {
   builtin: GmosNorthBuiltinFpu
 }
 
+"""GMOS North FPU input parameters (choose custom or builtin)."""
 input GmosNorthFpuInput {
+  """Custom mask FPU option"""
   customMask: GmosCustomMaskInput
-  builtin: GmosNorthBuiltinFpu
-}
 
-input GmosNorthGcalInput {
-  config: GmosNorthDynamicInput!
-  gcalConfig: GcalConfigurationInput!
+  """Builtin FPU option"""
+  builtin: GmosNorthBuiltinFpu
 }
 
 type GmosNorthGratingConfig {
@@ -522,24 +569,6 @@ input GmosNorthLongSlitInput {
   explicitSpatialOffsets: [OffsetComponentInput!]
 }
 
-type GmosNorthManualConfig implements ManualConfig {
-  static: GmosNorthStatic!
-  acquisition: GmosNorthSequence!
-  science: GmosNorthSequence!
-  instrument: Instrument!
-  plannedTime: PlannedTime!
-}
-
-input GmosNorthScienceInput {
-  config: GmosNorthDynamicInput!
-  offset: OffsetInput!
-}
-
-type GmosNorthSequence {
-  atoms: [GmosNorthAtom!]!
-  time: StepTime!
-}
-
 enum GmosNorthStageMode {
   NO_FOLLOW
   FOLLOW_XYZ
@@ -554,11 +583,21 @@ type GmosNorthStatic {
   nodAndShuffle: GmosNodAndShuffle
 }
 
+"""GMOS North static configuration input parameters"""
 input GmosNorthStaticInput {
-  detector: GmosNorthDetector!
-  mosPreImaging: MosPreImaging!
+  """GMOS North Stage Mode (default to FOLLOW_XY)"""
+  stageMode: GmosNorthStageMode
+
+  """GMOS North Detector option (defaults to HAMAMATSU)"""
+  detector: GmosNorthDetector
+
+  """
+  Whether this is a MOS pre-imaging observation (defaults to IS_NOT_MOS_PRE_IMAGING)
+  """
+  mosPreImaging: MosPreImaging
+
+  """GMOS Nod And Shuffle configuration"""
   nodAndShuffle: GmosNodAndShuffleInput
-  stageMode: GmosNorthStageMode!
 }
 
 type GmosNorthStep implements Step {
@@ -566,14 +605,8 @@ type GmosNorthStep implements Step {
   id: StepId!
   breakpoint: Breakpoint!
   stepConfig: StepConfig!
-  time: StepTime!
-}
-
-input GmosNorthStepInput {
-  bias: GmosNorthBiasInput
-  dark: GmosNorthDarkInput
-  gcal: GmosNorthGcalInput
-  science: GmosNorthScienceInput
+  estimate: StepEstimate!
+  observeClass: ObserveClass!
 }
 
 type GmosNorthStepRecord {
@@ -591,31 +624,25 @@ type GmosNorthStepRecord {
   datasets: [Dataset!]!
 }
 
-type GmosNorthVisitRecord {
+type GmosNorthVisit {
   id: VisitId!
   created: Timestamp!
   startTime: Timestamp
   endTime: Timestamp
   duration: TimeSpan!
-  staticConfig: GmosNorthStatic!
+  static: GmosNorthStatic!
   steps: [GmosNorthStepRecord!]!
   sequenceEvents: [SequenceEvent!]!
 }
 
 type GmosSouthAtom implements Atom {
-  steps: [GmosSouthStep!]!
-  time: StepTime!
   id: AtomId!
+  description: String
+  observeClass: ObserveClass!
+  steps: [GmosSouthStep!]!
 }
 
-input GmosSouthBiasInput {
-  config: GmosSouthDynamicInput!
-}
-
-input GmosSouthDarkInput {
-  config: GmosSouthDynamicInput!
-}
-
+"""GmosSouth Detector type"""
 enum GmosSouthDetector {
   E2_V
   HAMAMATSU
@@ -631,27 +658,64 @@ type GmosSouthDynamic {
   fpu: GmosSouthFpu
 }
 
+"""GMOS South instrument configuration input"""
 input GmosSouthDynamicInput {
+  """Exposure time"""
   exposure: TimeSpanInput!
-  readout: GmosCcdReadoutInput!
+
+  """GMOS CCD readout"""
+  readout: GmosCcdModeInput!
+
+  """GMOS detector x offset"""
   dtax: GmosDtax!
+
+  """GMOS region of interest"""
   roi: GmosRoi!
+
+  """GMOS South grating"""
   gratingConfig: GmosSouthGratingConfigInput
+
+  """GMOS South filter"""
   filter: GmosSouthFilter
+
+  """GMOS South FPU"""
   fpu: GmosSouthFpuInput
 }
 
 type GmosSouthExecutionConfig implements ExecutionConfig {
   gmosSouth: Boolean! @deprecated
   static: GmosSouthStatic!
-  acquisition: GmosSouthExecutionSequence!
-  science: GmosSouthExecutionSequence!
+  acquisition: GmosSouthExecutionSequence
+  science: GmosSouthExecutionSequence
   instrument: Instrument!
+  setup: SetupTime!
 }
 
-type GmosSouthExecutionSequence {
-  nextAtom: GmosSouthAtom
+"""Next atom to execute and potential future atoms."""
+type GmosSouthExecutionSequence implements ExecutionSequence {
+  """Next atom to execute."""
+  nextAtom: GmosSouthAtom!
+
+  """(Prefix of the) remaining atoms to execute, if any."""
   possibleFuture: [GmosSouthAtom!]!
+
+  """
+  Whether there are more anticipated atoms than those that appear in
+  'possibleFuture'.
+  """
+  hasMore: Boolean!
+
+  """
+  Total count of anticipated atoms, including 'nextAtom', 'possibleFuture' and
+  any remaining atoms not included in 'possibleFuture'.
+  """
+  atomCount: PosInt!
+
+  """
+  Sequence digest (including all anticipated future values regardless of
+  whether they appear in 'possibleFuture').
+  """
+  digest: SequenceDigest!
 }
 
 type GmosSouthFpu {
@@ -662,11 +726,6 @@ type GmosSouthFpu {
 input GmosSouthFpuInput {
   customMask: GmosCustomMaskInput
   builtin: GmosSouthBuiltinFpu
-}
-
-input GmosSouthGcalInput {
-  config: GmosSouthDynamicInput!
-  gcalConfig: GcalConfigurationInput!
 }
 
 type GmosSouthGratingConfig {
@@ -695,24 +754,6 @@ input GmosSouthLongSlitInput {
   explicitSpatialOffsets: [OffsetComponentInput!]
 }
 
-type GmosSouthManualConfig implements ManualConfig {
-  static: GmosSouthStatic!
-  acquisition: GmosSouthSequence!
-  science: GmosSouthSequence!
-  instrument: Instrument!
-  plannedTime: PlannedTime!
-}
-
-input GmosSouthScienceInput {
-  config: GmosSouthDynamicInput!
-  offset: OffsetInput!
-}
-
-type GmosSouthSequence {
-  atoms: [GmosSouthAtom!]!
-  time: StepTime!
-}
-
 enum GmosSouthStageMode {
   NO_FOLLOW
   FOLLOW_XYZ
@@ -720,18 +761,36 @@ enum GmosSouthStageMode {
   FOLLOW_Z
 }
 
+"""Unchanging (over the course of the sequence) configuration values"""
 type GmosSouthStatic {
+  """Stage mode"""
   stageMode: GmosSouthStageMode!
+
+  """Detector in use (always HAMAMATSU for recent and new observations)"""
   detector: GmosSouthDetector!
+
+  """Is MOS Pre-Imaging Observation"""
   mosPreImaging: MosPreImaging!
+
+  """Nod-and-shuffle configuration"""
   nodAndShuffle: GmosNodAndShuffle
 }
 
+"""GMOS South static configuration input parameters"""
 input GmosSouthStaticInput {
-  detector: GmosNorthDetector!
-  mosPreImaging: MosPreImaging!
+  """GMOS South Stage Mode (defaults to FOLLOW_XYZ)"""
+  stageMode: GmosSouthStageMode
+
+  """GMOS South Detector option (defaults to HAMAMATSU)"""
+  detector: GmosSouthDetector
+
+  """
+  Whether this is a MOS pre-imaging observation (defaults to IS_NOT_MOS_PRE_IMAGING)
+  """
+  mosPreImaging: MosPreImaging
+
+  """GMOS Nod And Shuffle configuration"""
   nodAndShuffle: GmosNodAndShuffleInput
-  stageMode: GmosSouthStageMode!
 }
 
 type GmosSouthStep implements Step {
@@ -739,14 +798,8 @@ type GmosSouthStep implements Step {
   id: StepId!
   breakpoint: Breakpoint!
   stepConfig: StepConfig!
-  time: StepTime!
-}
-
-input GmosSouthStepInput {
-  bias: GmosSouthBiasInput
-  dark: GmosSouthDarkInput
-  gcal: GmosSouthGcalInput
-  science: GmosSouthScienceInput
+  estimate: StepEstimate!
+  observeClass: ObserveClass!
 }
 
 type GmosSouthStepRecord {
@@ -764,15 +817,24 @@ type GmosSouthStepRecord {
   datasets: [Dataset!]!
 }
 
-type GmosSouthVisitRecord {
+type GmosSouthVisit {
   id: VisitId!
   created: Timestamp!
   startTime: Timestamp
   endTime: Timestamp
   duration: TimeSpan
-  staticConfig: GmosSouthStatic!
+  static: GmosSouthStatic!
   steps: [GmosSouthStepRecord!]!
   sequenceEvents: [SequenceEvent!]!
+}
+
+"""Whether guiding is enabled for a particular science step."""
+enum GuideState {
+  """Guiding enabled."""
+  ENABLED
+
+  """Guiding disabled."""
+  DISABLED
 }
 
 input HourAngleRangeInput {
@@ -852,10 +914,30 @@ type Mutation {
   This operation is available only to Admin and Service users.
   """
   linkUser(input: LinkUserInput!): LinkUserResult!
-  recordGmosNorthStep(input: RecordGmosNorthStepInput!): RecordGmosNorthStepResult!
-  recordGmosNorthVisit(input: RecordGmosNorthVisitInput!): RecordGmosNorthVisitResult!
-  recordGmosSouthStep(input: RecordGmosSouthStepInput!): RecordGmosSouthStepResult!
-  recordGmosSouthVisit(input: RecordGmosSouthVisitInput!): RecordGmosSouthVisitResult!
+
+  """Record a new GMOS North step"""
+  recordGmosNorthStep(
+    """GmosNorth step configuration parameters"""
+    input: RecordGmosNorthStepInput!
+  ): RecordGmosNorthStepResult!
+
+  """Record a new GMOS North visit"""
+  recordGmosNorthVisit(
+    """Visit creation parameters"""
+    input: RecordGmosNorthVisitInput!
+  ): RecordGmosNorthVisitResult!
+
+  """Record a new GMOS South step"""
+  recordGmosSouthStep(
+    """GmosSouth step configuration parameters"""
+    input: RecordGmosSouthStepInput!
+  ): RecordGmosSouthStepResult!
+
+  """Record a new GMOS South visit"""
+  recordGmosSouthVisit(
+    """Visit creation parameters"""
+    input: RecordGmosSouthVisitInput!
+  ): RecordGmosSouthVisitResult!
 
   """Set the allocation for a program from the specified partner."""
   setAllocation(input: SetAllocationInput!): SetAllocationResult!
@@ -892,7 +974,7 @@ input NonsiderealInput {
 type ObservationEdit {
   editType: EditType!
   value: Observation!
-  id: Long!
+  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
 input ObservationPropertiesInput {
@@ -904,6 +986,7 @@ input ObservationPropertiesInput {
   targetEnvironment: TargetEnvironmentInput
   constraintSet: ConstraintSetInput
   timingWindows: [TimingWindowInput!]
+  obsAttachments: [ObsAttachmentId!]
   scienceRequirements: ScienceRequirementsInput
   observingMode: ObservingModeInput
   existence: Existence
@@ -916,14 +999,26 @@ type Offset {
   q: q!
 }
 
+"""
+Offset component (p or q) input parameters. Choose one angle units definition.
+"""
 input OffsetComponentInput {
+  """Angle in µas"""
   microarcseconds: Long
+
+  """Angle in mas"""
   milliarcseconds: BigDecimal
+
+  """Angle in arcsec"""
   arcseconds: BigDecimal
 }
 
+"""Offset input.  Define offset in p and q."""
 input OffsetInput {
+  """Offset in p"""
   p: OffsetComponentInput!
+
+  """Offset in q"""
   q: OffsetComponentInput!
 }
 
@@ -958,7 +1053,7 @@ scalar PosLong
 type ProgramEdit {
   editType: EditType!
   value: Program!
-  id: Long!
+  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
 input ProgramPropertiesInput {
@@ -1034,42 +1129,45 @@ input RadialVelocityInput {
   kilometersPerSecond: BigDecimal
 }
 
+"""Input parameters for creating a new GmosNorth StepRecord"""
 input RecordGmosNorthStepInput {
-  observationId: ObservationId!
   visitId: VisitId!
-  stepConfig: GmosNorthStepInput!
+  instrument: GmosNorthDynamicInput!
+  stepConfig: StepConfigInput!
 }
 
 type RecordGmosNorthStepResult {
   stepRecord: GmosNorthStepRecord!
 }
 
+"""Input parameters for creating a new GmosNorthVisit"""
 input RecordGmosNorthVisitInput {
   observationId: ObservationId!
   static: GmosNorthStaticInput!
 }
 
 type RecordGmosNorthVisitResult {
-  visitRecord: GmosNorthVisitRecord!
+  visit: GmosNorthVisit!
 }
 
 input RecordGmosSouthStepInput {
-  observationId: ObservationId!
   visitId: VisitId!
-  stepConfig: GmosSouthStepInput!
+  instrument: GmosSouthDynamicInput!
+  stepConfig: StepConfigInput!
 }
 
 type RecordGmosSouthStepResult {
   stepRecord: GmosSouthStepRecord!
 }
 
+"""Input parameters for creating a new GmosSouthVisit"""
 input RecordGmosSouthVisitInput {
   observationId: ObservationId!
   static: GmosSouthStaticInput!
 }
 
 type RecordGmosSouthVisitResult {
-  visitRecord: GmosSouthVisitRecord!
+  visit: GmosSouthVisit!
 }
 
 input RightAscensionInput {
@@ -1082,6 +1180,29 @@ input RightAscensionInput {
 
 type Science implements StepConfig {
   offset: Offset!
+
+  """Guide State (whether guiding is enabled for this step)"""
+  guiding: GuideState!
+
+  """Step type is always SCIENCE."""
+  stepType: StepType!
+}
+
+"""
+Which kind of smart gcal configuration is requested in a smart gcal step.
+"""
+enum SmartGcalType {
+  ARC
+  FLAT
+  DAY_BASELINE
+  NIGHT_BASELINE
+}
+
+"""SmartGcal step configuration."""
+type SmartGcal implements StepConfig {
+  smartGcalType: SmartGcalType!
+
+  """Step type is always SMART_GCAL."""
   stepType: StepType!
 }
 
@@ -1095,14 +1216,6 @@ input ScienceRequirementsInput {
   spectroscopy: SpectroscopyScienceRequirementsInput
 }
 
-input SequenceEventLocationInput {
-  observationId: ObservationId!
-}
-
-input SequenceEventPayloadInput {
-  command: SequenceCommand!
-}
-
 input SetAllocationInput {
   programId: ProgramId!
   partner: Partner!
@@ -1111,6 +1224,11 @@ input SetAllocationInput {
 
 type SetAllocationResult {
   allocation: Allocation!
+}
+
+type SetupTime {
+  full: TimeSpan!
+  reacquisition: TimeSpan!
 }
 
 input SiderealInput {
@@ -1158,11 +1276,47 @@ interface Step {
   id: StepId!
   breakpoint: Breakpoint!
   stepConfig: StepConfig!
-  time: StepTime!
+  estimate: StepEstimate!
+  observeClass: ObserveClass!
 }
 
 interface StepConfig {
   stepType: StepType!
+}
+
+"""Step configuration.  Choose exactly one step type."""
+input StepConfigInput {
+  """Bias step creation option"""
+  bias: Boolean
+
+  """Dark step creation option"""
+  dark: Boolean
+
+  """GCAL step creation option"""
+  gcal: StepConfigGcalInput
+
+  """Science step creation option"""
+  science: StepConfigScienceInput
+}
+
+"""
+GCAL configuration creation input.  Specify either one or more arcs or else
+one continuum.
+"""
+input StepConfigGcalInput {
+  arcs: [GcalArc!]
+  continuum: GcalContinuum
+  diffuser: GcalDiffuser!
+  filter: GcalFilter!
+  shutter: GcalShutter!
+}
+
+"""Science step creation input"""
+input StepConfigScienceInput {
+  offset: OffsetInput!
+
+  """Whether guiding is enabled for this step (defaults to 'ENABLED')."""
+  guiding: GuideState
 }
 
 input StepEventLocationInput {
@@ -1221,13 +1375,13 @@ input SystemVerificationInput {
 type TargetEdit {
   editType: EditType!
   value: Target!
-  id: Long!
+  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
 type GroupEdit {
   editType: EditType!
   value: Group!
-  id: Long!
+  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
 input TargetEnvironmentInput {
@@ -1488,10 +1642,15 @@ input ObsAttachmentPropertiesInput {
   checked: Boolean
 }
 
+type ObsAttachmentFileExt {
+  fileExtension: NonEmptyString!
+}
+
 type ObsAttachmentTypeMeta {
   tag: ObsAttachmentType!
   shortName: String!
   longName: String!
+  fileExtensions: [ObsAttachmentFileExt!]!
 }
 
 enum Band {
@@ -1575,6 +1734,12 @@ enum CatalogName {
   SIMBAD
   IMPORT
   GAIA
+}
+
+enum ChargeClass {
+  NON_CHARGED
+  PARTNER
+  PROGRAM
 }
 
 type Classical implements ProposalClass {
@@ -1774,6 +1939,7 @@ type Execution {
 
 interface ExecutionConfig {
   instrument: Instrument!
+  setup: SetupTime!
 }
 
 interface ExecutionEvent {
@@ -1783,6 +1949,7 @@ interface ExecutionEvent {
   received: Timestamp!
 }
 
+"""ExecutionEventId id formatted as `e-[1-9a-f][0-9a-f]*`"""
 scalar ExecutionEventId
 
 type ExecutionEventSelectResult {
@@ -1793,6 +1960,10 @@ type ExecutionEventSelectResult {
 enum Existence {
   PRESENT
   DELETED
+}
+
+interface ExecutionSequence {
+  digest: SequenceDigest!
 }
 
 type ExposureTimeMode {
@@ -2258,11 +2429,6 @@ enum LineFluxSurfaceUnits {
   ERG_PER_S_PER_CM_SQUARED_PER_ARCSEC_SQUARED
 }
 
-interface ManualConfig {
-  instrument: Instrument!
-  plannedTime: PlannedTime!
-}
-
 scalar NonEmptyString
 
 scalar NonNegBigDecimal
@@ -2331,14 +2497,19 @@ type Observation {
   activeStatus: ObsActiveStatus!
   visualizationTime: Timestamp
   posAngleConstraint: PosAngleConstraint!
-  plannedTime: PlannedTimeSummary!
+  plannedTime: PlannedTimeSummary! @deprecated(reason: "the PlannedTimeSummary type will be replaced")
   program: Program!
   targetEnvironment: TargetEnvironment!
   constraintSet: ConstraintSet!
   timingWindows: [TimingWindow!]!
+  obsAttachments: [ObsAttachment!]!
   scienceRequirements: ScienceRequirements!
   observingMode: ObservingMode
-  manualConfig: ManualConfig
+
+  """
+  The instrument in use for this observation, if the observing mode is set.
+  """
+  instrument: Instrument
   execution: Execution!
 }
 
@@ -2347,6 +2518,15 @@ scalar ObservationId
 type ObservationSelectResult {
   matches: [Observation!]!
   hasMore: Boolean!
+}
+
+enum ObserveClass {
+  SCIENCE
+  PROGRAM_CAL
+  PARTNER_CAL
+  ACQUISITION
+  ACQUISITION_CAL
+  DAY_CAL
 }
 
 type Parallax {
@@ -2373,18 +2553,19 @@ enum PlanetaryNebulaSpectrum {
 }
 
 type PlannedTime {
-  setup: TimeSpan!
-  acquisition: [StepTime!]!
-  acquisitionTotal: StepTime!
-  science: [StepTime!]!
-  scienceTotal: StepTime!
+  charges: [PlannedTimeCharge!]!
   total: TimeSpan!
 }
 
+type PlannedTimeCharge {
+  chargeClass: ChargeClass!
+  time: TimeSpan!
+}
+
 type PlannedTimeSummary {
-  pi: TimeSpan!
-  uncharged: TimeSpan!
-  execution: TimeSpan!
+  pi: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
+  uncharged: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
+  execution: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
 }
 
 type PoorWeather implements ProposalClass {
@@ -2422,7 +2603,7 @@ type Program {
   observations(includeDeleted: Boolean! = false, OFFSET: ObservationId, LIMIT: NonNegInt): ObservationSelectResult!
   obsAttachments: [ObsAttachment!]!
   proposalAttachments: [ProposalAttachment!]!
-  plannedTime: PlannedTimeSummary!
+  plannedTime: PlannedTimeSummary! @deprecated(reason: "the PlannedTimeSummary type will be replaced")
 
   """Top-level group elements (observations and sub-groups) in the program."""
   groupElements: [GroupElement!]!
@@ -2520,7 +2701,29 @@ type Query {
   program(programId: ProgramId!): Program
   programs(WHERE: WhereProgram, OFFSET: ProgramId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): ProgramSelectResult!
   proposalAttachmentTypeMeta: [ProposalAttachmentTypeMeta!]!
-  sequence(programId: ProgramId!, observationId: ObservationId!, useCache: Boolean! = true): SequenceGenerationResult
+
+  """
+  Produces the execution configuration with its acquisition and science
+  sequences for this observation.
+  """
+  sequence(
+    programId: ProgramId!
+    observationId: ObservationId!
+
+    """
+    Whether to use cached results (true) or ignore the cache and make a remote ITC call (false).
+    """
+    useCache: Boolean! = true
+
+    """
+    The maximum size (number of atoms) of the 'possibleFuture' in the sequences.
+    If the projected future is longer, the size will be capped at this value.
+    Use 0 if only interested in the 'nextAtom'.  The maximum is 100.  Each
+    sequence has 'hasMore' and 'atomCount' fields that can be used to determine
+    whether and how many remaining atoms are yet to be executed.
+    """
+    futureLimit: PosInt! = 25
+  ): SequenceGenerationResult
   target(targetId: TargetId!): Target
   targetGroup(programId: ProgramId!, WHERE: WhereObservation, LIMIT: NonNegInt, includeDeleted: Boolean! = false): TargetGroupSelectResult!
   targets(WHERE: WhereTarget, OFFSET: TargetId, LIMIT: NonNegInt, includeDeleted: Boolean! = false): TargetSelectResult!
@@ -2583,30 +2786,36 @@ type ScienceRequirementsGroupSelectResult {
   hasMore: Boolean!
 }
 
+"""Sequence-level command"""
 enum SequenceCommand {
+  """SequenceCommand ABORT"""
   ABORT
+
+  """SequenceCommand CONTINUE"""
   CONTINUE
+
+  """SequenceCommand PAUSE"""
   PAUSE
-  SLEW
+
+  """SequenceCommand START"""
   START
+
+  """SequenceCommand STOP"""
   STOP
 }
 
-type SequenceEvent implements ExecutionEvent {
-  location: SequenceEventLocation!
-  payload: SequenceEventPayload!
+type SequenceDigest {
+  observeClass: ObserveClass!
+  plannedTime: PlannedTime!
+  offsets: [Offset!]!
+}
+
+type SequenceEvent {
   id: ExecutionEventId!
   visitId: VisitId!
+  command: SequenceCommand!
   observation: Observation!
   received: Timestamp!
-}
-
-type SequenceEventLocation {
-  observationId: ObservationId!
-}
-
-type SequenceEventPayload {
-  command: SequenceCommand!
 }
 
 type SequenceGenerationResult {
@@ -2614,6 +2823,7 @@ type SequenceGenerationResult {
   observationId: ObservationId!
   itcResult: ItcResultSet!
   executionConfig: ExecutionConfig!
+  scienceDigest: SequenceDigest
 }
 
 enum SequenceType {
@@ -2760,11 +2970,44 @@ enum StepStage {
   START_STEP
 }
 
-type StepTime {
-  configChange: TimeSpan!
+type ConfigChangeEstimate {
+  name: String!
+  description: String!
+  estimate: TimeSpan!
+}
+
+type AllConfigChangeEstimates {
+  selected: ConfigChangeEstimate!
+  index: NonNegInt!
+  all: [ConfigChangeEstimate!]!
+  estimate: TimeSpan!
+}
+
+type DatasetEstimate {
   exposure: TimeSpan!
   readout: TimeSpan!
   write: TimeSpan!
+  estimate: TimeSpan!
+}
+
+type DetectorEstimate {
+  name: String!
+  description: String!
+  dataset: DatasetEstimate!
+  count: NonNegInt!
+  estimate: TimeSpan!
+}
+
+type AllDetectorEstimates {
+  selected: DetectorEstimate!
+  index: NonNegInt!
+  all: [DetectorEstimate!]!
+  estimate: TimeSpan!
+}
+
+type StepEstimate {
+  configChange: AllConfigChangeEstimates
+  detector: AllDetectorEstimates
   total: TimeSpan!
 }
 
@@ -2892,6 +3135,7 @@ type User {
   orcidEmail: String
 }
 
+"""VisitId id formatted as `v-[1-9a-f][0-9a-f]*`"""
 scalar VisitId
 
 enum WaterVapor {
@@ -3303,24 +3547,6 @@ type q {
 scalar BigDecimal
 
 scalar Long
-
-"""Enumeration of planned time categories"""
-enum PlannedTimeCategory {
-  """Config Change"""
-  CONFIG_CHANGE
-
-  """Exposure"""
-  EXPOSURE
-
-  """Readout"""
-  READOUT
-
-  """Setup"""
-  SETUP
-
-  """Write"""
-  WRITE
-}
 
 """Enumerated type of observation attachments."""
 enum ObsAttachmentType {

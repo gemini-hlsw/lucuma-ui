@@ -8,9 +8,9 @@ import cats.derived.*
 import cats.syntax.all.given
 import eu.timepit.refined.cats.given
 import lucuma.core.enums.StepQaState
-import lucuma.core.model.sequence.DynamicConfig
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
+import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.TimeSpan
 import org.typelevel.cats.time.given
 

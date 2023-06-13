@@ -5,8 +5,8 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import lucuma.core.util.TimeSpan
+import lucuma.odb.json.time.decoder.given
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.given
 
 object TimeSpanSubquery extends GraphQLSubquery.Typed[ObservationDB, TimeSpan]("TimeSpan"):
   override val subquery: String = """

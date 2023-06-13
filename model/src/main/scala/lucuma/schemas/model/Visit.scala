@@ -10,7 +10,7 @@ import cats.syntax.all.given
 import eu.timepit.refined.cats.given
 import lucuma.core.enums.SequenceType
 import lucuma.core.model.NonNegDuration
-import lucuma.core.model.sequence.StaticConfig
+import lucuma.core.model.sequence.gmos.StaticConfig
 import lucuma.core.util.TimeSpan
 import lucuma.core.util.WithUid
 import lucuma.refined.*

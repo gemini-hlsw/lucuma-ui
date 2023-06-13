@@ -18,6 +18,7 @@ import lucuma.core.enums.GmosSouthGrating
 import lucuma.core.enums.GmosSouthStageMode
 import lucuma.core.enums.GmosXBinning
 import lucuma.core.enums.GmosYBinning
+import lucuma.core.enums.GuideState
 import lucuma.core.enums.MosPreImaging
 import lucuma.core.enums.SequenceCommand
 import lucuma.core.enums.SequenceType
@@ -26,6 +27,7 @@ import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
 import lucuma.core.model.ExecutionEvent
 import lucuma.core.model.sequence.*
+import lucuma.core.model.sequence.gmos.*
 import lucuma.core.syntax.timespan.*
 import lucuma.core.util.TimeSpan
 import lucuma.refined.*
@@ -79,7 +81,7 @@ class VisitDecodersSuite extends InputStreamSuite {
             filter = none,
             fpu = GmosFpuMask.Builtin(GmosSouthFpu.LongSlit_1_00).some
           ),
-          stepConfig = StepConfig.Science(Offset(Offset.P.Zero, Offset.Q.Zero)),
+          stepConfig = StepConfig.Science(Offset(Offset.P.Zero, Offset.Q.Zero), GuideState.Enabled),
           stepEvents = List(
             StepEvent(
               id = ExecutionEvent.Id(5.refined),
