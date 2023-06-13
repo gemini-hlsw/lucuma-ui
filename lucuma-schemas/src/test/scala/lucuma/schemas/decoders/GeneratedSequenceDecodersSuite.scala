@@ -21,7 +21,6 @@ import lucuma.core.syntax.timespan.*
 import lucuma.core.util.TimeSpan
 import lucuma.odb.json.plannedtime
 import lucuma.odb.json.sequence.given
-import lucuma.schemas.ObservationDB.Types.GcalConfigurationInput.diffuser
 
 import java.util.UUID
 import scala.collection.immutable.SortedSet
