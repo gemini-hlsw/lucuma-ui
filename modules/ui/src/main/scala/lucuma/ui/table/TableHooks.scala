@@ -34,24 +34,23 @@ private object TableHooks:
   private def hook[T] =
     CustomHook[TableOptionsWithStateStore[DefaultA, T]]
       .useReactTableBy(_.tableOptions)
-      .useState(PrefsLoaded(false))
+      .useRef(PrefsLoaded(false))
       .useRef(CanSave(false))
       .useEffectOnMountBy((props, table, prefsLoadad, canSave) =>
         (props.stateStore.load() >>=
-          (mod => table.modState(mod).to[DefaultA]))
-          .guarantee( // This also forces a rerender, which react-table isn't doing by just changing the state.
-            prefsLoadad.setStateAsync(PrefsLoaded(true))
-          )
+          (mod => prefsLoadad.setAsync(PrefsLoaded(true)) >> table.modState(mod).to[DefaultA]))
+          .guaranteeCase(outcome => canSave.setAsync(CanSave(true)).unlessA(outcome.isSuccess))
       )
       .useEffectWithDepsBy((_, table, _, _) => table.getState())((props, _, prefsLoadad, canSave) =>
         state =>
           // Don't save prefs while we are still attempting to load them or if we just loaded them.
           props.stateStore
             .save(state)
-            .whenA(prefsLoadad.value.value && canSave.value.value)
-            >> canSave
-              .setAsync(CanSave(true))
-              .whenA(prefsLoadad.value.value && !canSave.value.value)
+            .whenA(canSave.value.value)
+            >>
+              canSave
+                .setAsync(CanSave(true))
+                .whenA(prefsLoadad.value.value && !canSave.value.value)
       )
       .buildReturning((_, table, _, _) => table)
 
