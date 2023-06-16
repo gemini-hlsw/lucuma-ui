@@ -4,7 +4,7 @@ ThisBuild / tlCiReleaseBranches := Seq("master")
 lazy val reactJS = "17.0.2"
 
 lazy val catsVersion              = "2.9.0"
-lazy val crystalVersion           = "0.33.12"
+lazy val crystalVersion           = "0.33.13"
 lazy val kittensVersion           = "3.0.0"
 lazy val lucumaCoreVersion        = "0.76.0"
 lazy val lucumaPrimeStylesVersion = "0.2.9"
