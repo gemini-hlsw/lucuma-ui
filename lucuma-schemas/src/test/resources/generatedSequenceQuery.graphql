@@ -1,6 +1,7 @@
 query {
   sequence(programId: "p-100", observationId: "o-100") {
     executionConfig {
+      instrument
       ... on GmosNorthExecutionConfig {
         gmosNorth
         static {
@@ -18,8 +19,7 @@ query {
           ...gmosNorthSequence
         }
         setup {
-          full { microseconds }
-          reacquisition { microseconds }
+          ...setupTime
         }
       }
       ... on GmosSouthExecutionConfig {
@@ -39,12 +39,16 @@ query {
           ...gmosSouthSequence
         }
         setup {
-          full { microseconds }
-          reacquisition { microseconds }
+          ...setupTime
         }        
       }
     }
   }
+}
+
+fragment setupTime on SetupTime {
+	full { microseconds }
+	reacquisition { microseconds }
 }
 
 fragment sequenceDigest on SequenceDigest {
