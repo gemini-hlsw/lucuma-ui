@@ -3,7 +3,6 @@
 
 package lucuma.ui.primereact
 
-import cats.syntax.all._
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._

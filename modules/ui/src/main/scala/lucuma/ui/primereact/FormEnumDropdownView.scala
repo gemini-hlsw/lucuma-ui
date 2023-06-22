@@ -7,13 +7,11 @@ import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import lucuma.core.enums.Half.A
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import react.common.*
 
 import scalajs.js
-import scalajs.js.JSConverters.*
 
 final case class FormEnumDropdownView[V[_], A](
   id:              NonEmptyString,

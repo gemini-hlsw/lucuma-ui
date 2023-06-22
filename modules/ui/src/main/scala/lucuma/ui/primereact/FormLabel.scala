@@ -10,7 +10,6 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import react.common.*
 
 import scalajs.js
-import scalajs.js.JSConverters.*
 
 object FormLabel {
   def apply(

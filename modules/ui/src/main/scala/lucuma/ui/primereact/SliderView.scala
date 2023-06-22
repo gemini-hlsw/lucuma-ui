@@ -3,17 +3,15 @@
 
 package lucuma.ui.primereact
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._
-import lucuma.ui.syntax.css.*
 import react.common.*
 import react.primereact.Slider
 
 import scalajs.js
-import scalajs.js.JSConverters.*
 
 case class SliderView(
   id:         NonEmptyString,

@@ -4,45 +4,43 @@
 package lucuma.ui.demo
 
 import cats.data.NonEmptyChain
-import cats.effect._
-import cats.syntax.all._
+import cats.effect.*
+import cats.syntax.all.*
 import crystal.ViewF
-import crystal.react._
-import crystal.react.hooks._
-import crystal.react.reuse._
-import eu.timepit.refined._
+import crystal.react.*
+import crystal.react.hooks.*
+import eu.timepit.refined.*
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.api.RefinedTypeOps
 import eu.timepit.refined.boolean.And
 import eu.timepit.refined.boolean.Not
-import eu.timepit.refined.cats._
+import eu.timepit.refined.cats.*
 import eu.timepit.refined.char.LowerCase
 import eu.timepit.refined.collection.Forall
 import eu.timepit.refined.collection.NonEmpty
-import eu.timepit.refined.numeric._
+import eu.timepit.refined.numeric.*
 import eu.timepit.refined.types.string.NonEmptyString
-import japgolly.scalajs.react._
+import japgolly.scalajs.react.*
 import japgolly.scalajs.react.extra.ReusabilityOverlay
-import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
 import lucuma.core.math.validation.MathValidators
-import lucuma.core.validation._
+import lucuma.core.validation.*
 import lucuma.refined.*
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.input.FilterMode
 import lucuma.ui.primereact.FormInputTextView
 import lucuma.ui.primereact.LucumaStyles
 import lucuma.ui.primereact.given
-import lucuma.ui.syntax.all.*
 import lucuma.ui.syntax.all.given
 import monocle.Focus
 import org.scalajs.dom
 import react.common.ReactFnProps
 import react.common.style.Css
 
-import scala.scalajs.js.annotation._
+import scala.scalajs.js.annotation.*
 
 final case class FormComponent() extends ReactFnProps[FormComponent](FormComponent.component)
 

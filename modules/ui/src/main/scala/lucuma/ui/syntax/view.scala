@@ -4,7 +4,6 @@
 package lucuma.ui.syntax
 
 import cats.Monad
-import cats.Monoid
 import crystal.ViewF
 import crystal.ViewOptF
 import crystal.react.reuse.*

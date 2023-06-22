@@ -3,7 +3,6 @@
 
 package lucuma.ui.table
 
-import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.table.ColumnId

@@ -4,33 +4,16 @@
 package lucuma.ui.primereact
 
 import cats.*
-import cats.data.NonEmptyChain
 import cats.syntax.all.*
 import crystal.react.View
 import crystal.react.hooks.*
-import eu.timepit.refined.cats.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import lucuma.core.validation.*
-import lucuma.typed.primereact.components.{Button => CButton}
-import lucuma.ui.input.AuditResult
-import lucuma.ui.input.ChangeAuditor
-import lucuma.ui.reusability.*
-import org.scalajs.dom.Element
-import org.scalajs.dom.HTMLInputElement
-import org.scalajs.dom.document
-import org.scalajs.dom.ext.KeyCode
-import org.scalajs.dom.html
 import react.common.*
 import react.floatingui
-import react.primereact.InputText
-import react.primereact.PrimeStyles
 
 import scala.scalajs.js
-import scala.scalajs.js.|
-
-import scalajs.js.JSConverters._
 
 /**
  * FormInput component that uses a crystal View to share the content of the field

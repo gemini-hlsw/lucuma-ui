@@ -12,7 +12,6 @@ import lucuma.core.util.Enumerated
 import react.common.*
 
 import scalajs.js
-import scalajs.js.JSConverters.*
 
 final case class FormEnumDropdownOptionalView[V[_], A](
   id:              NonEmptyString,
