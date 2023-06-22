@@ -3,40 +3,29 @@
 
 package lucuma.schemas.decoders
 
-import algebra.instances.all.given
 import cats.syntax.all._
 import coulomb._
 import coulomb.policy.spire.standard.given
 import coulomb.syntax._
-import eu.timepit.refined.types.numeric.NonNegLong
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
-import io.circe.DecodingFailure
 import io.circe.generic.semiauto
 import io.circe.refined._
 import lucuma.core.math.Angle
-import lucuma.core.math.Axis
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
-import lucuma.core.math.Offset
 import lucuma.core.math.Parallax
 import lucuma.core.math.ProperMotion
 import lucuma.core.math.RadialVelocity
 import lucuma.core.math.RightAscension
-import lucuma.core.math.Wavelength
 import lucuma.core.math.WavelengthDelta
 import lucuma.core.math.WavelengthDither
 import lucuma.core.math.dimensional._
 import lucuma.core.math.units.CentimetersPerSecond
 import lucuma.core.math.units.MetersPerSecond
-import lucuma.core.model.NonNegDuration
-import lucuma.core.optics.Format
 import lucuma.core.util.*
 import lucuma.odb.json.angle.decoder.given
-
-import java.time.Duration
-import java.time.temporal.ChronoUnit
 
 trait CoreModelDecoders {
   given quantityDecoder[N: Decoder, U]: Decoder[Quantity[N, U]] =

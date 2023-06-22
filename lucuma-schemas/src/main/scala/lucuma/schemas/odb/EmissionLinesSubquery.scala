@@ -5,13 +5,10 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import io.circe.Decoder
-import lucuma.core.enums.Band
 import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.model.SpectralDefinition
 import lucuma.odb.json.sourceprofile.given
 import lucuma.schemas.ObservationDB
-
-import scala.collection.immutable.SortedMap
 
 class EmissionLinesSubquery[T](rootType: String)(using
   Decoder[SpectralDefinition.EmissionLines[T]]

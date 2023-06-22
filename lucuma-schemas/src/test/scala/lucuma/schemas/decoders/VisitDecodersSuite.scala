@@ -4,7 +4,7 @@
 package lucuma.schemas.decoders
 
 import cats.effect.IO
-import cats.syntax.all.{_, given}
+import cats.syntax.all.*
 import eu.timepit.refined.numeric.Positive
 import lucuma.core.enums.GmosAmpCount
 import lucuma.core.enums.GmosAmpGain

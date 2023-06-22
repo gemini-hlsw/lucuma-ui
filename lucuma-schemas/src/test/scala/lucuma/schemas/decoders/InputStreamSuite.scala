@@ -10,10 +10,6 @@ import io.circe.Json
 import io.circe.parser._
 import munit.CatsEffectSuite
 
-import java.io.File
-import java.io.FileInputStream
-import java.nio.file.Paths
-
 trait InputStreamSuite extends CatsEffectSuite {
 
   def jsonResult(jsonFile: String): IO[Json] = {

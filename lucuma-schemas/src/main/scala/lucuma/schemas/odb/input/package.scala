@@ -7,7 +7,6 @@ import clue.data.Input
 import clue.data.syntax.*
 import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.numeric.PosBigDecimal
-import eu.timepit.refined.types.numeric.PosLong
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.syntax.*
 import lucuma.core.enums.Band
@@ -17,7 +16,6 @@ import lucuma.core.math.dimensional.*
 import lucuma.core.model.ExposureTimeMode.*
 import lucuma.core.model.ProposalClass.*
 import lucuma.core.model.*
-import lucuma.core.syntax.time.*
 import lucuma.core.util.*
 import lucuma.schemas.ObservationDB.Enums.PosAngleConstraintMode
 import lucuma.schemas.ObservationDB.Types.*

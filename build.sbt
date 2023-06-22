@@ -1,6 +1,6 @@
 val disciplineMUnitVersion = "1.0.9"
-val lucumaCoreVersion      = "0.80.0"
-val lucumaODBSchema        = "0.3.0"
+val lucumaCoreVersion      = "0.80.1"
+val lucumaODBSchema        = "0.3.1"
 val fs2Version             = "3.7.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
@@ -8,7 +8,7 @@ val kittensVersion         = "3.0.0"
 
 ThisBuild / tlBaseVersion       := "0.53"
 ThisBuild / tlCiReleaseBranches := Seq("main")
-ThisBuild / crossScalaVersions  := Seq("3.2.2")
+ThisBuild / crossScalaVersions  := Seq("3.3.0")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges

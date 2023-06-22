@@ -9,9 +9,6 @@ import coulomb.*
 import coulomb.syntax.*
 import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.numeric.Positive
-import eu.timepit.refined.types.numeric.PosBigDecimal
-import eu.timepit.refined.types.numeric.PosLong
-import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
 import lucuma.core.enums.Band
 import lucuma.core.enums.CatalogName

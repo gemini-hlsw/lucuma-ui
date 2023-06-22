@@ -19,7 +19,6 @@ import lucuma.core.model.sequence.*
 import lucuma.core.model.sequence.gmos.*
 import lucuma.core.syntax.timespan.*
 import lucuma.core.util.TimeSpan
-import lucuma.odb.json.plannedtime
 import lucuma.odb.json.sequence.given
 
 import java.util.UUID

@@ -4,10 +4,8 @@
 package lucuma.schemas.decoders
 
 import eu.timepit.refined._
-import eu.timepit.refined.numeric.Positive
 import lucuma.core.math.SignalToNoise
 import lucuma.core.model.ExposureTimeMode
-import lucuma.core.model.NonNegDuration
 import lucuma.core.syntax.timespan.*
 import lucuma.refined._
 

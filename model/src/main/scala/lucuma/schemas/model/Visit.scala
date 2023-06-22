@@ -4,20 +4,13 @@
 package lucuma.schemas.model
 
 import cats.Eq
-import cats.data.Ior
 import cats.derived.*
 import cats.syntax.all.given
-import eu.timepit.refined.cats.given
 import lucuma.core.enums.SequenceType
-import lucuma.core.model.NonNegDuration
 import lucuma.core.model.sequence.gmos.StaticConfig
 import lucuma.core.util.TimeSpan
 import lucuma.core.util.WithUid
 import lucuma.refined.*
-import monocle.Focus
-import monocle.Lens
-import monocle.Prism
-import monocle.macros.GenPrism
 import org.typelevel.cats.time.given
 
 import java.time.Instant
