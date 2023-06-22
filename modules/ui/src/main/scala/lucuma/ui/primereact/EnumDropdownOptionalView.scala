@@ -3,7 +3,6 @@
 
 package lucuma.ui.primereact
 
-import cats.Eq
 import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
@@ -15,7 +14,6 @@ import react.primereact.DropdownOptional
 import react.primereact.SelectItem
 
 import scalajs.js
-import scalajs.js.JSConverters.*
 
 final case class EnumDropdownOptionalView[V[_], A](
   id:              NonEmptyString,

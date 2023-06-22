@@ -4,20 +4,14 @@
 package lucuma.ui.table
 
 import cats.effect.IO
-import cats.effect.Sync
 import cats.syntax.all.*
 import crystal.react.implicits.*
-import japgolly.scalajs.react.Reusability
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.hooks.CustomHook
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import lucuma.core.util.NewType
 import lucuma.react.table.*
-import lucuma.typed.{tanstackTableCore => raw}
 import lucuma.ui.reusability.given
-
-import scalajs.js.JSConverters.*
-import scalajs.js
 
 case class TableOptionsWithStateStore[F[_], T](
   tableOptions: TableOptions[T],
@@ -26,10 +20,8 @@ case class TableOptionsWithStateStore[F[_], T](
 
 private object TableHooks:
   private object PrefsLoaded extends NewType[Boolean]
-  private type PrefsLoaded = PrefsLoaded.Type
 
   private object CanSave extends NewType[Boolean]
-  private type CanSave = CanSave.Type
 
   private def hook[T] =
     CustomHook[TableOptionsWithStateStore[DefaultA, T]]
@@ -80,7 +72,7 @@ private object TableHooks:
       super.useReactTableWithStateStoreBy(step.squash(tableDefWithOptions)(_))
 
 trait TableHooks:
-  import TableHooks._
+  import TableHooks.*
 
   given [Ctx, Step <: HooksApi.AbstractStep]
     : Conversion[HooksApi.Primary[Ctx, Step], Primary[Ctx, Step]] =

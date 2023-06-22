@@ -14,7 +14,6 @@ import react.primereact.DropdownOptional
 import react.primereact.SelectItem
 
 import scalajs.js
-import scalajs.js.JSConverters.*
 
 final case class EnumDropdownView[V[_], A](
   id:              NonEmptyString,

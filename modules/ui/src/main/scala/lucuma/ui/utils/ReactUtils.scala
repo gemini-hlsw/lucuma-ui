@@ -19,4 +19,4 @@ def linkOverride[A](f: => DefaultS[Unit]): (ReactMouseEvent, A) => Callback =
     (e.preventDefaultCB *> f)
       .unless_(e.ctrlKey || e.metaKey)
 
-inline given [T, P](using f: T => VdomNode): Conversion[T Refined P, VdomNode] = v => f(v.value)
+given [T, P](using f: T => VdomNode): Conversion[T Refined P, VdomNode] = v => f(v.value)

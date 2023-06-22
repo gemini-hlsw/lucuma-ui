@@ -6,11 +6,8 @@ package lucuma.ui.primereact
 import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
-import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.typed.primereact.components.{Button => CButton}
-import org.scalajs.dom.Element
-import org.scalajs.dom.HTMLInputElement
 import react.common.*
 import react.floatingui
 import react.floatingui.syntax.*

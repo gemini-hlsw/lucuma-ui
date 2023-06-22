@@ -1,15 +1,15 @@
-ThisBuild / tlBaseVersion       := "0.70"
+ThisBuild / tlBaseVersion       := "0.71"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
 
 lazy val catsVersion              = "2.9.0"
-lazy val crystalVersion           = "0.33.13"
+lazy val crystalVersion           = "0.33.14"
 lazy val kittensVersion           = "3.0.0"
-lazy val lucumaCoreVersion        = "0.76.0"
+lazy val lucumaCoreVersion        = "0.80.1"
 lazy val lucumaPrimeStylesVersion = "0.2.9"
-lazy val lucumaReactVersion       = "0.35.0"
-lazy val lucumaRefinedVersion     = "0.1.0"
+lazy val lucumaReactVersion       = "0.37.3"
+lazy val lucumaRefinedVersion     = "0.1.2"
 lazy val monocleVersion           = "3.2.0"
 lazy val mouseVersion             = "1.1.0"
 lazy val pprintVersion            = "0.8.1"
@@ -27,8 +27,8 @@ addCommandAlias(
 
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
-ThisBuild / scalaVersion             := "3.2.2"
-ThisBuild / crossScalaVersions       := Seq("3.2.2")
+ThisBuild / scalaVersion             := "3.3.0"
+ThisBuild / crossScalaVersions       := Seq("3.3.0")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions")
 
 enablePlugins(NoPublishPlugin)

@@ -14,20 +14,17 @@ import lucuma.core.validation.*
 import lucuma.typed.primereact.components.{Button => CButton}
 import lucuma.ui.input.AuditResult
 import lucuma.ui.input.ChangeAuditor
-import lucuma.ui.reusability.*
 import org.scalajs.dom.Element
 import org.scalajs.dom.HTMLInputElement
 import org.scalajs.dom.document
 import org.scalajs.dom.ext.KeyCode
 import org.scalajs.dom.html
 import react.common.*
-import react.primereact.InputText
 import react.primereact.PrimeStyles
 
 import scala.scalajs.js
-import scala.scalajs.js.|
 
-import scalajs.js.JSConverters._
+import scalajs.js.JSConverters.*
 
 /**
  * FormInput component that uses a crystal View to share the content of the field

@@ -8,17 +8,12 @@ import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import lucuma.core.enums.Half.A
-import lucuma.core.util.Display
-import lucuma.core.util.Enumerated
 import react.common.*
 import react.floatingui
-import react.floatingui.syntax.*
 import react.primereact.Dropdown
 import react.primereact.SelectItem
 
 import scalajs.js
-import scalajs.js.JSConverters.*
 
 final case class FormDropdown[V[_], A](
   id:               NonEmptyString,

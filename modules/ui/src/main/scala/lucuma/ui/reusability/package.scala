@@ -20,7 +20,6 @@ import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.math.*
 import lucuma.core.math.dimensional.*
 import lucuma.core.model.*
-import lucuma.core.model.sequence.*
 import lucuma.core.util.Enumerated
 import lucuma.core.util.NewType
 import lucuma.core.util.Timestamp
@@ -30,6 +29,7 @@ import lucuma.react.table.*
 import react.common.Size
 
 import java.time.Instant
+import scala.annotation.nowarn
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.SortedSet
 
@@ -139,19 +139,6 @@ trait ModelReusabiltyInstances
   given Reusability[ConstraintSet]                           = Reusability.byEq
   given Reusability[ProposalClass]                           = Reusability.byEq
   given Reusability[Proposal]                                = Reusability.byEq
-  // Sequences
-  given Reusability[GmosNodAndShuffle]                       = Reusability.byEq
-  given Reusability[GmosCcdMode]                             = Reusability.byEq
-  given Reusability[GmosGratingConfig]                       = Reusability.byEq
-  given gmosFpuMaskReuse[T: Eq]: Reusability[GmosFpuMask[T]] = Reusability.byEq
-  given Reusability[StaticConfig]                            = Reusability.byEq
-  given Reusability[StepConfig]                              = Reusability.byEq
-  given Reusability[StepTime]                                = Reusability.byEq
-  given Reusability[Step]                                    = Reusability.byEq
-  given Reusability[Atom]                                    = Reusability.byEq
-  given Reusability[ManualConfig]                            = Reusability.byEq
-  given Reusability[ExecutionSequence]                       = Reusability.byEq
-  given Reusability[FutureExecutionConfig]                   = Reusability.byEq
 }
 
 trait TableReusabilityInstances {
@@ -160,6 +147,7 @@ trait TableReusabilityInstances {
   given Reusability[Map[ColumnId, Visibility]] = Reusability.map
   given Reusability[ColumnVisibility]          = Reusability.by(_.value)
   given Reusability[SortDirection]             = Reusability.by(_.toDescending)
+  @nowarn
   given Reusability[ColumnSort]                = Reusability.derive
   given Reusability[Sorting]                   = Reusability.by(_.value)
   given Reusability[TableState]                =

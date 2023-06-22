@@ -3,19 +3,17 @@
 
 package lucuma.ui.input
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import eu.timepit.refined.api.{Validate => RefinedValidate}
-import eu.timepit.refined.auto._
 import eu.timepit.refined.numeric.NonNegative
 import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.refineV
-import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.numeric.PosInt
-import lucuma.core.optics._
-import lucuma.core.syntax.string._
-import lucuma.core.validation._
-import lucuma.refined._
-import lucuma.ui.input.FormatUtils._
+import lucuma.core.optics.*
+import lucuma.core.syntax.string.*
+import lucuma.core.validation.*
+import lucuma.refined.*
+import lucuma.ui.input.FormatUtils.*
 
 sealed trait AuditResult extends Product with Serializable
 object AuditResult {
@@ -187,7 +185,7 @@ final case class ChangeAuditor(audit: (String, Int) => AuditResult) { self =>
 }
 
 object ChangeAuditor {
-  import FilterMode._
+  import FilterMode.*
 
   def accept[A]: ChangeAuditor = ChangeAuditor((_, _) => AuditResult.accept)
 

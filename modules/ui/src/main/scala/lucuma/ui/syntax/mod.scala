@@ -9,13 +9,8 @@ import japgolly.scalajs.react.component.Scala
 import japgolly.scalajs.react.component.ScalaFn
 import japgolly.scalajs.react.component.ScalaForwardRef
 import japgolly.scalajs.react.vdom.*
-import japgolly.scalajs.react.vdom.html_<^.*
-import react.common.GenericComponentP
-import react.common.GenericComponentPA
 import react.common.GenericComponentPAC
-import react.common.GenericComponentPACF
 import react.common.GenericComponentPC
-import react.common.GenericFnComponentP
 import react.common.GenericFnComponentPA
 import react.common.GenericFnComponentPAC
 import react.common.GenericFnComponentPC

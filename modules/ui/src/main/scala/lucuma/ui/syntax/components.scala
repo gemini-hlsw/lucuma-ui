@@ -12,7 +12,6 @@ import react.common.GenericComponentPC
 import react.common.GenericFnComponentP
 import react.common.GenericFnComponentPA
 import react.common.GenericFnComponentPAC
-import react.common.GenericFnComponentPC
 
 import scala.scalajs.js
 import scala.scalajs.js.UndefOr
