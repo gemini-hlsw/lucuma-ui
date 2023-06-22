@@ -27,7 +27,7 @@ import scala.collection.immutable.SortedSet
 
 class GeneratedSequenceDecodersSuite extends InputStreamSuite {
   test("Generated sequence decoder") {
-    val expected: InstrumentExecutionConfig.GmosNorth =
+    val expected: InstrumentExecutionConfig =
       InstrumentExecutionConfig.GmosNorth(
         ExecutionConfig(
           static = StaticConfig.GmosNorth(
