@@ -3,12 +3,7 @@
 
 package lucuma.schemas.decoders
 
-import coulomb._
-import coulomb.policy.spire.standard.given
-import coulomb.syntax._
 import eu.timepit.refined._
-import eu.timepit.refined.auto._
-import io.circe.Decoder
 import lucuma.core.enums.CloudExtinction
 import lucuma.core.enums.ImageQuality
 import lucuma.core.enums.SkyBackground

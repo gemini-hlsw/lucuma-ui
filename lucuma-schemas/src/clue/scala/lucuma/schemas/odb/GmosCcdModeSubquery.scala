@@ -4,10 +4,9 @@
 package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
-import clue.annotation.*
 import lucuma.schemas.ObservationDB
 
-@GraphQL
+@clue.annotation.GraphQL
 abstract class GmosCcdModeSubquery extends GraphQLSubquery[ObservationDB]("GmosCcdMode"):
   override val subquery: String = """
         {
@@ -19,5 +18,5 @@ abstract class GmosCcdModeSubquery extends GraphQLSubquery[ObservationDB]("GmosC
         }
       """
 
-@GraphQLStub
+@clue.annotation.GraphQLStub
 object GmosCcdModeSubquery

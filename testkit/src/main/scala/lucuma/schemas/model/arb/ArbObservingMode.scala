@@ -6,19 +6,14 @@ package lucuma.schemas.model.arb
 import cats.data.NonEmptyList
 import cats.laws.discipline.arbitrary.*
 import cats.syntax.all.*
-import eu.timepit.refined.scalacheck.numeric.*
 import lucuma.core.enums.*
 import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
 import lucuma.core.math.WavelengthDither
 import lucuma.core.math.arb.ArbOffset
-import lucuma.core.math.arb.ArbRefined
 import lucuma.core.math.arb.ArbWavelength
 import lucuma.core.math.arb.ArbWavelengthDither
-import lucuma.core.model.ExposureTimeMode
-import lucuma.core.model.arb.ArbExposureTimeMode
 import lucuma.core.util.arb.ArbEnumerated.*
-import lucuma.core.util.arb.ArbGid.*
 import lucuma.schemas.model.CentralWavelength
 import lucuma.schemas.model.ObservingMode
 import org.scalacheck.Arbitrary
@@ -27,9 +22,7 @@ import org.scalacheck.Cogen
 import org.scalacheck.Gen
 
 trait ArbObservingMode {
-  import ArbExposureTimeMode.given
   import ArbOffset.*
-  import ArbRefined.*
   import ArbWavelength.*
   import ArbWavelengthDither.given
 

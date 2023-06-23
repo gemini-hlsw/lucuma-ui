@@ -5,8 +5,6 @@ package lucuma.schemas.model
 
 import cats.Eq
 import cats.derived.*
-import cats.syntax.all.given
-import eu.timepit.refined.cats.given
 import lucuma.core.enums.StepQaState
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig

@@ -9,10 +9,6 @@ import lucuma.core.enums.Band
 import lucuma.core.math.BrightnessUnits.*
 import lucuma.odb.json.sourceprofile.*
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.*
-import lucuma.schemas.odb.BandBrightnessSubquery
-
-import scala.collection.immutable.SortedMap
 
 class BandBrightnessSubquery[T](
   rootType:                 String,

@@ -3,8 +3,6 @@
 
 package lucuma.schemas.model.arb
 
-import cats.data.NonEmptyList
-import cats.laws.discipline.arbitrary.*
 import lucuma.core.model.Target
 import lucuma.core.model.arb.ArbTarget.given
 import lucuma.core.util.arb.ArbGid.*

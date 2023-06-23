@@ -19,7 +19,6 @@ import lucuma.core.enums.SequenceType
 import lucuma.core.enums.StepQaState
 import lucuma.core.enums.StepStage
 import lucuma.core.model.ExecutionEvent
-import lucuma.core.model.NonNegDuration
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig

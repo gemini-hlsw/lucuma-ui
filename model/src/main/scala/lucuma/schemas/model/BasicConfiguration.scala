@@ -6,14 +6,11 @@ package lucuma.schemas.model
 import cats.Eq
 import cats.derived.*
 import cats.syntax.all.*
-import eu.timepit.refined.cats.*
 import io.circe.Decoder
 import io.circe.generic.semiauto.*
-import io.circe.refined.*
 import lucuma.core.enums.*
 import lucuma.core.math.Wavelength
 import lucuma.odb.json.wavelength.decoder.given
-import lucuma.schemas.decoders.given
 
 // For when we don't need the whole observing mode, such as in the ObsSummary.
 // This is also used to create the configuration.

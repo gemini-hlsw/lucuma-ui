@@ -12,7 +12,6 @@ import io.circe.refined._
 import lucuma.core.enums.TacCategory
 import lucuma.core.enums.ToOActivation
 import lucuma.core.model.IntPercent
-import lucuma.core.model.NonNegDuration
 import lucuma.core.model.Partner
 import lucuma.core.model.Proposal
 import lucuma.core.model.ProposalClass

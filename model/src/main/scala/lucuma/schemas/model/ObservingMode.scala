@@ -7,17 +7,14 @@ import cats.Eq
 import cats.data.NonEmptyList
 import cats.derived.*
 import cats.syntax.all.*
-import eu.timepit.refined.cats.*
 import io.circe.Decoder
 import io.circe.generic.semiauto.*
-import io.circe.refined.*
 import lucuma.core.enums.*
 import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
 import lucuma.core.math.WavelengthDither
 import lucuma.odb.json.offset.decoder.given
 import lucuma.odb.json.wavelength.decoder.given
-import lucuma.schemas.decoders.given
 import monocle.Focus
 import monocle.Lens
 import monocle.Prism

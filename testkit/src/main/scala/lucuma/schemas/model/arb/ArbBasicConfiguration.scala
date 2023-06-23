@@ -3,10 +3,7 @@
 
 package lucuma.schemas.model.arb
 
-import cats.data.NonEmptyList
-import cats.laws.discipline.arbitrary.*
 import cats.syntax.all.*
-import eu.timepit.refined.scalacheck.numeric.*
 import lucuma.core.enums.*
 import lucuma.core.math.Wavelength
 import lucuma.core.math.arb.ArbWavelength
