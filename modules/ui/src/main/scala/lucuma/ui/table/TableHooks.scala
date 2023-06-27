@@ -5,7 +5,7 @@ package lucuma.ui.table
 
 import cats.effect.IO
 import cats.syntax.all.*
-import crystal.react.implicits.*
+import crystal.react.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.hooks.CustomHook
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
