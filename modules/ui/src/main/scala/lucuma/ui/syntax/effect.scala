@@ -4,12 +4,13 @@
 package lucuma.ui.syntax
 
 import cats.MonadThrow
-import cats.effect.Temporal
-import scala.concurrent.duration.*
 import cats.data.NonEmptyList
 import cats.effect.Resource
-import crystal.*
+import cats.effect.Temporal
 import cats.syntax.all.*
+import crystal.*
+
+import scala.concurrent.duration.*
 
 trait effect {
   extension [F[_], A](self: F[A])
