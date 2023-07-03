@@ -1,12 +1,13 @@
+val circeVersion           = "0.14.5"
 val disciplineMUnitVersion = "1.0.9"
-val lucumaCoreVersion      = "0.80.1"
-val lucumaODBSchema        = "0.3.1"
 val fs2Version             = "3.7.0"
+val kittensVersion         = "3.0.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
-val kittensVersion         = "3.0.0"
+val lucumaCoreVersion      = "0.80.2"
+val lucumaODBSchema        = "0.3.2"
 
-ThisBuild / tlBaseVersion       := "0.54"
+ThisBuild / tlBaseVersion       := "0.55"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.3.0")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
@@ -26,6 +27,8 @@ val model =
       libraryDependencies ++= Seq(
         "edu.gemini"    %%% "lucuma-core"       % lucumaCoreVersion,
         "edu.gemini"    %%% "lucuma-odb-schema" % lucumaODBSchema,
+        "io.circe"      %%% "circe-core"        % circeVersion,
+        "io.circe"      %%% "circe-generic"     % circeVersion,
         "org.typelevel" %%% "kittens"           % kittensVersion
       )
     )

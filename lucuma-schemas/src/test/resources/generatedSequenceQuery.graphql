@@ -3,7 +3,6 @@ query {
     executionConfig {
       instrument
       ... on GmosNorthExecutionConfig {
-        gmosNorth
         static {
           stageMode
           detector
@@ -23,7 +22,6 @@ query {
         }
       }
       ... on GmosSouthExecutionConfig {
-        gmosSouth
         static {
           stageMode
           detector

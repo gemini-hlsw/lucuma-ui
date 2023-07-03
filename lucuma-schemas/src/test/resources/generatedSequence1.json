@@ -1,6 +1,5 @@
 {
   "instrument": "GMOS_NORTH",
-  "gmosNorth": true,
   "static": {
     "stageMode": "FOLLOW_XY",
     "detector": "HAMAMATSU",
