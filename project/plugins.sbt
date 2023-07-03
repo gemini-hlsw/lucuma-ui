@@ -1,2 +1,2 @@
-addSbtPlugin("edu.gemini" % "sbt-lucuma-lib" % "0.10.13")
-addSbtPlugin("edu.gemini" % "sbt-clue"       % "0.31.0")
+addSbtPlugin("edu.gemini" % "sbt-lucuma-lib" % "0.11.0")
+addSbtPlugin("edu.gemini" % "sbt-clue"       % "0.32.0")
