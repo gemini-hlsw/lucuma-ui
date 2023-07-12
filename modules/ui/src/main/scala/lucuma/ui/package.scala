@@ -4,11 +4,11 @@
 package lucuma.ui
 
 import japgolly.scalajs.react.vdom.VdomNode
+import lucuma.ui.components.SolarProgress
 import react.common.*
 import react.primereact.Message
-import react.primereact.ProgressSpinner
 
-val DefaultPendingRender: VdomNode = ProgressSpinner(clazz = Css("pending-loader"))
+val DefaultPendingRender: VdomNode = SolarProgress()
 
 val DefaultErrorRender: Throwable => VdomNode =
   t => Message(text = t.getMessage, severity = Message.Severity.Error)

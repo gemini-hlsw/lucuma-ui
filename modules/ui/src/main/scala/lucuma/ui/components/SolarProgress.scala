@@ -11,7 +11,7 @@ import react.common.ReactFnProps
 case class SolarProgress(css: Css = Css.Empty) extends ReactFnProps(SolarProgress.component)
 
 object SolarProgress {
-  type Props = SolarProgress
+  private type Props = SolarProgress
 
   private val component = ScalaFnComponent[Props] { p =>
     <.div(
