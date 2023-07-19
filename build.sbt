@@ -1,15 +1,21 @@
-ThisBuild / tlBaseVersion       := "0.72"
+ThisBuild / tlBaseVersion       := "0.73"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
 
 lazy val catsVersion              = "2.9.0"
+lazy val catsRetryVersion         = "3.1.0"
+lazy val circeVersion             = "0.14.5"
 lazy val crystalVersion           = "0.34.1"
 lazy val kittensVersion           = "3.0.0"
+lazy val http4sVersion            = "0.23.22"
+lazy val http4sDomVersion         = "0.2.9"
+lazy val lucumaBCVersion          = "0.4.0"
 lazy val lucumaCoreVersion        = "0.80.2"
 lazy val lucumaPrimeStylesVersion = "0.2.9"
 lazy val lucumaReactVersion       = "0.38.0"
 lazy val lucumaRefinedVersion     = "0.1.2"
+lazy val lucumaSsoVersion         = "0.6.0"
 lazy val monocleVersion           = "3.2.0"
 lazy val mouseVersion             = "1.1.0"
 lazy val pprintVersion            = "0.8.1"
@@ -101,15 +107,46 @@ lazy val ui =
         "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
         "edu.gemini"                        %%% "crystal"                      % crystalVersion,
         "com.lihaoyi"                       %%% "pprint"                       % pprintVersion,
-        "edu.gemini"                        %%% "lucuma-core-testkit"          % lucumaCoreVersion % Test,
-        "org.scalameta"                     %%% "munit"                        % "0.7.29"          % Test,
-        "org.typelevel"                     %%% "discipline-munit"             % "1.0.9"           % Test
+        "org.http4s"                        %%% "http4s-core"                  % http4sVersion,
+        "org.http4s"                        %%% "http4s-circe"                 % http4sVersion,
+        "org.http4s"                        %%% "http4s-dom"                   % http4sDomVersion,
+        "com.github.cb372"                  %%% "cats-retry"                   % catsRetryVersion,
+        "io.circe"                          %%% "circe-core"                   % circeVersion,
+        "io.circe"                          %%% "circe-parser"                 % circeVersion,
+        "edu.gemini"                        %%% "lucuma-sso-frontend-client"   % lucumaSsoVersion,
+        "edu.gemini"                        %%% "lucuma-broadcast-channel"     % lucumaBCVersion
       )
     )
 
+lazy val testkit =
+  project
+    .in(file("modules/testkit"))
+    .dependsOn(ui)
+    .enablePlugins(ScalaJSPlugin)
+    .settings(
+      name := "lucuma-ui-testkit",
+      libraryDependencies ++= Seq(
+        "edu.gemini" %%% "lucuma-core-testkit" % lucumaCoreVersion
+      )
+    )
+
+lazy val tests =
+  project
+    .in(file("modules/tests"))
+    .dependsOn(testkit)
+    .settings(
+      libraryDependencies ++= Seq(
+        "edu.gemini"    %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
+        "org.scalameta" %%% "munit"               % "0.7.29"          % Test,
+        "org.typelevel" %%% "discipline-munit"    % "1.0.9"           % Test
+      )
+    )
+    .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
+
 // for publishing CSS to npm
 lazy val npmPublish = taskKey[Unit]("Run npm publish")
-lazy val css        = project
+
+lazy val css = project
   .in(file("modules/css"))
   .dependsOn(ui)
   .enablePlugins(LucumaCssPlugin, NoPublishPlugin)
@@ -141,8 +178,9 @@ ThisBuild / githubWorkflowPublishPreamble +=
   )
 
 ThisBuild / githubWorkflowPublish ++= Seq(
-  WorkflowStep.Sbt(List("css/npmPublish"),
-                   name = Some("NPM Publish"),
-                   env = Map("NODE_AUTH_TOKEN" -> s"$${{ secrets.NPM_REPO_TOKEN }}")
+  WorkflowStep.Sbt(
+    List("css/npmPublish"),
+    name = Some("NPM Publish"),
+    env = Map("NODE_AUTH_TOKEN" -> s"$${{ secrets.NPM_REPO_TOKEN }}")
   )
 )
