@@ -32,6 +32,22 @@ pull_request_rules:
       add:
       - demo
       remove: []
+- name: Label testkit PRs
+  conditions:
+  - files~=^modules/testkit/
+  actions:
+    label:
+      add:
+      - testkit
+      remove: []
+- name: Label tests PRs
+  conditions:
+  - files~=^modules/tests/
+  actions:
+    label:
+      add:
+      - tests
+      remove: []
 - name: Label ui PRs
   conditions:
   - files~=^modules/ui/
