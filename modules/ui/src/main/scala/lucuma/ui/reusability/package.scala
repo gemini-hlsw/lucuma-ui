@@ -26,6 +26,7 @@ import lucuma.core.util.Timestamp
 import lucuma.core.util.WithGid
 import lucuma.core.util.WithUid
 import lucuma.react.table.*
+import lucuma.ui.sso.UserVault
 import react.common.Size
 
 import java.time.Instant
@@ -59,6 +60,8 @@ trait UtilReusabilityInstances {
     reusability: Reusability[W]
   ): Reusability[T] =
     reusability.asInstanceOf[Reusability[T]]
+
+  given Reusability[UserVault] = Reusability.byEq
 }
 
 /**
