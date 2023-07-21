@@ -11,6 +11,7 @@ object LoginStyles:
   val LoginTitle: Css           = Css("lucuma-login-title")
   val LoginTitleWrapper: Css    = Css("lucuma-login-title-wrapper")
   val LoginBoxButton: Css       = Css("lucuma-login-button")
+  val LoginOrcidIcon: Css       = Css("lucuma-login-orcid-icon")
   val UserSelectionButtons: Css = Css("lucuma-user-selection-buttons")
 
   // Version with copy icon

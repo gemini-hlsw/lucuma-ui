@@ -77,3 +77,12 @@ i.icon.user-astronaut::before {
     }
   }
 }
+
+.lucuma-login-orcid-icon {
+  $logosize: 1.18em;
+
+  margin-right: 0.42em;
+  vertical-align: baseline;
+  width: $logosize;
+  height: $logosize;
+}

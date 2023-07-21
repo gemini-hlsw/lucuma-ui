@@ -11,6 +11,7 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.NewType
+import lucuma.ui.Resources
 import lucuma.ui.primereact.*
 import lucuma.ui.sso.SSOClient
 import lucuma.ui.sso.UserVault
@@ -21,6 +22,7 @@ import org.typelevel.log4cats.Logger
 import react.common.*
 import react.primereact.Button
 import react.primereact.Dialog
+import react.primereact.Image
 import react.primereact.Message
 
 case class UserSelectionForm(
@@ -87,15 +89,15 @@ object UserSelectionForm:
                   LoginStyles.UserSelectionButtons,
                   Button(
                     label = "Login with ORCID",
-                    // icon = Image(src = Resources.OrcidLogo, clazz = ExploreStyles.OrcidIcon),
+                    icon = Image(src = Resources.OrcidLogo, clazz = LoginStyles.LoginOrcidIcon),
                     clazz = LoginStyles.LoginBoxButton,
                     severity = Button.Severity.Secondary,
                     onClick = login >> props.message.set(none) >> isOpen.setState(IsOpen(false))
                   ).big.when(browserInfo.showButtons),
                   Button(
                     label = "Continue as Guest",
-                    icon = LoginIcons.UserAstronaut, // .withClass(ExploreStyles.OrcidIcon),
-                    // clazz = ExploreStyles.LoginBoxButton,
+                    icon = LoginIcons.UserAstronaut.withClass(LoginStyles.LoginOrcidIcon),
+                    clazz = LoginStyles.LoginBoxButton,
                     severity = Button.Severity.Secondary,
                     onClick = guest >> props.message.set(none) >> isOpen.setState(IsOpen(false))
                   ).big.when(browserInfo.showButtons)
