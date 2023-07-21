@@ -3,14 +3,13 @@
 
 package lucuma.ui.enums
 
-import cats.Eq
-import cats.derived.*
 import cats.syntax.all.*
 import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.types.string.NonEmptyString
+import lucuma.core.util.Enumerated
 import lucuma.refined.*
 
-enum ExecutionEnvironment(val suffix: Option[NonEmptyString]) derives Eq:
-  case Development extends ExecutionEnvironment("DEV".refined[NonEmpty].some)
-  case Staging     extends ExecutionEnvironment("STG".refined[NonEmpty].some)
-  case Production  extends ExecutionEnvironment(none)
+enum ExecutionEnvironment(val tag: String, val suffix: Option[NonEmptyString]) derives Enumerated:
+  case Development extends ExecutionEnvironment("DEVELOPMENT", "DEV".refined[NonEmpty].some)
+  case Staging     extends ExecutionEnvironment("STAGING", "STG".refined[NonEmpty].some)
+  case Production  extends ExecutionEnvironment("PRODUCTION", none)

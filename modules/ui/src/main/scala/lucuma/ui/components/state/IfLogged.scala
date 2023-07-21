@@ -12,26 +12,29 @@ import io.circe.Json
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.ui.components.UserSelectionForm
 import lucuma.ui.sso.SSOClient
 import lucuma.ui.sso.UserVault
 import org.typelevel.log4cats.Logger
 import react.common.*
 
 case class IfLogged[E](
-  ssoClient:              SSOClient[DefaultA],
-  userVault:              View[Option[UserVault]],
-  userSelectionComponent: (View[Option[UserVault]], View[Option[NonEmptyString]]) => VdomElement,
-  openConnections:        Map[String, Json] => DefaultA[Unit],
-  closeConnections:       DefaultA[Unit],
-  onConnect:              DefaultA[Unit],
-  channelName:            NonEmptyString,
-  isLogoutEvent:          E => Boolean,
-  getEventNonce:          E => String,
-  createEventWithNonce:   String => E
+  systemName:           NonEmptyString,
+  systemNameStyle:      Css,
+  allowGuest:           Boolean,
+  ssoClient:            SSOClient[DefaultA],
+  userVault:            View[Option[UserVault]],
+  openConnections:      Map[String, Json] => DefaultA[Unit],
+  closeConnections:     DefaultA[Unit],
+  onConnect:            DefaultA[Unit],
+  channelName:          NonEmptyString,
+  isLogoutEvent:        E => Boolean,
+  getEventNonce:        E => String,
+  createEventWithNonce: String => E
 )(
-  val render:             (UserVault, DefaultA[Unit]) => VdomNode
+  val render:           (UserVault, DefaultA[Unit]) => VdomNode
 )(using
-  val logger:             Logger[DefaultA]
+  val logger:           Logger[DefaultA]
 ) extends ReactFnProps(IfLogged.component)
 
 object IfLogged:
@@ -48,7 +51,14 @@ object IfLogged:
         val messageSet = userSelectionMessage.async.set.compose((s: NonEmptyString) => s.some)
 
         props.userVault.get.fold[VdomElement](
-          props.userSelectionComponent(props.userVault, userSelectionMessage)
+          UserSelectionForm(
+            props.systemName,
+            props.systemNameStyle,
+            props.ssoClient,
+            props.userVault,
+            userSelectionMessage,
+            props.allowGuest
+          )
         ) { vault =>
           React.Fragment(
             SSOManager(props.ssoClient, vault.expiration, vaultSet, messageSet),

@@ -32,7 +32,7 @@ import lucuma.refined.*
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.input.FilterMode
 import lucuma.ui.primereact.FormInputTextView
-import lucuma.ui.primereact.LucumaStyles
+import lucuma.ui.primereact.LucumaPrimeStyles
 import lucuma.ui.primereact.given
 import lucuma.ui.syntax.all.given
 import monocle.Focus
@@ -119,7 +119,7 @@ object FormComponent {
           s"MODEL: ${root.get}",
           <.br,
           <.div(
-            LucumaStyles.FormColumn,
+            LucumaPrimeStyles.FormColumn,
             FormInputTextView(
               id = "field1".refined,
               label = "field1 - uppercased on blur, can't be empty",

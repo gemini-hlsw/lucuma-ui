@@ -3,11 +3,10 @@
 
 package lucuma.ui.primereact
 
-import cats.syntax.all._
-import react.common._
+import cats.syntax.all.*
+import react.common.*
 
-trait LucumaStyles {
-
+trait LucumaPrimeStyles:
   // compact is used for form columns and buttons
   val Compact: Css     = Css("pl-compact")
   // not used for buttons, at least not at the moment
@@ -38,6 +37,9 @@ trait LucumaStyles {
 
   val IconPrefix: Css = Css("pi")
   val IconTimes: Css  = IconPrefix |+| Css("pi-times")
-}
 
-object LucumaStyles extends LucumaStyles
+  object Dialog: // SUI has Mini, Tiny, Small, Large and Fullscreen.
+    val Small: Css = Css("pl-dialog-small")
+    val Large: Css = Css("pl-dialog-large")
+
+object LucumaPrimeStyles extends LucumaPrimeStyles

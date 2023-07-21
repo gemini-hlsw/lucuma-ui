@@ -32,7 +32,7 @@ object CheckboxView {
     import props.given
 
     <.div(
-      LucumaStyles.CheckboxWithLabel,
+      LucumaPrimeStyles.CheckboxWithLabel,
       Checkbox(
         id = props.id.value,
         checked = props.value.get.exists(identity),

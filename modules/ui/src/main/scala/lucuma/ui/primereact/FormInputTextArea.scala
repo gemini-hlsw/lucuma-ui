@@ -31,7 +31,7 @@ object FormInputTextArea:
   private val component = ScalaFnComponent[FormInputTextArea] { props =>
 
     val group = <.div(
-      LucumaStyles.FormField,
+      LucumaPrimeStyles.FormField,
       InputTextarea(autoResize = props.autoResize)(^.id := props.id.value, ^.value := props.value)(
         props.modifiers: _*
       )

@@ -16,7 +16,7 @@ object FormLabel {
     htmlFor: NonEmptyString,
     size:    js.UndefOr[PlSize] = js.undefined
   ) = <.label(
-    LucumaStyles.FormFieldLabel,
+    LucumaPrimeStyles.FormFieldLabel,
     size.toOption.map(_.cls).orEmpty,
     ^.htmlFor := htmlFor.value
   )

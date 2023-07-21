@@ -52,7 +52,7 @@ object FormDropdownOptional {
         id = props.id.value,
         value = props.value,
         options = props.options,
-        clazz = LucumaStyles.FormField |+| props.clazz.toOption.orEmpty,
+        clazz = LucumaPrimeStyles.FormField |+| props.clazz.toOption.orEmpty,
         panelClass = props.panelClass,
         filter = props.filter,
         showFilterClear = props.showFilterClear,

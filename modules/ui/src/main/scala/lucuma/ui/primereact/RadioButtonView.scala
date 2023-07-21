@@ -39,7 +39,7 @@ object RadioButtonView {
     import props.given
 
     <.div(
-      LucumaStyles.RadioButtonWithLabel,
+      LucumaPrimeStyles.RadioButtonWithLabel,
       RadioButton(
         id = props.id.value,
         value = props.value,

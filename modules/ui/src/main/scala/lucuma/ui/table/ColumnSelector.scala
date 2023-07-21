@@ -7,7 +7,7 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.table.ColumnId
 import lucuma.react.table.Table
-import lucuma.ui.primereact.LucumaStyles
+import lucuma.ui.primereact.LucumaPrimeStyles
 import react.common.*
 import react.primereact.Button
 import react.primereact.Checkbox
@@ -33,7 +33,7 @@ object ColumnSelector:
           val colId = column.id
           MenuItem.Custom(
             <.div(
-              LucumaStyles.CheckboxWithLabel,
+              LucumaPrimeStyles.CheckboxWithLabel,
               Checkbox(id = colId.value,
                        checked = column.getIsVisible(),
                        onChange = _ => column.toggleVisibility()
