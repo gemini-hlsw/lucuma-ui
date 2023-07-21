@@ -278,3 +278,21 @@
   height: 4rem;
   font-size: 1em;
 }
+
+.p-component.p-dialog {
+  &.pl-dialog-small {
+    width: 95%;
+
+    @media (min-width: common.$tablet-responsive-cutoff) {
+      width: 760px;
+    }
+  }
+
+  &.pl-dialog-large {
+    width: 95%;
+
+    @media (width >=1200px) {
+      width: 1080px;
+    }
+  }
+}

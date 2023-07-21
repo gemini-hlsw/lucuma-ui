@@ -52,7 +52,7 @@ object FormEnumDropdownOptionalView {
           id = props.id,
           value = props.value,
           exclude = props.exclude,
-          clazz = LucumaStyles.FormField |+| props.clazz.toOption.orEmpty,
+          clazz = LucumaPrimeStyles.FormField |+| props.clazz.toOption.orEmpty,
           panelClass = props.panelClass,
           showClear = props.showClear,
           filter = props.filter,

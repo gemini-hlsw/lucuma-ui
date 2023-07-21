@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.73"
+ThisBuild / tlBaseVersion       := "0.74"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -97,6 +97,7 @@ lazy val ui =
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"                  % lucumaCoreVersion,
         "edu.gemini"                        %%% "lucuma-react-common"          % lucumaReactVersion,
+        "edu.gemini"                        %%% "lucuma-react-clipboard"       % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-font-awesome"    % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-resize-detector" % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-tanstack-table"  % lucumaReactVersion,

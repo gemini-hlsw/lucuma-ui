@@ -1,0 +1,88 @@
+// ------
+// About and login dialogs
+// ------
+i.icon.user-astronaut::before {
+  content: '\f4fb';
+}
+
+.lucuma-login-box-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lucuma-login-messages-layout {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 1em;
+
+  .p-inline-message:first-child {
+    margin-top: 2em;
+  }
+}
+
+.lucuma-copy-control-icon {
+  font-size: smaller;
+  float: right;
+
+  // CopyToClipboard
+  div {
+    display: inline-block;
+    margin-left: 5px;
+  }
+
+  .lucuma-uncopied {
+    // CopyToClipboard
+    div {
+      cursor: pointer;
+    }
+  }
+}
+
+.lucuma-login-title-wrapper {
+  overflow: hidden;
+  margin-bottom: 2em;
+  line-height: 1.4;
+}
+
+.lucuma-login-title {
+  $spacing: 20px;
+
+  transform: translate(-100%, 0%);
+  font-weight: 300;
+  font-size: 3rem;
+  text-transform: uppercase;
+  letter-spacing: $spacing;
+  text-indent: $spacing;
+  animation: show-top-text 0.8s;
+  animation-delay: 0.2s;
+  animation-fill-mode: forwards;
+  border-bottom-style: solid;
+  border-bottom-width: 4px;
+}
+
+.lucuma-user-selection-buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+// This style is also used on the proposal tab
+.lucuma-login-button {
+  &.p-button {
+    margin-bottom: 1em;
+
+    &:first-child {
+      margin-top: 2em;
+    }
+  }
+}
+
+.lucuma-login-orcid-icon {
+  $logosize: 1.18em;
+
+  margin-right: 0.42em;
+  vertical-align: baseline;
+  width: $logosize;
+  height: $logosize;
+}

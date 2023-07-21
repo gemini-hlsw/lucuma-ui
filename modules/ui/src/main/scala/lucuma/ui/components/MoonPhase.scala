@@ -9,18 +9,17 @@ import lucuma.ui.syntax.all.given
 import react.common.ReactFnPropsWithChildren
 import react.common.style.Css
 
-object MoonStyles {
+object MoonStyles:
   val MoonSphere: Css  = Css("moon-sphere")
   val MoonLight: Css   = Css("moon-light")
   val MoonDark: Css    = Css("moon-dark")
   val MoonDivider: Css = Css("moon-divider")
   val MoonPhase: Css   = Css("moon-phase")
-}
 
 case class MoonPhase(moonPhase: Double, clazz: Css = Css.Empty)
     extends ReactFnPropsWithChildren[MoonPhase](MoonPhase.component)
 
-object MoonPhase {
+object MoonPhase:
   private type Props = MoonPhase
 
   private val component = ScalaFnComponent.withChildren[Props]((p, c) =>
@@ -36,4 +35,3 @@ object MoonPhase {
       c
     )
   )
-}

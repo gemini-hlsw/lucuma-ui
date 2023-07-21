@@ -49,12 +49,12 @@ object FormInputText {
 
     // units are always first
     val postAddons = props.units.fold(props.postAddons.build(props.size)) { units =>
-      (<.span(^.cls := LucumaStyles.BlendedAddon.htmlClass, units) :: props.postAddons)
+      (<.span(^.cls := LucumaPrimeStyles.BlendedAddon.htmlClass, units) :: props.postAddons)
         .build(props.size)
     }
 
     val group = <.div(
-      PrimeStyles.InputGroup |+| LucumaStyles.FormField |+| props.groupClass.toOption.orEmpty,
+      PrimeStyles.InputGroup |+| LucumaPrimeStyles.FormField |+| props.groupClass.toOption.orEmpty,
       props.preAddons.build(props.size),
       InputText(
         id = props.id.value,
