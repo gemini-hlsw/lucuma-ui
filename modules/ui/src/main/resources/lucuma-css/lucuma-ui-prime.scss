@@ -1,3 +1,5 @@
+@use 'lucuma-ui-common.scss' as lucumaUICommon;
+
 :root {
   // unfortunately, primereact uses `scaling factors` to scala the `lg` and `sm` components. It also 
   // seems to apply these to padding, which we don't want. Change the scaling factors seemed inappropriate
@@ -283,7 +285,7 @@
   &.pl-dialog-small {
     width: 95%;
 
-    @media (min-width: common.$tablet-responsive-cutoff) {
+    @media (min-width: lucumaUICommon.$tablet-responsive-cutoff) {
       width: 760px;
     }
   }
