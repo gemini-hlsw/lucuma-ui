@@ -100,7 +100,7 @@ object UserSelectionForm:
                     clazz = LoginStyles.LoginBoxButton,
                     severity = Button.Severity.Secondary,
                     onClick = guest >> props.message.set(none) >> isOpen.setState(IsOpen(false))
-                  ).big.when(browserInfo.showButtons)
+                  ).big.when(browserInfo.showButtons && props.allowGuest)
                 )
               ),
               <.div(LoginStyles.LoginMessagesLayout)(
