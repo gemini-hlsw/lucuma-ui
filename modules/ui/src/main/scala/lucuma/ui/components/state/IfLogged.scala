@@ -5,7 +5,6 @@ package lucuma.ui.components.state
 
 import cats.syntax.all.*
 import crystal.react.View
-import crystal.react.hooks.*
 import crystal.react.syntax.view.*
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Json
@@ -24,6 +23,7 @@ case class IfLogged[E](
   allowGuest:           Boolean,
   ssoClient:            SSOClient[DefaultA],
   userVault:            View[Option[UserVault]],
+  userSelectionMessage: View[Option[NonEmptyString]],
   openConnections:      Map[String, Json] => DefaultA[Unit],
   closeConnections:     DefaultA[Unit],
   onConnect:            DefaultA[Unit],
@@ -43,12 +43,11 @@ object IfLogged:
   private def componentBuilder[E] =
     ScalaFnComponent
       .withHooks[Props[E]]
-      .useStateView(none[NonEmptyString]) // userSelectionMessage
-      .render { (props, userSelectionMessage) =>
+      .render: props =>
         import props.given
 
         val vaultSet   = props.userVault.async.set
-        val messageSet = userSelectionMessage.async.set.compose((s: NonEmptyString) => s.some)
+        val messageSet = props.userSelectionMessage.async.set.compose((_: NonEmptyString).some)
 
         props.userVault.get.fold[VdomElement](
           UserSelectionForm(
@@ -56,7 +55,7 @@ object IfLogged:
             props.systemNameStyle,
             props.ssoClient,
             props.userVault,
-            userSelectionMessage,
+            props.userSelectionMessage,
             props.allowGuest
           )
         ) { vault =>
@@ -79,6 +78,5 @@ object IfLogged:
             )
           )
         }
-      }
 
   private val component = componentBuilder[Any]
