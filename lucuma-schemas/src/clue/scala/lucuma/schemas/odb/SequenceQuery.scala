@@ -14,8 +14,8 @@ object SequenceSQL:
     val document = s"""
         query($$obsId: ObservationId!) {
           observation(observationId: $$obsId) {
-            sequence(futureLimit: 100) {
-              executionConfig {
+            execution {
+              config(futureLimit: 100) {
                 instrument
                 ... on GmosNorthExecutionConfig {
                   static {
@@ -31,9 +31,6 @@ object SequenceSQL:
                   }
                   science {
                     ...gmosNorthSequenceFields
-                  }
-                  setup {
-                    ...setupTimeFields
                   }
                 }
                 ... on GmosSouthExecutionConfig {
@@ -51,18 +48,10 @@ object SequenceSQL:
                   science {
                     ...gmosSouthSequenceFields
                   }
-                  setup {
-                    ...setupTimeFields
-                  }
                 }
               }
             }
           }
-        }
-
-        fragment setupTimeFields on SetupTime {
-          full { microseconds }
-          reacquisition { microseconds }
         }
 
         fragment nodAndShuffleFields on GmosNodAndShuffle {
@@ -71,17 +60,6 @@ object SequenceSQL:
           eOffset
           shuffleOffset
           shuffleCycles
-        }
-
-        fragment sequenceDigestFields on SequenceDigest {
-          observeClass
-          plannedTime {
-            charges {
-              chargeClass
-              time { microseconds }
-            }
-          }
-          offsets { ...offsetFields }
         }
 
         fragment stepConfigFields on StepConfig {
@@ -164,9 +142,6 @@ object SequenceSQL:
         }
 
         fragment gmosNorthSequenceFields on GmosNorthExecutionSequence {
-          digest {
-            ...sequenceDigestFields
-          }
           nextAtom {
             ...gmosNorthAtomFields
           }
@@ -174,7 +149,6 @@ object SequenceSQL:
             ...gmosNorthAtomFields
           }
           hasMore
-          atomCount
         }
 
         fragment gmosSouthAtomFields on GmosSouthAtom {
@@ -215,9 +189,6 @@ object SequenceSQL:
         }
 
         fragment gmosSouthSequenceFields on GmosSouthExecutionSequence {
-          digest {
-            ...sequenceDigestFields
-          }
           nextAtom {
             ...gmosSouthAtomFields
           }
@@ -225,6 +196,54 @@ object SequenceSQL:
             ...gmosSouthAtomFields
           }
           hasMore
+        }
+
+        fragment offsetFields on Offset {
+          p { microarcseconds }
+          q { microarcseconds }
+        }
+      """
+
+    object Data:
+      object Observation:
+        object Execution:
+          type Config = InstrumentExecutionConfig
+
+  @clue.annotation.GraphQL
+  trait DigestQuery extends GraphQLOperation[ObservationDB]:
+    val document = s"""
+        query($$obsId: ObservationId!) {
+          observation(observationId: $$obsId) {
+            execution {
+              digest {
+                setup {
+                  ...setupTimeFields
+                }
+                acquisition {
+                  ...sequenceDigestFields
+                }
+                science {
+                  ...sequenceDigestFields
+                }
+              }
+            }
+          }
+        }
+
+        fragment setupTimeFields on SetupTime {
+          full { microseconds }
+          reacquisition { microseconds }
+        }
+
+        fragment sequenceDigestFields on SequenceDigest {
+          observeClass
+          plannedTime {
+            charges {
+              chargeClass
+              time { microseconds }
+            }
+          }
+          offsets { ...offsetFields }
           atomCount
         }
 
@@ -236,5 +255,5 @@ object SequenceSQL:
 
     object Data:
       object Observation:
-        object Sequence:
-          type ExecutionConfig = InstrumentExecutionConfig
+        object Execution:
+          type Digest = ExecutionDigest
