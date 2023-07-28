@@ -3,10 +3,10 @@
 #
 # fetchODBSchema.sh
 #
-# Usage: sh fetchODBSchema.sh [local|staging]
+# Usage: sh fetchODBSchema.sh [local|dev|staging]
 #
 # Fetches the current version of the ODB schema from either a 'local' ODB
-# instance running on localhost, or else from the 'staging' ODB.  Places it
+# instance running on localhost, or else from the 'dev' or 'staging' ODB.  Places it
 # in the proper place in `lucuma-schemas` for use in generating code.
 #
 
@@ -36,6 +36,9 @@ function usage {
 case "$1" in
   local)
     URL="http://localhost:8082/odb"
+    ;;
+  dev)
+    URL="http://lucuma-postgres-odb-dev.herokuapp.com/odb"
     ;;
   staging)
     URL="http://lucuma-postgres-odb-staging.herokuapp.com/odb"

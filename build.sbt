@@ -4,10 +4,10 @@ val fs2Version             = "3.7.0"
 val kittensVersion         = "3.0.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
-val lucumaCoreVersion      = "0.80.2"
-val lucumaODBSchema        = "0.3.2"
+val lucumaCoreVersion      = "0.82.0"
+val lucumaODBSchema        = "0.4.0"
 
-ThisBuild / tlBaseVersion       := "0.55"
+ThisBuild / tlBaseVersion       := "0.56"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.3.0")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
