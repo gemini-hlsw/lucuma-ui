@@ -40,7 +40,7 @@ import java.time.Instant
 import java.util.UUID
 
 class VisitDecodersSuite extends InputStreamSuite {
-  val expectedVisits: List[Visit] = List(
+  val expectedVisits: List[Visit.GmosSouth] = List(
     Visit.GmosSouth(
       id = Visit.Id.fromUuid(UUID.fromString("7d093b73-3ac7-4886-bb34-0005bcb53ba4")),
       created = Instant.parse("2022-08-22T18:18:46.236929950Z"),
@@ -119,7 +119,7 @@ class VisitDecodersSuite extends InputStreamSuite {
   test("Visits decoder") {
     jsonResult("/v1.json")
       .map(_.hcursor.downField("visits"))
-      .map(_.as[List[Visit]])
+      .map(_.as[List[Visit.GmosSouth]])
       .flatMap(IO.fromEither)
       .map(visits => assertEquals(visits, expectedVisits))
   }

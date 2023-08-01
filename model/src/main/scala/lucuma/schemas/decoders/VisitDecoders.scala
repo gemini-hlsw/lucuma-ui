@@ -171,20 +171,16 @@ trait VisitDecoders:
     )
   )
 
-  given Decoder[Visit] =
-    List[Decoder[Visit]](
-      Decoder[Visit.GmosNorth].widen,
-      Decoder[Visit.GmosSouth].widen
-    ).reduceLeft(_ or _)
-
   given decoderExecutionVisitsGmosNorth: Decoder[ExecutionVisits.GmosNorth] = semiauto.deriveDecoder
 
   given decoderExecutionVisitsGmosSouth: Decoder[ExecutionVisits.GmosSouth] = semiauto.deriveDecoder
 
-  given Decoder[ExecutionVisits] = Decoder.instance(c =>
-    c.downField("instrument").as[Instrument].flatMap {
-      case Instrument.GmosNorth => c.as[ExecutionVisits.GmosNorth]
-      case Instrument.GmosSouth => c.as[ExecutionVisits.GmosSouth]
-      case _                    => DecodingFailure("Only Gmos supported", c.history).asLeft
-    }
-  )
+  given Decoder[InstrumentExecutionVisits] = Decoder.instance: c =>
+    c.downField("instrument")
+      .as[Instrument]
+      .flatMap:
+        case Instrument.GmosNorth =>
+          c.as[ExecutionVisits.GmosNorth].map(InstrumentExecutionVisits.GmosNorth(_))
+        case Instrument.GmosSouth =>
+          c.as[ExecutionVisits.GmosSouth].map(InstrumentExecutionVisits.GmosSouth(_))
+        case _                    => DecodingFailure("Only Gmos supported", c.history).asLeft
