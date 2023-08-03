@@ -29,7 +29,7 @@ if [ -z "${ODB_API_KEY}" ]; then
 fi
 
 function usage {
-  echo -e "${RED}Usage: $0 [local|staging]${NC}"
+  echo -e "${RED}Usage: $0 [local|dev|staging]${NC}"
   exit 1
 }
 
@@ -38,10 +38,10 @@ case "$1" in
     URL="http://localhost:8082/odb"
     ;;
   dev)
-    URL="http://lucuma-postgres-odb-dev.herokuapp.com/odb"
+    URL="https://lucuma-postgres-odb-dev.herokuapp.com/odb"
     ;;
   staging)
-    URL="http://lucuma-postgres-odb-staging.herokuapp.com/odb"
+    URL="https://lucuma-postgres-odb-staging.herokuapp.com/odb"
     ;;
   *)
     usage
@@ -49,6 +49,4 @@ case "$1" in
 esac
 
 
-# gq https://lucuma-odb-development.herokuapp.com/odb --introspect >templates/src/main/resources/lucuma/schemas/ObservationDB.graphql
-# gq https://lucuma-odb-master.herokuapp.com/odb --introspect >templates/src/main/resources/lucuma/schemas/ObservationDB.graphql
 gq $URL -H "Authorization: Bearer ${ODB_API_KEY}" --introspect >lucuma-schemas/src/clue/resources/lucuma/schemas/ObservationDB.graphql
