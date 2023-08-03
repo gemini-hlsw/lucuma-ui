@@ -396,58 +396,6 @@ input DeclinationInput {
   dms: DmsString
 }
 
-"""Selects the observations for delete"""
-input DeleteObservationsInput {
-  """
-  Filters the observations for delete according to those that match the given constraints.
-  """
-  WHERE: WhereObservation
-
-  """
-  Caps the number of results returned to the given value (if additional observations match the WHERE clause they will be updated but not returned).
-  """
-  LIMIT: NonNegInt
-}
-
-"""
-The result of updating the selected observations, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional observations were modified and not included here.
-"""
-type DeleteObservationsResult {
-  """
-  The edited observations, up to the specified LIMIT or the default maximum of 1000.
-  """
-  observations: [Observation!]!
-
-  """`true` when there were additional edits that were not returned."""
-  hasMore: Boolean!
-}
-
-"""Selects the targets for delete"""
-input DeleteTargetsInput {
-  """
-  Filters the targets for delete according to those that match the given constraints.
-  """
-  WHERE: WhereTarget
-
-  """
-  Caps the number of results returned to the given value (if additional targets match the WHERE clause they will be updated but not returned).
-  """
-  LIMIT: NonNegInt
-}
-
-"""
-The result of updating the selected targets, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional targets were modified and not included here.
-"""
-type DeleteTargetsResult {
-  """
-  The edited targets, up to the specified LIMIT or the default maximum of 1000.
-  """
-  targets: [Target!]!
-
-  """`true` when there were additional edits that were not returned."""
-  hasMore: Boolean!
-}
-
 """Demo science"""
 input DemoScienceInput {
   """
@@ -1791,18 +1739,6 @@ type Mutation {
     input: CreateTargetInput!
   ): CreateTargetResult!
 
-  """Deletes all the observations identified by the `WHERE` field"""
-  deleteObservations(
-    """Parameters used to select observations for delete"""
-    input: DeleteObservationsInput!
-  ): DeleteObservationsResult!
-
-  """Deletes all the targets identified by the `WHERE` field"""
-  deleteTargets(
-    """Parameters used to select observations for delete"""
-    input: DeleteTargetsInput!
-  ): DeleteTargetsResult!
-
   """
   Link a user to a program. Any existing link will be replaced.
   This operation is available only to Admin and Service users.
@@ -1835,18 +1771,6 @@ type Mutation {
 
   """Set the allocation for a program from the specified partner."""
   setAllocation(input: SetAllocationInput!): SetAllocationResult!
-
-  """Undeletes all the observations identified by the `WHERE` field"""
-  undeleteObservations(
-    """Parameters used to select observations for undelete"""
-    input: UndeleteObservationsInput!
-  ): UndeleteObservationsResult!
-
-  """Undeletes all the targets identified by the `WHERE` field"""
-  undeleteTargets(
-    """Parameters used to select observations for undelete"""
-    input: UndeleteTargetsInput!
-  ): UndeleteTargetsResult!
 
   """
   Unlink a user from a program.
@@ -2716,58 +2640,6 @@ input TimingWindowInput {
 
   """Window end parameters. If omitted, the window will never end."""
   end: TimingWindowEndInput
-}
-
-"""Selects the observations for undelete"""
-input UndeleteObservationsInput {
-  """
-  Filters the observations for undelete according to those that match the given constraints.
-  """
-  WHERE: WhereObservation
-
-  """
-  Caps the number of results returned to the given value (if additional observations match the WHERE clause they will be updated but not returned).
-  """
-  LIMIT: NonNegInt
-}
-
-"""
-The result of updating the selected observations, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional observations were modified and not included here.
-"""
-type UndeleteObservationsResult {
-  """
-  The edited observations, up to the specified LIMIT or the default maximum of 1000.
-  """
-  observations: [Observation!]!
-
-  """`true` when there were additional edits that were not returned."""
-  hasMore: Boolean!
-}
-
-"""Selects the targets for undelete"""
-input UndeleteTargetsInput {
-  """
-  Filters the targets for undelete according to those that match the given constraints.
-  """
-  WHERE: WhereTarget
-
-  """
-  Caps the number of results returned to the given value (if additional targets match the WHERE clause they will be updated but not returned).
-  """
-  LIMIT: NonNegInt
-}
-
-"""
-The result of updating the selected targets, up to `LIMIT` or the maximum of (1000).  If `hasMore` is true, additional targets were modified and not included here.
-"""
-type UndeleteTargetsResult {
-  """
-  The edited targets, up to the specified LIMIT or the default maximum of 1000.
-  """
-  targets: [Target!]!
-
-  """`true` when there were additional edits that were not returned."""
-  hasMore: Boolean!
 }
 
 """Un-normalized SED input parameters.  Define one value only."""
@@ -3763,10 +3635,11 @@ type Execution {
     The maximum size (number of atoms) of the `possibleFuture` in the sequences.
     If the projected future is longer, the size will be capped at this value.
     Use 0 if only interested in the `nextAtom`.  The maximum is 100.  Each
-    sequence has `hasMore` and `atomCount` fields that can be used to determine
-    whether and how many remaining atoms are yet to be executed.
+    sequence has a `hasMore` field that can be used to determine whether there
+    additional atoms beyond those returned in `possibleFuture`.  The total
+    projected atom count is available in the execution digest.
     """
-    futureLimit: PosInt = 25
+    futureLimit: NonNegInt = 25
   ): ExecutionConfig!
 
   """Datasets associated with the observation"""
@@ -5085,9 +4958,6 @@ type Observation {
   """Position angle constraint, if any."""
   posAngleConstraint: PosAngleConstraint!
 
-  """Observation planned time calculation."""
-  plannedTime: PlannedTimeSummary! @deprecated(reason: "the PlannedTimeSummary type will be replaced")
-
   """The program that contains this observation"""
   program: Program!
 
@@ -5205,12 +5075,17 @@ enum PlanetaryNebulaSpectrum {
   IC5117
 }
 
-"""A collection of PlannedTimeCharge"""
+"""
+An estimation of the remaining execution time, categorized by charge class.
+"""
 type PlannedTime {
-  """Individual time charges"""
+  """Individual time charges."""
   charges: [PlannedTimeCharge!]!
 
-  """The total of all charges"""
+  """
+  The total of all charges (i.e., the remaining execution time estimate ignoring
+  charge class).
+  """
   total: TimeSpan!
 }
 
@@ -5223,16 +5098,17 @@ type PlannedTimeCharge {
   time: TimeSpan!
 }
 
-"""Deprecated, to be replaced."""
-type PlannedTimeSummary {
-  """The portion of planned time that will be charged"""
-  pi: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
+"""
+The range of remaining time estimates from minimum to maximum.  The actual
+remaining time should vary between the two extremes, depending upon which
+observations and groups are actually completed.
+"""
+type PlannedTimeRange {
+  """Minimum remaining planned time estimate."""
+  minimum: PlannedTime!
 
-  """The portion of planned time that will not be charged"""
-  uncharged: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
-
-  """The total estimated execution time"""
-  execution: TimeSpan! @deprecated(reason: "the PlannedTimeSummary type will be removed")
+  """Maximum remaining planned time estimate."""
+  maximum: PlannedTime!
 }
 
 """Poor Weather"""
@@ -5321,14 +5197,20 @@ type Program {
   """ProposalAttachments associated with the program"""
   proposalAttachments: [ProposalAttachment!]!
 
-  """Program planned time calculation."""
-  plannedTime: PlannedTimeSummary! @deprecated(reason: "the PlannedTimeSummary type will be replaced")
-
   """Top-level group elements (observations and sub-groups) in the program."""
   groupElements: [GroupElement!]!
 
   """All group elements (observations and sub-groups) in the program."""
   allGroupElements: [GroupElement!]!
+
+  """
+  Remaining execution time estimate range, assuming it can be calculated.  In
+  order for an observation to have a 'PlannedTime', it must be fully defined
+  such that a sequence can be generated for it.  If a program has observations
+  that are required and which are not fully defined, the planned time range
+  cannot be calculated.
+  """
+  plannedTimeRange: PlannedTimeRange
 }
 
 """ProgramId id formatted as `p-[1-9a-f][0-9a-f]*`"""
