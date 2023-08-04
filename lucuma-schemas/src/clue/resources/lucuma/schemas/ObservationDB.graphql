@@ -724,7 +724,7 @@ input GmosCcdModeInput {
   ampGain: GmosAmpGain
 
   """Amp Read Mode, defaults to 'SLOW'"""
-  ampRead: GmosAmpReadMode
+  ampReadMode: GmosAmpReadMode
 }
 
 """GMOS Custom Mask"""
