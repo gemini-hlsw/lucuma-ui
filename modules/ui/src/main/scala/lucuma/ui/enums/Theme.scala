@@ -6,8 +6,8 @@ package lucuma.ui.enums
 import cats.effect.Sync
 import cats.syntax.all.given
 import lucuma.core.util.Enumerated
+import lucuma.react.common.style.Css
 import org.scalajs.dom
-import react.common.style.Css
 
 enum Theme(private val tag: String, val clazz: Css) derives Enumerated:
   case Light extends Theme("light", Css("light-theme"))

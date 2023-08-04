@@ -3,9 +3,9 @@
 
 package lucuma.ui.table
 
-import react.fa.FAIcon
-import react.fa.FontAwesomeIcon
-import react.fa.IconLibrary
+import lucuma.react.fa.FAIcon
+import lucuma.react.fa.FontAwesomeIcon
+import lucuma.react.fa.IconLibrary
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*

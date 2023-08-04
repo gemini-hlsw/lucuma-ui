@@ -9,12 +9,12 @@ import japgolly.scalajs.react.component.Scala
 import japgolly.scalajs.react.component.ScalaFn
 import japgolly.scalajs.react.component.ScalaForwardRef
 import japgolly.scalajs.react.vdom.*
-import react.common.GenericComponentPAC
-import react.common.GenericComponentPC
-import react.common.GenericFnComponentPA
-import react.common.GenericFnComponentPAC
-import react.common.GenericFnComponentPC
-import react.common.ReactRender
+import lucuma.react.common.GenericComponentPAC
+import lucuma.react.common.GenericComponentPC
+import lucuma.react.common.GenericFnComponentPA
+import lucuma.react.common.GenericFnComponentPAC
+import lucuma.react.common.GenericFnComponentPC
+import lucuma.react.common.ReactRender
 
 import scala.scalajs.js
 import scala.scalajs.js.UndefOr

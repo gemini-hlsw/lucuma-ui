@@ -8,8 +8,8 @@ import cats.syntax.all._
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._
-import react.common.*
-import react.primereact.RadioButton
+import lucuma.react.common.*
+import lucuma.react.primereact.RadioButton
 
 import scalajs.js
 

@@ -7,12 +7,12 @@ import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.*
+import lucuma.react.floatingui
+import lucuma.react.floatingui.syntax.*
+import lucuma.react.primereact.InputText
+import lucuma.react.primereact.PrimeStyles
 import lucuma.typed.primereact.components.{Button => CButton}
-import react.common.*
-import react.floatingui
-import react.floatingui.syntax.*
-import react.primereact.InputText
-import react.primereact.PrimeStyles
 
 import scalajs.js
 

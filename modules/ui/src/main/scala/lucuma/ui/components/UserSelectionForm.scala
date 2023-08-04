@@ -11,6 +11,11 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.NewType
+import lucuma.react.common.*
+import lucuma.react.primereact.Button
+import lucuma.react.primereact.Dialog
+import lucuma.react.primereact.Image
+import lucuma.react.primereact.Message
 import lucuma.ui.Resources
 import lucuma.ui.primereact.*
 import lucuma.ui.sso.SSOClient
@@ -19,11 +24,6 @@ import lucuma.ui.syntax.all.*
 import lucuma.ui.utils.UAParser
 import org.scalajs.dom
 import org.typelevel.log4cats.Logger
-import react.common.*
-import react.primereact.Button
-import react.primereact.Dialog
-import react.primereact.Image
-import react.primereact.Message
 
 case class UserSelectionForm(
   systemName:      NonEmptyString,

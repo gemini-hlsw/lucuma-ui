@@ -11,11 +11,11 @@ import io.circe.Json
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.*
 import lucuma.ui.components.UserSelectionForm
 import lucuma.ui.sso.SSOClient
 import lucuma.ui.sso.UserVault
 import org.typelevel.log4cats.Logger
-import react.common.*
 
 case class IfLogged[E](
   systemName:           NonEmptyString,

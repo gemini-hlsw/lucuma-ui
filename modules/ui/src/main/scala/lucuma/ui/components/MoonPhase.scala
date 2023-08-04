@@ -5,9 +5,9 @@ package lucuma.ui.components
 
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.ReactFnPropsWithChildren
+import lucuma.react.common.style.Css
 import lucuma.ui.syntax.all.given
-import react.common.ReactFnPropsWithChildren
-import react.common.style.Css
 
 object MoonStyles:
   val MoonSphere: Css  = Css("moon-sphere")

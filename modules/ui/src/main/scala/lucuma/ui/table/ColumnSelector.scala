@@ -5,15 +5,15 @@ package lucuma.ui.table
 
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.*
+import lucuma.react.primereact.Button
+import lucuma.react.primereact.Checkbox
+import lucuma.react.primereact.MenuItem
+import lucuma.react.primereact.PopupMenu
+import lucuma.react.primereact.hooks.all.*
 import lucuma.react.table.ColumnId
 import lucuma.react.table.Table
 import lucuma.ui.primereact.LucumaPrimeStyles
-import react.common.*
-import react.primereact.Button
-import react.primereact.Checkbox
-import react.primereact.MenuItem
-import react.primereact.PopupMenu
-import react.primereact.hooks.all.*
 
 case class ColumnSelector[T](
   table:       Table[T],

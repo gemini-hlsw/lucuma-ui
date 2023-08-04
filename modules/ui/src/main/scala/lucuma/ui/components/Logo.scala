@@ -6,8 +6,8 @@ package lucuma.ui.components
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.*
 import lucuma.ui.syntax.all.given
-import react.common.*
 
 case class Logo(systemName: NonEmptyString, systemNameStyle: Css)
     extends ReactFnProps(Logo.component)

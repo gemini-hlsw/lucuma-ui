@@ -9,7 +9,7 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
-import react.common.*
+import lucuma.react.common.*
 
 import scalajs.js
 

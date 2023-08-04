@@ -6,8 +6,8 @@ package lucuma.ui.primereact
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._
-import react.common.*
-import react.primereact.Checkbox
+import lucuma.react.common.*
+import lucuma.react.primereact.Checkbox
 
 import scalajs.js
 

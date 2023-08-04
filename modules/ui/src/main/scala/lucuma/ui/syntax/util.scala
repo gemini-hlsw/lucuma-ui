@@ -7,7 +7,7 @@ import cats.Monoid
 import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.React
 import japgolly.scalajs.react.vdom.html_<^.*
-import react.common.EnumValue
+import lucuma.react.common.EnumValue
 
 import scala.scalajs.js
 

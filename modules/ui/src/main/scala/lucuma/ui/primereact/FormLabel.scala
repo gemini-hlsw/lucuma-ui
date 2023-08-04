@@ -7,7 +7,7 @@ import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import react.common.*
+import lucuma.react.common.*
 
 import scalajs.js
 

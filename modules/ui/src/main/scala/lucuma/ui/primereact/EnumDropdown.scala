@@ -9,9 +9,9 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
-import react.common.*
-import react.primereact.Dropdown
-import react.primereact.SelectItem
+import lucuma.react.common.*
+import lucuma.react.primereact.Dropdown
+import lucuma.react.primereact.SelectItem
 
 import scalajs.js
 

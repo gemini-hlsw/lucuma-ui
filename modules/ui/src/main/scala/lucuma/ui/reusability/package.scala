@@ -25,9 +25,9 @@ import lucuma.core.util.NewType
 import lucuma.core.util.Timestamp
 import lucuma.core.util.WithGid
 import lucuma.core.util.WithUid
+import lucuma.react.common.Size
 import lucuma.react.table.*
 import lucuma.ui.sso.UserVault
-import react.common.Size
 
 import java.time.Instant
 import scala.annotation.nowarn

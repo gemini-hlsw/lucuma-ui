@@ -11,11 +11,11 @@ import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.ReactFnProps
 import lucuma.refined.*
 import lucuma.ui.sso.SSOClient
 import lucuma.ui.sso.UserVault
 import org.typelevel.log4cats.Logger
-import react.common.ReactFnProps
 
 import java.time.Instant
 

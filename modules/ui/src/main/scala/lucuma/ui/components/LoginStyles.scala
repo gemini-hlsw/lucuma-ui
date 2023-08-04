@@ -3,7 +3,7 @@
 
 package lucuma.ui.components
 
-import react.common.Css
+import lucuma.react.common.Css
 
 object LoginStyles:
   val LoginBoxLayout: Css       = Css("lucuma-login-box-layout")

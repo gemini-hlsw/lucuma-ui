@@ -7,11 +7,11 @@ import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.Css
+import lucuma.react.common.ReactFnProps
+import lucuma.react.primereact.Dialog
 import lucuma.ui.primereact.LucumaPrimeStyles
 import lucuma.ui.syntax.all.given
-import react.common.Css
-import react.common.ReactFnProps
-import react.primereact.Dialog
 
 case class About(
   systemName:      NonEmptyString,

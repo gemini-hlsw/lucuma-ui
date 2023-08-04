@@ -5,7 +5,7 @@ package lucuma.ui.syntax
 
 import japgolly.scalajs.react.vdom.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import react.common.Css
+import lucuma.react.common.Css
 
 trait css:
   given Conversion[Css, TagMod] =
