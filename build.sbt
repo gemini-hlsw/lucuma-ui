@@ -7,7 +7,7 @@ val munitCatsEffectVersion = "1.0.7"
 val lucumaCoreVersion      = "0.83.0"
 val lucumaODBSchema        = "0.5.1"
 
-ThisBuild / tlBaseVersion       := "0.58"
+ThisBuild / tlBaseVersion       := "0.59"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.3.0")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
