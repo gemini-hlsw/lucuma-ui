@@ -8,10 +8,10 @@ import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import react.common.*
-import react.floatingui
-import react.primereact.Dropdown
-import react.primereact.SelectItem
+import lucuma.react.common.*
+import lucuma.react.floatingui
+import lucuma.react.primereact.Dropdown
+import lucuma.react.primereact.SelectItem
 
 import scalajs.js
 

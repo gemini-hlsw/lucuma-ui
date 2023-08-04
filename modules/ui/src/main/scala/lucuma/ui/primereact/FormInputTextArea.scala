@@ -6,10 +6,10 @@ package lucuma.ui.primereact
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import react.common.*
-import react.floatingui
-import react.floatingui.syntax.*
-import react.primereact.InputTextarea
+import lucuma.react.common.*
+import lucuma.react.floatingui
+import lucuma.react.floatingui.syntax.*
+import lucuma.react.primereact.InputTextarea
 
 import scalajs.js
 

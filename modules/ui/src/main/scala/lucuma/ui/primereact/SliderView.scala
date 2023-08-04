@@ -8,8 +8,8 @@ import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^._
-import react.common.*
-import react.primereact.Slider
+import lucuma.react.common.*
+import lucuma.react.primereact.Slider
 
 import scalajs.js
 

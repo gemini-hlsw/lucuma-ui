@@ -8,12 +8,12 @@ import cats.derived.*
 import cats.syntax.all.*
 import crystal.react.View
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.Css
+import lucuma.react.primereact.Button
+import lucuma.react.primereact.InputText
+import lucuma.react.primereact.PrimeStyles
 import lucuma.typed.StBuildingComponent
 import lucuma.typed.primereact.components.{Button => CButton}
-import react.common.Css
-import react.primereact.Button
-import react.primereact.InputText
-import react.primereact.PrimeStyles
 
 import scalajs.js
 

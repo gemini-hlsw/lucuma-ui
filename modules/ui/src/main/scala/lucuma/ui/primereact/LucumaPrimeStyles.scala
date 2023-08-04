@@ -4,7 +4,7 @@
 package lucuma.ui.primereact
 
 import cats.syntax.all.*
-import react.common.*
+import lucuma.react.common.*
 
 trait LucumaPrimeStyles:
   // compact is used for form columns and buttons

@@ -10,8 +10,8 @@ import crystal.react.hooks.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import react.common.*
-import react.floatingui
+import lucuma.react.common.*
+import lucuma.react.floatingui
 
 import scala.scalajs.js
 

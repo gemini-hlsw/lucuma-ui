@@ -28,6 +28,8 @@ import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
 import lucuma.core.math.validation.MathValidators
 import lucuma.core.validation.*
+import lucuma.react.common.ReactFnProps
+import lucuma.react.common.style.Css
 import lucuma.refined.*
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.input.FilterMode
@@ -37,8 +39,6 @@ import lucuma.ui.primereact.given
 import lucuma.ui.syntax.all.given
 import monocle.Focus
 import org.scalajs.dom
-import react.common.ReactFnProps
-import react.common.style.Css
 
 import scala.scalajs.js.annotation.*
 

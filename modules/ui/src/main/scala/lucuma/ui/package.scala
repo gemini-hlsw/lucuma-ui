@@ -4,9 +4,9 @@
 package lucuma.ui
 
 import japgolly.scalajs.react.vdom.VdomNode
+import lucuma.react.common.*
+import lucuma.react.primereact.Message
 import lucuma.ui.components.SolarProgress
-import react.common.*
-import react.primereact.Message
 
 val DefaultPendingRender: VdomNode = SolarProgress()
 

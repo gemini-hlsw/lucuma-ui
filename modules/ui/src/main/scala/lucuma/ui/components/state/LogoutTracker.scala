@@ -11,9 +11,9 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.broadcastchannel.*
+import lucuma.react.common.ReactFnProps
 import lucuma.refined.*
 import lucuma.ui.sso.UserVault
-import react.common.ReactFnProps
 
 case class LogoutTracker[E](
   setVault:             Option[UserVault] => DefaultA[Unit],

@@ -6,9 +6,9 @@ package lucuma.ui.components
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.NewType
+import lucuma.react.clipboard.CopyToClipboard
+import lucuma.react.common.ReactFnProps
 import lucuma.ui.syntax.all.given
-import react.clipboard.CopyToClipboard
-import react.common.ReactFnProps
 
 case class CopyControl(label: String, textToCopy: String)
     extends ReactFnProps(CopyControl.component)

@@ -11,12 +11,12 @@ import io.circe.syntax.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.ReactFnPropsWithChildren
 import lucuma.ui.components.SolarProgress
 import lucuma.ui.reusability.given
 import lucuma.ui.sso.UserVault
 import lucuma.ui.syntax.all.given
 import org.typelevel.log4cats.Logger
-import react.common.ReactFnPropsWithChildren
 
 case class ConnectionManager(
   vault:            UserVault,

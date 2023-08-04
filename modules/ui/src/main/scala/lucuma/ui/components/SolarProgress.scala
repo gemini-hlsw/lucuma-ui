@@ -5,8 +5,8 @@ package lucuma.ui.components
 
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import react.common.Css
-import react.common.ReactFnProps
+import lucuma.react.common.Css
+import lucuma.react.common.ReactFnProps
 
 case class SolarProgress(css: Css = Css.Empty) extends ReactFnProps(SolarProgress.component)
 
