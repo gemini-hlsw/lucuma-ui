@@ -5548,10 +5548,10 @@ pretty-error@^2.1.1:
     lodash "^4.17.20"
     renderkid "^2.0.4"
 
-primereact@^9.3.1:
-  version "9.3.1"
-  resolved "https://registry.yarnpkg.com/primereact/-/primereact-9.3.1.tgz#c5b4e267a3df6e4566cd4337e895b587d6ad44da"
-  integrity sha512-Ja4ZftnEyuVIcPb2zppbVXE7L6cmYr87XfA6FcQHN0SCsXRW86c2Q/DJi7hC67V/9aPNQd/TrNRxpSQbSI7I/g==
+primereact@^9.6.1:
+  version "9.6.1"
+  resolved "https://registry.yarnpkg.com/primereact/-/primereact-9.6.1.tgz#aa657f2bd025a00172cde9e40806e4a2fe63b463"
+  integrity sha512-MRmloop4tJgvqB5v3kIlgAseQzCAQMfY8mo/KVCvRtj2Pn15dpwLLchsbTCZw3t6nxAs3AZ+CK9MENJQU5Lh7w==
   dependencies:
     "@types/react-transition-group" "^4.4.1"
     react-transition-group "^4.4.1"
