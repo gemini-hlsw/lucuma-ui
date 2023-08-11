@@ -27,6 +27,7 @@ import lucuma.core.util.WithGid
 import lucuma.core.util.WithUid
 import lucuma.react.common.Size
 import lucuma.react.table.*
+import lucuma.ui.sequence.SequenceRow
 import lucuma.ui.sso.UserVault
 
 import java.time.Instant
@@ -37,7 +38,7 @@ import scala.collection.immutable.SortedSet
 /**
  * Instances of reusability for some utility types
  */
-trait UtilReusabilityInstances {
+trait UtilReusabilityInstances:
   given enumReuse[A: Enumerated]: Reusability[A] =
     Reusability.by(Enumerated[A].tag)
 
@@ -62,12 +63,11 @@ trait UtilReusabilityInstances {
     reusability.asInstanceOf[Reusability[T]]
 
   given Reusability[UserVault] = Reusability.byEq
-}
 
 /**
  * Instances of reusability for some common math types
  */
-trait MathReusabilityInstances {
+trait MathReusabilityInstances:
   // Reusability for coulomb quantities.
   given quantityReuse[N: Reusability, U]: Reusability[Quantity[N, U]] = Reusability.by(_.value)
   given Reusability[Angle]                                            = Reusability.by(_.toMicroarcseconds)
@@ -87,24 +87,20 @@ trait MathReusabilityInstances {
   given Reusability[Range.Inclusive]                                  = Reusability.by(x => (x.start, x.end, x.step))
   given Reusability[Area]                                             = Reusability.byEq
   given Reusability[WavelengthDelta]                                  = Reusability.byEq
-}
 
 /**
  * reusability of time types
  */
-trait TimeReusabilityInstances {
-  implicit val instantReuse: Reusability[Instant]     =
-    Reusability.by(i => (i.getEpochSecond, i.getNano))
-  implicit val timestampReuse: Reusability[Timestamp] = Reusability.byEq
-}
+trait TimeReusabilityInstances:
+  given Reusability[Instant]   = Reusability.by(i => (i.getEpochSecond, i.getNano))
+  given Reusability[Timestamp] = Reusability.byEq
 
 /**
  * Generic reusability of refined types
  */
-trait RefinedReusabiltyInstances {
+trait RefinedReusabiltyInstances:
   given refTypeCogen[F[_, _], T: Reusability, P](using rt: RefType[F]): Reusability[F[T, P]] =
     Reusability.by(rt.unwrap)
-}
 
 /**
  * Reusability instances for model classes
@@ -113,7 +109,7 @@ trait ModelReusabiltyInstances
     extends RefinedReusabiltyInstances
     with UtilReusabilityInstances
     with MathReusabilityInstances
-    with TimeReusabilityInstances {
+    with TimeReusabilityInstances:
   given gidReuse[Id <: WithGid#Id]: Reusability[Id]          = Reusability.by(_.value)
   given uidReuse[Id <: WithUid#Id]: Reusability[Id]          = Reusability.by(_.toUuid)
   given Reusability[OrcidId]                                 = Reusability.by(_.value.toString)
@@ -142,9 +138,8 @@ trait ModelReusabiltyInstances
   given Reusability[ConstraintSet]                           = Reusability.byEq
   given Reusability[ProposalClass]                           = Reusability.byEq
   given Reusability[Proposal]                                = Reusability.byEq
-}
 
-trait TableReusabilityInstances {
+trait TableReusabilityInstances:
   given Reusability[ColumnId]                  = Reusability.by(_.value)
   given Reusability[Visibility]                = Reusability.by(_.value)
   given Reusability[Map[ColumnId, Visibility]] = Reusability.map
@@ -155,7 +150,12 @@ trait TableReusabilityInstances {
   given Reusability[Sorting]                   = Reusability.by(_.value)
   given Reusability[TableState]                =
     Reusability.by(state => (state.columnVisibility, state.sorting))
-}
+
+trait SequenceReusabilityInstances:
+  given [D: Eq]: Reusability[SequenceRow[D]]                              = Reusability.byEq
+  given [D: Eq]: Reusability[SequenceRow.FutureStep[D]]                   = Reusability.byEq
+  given [S, D: Eq]: Reusability[SequenceRow.Executed.ExecutedVisit[S, D]] = Reusability.byEq
+  given [D: Eq]: Reusability[SequenceRow.Executed.ExecutedStep[D]]        = Reusability.byEq
 
 package object reusability
     extends UtilReusabilityInstances
@@ -163,3 +163,4 @@ package object reusability
     with ModelReusabiltyInstances
     with TimeReusabilityInstances
     with TableReusabilityInstances
+    with SequenceReusabilityInstances

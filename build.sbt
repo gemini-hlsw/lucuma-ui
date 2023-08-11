@@ -1,4 +1,4 @@
-ThisBuild / tlBaseVersion       := "0.76"
+ThisBuild / tlBaseVersion       := "0.77"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -15,6 +15,7 @@ lazy val lucumaCoreVersion        = "0.82.0"
 lazy val lucumaPrimeStylesVersion = "0.2.9"
 lazy val lucumaReactVersion       = "0.41.0"
 lazy val lucumaRefinedVersion     = "0.1.2"
+lazy val lucumaSchemasVersion     = "0.58.0"
 lazy val lucumaSsoVersion         = "0.6.2"
 lazy val monocleVersion           = "3.2.0"
 lazy val mouseVersion             = "1.1.0"
@@ -104,6 +105,7 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-react-floatingui"      % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-react-prime-react"     % lucumaReactVersion,
         "edu.gemini"                        %%% "lucuma-prime-styles"          % lucumaPrimeStylesVersion,
+        "edu.gemini"                        %%% "lucuma-schemas"               % lucumaSchemasVersion,
         "dev.optics"                        %%% "monocle-core"                 % monocleVersion,
         "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
         "edu.gemini"                        %%% "crystal"                      % crystalVersion,
