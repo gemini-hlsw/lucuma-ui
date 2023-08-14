@@ -25,6 +25,7 @@ import lucuma.core.util.NewType
 import lucuma.core.util.Timestamp
 import lucuma.core.util.WithGid
 import lucuma.core.util.WithUid
+import lucuma.react.SizePx
 import lucuma.react.common.Size
 import lucuma.react.table.*
 import lucuma.ui.sequence.SequenceRow
@@ -140,6 +141,7 @@ trait ModelReusabiltyInstances
   given Reusability[Proposal]                                = Reusability.byEq
 
 trait TableReusabilityInstances:
+  given Reusability[SizePx]                    = Reusability.by(_.value)
   given Reusability[ColumnId]                  = Reusability.by(_.value)
   given Reusability[Visibility]                = Reusability.by(_.value)
   given Reusability[Map[ColumnId, Visibility]] = Reusability.map
