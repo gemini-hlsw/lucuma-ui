@@ -3,7 +3,7 @@ ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
 
-lazy val catsVersion              = "2.9.0"
+lazy val catsVersion              = "2.10.0"
 lazy val catsRetryVersion         = "3.1.0"
 lazy val circeVersion             = "0.14.5"
 lazy val crystalVersion           = "0.34.1"
