@@ -1,9 +1,9 @@
-ThisBuild / tlBaseVersion       := "0.77"
+ThisBuild / tlBaseVersion       := "0.78"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
 
-lazy val catsVersion              = "2.9.0"
+lazy val catsVersion              = "2.10.0"
 lazy val catsRetryVersion         = "3.1.0"
 lazy val circeVersion             = "0.14.5"
 lazy val crystalVersion           = "0.34.1"
@@ -16,7 +16,7 @@ lazy val lucumaPrimeStylesVersion = "0.2.9"
 lazy val lucumaReactVersion       = "0.41.0"
 lazy val lucumaRefinedVersion     = "0.1.2"
 lazy val lucumaSchemasVersion     = "0.58.0"
-lazy val lucumaSsoVersion         = "0.6.2"
+lazy val lucumaSsoVersion         = "0.6.3"
 lazy val monocleVersion           = "3.2.0"
 lazy val mouseVersion             = "1.1.0"
 lazy val pprintVersion            = "0.8.1"

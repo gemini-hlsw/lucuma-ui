@@ -1,7 +1,7 @@
 // Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-package lucuma.ui.table
+package lucuma.ui.table.hooks
 
 import cats.effect.IO
 import cats.syntax.all.*
@@ -18,7 +18,7 @@ case class TableOptionsWithStateStore[F[_], T](
   stateStore:   TableStateStore[F]
 )
 
-private object TableHooks:
+private object UseReactTableWithStateStore:
   private object PrefsLoaded extends NewType[Boolean]
 
   private object CanSave extends NewType[Boolean]
@@ -46,38 +46,47 @@ private object TableHooks:
       )
       .buildReturning((_, table, _, _) => table)
 
-  sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):
-    final def useReactTableWithStateStore[T](
-      options: TableOptionsWithStateStore[DefaultA, T]
-    )(using
-      step:    Step
-    ): step.Next[Table[T]] =
-      useReactTableWithStateStoreBy(_ => options)
+  object HooksApiExt:
+    sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):
+      final def useReactTableWithStateStore[T](
+        options: TableOptionsWithStateStore[DefaultA, T]
+      )(using
+        step:    Step
+      ): step.Next[Table[T]] =
+        useReactTableWithStateStoreBy(_ => options)
 
-    final def useReactTableWithStateStoreBy[T](
-      options: Ctx => TableOptionsWithStateStore[DefaultA, T]
-    )(using
-      step:    Step
-    ): step.Next[Table[T]] =
-      api.customBy(ctx => hook(options(ctx)))
+      final def useReactTableWithStateStoreBy[T](
+        options: Ctx => TableOptionsWithStateStore[DefaultA, T]
+      )(using
+        step:    Step
+      ): step.Next[Table[T]] =
+        api.customBy(ctx => hook(options(ctx)))
 
-  final class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](
-    api: HooksApi.Secondary[Ctx, CtxFn, Step]
-  ) extends Primary[Ctx, Step](api):
-    def useReactTableWithStateStoreBy[T](
-      tableDefWithOptions: CtxFn[TableOptionsWithStateStore[DefaultA, T]]
-    )(implicit
-      step:                Step
-    ): step.Next[Table[T]] =
-      super.useReactTableWithStateStoreBy(step.squash(tableDefWithOptions)(_))
+    final class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](
+      api: HooksApi.Secondary[Ctx, CtxFn, Step]
+    ) extends Primary[Ctx, Step](api):
+      def useReactTableWithStateStoreBy[T](
+        tableDefWithOptions: CtxFn[TableOptionsWithStateStore[DefaultA, T]]
+      )(implicit
+        step:                Step
+      ): step.Next[Table[T]] =
+        super.useReactTableWithStateStoreBy(step.squash(tableDefWithOptions)(_))
 
-trait TableHooks:
-  import TableHooks.*
+  trait HooksApiExt:
+    import HooksApiExt.*
 
-  given [Ctx, Step <: HooksApi.AbstractStep]
-    : Conversion[HooksApi.Primary[Ctx, Step], Primary[Ctx, Step]] =
-    api => new Primary(api)
+    implicit def hooksExtReactTableWithStateStore1[Ctx, Step <: HooksApi.AbstractStep](
+      api: HooksApi.Primary[Ctx, Step]
+    ): Primary[Ctx, Step] =
+      new Primary(api)
 
-  given [Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]]
-    : Conversion[HooksApi.Secondary[Ctx, CtxFn, Step], Secondary[Ctx, CtxFn, Step]] =
-    api => new Secondary(api)
+    implicit def hooksExtReactTableWithStateStore2[
+      Ctx,
+      CtxFn[_],
+      Step <: HooksApi.SubsequentStep[Ctx, CtxFn]
+    ](
+      api: HooksApi.Secondary[Ctx, CtxFn, Step]
+    ): Secondary[Ctx, CtxFn, Step] =
+      new Secondary(api)
+
+  object syntax extends HooksApiExt
