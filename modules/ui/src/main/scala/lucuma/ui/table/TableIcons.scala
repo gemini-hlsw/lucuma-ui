@@ -3,9 +3,7 @@
 
 package lucuma.ui.table
 
-import lucuma.react.fa.FAIcon
-import lucuma.react.fa.FontAwesomeIcon
-import lucuma.react.fa.IconLibrary
+import lucuma.react.fa.*
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
@@ -24,7 +22,7 @@ object TableIcons:
   val faSortUp: FAIcon = js.native
 
   // This is tedious but lets us do proper tree-shaking
-  IconLibrary.add(
+  FontAwesome.library.add(
     faSort,
     faSortDown,
     faSortUp
