@@ -3,9 +3,7 @@
 
 package lucuma.ui.components
 
-import lucuma.react.fa.FAIcon
-import lucuma.react.fa.FontAwesomeIcon
-import lucuma.react.fa.IconLibrary
+import lucuma.react.fa.*
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
@@ -32,7 +30,7 @@ object LoginIcons:
   val faUserAstronaut: FAIcon = js.native
 
   // This is tedious but lets us do proper tree-shaking
-  IconLibrary.add(
+  FontAwesome.library.add(
     faClipboard,
     faClipboardCheck,
     faExclamationTriangle,
