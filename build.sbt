@@ -58,7 +58,6 @@ lazy val demo =
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
     .dependsOn(ui)
     .settings(
-      Compile / scalacOptions += "-language:implicitConversions",
       Compile / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
         ModuleSplitStyle.SmallestModules
