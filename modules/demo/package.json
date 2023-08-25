@@ -1,33 +1,13 @@
 {
-  "dependencies": {
-    "react-dom": "^17.0.2",
-    "react": "^17.0.2",
-    "primereact": "^9.3.1"
-  },
   "devDependencies": {
-    "source-map-loader": "^0.2.3",
-    "postcss-loader": "^4.0.3",
-    "less": "^4.1.3",
-    "file-loader": "^6.0.0",
-    "webpack-merge": "^4.2.2",
-    "favicons-webpack-plugin": "^4.2.0",
-    "style-loader": "^2.0.0",
-    "less-loader": "^7.0.1",
-    "css-minimizer-webpack-plugin": "^1.1.5",
-    "webpack": "^4.44.1",
-    "concat-with-sourcemaps": "^1.0.7",
-    "sass": "^1.62.1",
-    "cssnano": "^5.1.15",
-    "html-webpack-plugin": "^4.3.0",
-    "sass-loader": "^9.0.2",
-    "autoprefixer": "^10.4.14",
-    "url-loader": "^4.1.0",
-    "webpack-dev-server-status-bar": "^1.1.2",
-    "webpack-cli": "^3.3.2",
-    "postcss": "^8.4.23",
-    "mini-css-extract-plugin": "^1.6.2",
-    "webpack-dev-server": "^3.11.0",
-    "css-loader": "^5.2.7",
-    "terser-webpack-plugin": "^4.2.2"
+    "@floating-ui/react-dom-interactions": "^0.13.3",
+    "@fortawesome/fontawesome-svg-core": "^6.4.2",
+    "@fortawesome/free-solid-svg-icons": "^6.4.2",
+    "@vitejs/plugin-react": "^4.0.4",
+    "primeicons": "^6.0.1",
+    "primereact": "^9.6.2",
+    "react": "^18.2.0",
+    "typescript": "^5.1.6",
+    "vite": "^4.4.9"
   }
 }

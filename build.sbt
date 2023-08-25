@@ -1,3 +1,5 @@
+import org.scalajs.linker.interface.ModuleSplitStyle
+
 ThisBuild / tlBaseVersion       := "0.78"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
@@ -53,37 +55,16 @@ addCommandAlias(
 lazy val demo =
   project
     .in(file("modules/demo"))
-    .enablePlugins(ScalaJSBundlerPlugin, NoPublishPlugin)
-    .settings(
-      webpack / version                     := "4.44.1",
-      startWebpackDevServer / version       := "3.11.0",
-      fastOptJS / webpackConfigFile         := Some(
-        baseDirectory.value / "webpack" / "dev.webpack.config.js"
-      ),
-      fullOptJS / webpackConfigFile         := Some(
-        baseDirectory.value / "webpack" / "prod.webpack.config.js"
-      ),
-      webpackMonitoredDirectories += (Compile / resourceDirectory).value,
-      webpackResources                      := (baseDirectory.value / "webpack") * "*.js",
-      webpackDevServerPort                  := 7800,
-      Compile / npmDependencies ++= Seq(
-        "react"     -> reactJS,
-        "react-dom" -> reactJS
-      ),
-      webpackMonitoredFiles / includeFilter := "*",
-      useYarn                               := true,
-      fastOptJS / webpackBundlingMode       := BundlingMode.LibraryOnly(),
-      fullOptJS / webpackBundlingMode       := BundlingMode.Application,
-      Compile / fastOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      Compile / fullOptJS / scalaJSLinkerConfig ~= { _.withSourceMap(false) },
-      test                                  := {},
-      Compile / doc / sources               := Seq.empty,
-      libraryDependencies ++= List(
-        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats" % scalaJsReactVersion,
-        "com.rpiaggio"                      %%% "log4cats-loglevel" % "0.3.1"
-      )
-    )
+    .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
     .dependsOn(ui)
+    .settings(
+      Compile / scalacOptions += "-language:implicitConversions",
+      Compile / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+      Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
+        ModuleSplitStyle.SmallestModules
+      )),
+      Keys.test := {}
+    )
 
 lazy val ui =
   project
