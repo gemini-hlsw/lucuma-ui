@@ -4,6 +4,8 @@
 package lucuma.ui.sequence
 
 import lucuma.react.fa.*
+import lucuma.react.common.Css
+import japgolly.scalajs.react.vdom.html_<^.*
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
@@ -12,6 +14,10 @@ object SequenceIcons:
   @js.native
   @JSImport("@fortawesome/pro-solid-svg-icons", "faCircle")
   val faCircle: FAIcon = js.native
+
+  @js.native
+  @JSImport("@fortawesome/pro-solid-svg-icons", "faSquare")
+  val faSquare: FAIcon = js.native
 
   @js.native
   @JSImport("@fortawesome/pro-solid-svg-icons", "faCrosshairs")
@@ -23,5 +29,20 @@ object SequenceIcons:
     faCrosshairs
   )
 
+  // TODO COlor
+  private def letterLayeredIcon(icon: FontAwesomeIcon, letter: Char, clazz: Css): LayeredIcon =
+    LayeredIcon(clazz = clazz)(
+      icon,
+      TextLayer(letter.toString).withInverse().withSize(IconSize.SM)
+    )
+
   val Circle     = FontAwesomeIcon(faCircle)
   val Crosshairs = FontAwesomeIcon(faCrosshairs)
+  val Square     = FontAwesomeIcon(faSquare)
+
+  object StepType:
+    val Bias   = letterLayeredIcon(Square, 'B', SequenceStyles.StepType.Bias)
+    val Dark   = letterLayeredIcon(Square, 'D', SequenceStyles.StepType.Dark)
+    val Arc    = letterLayeredIcon(Square, 'A', SequenceStyles.StepType.Arc)
+    val Flat   = letterLayeredIcon(Square, 'F', SequenceStyles.StepType.Flat)
+    val Object = letterLayeredIcon(Circle, 'O', SequenceStyles.StepType.Object)

@@ -2,11 +2,12 @@
   "devDependencies": {
     "@floating-ui/react-dom-interactions": "^0.13.3",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
-    "@fortawesome/free-solid-svg-icons": "^6.4.2",
+    "@fortawesome/pro-solid-svg-icons": "^6.4.2",
     "@vitejs/plugin-react": "^4.0.4",
     "primeicons": "^6.0.1",
     "primereact": "^9.6.2",
     "react": "^18.2.0",
+    "sass": "^1.66.1",
     "typescript": "^5.1.6",
     "vite": "^4.4.9"
   }

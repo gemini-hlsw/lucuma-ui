@@ -18,14 +18,6 @@ export default ({ command, mode }) => {
           find: "@sjs",
           replacement: sjs,
         },
-        {
-          find: "../../theme.config",
-          replacement: themeConfig,
-        },
-        {
-          find: "theme/site",
-          replacement: themeSite,
-        },
       ],
     },
     server: {
