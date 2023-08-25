@@ -47,6 +47,7 @@ object SelectButtonEnumView {
           Enumerated[A].all.map { s =>
             SelectItem(s, label = props.display.shortName(s), clazz = props.buttonClass)
           },
+          id = props.id.value,
           clazz = props.groupClass,
           itemTemplate = props.itemTemplate,
           onChange = (a: A) => props.view.set(a) *> props.onChange(a)
