@@ -6,8 +6,9 @@ package lucuma.ui.sequence
 import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.*
 import lucuma.react.table.*
-import lucuma.ui.syntax.all.given
+import lucuma.ui.syntax.all.*
 
 import SequenceRowFormatters.*
 
@@ -32,16 +33,23 @@ object SequenceColumns:
   private def leftAligned(value: Any) =
     <.div(SequenceStyles.LeftAligned)(value.toString)
 
+  // `T` is the actual type of the table row, from which we extract a `R` using `getStep`.
+  // `D` is the `DynamicConfig`.
   def gmosColumns[D, T, R <: SequenceRow[D]](
-    colDef:  ColumnDef.Applied[T],
-    getStep: T => Option[R]
+    colDef:   ColumnDef.Applied[T],
+    getStep:  T => Option[R],
+    getIndex: T => Option[Int]
   ): List[ColumnDef[T, ?]] =
     List(
       colDef(
         StepTypeColumnId,
-        getStep(_).flatMap(_.stepType),
-        header = "Type",
-        cell = _.value.map(_.toString)
+        row => (getIndex(row), getStep(row).flatMap(_.stepTypeDisplay)),
+        header = "Step",
+        cell = c =>
+          React.Fragment(
+            c.value._1,
+            c.value._2.map(_.renderVdom)
+          )
       ),
       colDef(
         ExposureColumnId,

@@ -3,9 +3,9 @@
 
 package lucuma.ui.sequence
 
-import lucuma.react.fa.*
-import lucuma.react.common.Css
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.react.common.Css
+import lucuma.react.fa.*
 
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
@@ -31,7 +31,7 @@ object SequenceIcons:
 
   // TODO COlor
   private def letterLayeredIcon(icon: FontAwesomeIcon, letter: Char, clazz: Css): LayeredIcon =
-    LayeredIcon(clazz = clazz)(
+    LayeredIcon(clazz = clazz, fixedWidth = true)(
       icon,
       TextLayer(letter.toString).withInverse().withSize(IconSize.SM)
     )

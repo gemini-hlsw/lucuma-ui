@@ -5,9 +5,9 @@ package lucuma.ui.demo
 
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
-import lucuma.ui.sequence.*
 import lucuma.react.common.*
 import lucuma.react.fa.*
+import lucuma.ui.sequence.*
 
 object IconsDemo:
   val component = ScalaFnComponent[Unit]: _ =>
