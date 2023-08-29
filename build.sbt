@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.78"
+ThisBuild / tlBaseVersion       := "0.79"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -56,7 +56,7 @@ lazy val demo =
   project
     .in(file("modules/demo"))
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
-    .dependsOn(ui)
+    .dependsOn(ui, css)
     .settings(
       Compile / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(

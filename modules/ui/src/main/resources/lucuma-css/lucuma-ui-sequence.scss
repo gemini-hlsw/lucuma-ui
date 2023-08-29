@@ -1,0 +1,35 @@
+// ------
+// Sequence tables
+// ------
+
+.lucuma-sequence-right-aligned {
+  text-align: right;
+}
+
+.lucuma-sequence-left-aligned {
+  margin-left: 100 pct;
+}
+
+.lucuma-sequence-step-guided {
+  color: lightgreen;
+}
+
+.lucuma-sequence-step-type-object {
+  color: var(--green-500);
+}
+
+.lucuma-sequence-step-type-arc {
+  color: var(--purple-600);
+}
+
+.lucuma-sequence-step-type-flat {
+  color: var(--gray-600);
+}
+
+.lucuma-sequence-step-type-bias {
+  color: var(--teal-400);
+}
+
+.lucuma-sequence-step-type-dark {
+  color: var(--gray-900);
+}

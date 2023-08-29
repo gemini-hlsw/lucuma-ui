@@ -8,7 +8,6 @@ import cats.syntax.all.*
 import lucuma.core.enums.Breakpoint
 import lucuma.core.enums.GuideState
 import lucuma.core.enums.Instrument
-import lucuma.core.enums.StepType
 import lucuma.core.math.Angle
 import lucuma.core.math.Axis
 import lucuma.core.math.Offset
@@ -49,7 +48,8 @@ sealed trait SequenceRow[D](
     case DynamicConfig.GmosNorth(_, _, _, _, _, _, _) => Instrument.GmosNorth
     case DynamicConfig.GmosSouth(_, _, _, _, _, _, _) => Instrument.GmosSouth
 
-  lazy val stepType: Option[StepType] = stepConfig.map(_.stepType)
+  lazy val stepTypeDisplay: Option[StepTypeDisplay] =
+    stepConfig.flatMap(StepTypeDisplay.fromStepConfig)
 
   lazy val science: Option[StepConfig.Science] = stepConfig.flatMap(StepConfig.science.getOption)
 
