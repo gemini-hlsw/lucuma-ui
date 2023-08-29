@@ -4,7 +4,7 @@
 package lucuma.ui.components
 
 import cats.syntax.all.*
-import crystal.react.hooks.*
+import crystal.react.View
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.Display
@@ -23,8 +23,7 @@ import lucuma.ui.syntax.all.given
  * The `separatorAfter` function is used to determine if a separator should be displayed after the
  */
 case class SideTabs[A](
-  appTab:         A,
-  pushPage:       A => Callback,
+  tab:            View[A],
   pageUrl:        A => String,
   separatorAfter: A => Boolean
 )(using val enumerated: Enumerated[A], val display: Display[A])
@@ -36,58 +35,50 @@ object SideTabs:
   private type Props[A] = SideTabs[A]
 
   private def buildComponent[V[_], A] =
-    ScalaFnComponent
-      .withHooks[Props[A]]
-      .useStateViewBy(_.enumerated.all.head)
-      .useEffectWithDepsBy((p, _) => p.enumerated.tag(p.appTab))((p, selected) =>
-        focus => selected.set(p.enumerated.unsafeFromTag(focus))
-      )
-      .render { (p, tabs) =>
-        import p.given
+    ScalaFnComponent[Props[A]] { p =>
+      import p.given
 
-        val tabView = tabs.withOnMod(p.pushPage)
-
+      <.div(
+        SideTabsStyles.SideTabs,
         <.div(
-          SideTabsStyles.SideTabs,
-          <.div(
-            SideTabsStyles.SideTabsVertical,
-            SelectButtonEnumView(
-              "side-tabs".refined,
-              tabView,
-              buttonClass = SideTabsStyles.SideButton,
-              itemTemplate = tab =>
+          SideTabsStyles.SideTabsVertical,
+          SelectButtonEnumView(
+            "side-tabs".refined,
+            p.tab,
+            buttonClass = SideTabsStyles.SideButton,
+            itemTemplate = tab =>
+              <.div(
+                SideTabsStyles.RotationWrapperOuter |+|
+                  SideTabsStyles.SideTabGroup.when_(p.separatorAfter(tab.value)),
                 <.div(
-                  SideTabsStyles.RotationWrapperOuter |+|
-                    SideTabsStyles.SideTabGroup.when_(p.separatorAfter(tab.value)),
-                  <.div(
-                    SideTabsStyles.RotationWrapperInner,
-                    <.a(
-                      ^.onClick ==> ((e: ReactEvent) => e.preventDefaultCB),
-                      ^.href := p.pageUrl(tab.value),
-                      SideTabsStyles.VerticalButton,
-                      p.display.shortName(tab.value)
-                    )
+                  SideTabsStyles.RotationWrapperInner,
+                  <.a(
+                    ^.onClick ==> ((e: ReactEvent) => e.preventDefaultCB),
+                    ^.href := p.pageUrl(tab.value),
+                    SideTabsStyles.VerticalButton,
+                    p.display.shortName(tab.value)
                   )
                 )
-            )
-          ),
-          <.div(
-            SideTabsStyles.SideTabsHorizontalContainer,
-            SelectButtonEnumView(
-              "side-tabs".refined,
-              tabView,
-              groupClass = SideTabsStyles.SideTabsHorizontal,
-              buttonClass = SideTabsStyles.TabSelector,
-              itemTemplate = tab =>
-                <.a(
-                  ^.onClick ==> ((e: ReactEvent) => e.preventDefaultCB),
-                  ^.href := p.pageUrl(tab.value),
-                  p.display.shortName(tab.value)
-                )
-            )
+              )
+          )
+        ),
+        <.div(
+          SideTabsStyles.SideTabsHorizontalContainer,
+          SelectButtonEnumView(
+            "side-tabs".refined,
+            p.tab,
+            groupClass = SideTabsStyles.SideTabsHorizontal,
+            buttonClass = SideTabsStyles.TabSelector,
+            itemTemplate = tab =>
+              <.a(
+                ^.onClick ==> ((e: ReactEvent) => e.preventDefaultCB),
+                ^.href := p.pageUrl(tab.value),
+                p.display.shortName(tab.value)
+              )
           )
         )
-      }
+      )
+    }
 
   private val component = buildComponent[AnyF, Any]
 
