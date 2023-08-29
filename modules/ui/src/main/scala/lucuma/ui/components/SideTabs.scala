@@ -5,13 +5,13 @@ package lucuma.ui.components
 
 import cats.syntax.all.*
 import crystal.react.View
+import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import lucuma.react.common.Css
 import lucuma.react.common.ReactFnProps
-import lucuma.refined.*
 import lucuma.ui.primereact.*
 import lucuma.ui.primereact.given
 import lucuma.ui.syntax.all.given
@@ -21,8 +21,10 @@ import lucuma.ui.syntax.all.given
  * selected and will be highlighted and it will push a page possibly via Routing
  *
  * The `separatorAfter` function is used to determine if a separator should be displayed after the
+ * tab, allowing for the existence of groups
  */
 case class SideTabs[A](
+  id:             NonEmptyString,
   tab:            View[A],
   pageUrl:        A => String,
   separatorAfter: A => Boolean
@@ -35,7 +37,7 @@ object SideTabs:
   private type Props[A] = SideTabs[A]
 
   private def buildComponent[V[_], A] =
-    ScalaFnComponent[Props[A]] { p =>
+    ScalaFnComponent[Props[A]]: p =>
       import p.given
 
       <.div(
@@ -43,7 +45,7 @@ object SideTabs:
         <.div(
           SideTabsStyles.SideTabsVertical,
           SelectButtonEnumView(
-            "side-tabs".refined,
+            p.id,
             p.tab,
             buttonClass = SideTabsStyles.SideButton,
             itemTemplate = tab =>
@@ -65,7 +67,7 @@ object SideTabs:
         <.div(
           SideTabsStyles.SideTabsHorizontalContainer,
           SelectButtonEnumView(
-            "side-tabs".refined,
+            p.id,
             p.tab,
             groupClass = SideTabsStyles.SideTabsHorizontal,
             buttonClass = SideTabsStyles.TabSelector,
@@ -78,7 +80,6 @@ object SideTabs:
           )
         )
       )
-    }
 
   private val component = buildComponent[AnyF, Any]
 
