@@ -7,7 +7,7 @@ lazy val reactJS = "17.0.2"
 
 lazy val catsVersion              = "2.10.0"
 lazy val catsRetryVersion         = "3.1.0"
-lazy val circeVersion             = "0.14.5"
+lazy val circeVersion             = "0.14.6"
 lazy val crystalVersion           = "0.34.1"
 lazy val kittensVersion           = "3.0.0"
 lazy val http4sVersion            = "0.23.23"
