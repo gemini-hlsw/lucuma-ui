@@ -1,4 +1,4 @@
-val circeVersion           = "0.14.5"
+val circeVersion           = "0.14.6"
 val disciplineMUnitVersion = "1.0.9"
 val fs2Version             = "3.9.0"
 val kittensVersion         = "3.0.0"
