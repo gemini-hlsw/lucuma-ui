@@ -4,60 +4,57 @@
 package lucuma.ui.sequence
 
 import cats.syntax.all.*
+import eu.timepit.refined.collection.NonEmpty
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
 import lucuma.react.table.*
+import lucuma.refined.*
 import lucuma.ui.syntax.all.*
+import lucuma.ui.utils.given
 
 import SequenceRowFormatters.*
 
 object SequenceColumns:
-  val StepTypeColumnId: ColumnId   = ColumnId("stepType")
-  val ExposureColumnId: ColumnId   = ColumnId("exposure")
-  val GuideColumnId: ColumnId      = ColumnId("guide")
-  val PColumnId: ColumnId          = ColumnId("p")
-  val QColumnId: ColumnId          = ColumnId("q")
-  val WavelengthColumnId: ColumnId = ColumnId("lambda")
-  val FPUColumnId: ColumnId        = ColumnId("fpu")
-  val GratingColumnId: ColumnId    = ColumnId("grating")
-  val FilterColumnId: ColumnId     = ColumnId("filter")
-  val XBinColumnId: ColumnId       = ColumnId("xbin")
-  val YBinColumnId: ColumnId       = ColumnId("Ybin")
-  val ROIColumnId: ColumnId        = ColumnId("roi")
-  val SNColumnId: ColumnId         = ColumnId("sn")
-
-  private def rightAligned(value: Any) =
-    <.div(SequenceStyles.RightAligned)(value.toString)
-
-  private def leftAligned(value: Any) =
-    <.div(SequenceStyles.LeftAligned)(value.toString)
+  val IndexAndTypeColumnId: ColumnId = ColumnId("stepType")
+  val ExposureColumnId: ColumnId     = ColumnId("exposure")
+  val GuideColumnId: ColumnId        = ColumnId("guide")
+  val PColumnId: ColumnId            = ColumnId("p")
+  val QColumnId: ColumnId            = ColumnId("q")
+  val WavelengthColumnId: ColumnId   = ColumnId("lambda")
+  val FPUColumnId: ColumnId          = ColumnId("fpu")
+  val GratingColumnId: ColumnId      = ColumnId("grating")
+  val FilterColumnId: ColumnId       = ColumnId("filter")
+  val XBinColumnId: ColumnId         = ColumnId("xbin")
+  val YBinColumnId: ColumnId         = ColumnId("Ybin")
+  val ROIColumnId: ColumnId          = ColumnId("roi")
+  val SNColumnId: ColumnId           = ColumnId("sn")
 
   // `T` is the actual type of the table row, from which we extract a `R` using `getStep`.
   // `D` is the `DynamicConfig`.
   def gmosColumns[D, T, R <: SequenceRow[D]](
     colDef:   ColumnDef.Applied[T],
     getStep:  T => Option[R],
-    getIndex: T => Option[Int]
-  ): List[ColumnDef[T, ?]] =
+    getIndex: T => Option[StepIndex]
+  ): List[ColumnDef.Single[T, ?]] =
     List(
       colDef(
-        StepTypeColumnId,
+        IndexAndTypeColumnId,
         row => (getIndex(row), getStep(row).flatMap(_.stepTypeDisplay)),
         header = "Step",
         cell = c =>
           React.Fragment(
-            c.value._1,
+            c.value._1.map(_.value.value),
             c.value._2.map(_.renderVdom)
           )
       ),
       colDef(
         ExposureColumnId,
         getStep(_).flatMap(_.exposureTime),
-        header = _ => rightAligned("Exp (sec)"),
+        header = _ => "Exp (sec)",
         cell = c =>
           (c.value, getStep(c.row.original).flatMap(_.instrument)).mapN: (e, i) =>
-            rightAligned(FormatExposureTime(i)(e))
+            FormatExposureTime(i)(e).value
       ),
       colDef(
         GuideColumnId,
@@ -70,26 +67,26 @@ object SequenceColumns:
       colDef(
         PColumnId,
         getStep(_).flatMap(_.p),
-        header = _ => rightAligned("p"),
-        cell = _.value.map(rightAligned.compose(FormatOffsetP))
+        header = _ => "p",
+        cell = _.value.map(FormatOffsetP)
       ),
       colDef(
         QColumnId,
         getStep(_).flatMap(_.q),
-        header = _ => rightAligned("q"),
-        cell = _.value.map(rightAligned.compose(FormatOffsetQ))
+        header = _ => "q",
+        cell = _.value.map(FormatOffsetQ)
       ),
       colDef(
         WavelengthColumnId,
         getStep(_).flatMap(_.wavelength),
-        header = _ => rightAligned("λ (nm)"),
-        cell = _.value.map(rightAligned.compose(FormatWavelength)).getOrElse(leftAligned("-"))
+        header = _ => "λ (nm)",
+        cell = _.value.map(FormatWavelength).getOrElse("-".refined[NonEmpty])
       ),
       colDef(
         FPUColumnId,
         getStep(_).flatMap(_.fpuName),
-        header = _ => rightAligned("FPU"),
-        cell = _.value.map(rightAligned).getOrElse("None")
+        header = _ => "FPU",
+        cell = _.value.getOrElse("None")
       ),
       colDef(
         GratingColumnId,
@@ -106,14 +103,14 @@ object SequenceColumns:
       colDef(
         XBinColumnId,
         getStep(_).flatMap(_.readoutXBin),
-        header = _ => rightAligned("Xbin"),
-        cell = cell => rightAligned(cell.value.orEmpty)
+        header = _ => "Xbin",
+        cell = cell => cell.value.orEmpty
       ),
       colDef(
         YBinColumnId,
         getStep(_).flatMap(_.readoutYBin),
-        header = _ => rightAligned("Ybin"),
-        cell = cell => rightAligned(cell.value.orEmpty)
+        header = _ => "Ybin",
+        cell = cell => cell.value.orEmpty
       ),
       colDef(ROIColumnId, getStep(_).flatMap(_.roi), header = "ROI", cell = _.value.orEmpty),
       colDef(SNColumnId, _ => "", header = "S/N")

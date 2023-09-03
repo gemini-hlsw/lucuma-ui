@@ -11,6 +11,8 @@ import crystal.ViewF
 import crystal.ViewOptF
 import crystal.react.ReuseViewOptF
 import crystal.react.reuse.*
+import eu.timepit.refined.types.string.NonEmptyString
+import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.optics.*
 import lucuma.core.util.Enumerated
 import monocle.function.At.at
@@ -89,3 +91,11 @@ extension [F[_], N, U](self: ViewOptF[F, Quantity[N, U]])
 
 extension [F[_], N, U](self:    ReuseViewOptF[F, Quantity[N, U]])
   def stripQuantity(implicit F: Monad[F]): ReuseViewOptF[F, N] = self.as(quantityIso[N, U])
+
+extension [A](list: List[A])
+  def zipWithMappedIndex[B](f: Int => B): List[(A, B)] =
+    list.zipWithIndex.map((v, i) => (v, f(i)))
+
+given Conversion[NonEmptyString, VdomNode] with
+  def apply(s: NonEmptyString): VdomNode =
+    s.value

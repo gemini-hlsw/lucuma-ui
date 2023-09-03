@@ -3,11 +3,17 @@
 
 package lucuma.ui.sequence
 
+import eu.timepit.refined.types.numeric.PosInt
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.util.NewType
 import lucuma.react.common.*
 import lucuma.react.floatingui.Placement
 import lucuma.react.floatingui.syntax.*
 import lucuma.ui.utils.Render
+import lucuma.ui.utils.*
+
+object StepIndex extends NewType[PosInt]
+type StepIndex = StepIndex.Type
 
 private def renderStepType(icon: VdomNode, tooltip: String): VdomNode =
   <.span(icon).withTooltip(tooltip, Placement.Right)
@@ -23,3 +29,7 @@ extension (stepTypeDisplay: StepTypeDisplay)
 
 given Render[StepTypeDisplay] = Render.by: stepType =>
   renderStepType(stepType.icon, stepType.name)
+
+extension [D, R <: SequenceRow[D]](list: List[R])
+  def zipWithStepIndex: List[(R, StepIndex)] =
+    list.zipWithMappedIndex(i => StepIndex(PosInt.unsafeFrom(i + 1)))
