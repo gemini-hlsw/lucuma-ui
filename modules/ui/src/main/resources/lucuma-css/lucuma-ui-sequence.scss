@@ -2,12 +2,21 @@
 // Sequence tables
 // ------
 
-.lucuma-sequence-right-aligned {
-  text-align: right;
-}
+.pl-react-table.p-datatable.lucuma-sequence-table {
+  .p-datatable-thead > tr > th {
+    text-align: center;
+  }
 
-.lucuma-sequence-left-aligned {
-  margin-left: 100 pct;
+  .p-datatable-tbody > tr > td {
+    padding-top: 0;
+    padding-bottom: 0;
+    border-left: 0;
+    text-align: center;
+  }
+
+  .p-datatable-tbody > tr:last-of-type > td {
+    border-bottom: 1px var(--surface-border) solid;
+  }
 }
 
 .lucuma-sequence-step-guided {

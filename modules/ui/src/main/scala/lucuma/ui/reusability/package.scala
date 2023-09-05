@@ -20,6 +20,7 @@ import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.math.*
 import lucuma.core.math.dimensional.*
 import lucuma.core.model.*
+import lucuma.core.model.sequence.*
 import lucuma.core.util.Enumerated
 import lucuma.core.util.NewType
 import lucuma.core.util.Timestamp
@@ -139,6 +140,7 @@ trait ModelReusabiltyInstances
   given Reusability[ConstraintSet]                           = Reusability.byEq
   given Reusability[ProposalClass]                           = Reusability.byEq
   given Reusability[Proposal]                                = Reusability.byEq
+  given Reusability[InstrumentExecutionConfig]               = Reusability.byEq
 
 trait TableReusabilityInstances:
   given Reusability[SizePx]                    = Reusability.by(_.value)
