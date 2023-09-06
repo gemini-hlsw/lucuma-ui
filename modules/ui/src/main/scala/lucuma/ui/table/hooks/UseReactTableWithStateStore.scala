@@ -67,7 +67,7 @@ private object UseReactTableWithStateStore:
     ) extends Primary[Ctx, Step](api):
       def useReactTableWithStateStoreBy[T](
         tableDefWithOptions: CtxFn[TableOptionsWithStateStore[DefaultA, T]]
-      )(implicit
+      )(using
         step:                Step
       ): step.Next[Table[T]] =
         super.useReactTableWithStateStoreBy(step.squash(tableDefWithOptions)(_))

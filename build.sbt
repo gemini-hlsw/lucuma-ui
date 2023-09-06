@@ -62,6 +62,9 @@ lazy val demo =
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
         ModuleSplitStyle.SmallestModules
       )),
+      libraryDependencies ++= Seq(
+        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % scalaJsReactVersion
+      ),
       Keys.test := {}
     )
 
@@ -74,6 +77,7 @@ lazy val ui =
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"                    % catsVersion,
         "org.typelevel"                     %%% "kittens"                      % kittensVersion,
+        "org.typelevel"                     %%% "mouse"                        % mouseVersion,
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % scalaJsReactVersion,
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % scalaJsReactVersion,
         "edu.gemini"                        %%% "lucuma-core"                  % lucumaCoreVersion,

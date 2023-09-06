@@ -42,6 +42,9 @@ object Demo extends AppMain {
       ),
       <.p(
         IconsDemo.component()
+      ),
+      <.p(
+        ThemeDemo.component()
       )
     )
 }
