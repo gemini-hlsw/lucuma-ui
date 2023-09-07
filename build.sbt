@@ -9,7 +9,7 @@ val lucumaODBSchema        = "0.5.1"
 
 ThisBuild / tlBaseVersion       := "0.59"
 ThisBuild / tlCiReleaseBranches := Seq("main")
-ThisBuild / crossScalaVersions  := Seq("3.3.0")
+ThisBuild / crossScalaVersions  := Seq("3.3.1")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
