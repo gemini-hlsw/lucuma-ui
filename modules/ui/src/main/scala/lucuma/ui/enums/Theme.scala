@@ -79,11 +79,9 @@ object Theme:
         else if (isLight) Theme.Light
         else Theme.Dark
 
-  def init(default: Theme = Theme.System): DefaultS[Unit] =
-    currentClasses.flatMap:
-      _.fold(mountListener >> default.mount)(_ =>
-        DefaultS.throwException(new Exception("Theme already initialized"))
-      )
+  def init(default: Theme = Theme.System): DefaultS[Theme] =
+    current.flatMap:
+      _.fold(mountListener >> default.mount.as(default))(DefaultS.pure(_))
 
   given Display[Theme] = Display.byShortName(_.name)
 

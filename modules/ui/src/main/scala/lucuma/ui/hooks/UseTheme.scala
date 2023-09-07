@@ -13,15 +13,13 @@ private object UseTheme:
   private val hook =
     CustomHook[Theme]
       .useStateViewBy(initial => initial)
-      .useEffectOnMountBy((initial, _) => Theme.init(initial))
+      .useEffectOnMountBy((initial, state) => Theme.init(initial) >>= state.set)
       .buildReturning((_, theme) => theme.withOnMod(_.mount))
 
   object HooksApiExt:
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):
       /**
        * Applies theming to the whole page and provides a `View` to change the theme.
-       *
-       * WARNING: Do not call more than once in the whole page. This will result in an error.
        *
        * @param initial
        *   Initial theme. Defaults to `Theme.System`.
@@ -31,8 +29,6 @@ private object UseTheme:
 
       /**
        * Applies theming to the whole page and provides a `View` to change the theme.
-       *
-       * WARNING: Do not call more than once in the whole page. This will result in an error.
        *
        * @param initial
        *   Initial theme. Defaults to `Theme.System`.
@@ -45,8 +41,6 @@ private object UseTheme:
     ) extends Primary[Ctx, Step](api):
       /**
        * Applies theming to the whole page and provides a `View` to change the theme.
-       *
-       * WARNING: Do not call more than once in the whole page. This will result in an error.
        *
        * @param initial
        *   Initial theme. Defaults to `Theme.System`.
