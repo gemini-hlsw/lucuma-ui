@@ -50,11 +50,14 @@ object Theme:
   private def mountDark(systemPreferred: Boolean): DefaultS[Unit] =
     adjustClasses(DarkThemeClass, LightThemeClass, systemPreferred)
 
-  private lazy val currentClasses: DefaultS[(Boolean, Boolean)] = // (isLight, isSystem)
+  private lazy val currentClasses: DefaultS[Option[(Boolean, Boolean)]] = // (isLight, isSystem)
     DefaultS.delay:
-      (bodyClassList.contains(LightThemeClass.htmlClass),
-       bodyClassList.contains(SystemThemeClass.htmlClass)
-      )
+      val isLight = bodyClassList.contains(LightThemeClass.htmlClass)
+      val isDark  = bodyClassList.contains(DarkThemeClass.htmlClass)
+      if (isLight || isDark)
+        (isLight, bodyClassList.contains(SystemThemeClass.htmlClass)).some
+      else
+        none
 
   private lazy val mountListener: DefaultS[Unit] =
     preferredLightQuery.flatMap: query =>
@@ -63,18 +66,24 @@ object Theme:
           "change",
           (e: dom.MediaQueryList) =>
             DefaultS.runSync:
-              currentClasses.flatMap: (_, isSystem) =>
-                isSystem.fold(e.matches.fold(mountLight(true), mountDark(true)), DefaultS.empty)
+              currentClasses.flatMap:
+                case Some((_, isSystem)) =>
+                  isSystem.fold(e.matches.fold(mountLight(true), mountDark(true)), DefaultS.empty)
+                case _                   => DefaultS.empty
         )
 
-  def init(default: Theme = Theme.System): DefaultS[Unit] =
-    mountListener >> default.mount
+  lazy val current: DefaultS[Option[Theme]] =
+    currentClasses.map:
+      _.map: (isLight, isSystem) =>
+        if (isSystem) Theme.System
+        else if (isLight) Theme.Light
+        else Theme.Dark
 
-  lazy val current: DefaultS[Theme] =
-    currentClasses.map: (isLight, isSystem) =>
-      if (isSystem) Theme.System
-      else if (isLight) Theme.Light
-      else Theme.Dark
+  def init(default: Theme = Theme.System): DefaultS[Unit] =
+    currentClasses.flatMap:
+      _.fold(mountListener >> default.mount)(_ =>
+        DefaultS.throwException(new Exception("Theme already initialized"))
+      )
 
   given Display[Theme] = Display.byShortName(_.name)
 
