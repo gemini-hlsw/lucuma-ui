@@ -5,8 +5,8 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import lucuma.core.math.Declination
+import lucuma.odb.json.declination.decoder.given
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.given
 
 object DecSubquery extends GraphQLSubquery.Typed[ObservationDB, Declination]("Declination"):
   override val subquery: String = """

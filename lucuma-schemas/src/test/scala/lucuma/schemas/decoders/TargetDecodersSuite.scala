@@ -35,6 +35,7 @@ import lucuma.core.model.SourceProfile
 import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.Target
 import lucuma.core.model.UnnormalizedSED
+import lucuma.odb.json.target.decoder.given
 import lucuma.refined.*
 import lucuma.schemas.model.TargetWithId
 
