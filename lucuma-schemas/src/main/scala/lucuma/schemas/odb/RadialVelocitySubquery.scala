@@ -5,8 +5,8 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import lucuma.core.math.RadialVelocity
+import lucuma.odb.json.radialvelocity.decoder.given
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.given
 
 object RadialVelocitySubquery
     extends GraphQLSubquery.Typed[ObservationDB, RadialVelocity]("RadialVelocity"):

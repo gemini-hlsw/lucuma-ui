@@ -5,8 +5,8 @@ package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
 import lucuma.core.math.ProperMotion
+import lucuma.odb.json.propermotion.decoder.given
 import lucuma.schemas.ObservationDB
-import lucuma.schemas.decoders.given
 
 object ProperMotionSubquery
     extends GraphQLSubquery.Typed[ObservationDB, ProperMotion]("ProperMotion"):
