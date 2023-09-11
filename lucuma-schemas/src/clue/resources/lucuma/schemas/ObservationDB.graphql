@@ -31,7 +31,6 @@ type AddSequenceEventResult {
 """StepEvent creation parameters."""
 input AddStepEventInput {
   stepId: StepId!
-  sequenceType: SequenceType!
   stepStage: StepStage!
 }
 
@@ -887,6 +886,27 @@ type GmosNorthAtom implements Atom {
   steps: [GmosNorthStep!]!
 }
 
+"""GMOS North atom as recorded by Observe."""
+type GmosNorthAtomRecord {
+  """Atom ID"""
+  id: AtomId!
+
+  """Visit ID"""
+  visitId: VisitId!
+
+  """Created by Observe at this time."""
+  created: Timestamp!
+
+  """Sequence type."""
+  sequenceType: SequenceType!
+
+  """Number of valid steps required to complete this atom."""
+  stepCount: NonNegShort!
+
+  """Recorded steps"""
+  steps: [GmosNorthStepRecord!]!
+}
+
 """GmosNorth Detector type"""
 enum GmosNorthDetector {
   E2_V
@@ -1144,16 +1164,19 @@ type GmosNorthStep implements Step {
   observeClass: ObserveClass!
 }
 
-"""A GmosNorth step configuration as recorded by Observe"""
+"""GMOS North step configuration as recorded by Observe."""
 type GmosNorthStepRecord {
   """Step id"""
   id: StepId!
 
-  """Visit id"""
-  visitId: VisitId!
+  """Atom id"""
+  atomId: AtomId!
 
   """Created by Observe at time"""
   created: Timestamp!
+
+  """Step index relative to the referenced atom."""
+  stepIndex: NonNegShort!
 
   """Started at time"""
   startTime: Timestamp
@@ -1203,8 +1226,8 @@ type GmosNorthVisit {
   """GmosNorth static instrument configuration"""
   static: GmosNorthStatic!
 
-  """GmosNorth recorded steps"""
-  steps: [GmosNorthStepRecord!]!
+  """GmosNorth recorded atoms"""
+  atoms: [GmosNorthAtomRecord!]!
 
   """Sequence events associated with this visit"""
   sequenceEvents: [SequenceEvent!]!
@@ -1228,6 +1251,27 @@ type GmosSouthAtom implements Atom {
 
   """Individual steps that comprise the atom"""
   steps: [GmosSouthStep!]!
+}
+
+"""GMOS South atom as recorded by Observe."""
+type GmosSouthAtomRecord {
+  """Atom ID"""
+  id: AtomId!
+
+  """Visit ID"""
+  visitId: VisitId!
+
+  """Created by Observe at this time."""
+  created: Timestamp!
+
+  """Sequence type."""
+  sequenceType: SequenceType!
+
+  """Number of valid steps required to complete this atom."""
+  stepCount: NonNegShort!
+
+  """Recorded steps"""
+  steps: [GmosSouthStepRecord!]!
 }
 
 """GmosSouth Detector type"""
@@ -1492,8 +1536,11 @@ type GmosSouthStepRecord {
   """Step id"""
   id: StepId!
 
-  """Visit id"""
-  visitId: VisitId!
+  """Atom id"""
+  atomId: AtomId!
+
+  """Step index relative to the referenced atom."""
+  stepIndex: NonNegShort!
 
   """Created by Observe at time"""
   created: Timestamp!
@@ -1745,9 +1792,15 @@ type Mutation {
   """
   linkUser(input: LinkUserInput!): LinkUserResult!
 
+  """Record a new GMOS North atom"""
+  recordGmosNorthAtom(
+    """Atom configuration parameters"""
+    input: RecordAtomInput!
+  ): RecordGmosNorthAtomResult!
+
   """Record a new GMOS North step"""
   recordGmosNorthStep(
-    """GmosNorth step configuration parameters"""
+    """GMOS North step configuration parameters"""
     input: RecordGmosNorthStepInput!
   ): RecordGmosNorthStepResult!
 
@@ -1756,6 +1809,12 @@ type Mutation {
     """Visit creation parameters"""
     input: RecordGmosNorthVisitInput!
   ): RecordGmosNorthVisitResult!
+
+  """Record a new GMOS South atom"""
+  recordGmosSouthAtom(
+    """GMOS South atom configuration parameters"""
+    input: RecordAtomInput!
+  ): RecordGmosSouthAtomResult!
 
   """Record a new GMOS South step"""
   recordGmosSouthStep(
@@ -2151,9 +2210,22 @@ input RadialVelocityInput {
   kilometersPerSecond: BigDecimal
 }
 
+"""Input parameters for creating a new atom record"""
+input RecordAtomInput {
+  visitId: VisitId!
+  sequenceType: SequenceType!
+  stepCount: NonNegShort!
+}
+
+"""The result of recording a GMOS North atom."""
+type RecordGmosNorthAtomResult {
+  """The newly added atom record itself."""
+  atomRecord: GmosNorthAtomRecord!
+}
+
 """Input parameters for creating a new GmosNorth StepRecord"""
 input RecordGmosNorthStepInput {
-  visitId: VisitId!
+  atomId: AtomId!
   instrument: GmosNorthDynamicInput!
   stepConfig: StepConfigInput!
 }
@@ -2176,9 +2248,15 @@ type RecordGmosNorthVisitResult {
   visit: GmosNorthVisit!
 }
 
+"""The result of recording a GMOS South atom."""
+type RecordGmosSouthAtomResult {
+  """The newly added atom record itself."""
+  atomRecord: GmosSouthAtomRecord!
+}
+
 """Input parameters for creating a new GmosSouth StepRecord"""
 input RecordGmosSouthStepInput {
-  visitId: VisitId!
+  atomId: AtomId!
   instrument: GmosSouthDynamicInput!
   stepConfig: StepConfigInput!
 }
@@ -3423,9 +3501,6 @@ type DatasetEvent {
   """Identifies the associated dataset."""
   datasetId: DatasetId!
 
-  """Associated visit."""
-  visitId: VisitId!
-
   """Dataset filename, when known."""
   filename: DatasetFilename
 
@@ -4629,6 +4704,42 @@ type CreateGroupResult {
   group: Group!
 }
 
+"""The guide star(s) and related information"""
+type GuideEnvironment {
+  """The position angle"""
+  posAngle: Angle!
+
+  """
+  A list of GuideProbeTargets, which essentially provides a mapping from guide probes to targets.
+  """
+  guideTargets: [GuideTarget!]!
+}
+
+"""Enumeration for Guide Probes"""
+enum GuideProbe {
+  GMOS_OIWFS
+}
+
+"""
+Type that contains a guide probe and guide target information for use in the GuideEnvironment
+"""
+type GuideTarget {
+  """The guide probe"""
+  probe: GuideProbe!
+
+  """Target name."""
+  name: NonEmptyString!
+
+  """source profile"""
+  sourceProfile: SourceProfile!
+
+  """Sidereal tracking information, if this is a sidereal target"""
+  sidereal: Sidereal
+
+  """Nonsidereal tracking information, if this is a nonsidereal target"""
+  nonsidereal: Nonsidereal
+}
+
 """HII Region spectrum"""
 enum HiiRegionSpectrum {
   """HiiRegionSpectrum OrionNebula"""
@@ -4766,8 +4877,9 @@ successes, the overall "result" will be a failure. The "all" field contains
 results for all targets regardless.
 """
 type ItcResultSet {
-  result: ItcResult!
+  selected: ItcResult!
   all: [ItcResult!]
+  index: NonNegInt!
 }
 
 """A single ITC call result."""
@@ -4991,7 +5103,15 @@ type Observation {
   The ITC result for this observation, assuming it has associated target(s)
   and a selected observing mode.
   """
-  itc: ItcResultSet
+  itc: Itc!
+}
+
+type Itc {
+  """The ITC result for the science part of the sequence"""
+  science: ItcResultSet!
+
+  """The ITC result for the acquisition part of the sequence"""
+  acquisition: ItcResultSet!
 }
 
 """ObservationId id formatted as `o-[1-9a-f][0-9a-f]*`"""
@@ -6024,9 +6144,6 @@ type StepEvent {
   """Identifies the step to which the event refers."""
   stepId: StepId!
 
-  """Associated visit."""
-  visitId: VisitId!
-
   """Whether this is an acquisition or science sequence step."""
   sequenceType: SequenceType!
 
@@ -6298,6 +6415,12 @@ type TargetEnvironment {
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
   ): Target
+
+  """The guide star(s) and related information"""
+  guideEnvironment(
+    """The time used for the guide star calculations."""
+    observationTime: Timestamp!
+  ): GuideEnvironment
 
   """When set, overrides the default base position of the target group"""
   explicitBase: Coordinates
