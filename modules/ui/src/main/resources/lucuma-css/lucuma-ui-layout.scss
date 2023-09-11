@@ -1,0 +1,85 @@
+@use '/lucuma-css/lucuma-ui-common.scss' as lucumaUICommon;
+
+// ----------
+// Main grid
+// ----------
+.main-grid {
+  $top-bottom-space: 36px;
+
+  display: grid;
+  height: 100vh;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  grid-template:
+    'header' $top-bottom-space 'body' minmax(
+      calc(100% - $top-bottom-space - $top-bottom-space),
+      1fr
+    )
+    'sidebar' #{$top-bottom-space} / 1fr;
+
+  @media (min-width: lucumaUICommon.$tablet-responsive-cutoff) {
+    // prettier-ignore
+    grid-template:
+      'header header' $top-bottom-space 'sidebar body' minmax(
+        calc(100% - $top-bottom-space),
+        1fr
+      ) / 50px auto;
+  }
+}
+
+@supports (-webkit-touch-callout: none) {
+  .main-grid {
+    /* The hack for Safari */
+    /* stylelint-disable-next-line value-no-vendor-prefix */
+    height: -webkit-fill-available;
+  }
+}
+
+.main-body {
+  grid-area: body;
+  max-width: 100svw;
+  overflow: hidden;
+  display: grid;
+  justify-items: stretch;
+}
+
+.main-title {
+  text-transform: uppercase;
+  letter-spacing: 0.4em;
+}
+
+.main-user-name {
+  margin-left: auto;
+  margin-right: 0.5em;
+  letter-spacing: 0.1em;
+
+  @include lucumaUICommon.text-ellipsis;
+}
+
+.main-header.p-toolbar {
+  grid-area: header;
+  width: 100dvw;
+  min-width: 100dvw;
+  padding: 0.2rem 1rem 0.2rem 1.5rem;
+  flex-wrap: nowrap;
+
+  .p-toolbar-group-right {
+    overflow: hidden;
+  }
+
+  .p-toolbar-group-right,
+  .p-toolbar-group-left {
+    display: flex;
+
+    .p-component.p-button.p-button-text {
+      margin: 0;
+      padding: 0;
+      min-width: min-content;
+
+      &:not(:hover) {
+        color: var(--site-text-color);
+      }
+    }
+  }
+}
