@@ -32,7 +32,7 @@ case class IfLogged[E](
   getEventNonce:        E => String,
   createEventWithNonce: String => E
 )(
-  val render:           (UserVault, DefaultA[Unit]) => VdomNode
+  val render:           DefaultA[Unit] => VdomNode
 )(using
   val logger:           Logger[DefaultA]
 ) extends ReactFnProps(IfLogged.component)
@@ -74,7 +74,7 @@ object IfLogged:
                 props.isLogoutEvent,
                 props.getEventNonce,
                 props.createEventWithNonce
-              )(props.render(vault, _))
+              )(props.render(_))
             )
           )
         }
