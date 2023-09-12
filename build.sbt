@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.83"
+ThisBuild / tlBaseVersion       := "0.84"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -8,7 +8,7 @@ lazy val reactJS = "17.0.2"
 lazy val catsVersion              = "2.10.0"
 lazy val catsRetryVersion         = "3.1.0"
 lazy val circeVersion             = "0.14.6"
-lazy val crystalVersion           = "0.34.1"
+lazy val crystalVersion           = "0.34.2"
 lazy val kittensVersion           = "3.0.0"
 lazy val http4sVersion            = "0.23.23"
 lazy val http4sDomVersion         = "0.2.9"
