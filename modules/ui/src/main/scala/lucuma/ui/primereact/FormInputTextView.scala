@@ -19,7 +19,7 @@ import lucuma.ui.input.ChangeAuditor
 import org.scalajs.dom.Element
 import org.scalajs.dom.HTMLInputElement
 import org.scalajs.dom.document
-import org.scalajs.dom.ext.KeyCode
+import org.scalajs.dom.KeyCode
 import org.scalajs.dom.html
 
 import scala.scalajs.js
