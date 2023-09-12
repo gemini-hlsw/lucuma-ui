@@ -12,6 +12,7 @@ import lucuma.react.common.*
 import lucuma.react.table.*
 import lucuma.refined.*
 import lucuma.ui.syntax.all.*
+import lucuma.ui.utils.formatSN
 import lucuma.ui.utils.given
 
 import SequenceRowFormatters.*
@@ -115,8 +116,5 @@ object SequenceColumns:
         cell = cell => cell.value.orEmpty
       ),
       colDef(ROIColumnId, getStep(_).flatMap(_.roi), header = "ROI", cell = _.value.orEmpty),
-      colDef(SNColumnId,
-             s => signalToNoise(getStep(s)).foldMap(s => f"${s.toBigDecimal}%.3f"),
-             header = "S/N"
-      )
+      colDef(SNColumnId, s => signalToNoise(getStep(s)).foldMap(formatSN), header = "S/N")
     )
