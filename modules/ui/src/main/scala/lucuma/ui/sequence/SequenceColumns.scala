@@ -7,6 +7,7 @@ import cats.syntax.all.*
 import eu.timepit.refined.collection.NonEmpty
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.math.SignalToNoise
 import lucuma.react.common.*
 import lucuma.react.table.*
 import lucuma.refined.*
@@ -33,9 +34,10 @@ object SequenceColumns:
   // `T` is the actual type of the table row, from which we extract a `R` using `getStep`.
   // `D` is the `DynamicConfig`.
   def gmosColumns[D, T, R <: SequenceRow[D]](
-    colDef:   ColumnDef.Applied[T],
-    getStep:  T => Option[R],
-    getIndex: T => Option[StepIndex]
+    colDef:        ColumnDef.Applied[T],
+    getStep:       T => Option[R],
+    getIndex:      T => Option[StepIndex],
+    signalToNoise: Option[R] => Option[SignalToNoise]
   ): List[ColumnDef.Single[T, ?]] =
     List(
       colDef(
@@ -113,5 +115,8 @@ object SequenceColumns:
         cell = cell => cell.value.orEmpty
       ),
       colDef(ROIColumnId, getStep(_).flatMap(_.roi), header = "ROI", cell = _.value.orEmpty),
-      colDef(SNColumnId, _ => "", header = "S/N")
+      colDef(SNColumnId,
+             s => signalToNoise(getStep(s)).foldMap(s => f"${s.toBigDecimal}%.3f"),
+             header = "S/N"
+      )
     )
