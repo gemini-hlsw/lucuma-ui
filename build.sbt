@@ -160,6 +160,7 @@ ThisBuild / githubWorkflowPublishPreamble +=
     UseRef.Public("actions", "setup-node", "v3"),
     Map(
       "node-version" -> "18",
+      "cache"        -> "npm",
       "registry-url" -> "https://registry.npmjs.org"
     )
   )
