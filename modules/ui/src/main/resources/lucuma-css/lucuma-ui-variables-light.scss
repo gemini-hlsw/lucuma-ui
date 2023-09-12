@@ -268,7 +268,7 @@
   --plot-plot-band-exclude-window-opacity: 0@include 2;
 }
 
-.light-theme {
+@mixin lucuma-ui-light-theme {
   // Values here come from the default SUI theme
   // COLORS
   @include colors-light;

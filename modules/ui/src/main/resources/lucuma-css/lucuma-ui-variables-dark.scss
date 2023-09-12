@@ -384,7 +384,7 @@
   --plot-plot-band-exclude-window-opacity: 0.25;
 }
 
-.dark-theme {
+@mixin lucuma-ui-dark-theme {
   // Values defined based on slate theme
   // COLORS
   @include colors-dark;
