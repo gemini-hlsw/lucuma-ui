@@ -26,11 +26,11 @@ private object UseReactTableWithStateStore:
   private def hook[T] =
     CustomHook[TableOptionsWithStateStore[DefaultA, T]]
       .useReactTableBy(_.tableOptions)
-      .useRef(PrefsLoaded(false))
+      .useState(PrefsLoaded(false))
       .useRef(CanSave(false))
       .useEffectOnMountBy((props, table, prefsLoadad, canSave) =>
         (props.stateStore.load() >>=
-          (mod => prefsLoadad.setAsync(PrefsLoaded(true)) >> table.modState(mod).to[DefaultA]))
+          (mod => table.modState(mod).to[DefaultA] >> prefsLoadad.setStateAsync(PrefsLoaded(true))))
           .guaranteeCase(outcome => canSave.setAsync(CanSave(true)).unlessA(outcome.isSuccess))
       )
       .useEffectWithDepsBy((_, table, _, _) => table.getState())((props, _, prefsLoadad, canSave) =>
