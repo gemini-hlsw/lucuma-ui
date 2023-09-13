@@ -11,6 +11,7 @@ import lucuma.core.enums.Instrument
 import lucuma.core.math.Angle
 import lucuma.core.math.Axis
 import lucuma.core.math.Offset
+import lucuma.core.math.SignalToNoise
 import lucuma.core.math.Wavelength
 import lucuma.core.model.sequence.*
 import lucuma.core.model.sequence.gmos.DynamicConfig
@@ -32,12 +33,13 @@ import java.time.Instant
  * to the visit.
  */
 sealed trait SequenceRow[D](
-  val id:           Either[Visit.Id, Step.Id],
-  instrumentConfig: Option[D],
-  val stepConfig:   Option[StepConfig],
-  val breakpoint:   Breakpoint,
-  val isFinished:   Boolean,
-  val stepEstimate: Option[StepEstimate]
+  val id:            Either[Visit.Id, Step.Id],
+  instrumentConfig:  Option[D],
+  val stepConfig:    Option[StepConfig],
+  val breakpoint:    Breakpoint,
+  val isFinished:    Boolean,
+  val stepEstimate:  Option[StepEstimate],
+  val signalToNoise: Option[SignalToNoise]
 ):
   lazy val rowId: RowId = RowId(id match
     case Left(visitId) => visitId.toString
@@ -111,28 +113,46 @@ sealed trait SequenceRow[D](
 
 object SequenceRow:
   final class FutureStep[D](
-    step:        Step[D],
-    val atomId:  Atom.Id,
-    val firstOf: Option[Int]
+    step:          Step[D],
+    val atomId:    Atom.Id,
+    val firstOf:   Option[Int],
+    signalToNoise: Option[SignalToNoise]
   ) extends SequenceRow[D](
         id = step.id.asRight,
         instrumentConfig = step.instrumentConfig.some,
         stepConfig = step.stepConfig.some,
         breakpoint = step.breakpoint,
         isFinished = false,
-        stepEstimate = step.estimate.some
+        stepEstimate = step.estimate.some,
+        signalToNoise = signalToNoise
       ):
     export step.{id => stepId}
 
   object FutureStep:
-    def fromAtom[D](atom: Atom[D]): List[FutureStep[D]] =
-      FutureStep(atom.steps.head, atom.id, atom.steps.length.some.filter(_ > 1)) +:
-        atom.steps.tail.map(step => SequenceRow.FutureStep(step, atom.id, none))
+    def fromAtom[D](
+      atom:          Atom[D],
+      signalToNoise: Step[D] => Option[SignalToNoise]
+    ): List[FutureStep[D]] =
+      FutureStep(atom.steps.head,
+                 atom.id,
+                 atom.steps.length.some.filter(_ > 1),
+                 signalToNoise(atom.steps.head)
+      ) +: atom.steps.tail.map(step =>
+        SequenceRow.FutureStep(step, atom.id, none, signalToNoise(step))
+      )
 
-    def fromAtoms[D](atoms: List[Atom[D]]): List[FutureStep[D]] =
+    def fromAtoms[D](
+      atoms:         List[Atom[D]],
+      signalToNoise: Step[D] => Option[SignalToNoise]
+    ): List[FutureStep[D]] =
       atoms.flatMap(atom =>
-        FutureStep(atom.steps.head, atom.id, atom.steps.length.some.filter(_ > 1)) +:
-          atom.steps.tail.map(step => SequenceRow.FutureStep(step, atom.id, none))
+        FutureStep(atom.steps.head,
+                   atom.id,
+                   atom.steps.length.some.filter(_ > 1),
+                   signalToNoise(atom.steps.head)
+        ) +: atom.steps.tail.map(step =>
+          SequenceRow.FutureStep(step, atom.id, none, signalToNoise(step))
+        )
       )
 
     given [D]: Eq[FutureStep[D]] = Eq.by: x =>
@@ -140,20 +160,23 @@ object SequenceRow:
        x.breakpoint,
        x.stepEstimate,
        x.atomId,
-       x.firstOf
+       x.firstOf,
+       x.signalToNoise
       )
 
   sealed abstract class Executed[D](
     id:               Either[Visit.Id, Step.Id],
     instrumentConfig: Option[D],
-    stepConfig:       Option[StepConfig]
+    stepConfig:       Option[StepConfig],
+    signalToNoise:    Option[SignalToNoise]
   ) extends SequenceRow[D](
         id,
         instrumentConfig: Option[D],
         stepConfig: Option[StepConfig],
         breakpoint = Breakpoint.Disabled,
         isFinished = true,
-        stepEstimate = none
+        stepEstimate = none,
+        signalToNoise = signalToNoise
       ):
     def created: Instant
     def startTime: Option[Instant]
@@ -161,11 +184,14 @@ object SequenceRow:
     def duration: Option[TimeSpan]
 
   object Executed:
-    final class ExecutedVisit[S, D](visit: Visit[S, D])
-        extends Executed[D](
+    final class ExecutedVisit[S, D](
+      visit:         Visit[S, D],
+      signalToNoise: Visit[S, D] => Option[SignalToNoise]
+    ) extends Executed[D](
           id = visit.id.asLeft,
           instrumentConfig = none,
-          stepConfig = none
+          stepConfig = none,
+          signalToNoise = signalToNoise(visit)
         ):
       export visit.{created, duration, endTime, id => visitId, startTime}
 
@@ -173,11 +199,14 @@ object SequenceRow:
       // TODO Is it same to assume step identity just by id ??
       given [S, D]: Eq[ExecutedVisit[S, D]] = Eq.by(_.id)
 
-    final class ExecutedStep[D](stepRecord: StepRecord[D])
-        extends Executed[D](
+    final class ExecutedStep[D](
+      stepRecord:    StepRecord[D],
+      signalToNoise: StepRecord[D] => Option[SignalToNoise]
+    ) extends Executed[D](
           id = stepRecord.id.asRight,
           instrumentConfig = stepRecord.instrumentConfig.some,
-          stepConfig = stepRecord.stepConfig.some
+          stepConfig = stepRecord.stepConfig.some,
+          signalToNoise = signalToNoise(stepRecord)
         ):
       export stepRecord.{
         created,

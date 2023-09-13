@@ -3,8 +3,13 @@
 
 package lucuma.ui.sequence
 
+import cats.syntax.eq.*
 import eu.timepit.refined.types.numeric.PosInt
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.enums.ObserveClass
+import lucuma.core.math.SignalToNoise
+import lucuma.core.model.sequence.Step
+import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.NewType
 import lucuma.react.common.*
 import lucuma.react.floatingui.Placement
@@ -33,3 +38,19 @@ given Render[StepTypeDisplay] = Render.by: stepType =>
 extension [D, R <: SequenceRow[D]](list: List[R])
   def zipWithStepIndex: List[(R, StepIndex)] =
     list.zipWithMappedIndex(i => StepIndex(PosInt.unsafeFrom(i + 1)))
+
+extension (sn: Option[SignalToNoise])
+  def showForFutureStep[D](r: Step[D]): Option[SignalToNoise] =
+    sn.filter: _ =>
+      r.instrumentConfig match
+        case DynamicConfig.GmosNorth(_, _, _, _, _, _, fpu) =>
+          val showScience = r.observeClass === ObserveClass.Science
+          val showAcq     = r.observeClass === ObserveClass.Acquisition && fpu.isEmpty
+          showScience || showAcq
+
+        case DynamicConfig.GmosSouth(_, _, _, _, _, _, fpu) =>
+          val showScience = r.observeClass === ObserveClass.Science
+          val showAcq     = r.observeClass === ObserveClass.Acquisition && fpu.isEmpty
+          showScience || showAcq
+
+        case _ => false
