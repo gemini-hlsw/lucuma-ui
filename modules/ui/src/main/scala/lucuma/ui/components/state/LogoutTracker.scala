@@ -4,13 +4,14 @@
 package lucuma.ui.components.state
 
 import cats.Applicative
-import cats.effect.Sync
 import cats.syntax.all.*
+import crystal.react.hooks.*
 import eu.timepit.refined.types.string.NonEmptyString
+import fs2.dom.BroadcastChannel
+import fs2.dom.Serializer
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
 import japgolly.scalajs.react.vdom.html_<^.*
-import lucuma.broadcastchannel.*
 import lucuma.react.common.ReactFnProps
 import lucuma.refined.*
 import lucuma.ui.sso.UserVault
@@ -22,8 +23,8 @@ case class LogoutTracker[E](
   isLogoutEvent:        E => Boolean,
   getEventNonce:        E => String,
   createEventWithNonce: String => E
-)(val render: DefaultA[Unit] => VdomNode)
-    extends ReactFnProps(LogoutTracker.component)
+)(val render: DefaultA[Unit] => VdomNode)(using val serializerE: Serializer[E])
+    extends ReactFnProps(LogoutTracker.component) {}
 
 object LogoutTracker:
   private type Props[E] = LogoutTracker[E]
@@ -33,34 +34,27 @@ object LogoutTracker:
       .withHooks[Props[E]]
       // Create a nonce
       .useMemo(())(_ => System.currentTimeMillis)
-      // Hold the broadcast channel
-      .useState(none[BroadcastChannel[E]])
-      .useEffectOnMountBy { (props, nonce, state) =>
-        val bc = new BroadcastChannel[E](props.channelName.value)
-
-        bc.onmessage = (
-          (e: E) =>
-            if (props.isLogoutEvent(e))
+      .useResourceOnMountBy { (props, _) =>
+        import props.given
+        BroadcastChannel[DefaultA, E](props.channelName.value)
+      }
+      .useStreamBy((_, _, bc) => bc.isReady)((props, nonce, bc) =>
+        _ =>
+          bc.toOption.map(_.messages).orEmpty.evalTap { e =>
+            if (props.isLogoutEvent(e.data))
               (props.setVault(none) >> props.setMessage(
                 "You logged out in another instance".refined
-              )).whenA(props.getEventNonce(e) =!= nonce.value.toString)
+              )).whenA(props.getEventNonce(e.data) =!= nonce.value.toString)
             else
               Applicative[DefaultA].unit
-        ): (E => DefaultA[Unit]) // Scala 3 infers the return type as Any if we don't ascribe
-
-        state
-          .setState(bc.some) *> CallbackTo(Callback(bc.close()).attempt)
-      }
-      .render { (props, nonce, bc) =>
-        bc.value.fold[VdomNode](React.Fragment())(bc =>
+          }
+      )
+      .render { (props, nonce, bc, _) =>
+        bc.toOption.fold[VdomNode](React.Fragment())(bc =>
           props.render(
-            Sync[DefaultA]
-              .delay(
-                bc.postMessage(
-                  props.createEventWithNonce(nonce.value.toString)
-                )
-              )
-              .attempt
+            bc.postMessage(
+              props.createEventWithNonce(nonce.value.toString)
+            ).attempt
               .void
           )
         )
