@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.85"
+ThisBuild / tlBaseVersion       := "0.86"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -9,11 +9,11 @@ lazy val catsVersion              = "2.10.0"
 lazy val catsRetryVersion         = "3.1.0"
 lazy val circeVersion             = "0.14.6"
 lazy val crystalVersion           = "0.34.4"
+lazy val fs2DomVersion            = "0.3.0-M1"
 lazy val kittensVersion           = "3.0.0"
 lazy val http4sVersion            = "0.23.23"
 lazy val http4sDomVersion         = "0.2.9"
-lazy val lucumaBCVersion          = "0.4.0"
-lazy val lucumaCoreVersion        = "0.85.1"
+lazy val lucumaCoreVersion        = "0.86.1"
 lazy val lucumaPrimeStylesVersion = "0.2.9"
 lazy val lucumaReactVersion       = "0.44.1"
 lazy val lucumaRefinedVersion     = "0.1.2"
@@ -94,14 +94,14 @@ lazy val ui =
         "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
         "edu.gemini"                        %%% "crystal"                      % crystalVersion,
         "com.lihaoyi"                       %%% "pprint"                       % pprintVersion,
+        "com.armanbilge"                    %%% "fs2-dom"                      % fs2DomVersion,
         "org.http4s"                        %%% "http4s-core"                  % http4sVersion,
         "org.http4s"                        %%% "http4s-circe"                 % http4sVersion,
         "org.http4s"                        %%% "http4s-dom"                   % http4sDomVersion,
         "com.github.cb372"                  %%% "cats-retry"                   % catsRetryVersion,
         "io.circe"                          %%% "circe-core"                   % circeVersion,
         "io.circe"                          %%% "circe-parser"                 % circeVersion,
-        "edu.gemini"                        %%% "lucuma-sso-frontend-client"   % lucumaSsoVersion,
-        "edu.gemini"                        %%% "lucuma-broadcast-channel"     % lucumaBCVersion
+        "edu.gemini"                        %%% "lucuma-sso-frontend-client"   % lucumaSsoVersion
       )
     )
 

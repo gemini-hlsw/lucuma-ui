@@ -7,6 +7,7 @@ import cats.syntax.all.*
 import crystal.react.View
 import crystal.react.syntax.view.*
 import eu.timepit.refined.types.string.NonEmptyString
+import fs2.dom.Serializer
 import io.circe.Json
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
@@ -34,7 +35,8 @@ case class IfLogged[E](
 )(
   val render:           DefaultA[Unit] => VdomNode
 )(using
-  val logger:           Logger[DefaultA]
+  val logger:           Logger[DefaultA],
+  val serializerE:      Serializer[E]
 ) extends ReactFnProps(IfLogged.component)
 
 object IfLogged:
