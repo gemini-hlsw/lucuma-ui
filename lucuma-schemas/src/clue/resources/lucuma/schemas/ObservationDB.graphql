@@ -1,7 +1,114 @@
+enum Partner {
+  """Argentina"""
+  AR
+
+  """Brazil"""
+  BR
+
+  """Canada"""
+  CA
+
+  """Canada-France-Hawaii Telescope"""
+  CFH
+
+  """Chile"""
+  CL
+
+  """Guaranteed Time"""
+  GT
+
+  """Keck Observatory"""
+  KECK
+
+  """Republic of Korea"""
+  KR
+
+  """Long Programs"""
+  LP
+
+  """Subaru Telescope"""
+  SUBARU
+
+  """University of Hawaii"""
+  UH
+
+  """United States"""
+  US
+}
+
+enum ConditionsMeasurementSource {
+  """Observer"""
+  OBSERVER
+}
+
+enum SeeingTrend {
+  """Getting Better"""
+  GETTING_BETTER
+
+  """Getting Worse"""
+  GETTING_WORSE
+
+  """Staying the Same"""
+  STAYING_THE_SAME
+
+  """Variable"""
+  VARIABLE
+}
+
+enum ConditionsExpectationType {
+  """Clear Skies"""
+  CLEAR_SKIES
+
+  """Fog"""
+  FOG
+
+  """Thick Clouds"""
+  THICK_CLOUDS
+
+  """Thin Clouds"""
+  THIN_CLOUDS
+}
+
+enum ObsAttachmentType {
+  """Finder Chart"""
+  FINDER
+
+  """MOS Mask"""
+  MOS_MASK
+
+  """Pre-Imaging"""
+  PRE_IMAGING
+}
+
+enum FilterType {
+  """Broad-Band Filter"""
+  BroadBand
+
+  """Combination Filter"""
+  Combination
+
+  """Engineering Filter"""
+  Engineering
+
+  """Narrow-Band Filter"""
+  NarrowBand
+
+  """Spectroscopic Filter"""
+  Spectroscopic
+}
+
+enum ProposalAttachmentType {
+  """Science Case & Design"""
+  SCIENCE
+
+  """Team Info, Previous Use, etc."""
+  TEAM
+}
+
 """DatasetEvent creation parameters."""
 input AddDatasetEventInput {
   """Dataset id"""
-  datasetId: DatasetIdInput!
+  datasetId: DatasetId!
 
   """Dataset execution stage."""
   datasetStage: DatasetStage!
@@ -963,7 +1070,7 @@ type GmosNorthExecutionConfig implements ExecutionConfig {
   """
   Bogus field that makes the structure of this instrument distinct from the others.
   """
-  gmosNorth: Boolean! @deprecated
+  gmosNorth: Boolean!
 
   """GMOS North static configuration"""
   static: GmosNorthStatic!
@@ -1330,7 +1437,7 @@ type GmosSouthExecutionConfig implements ExecutionConfig {
   """
   Bogus field that makes the structure of this instrument distinct from the others.
   """
-  gmosSouth: Boolean! @deprecated
+  gmosSouth: Boolean!
 
   """GMOS South static configuration"""
   static: GmosSouthStatic!
@@ -3499,9 +3606,18 @@ type Coordinates {
   dec: Declination!
 }
 
+"""DatasetId id formatted as `d-[1-9a-f][0-9a-f]*`"""
+scalar DatasetId
+
 type Dataset {
-  """Dataset id"""
+  """Dataset id."""
   id: DatasetId!
+
+  """The corresponding step's id."""
+  stepId: StepId!
+
+  """Dataset index within the step."""
+  index: PosShort!
 
   """Observation associated with this dataset"""
   observation: Observation!
@@ -3527,11 +3643,11 @@ type DatasetEvent {
   """Event id."""
   id: ExecutionEventId!
 
-  """Identifies the associated dataset."""
-  datasetId: DatasetId!
-
   """Dataset execution stage."""
   datasetStage: DatasetStage!
+
+  """Identifies the associated dataset."""
+  dataset: Dataset!
 
   """Observation whose execution produced this event."""
   observation: Observation!
@@ -3542,22 +3658,6 @@ type DatasetEvent {
 
 """Dataset filename in standard format."""
 scalar DatasetFilename
-
-type DatasetId {
-  """Step ID."""
-  stepId: StepId!
-
-  """Dataset index."""
-  index: PosShort!
-}
-
-input DatasetIdInput {
-  """Step ID."""
-  stepId: StepId!
-
-  """Dataset index."""
-  index: NonNegShort!
-}
 
 """Dataset QA State"""
 enum DatasetQaState {
@@ -3743,12 +3843,12 @@ type Execution {
     futureLimit: NonNegInt = 25
   ): ExecutionConfig!
 
-  """Datasets associated with the observation"""
+  """Datasets associated with the observation."""
   datasets(
     """
     Starts the result set at (or after if not existent) the given dataset id.
     """
-    OFFSET: DatasetIdInput
+    OFFSET: DatasetId
 
     """
     Limits the result to at most this number of matches (but never more than 1000).
@@ -5546,18 +5646,10 @@ type Query {
     includeDeleted: Boolean! = false
   ): ConstraintSetGroupSelectResult!
 
-  """
-  Select the dataset associated with the given observation, step, and index
-  """
+  """Select the dataset associated with the given id."""
   dataset(
-    """Observation ID"""
-    observationId: ObservationId!
-
-    """Step ID"""
-    stepId: StepId!
-
-    """Dataset index"""
-    index: PosInt!
+    """Dataset ID"""
+    datasetId: DatasetId!
   ): Dataset
 
   """Select all datasets associated with a step or observation"""
@@ -5568,7 +5660,7 @@ type Query {
     """
     Starts the result set at (or after if not existent) the given dataset id.
     """
-    OFFSET: DatasetIdInput
+    OFFSET: DatasetId
 
     """
     Limits the result to at most this number of matches (but never more than 1000).
@@ -5732,7 +5824,7 @@ type RightAscension {
   degrees: BigDecimal!
 
   """Right Ascension (RA) in µas"""
-  microarcseconds: Long! @deprecated
+  microarcseconds: Long!
 
   """Right Ascension (RA) in µs"""
   microseconds: Long!
@@ -6460,10 +6552,10 @@ type TargetEnvironment {
   ): Target
 
   """The guide star(s) and related information"""
-  guideEnvironment(
+  guideEnvironments(
     """The time used for the guide star calculations."""
     observationTime: Timestamp!
-  ): GuideEnvironment
+  ): [GuideEnvironment!]!
 
   """When set, overrides the default base position of the target group"""
   explicitBase: Coordinates
@@ -6528,7 +6620,7 @@ type TargetGroup {
   Link back to program, temporary, to avoid some mapping issues.
   Please don't use this in API calls.
   """
-  program: Program! @deprecated
+  program: Program!
 }
 
 """
@@ -6753,14 +6845,32 @@ input WhereOrderObsAttachmentId {
 
 """Dataset filter options.  All specified items must match."""
 input WhereDataset {
-  """Matches the dataset observation id."""
+  """
+  A list of nested dataset filters that all must match in order for the AND group as a whole to match.
+  """
+  AND: [WhereDataset!]
+
+  """
+  A list of nested dataset filters where any one match causes the entire OR group as a whole to match.
+  """
+  OR: [WhereDataset!]
+
+  """
+  A nested dataset filter that must not match in order for the NOT itself to match.
+  """
+  NOT: WhereDataset
+
+  """Matches indicated dataset(s)."""
+  id: WhereOrderDatasetId
+
+  """Matches all datasets associated with the observation."""
   observationId: WhereOrderObservationId
 
-  """Matches the dataset step id."""
+  """Matches all datasets associated with the step."""
   stepId: WhereEqStepId
 
-  """Matches the dataset index within the step."""
-  index: WhereOrderDatasetIndex
+  """Matches the particula dataset index within the step."""
+  index: WhereOrderPosShort
 
   """Matches the dataset file name."""
   filename: WhereString
@@ -6775,7 +6885,7 @@ input WhereDatasetEvent {
   stepId: WhereEqStepId
 
   """Matches on the dataset index within the step."""
-  index: WhereOrderDatasetIndex
+  index: WhereOrderPosShort
 
   """Matches on the dataset stage."""
   stage: WhereOrderDatasetStage
@@ -7080,34 +7190,69 @@ Filters on equality or order comparisons of the property.  All supplied
 criteria must match, but usually only one is selected.  E.g., 'GT = 2'
 for an integer property will match when the value is 3 or more.
 """
-input WhereOrderDatasetIndex {
-  """Matches if the property is exactly the supplied value."""
-  EQ: PosInt
+input WhereOrderPosShort {
+  """Matches if the property value is exactly the supplied value."""
+  EQ: PosShort
 
-  """Matches if the property is not the supplied value."""
-  NEQ: PosInt
+  """Matches if the property value is not the supplied value."""
+  NEQ: PosShort
 
   """Matches if the property value is any of the supplied options."""
-  IN: [PosInt!]
+  IN: [PosShort!]
 
   """Matches if the property value is none of the supplied values."""
-  NIN: [PosInt!]
+  NIN: [PosShort!]
 
   """Matches if the property is ordered after (>) the supplied value."""
-  GT: PosInt
+  GT: PosShort
 
   """Matches if the property is ordered before (<) the supplied value."""
-  LT: PosInt
+  LT: PosShort
 
   """
   Matches if the property is ordered after or equal (>=) the supplied value.
   """
-  GTE: PosInt
+  GTE: PosShort
 
   """
   Matches if the property is ordered before or equal (<=) the supplied value.
   """
-  LTE: PosInt
+  LTE: PosShort
+}
+
+"""
+Filters on equality or order comparisons of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'GT = 2'
+for an integer property will match when the value is 3 or more.
+"""
+input WhereOrderDatasetId {
+  """Matches if the property is exactly the supplied value."""
+  EQ: DatasetId
+
+  """Matches if the property is not the supplied value."""
+  NEQ: DatasetId
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [DatasetId!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [DatasetId!]
+
+  """Matches if the property is ordered after (>) the supplied value."""
+  GT: DatasetId
+
+  """Matches if the property is ordered before (<) the supplied value."""
+  LT: DatasetId
+
+  """
+  Matches if the property is ordered after or equal (>=) the supplied value.
+  """
+  GTE: DatasetId
+
+  """
+  Matches if the property is ordered before or equal (<=) the supplied value.
+  """
+  LTE: DatasetId
 }
 
 """
@@ -7787,118 +7932,4 @@ scalar BigDecimal
 The `Long` scalar type represents non-fractional signed whole numeric values. Long can represent values between -(2^63) and 2^63 - 1.
 """
 scalar Long
-
-"""Enumerated type of observation attachments."""
-enum ObsAttachmentType {
-  """Finder Chart"""
-  FINDER
-
-  """MOS Mask"""
-  MOS_MASK
-
-  """Pre-Imaging"""
-  PRE_IMAGING
-}
-
-"""Enumerated type of proposal attachments."""
-enum ProposalAttachmentType {
-  """Science Case & Design"""
-  SCIENCE
-
-  """Team Info, Previous Use, etc."""
-  TEAM
-}
-
-"""Enumerated type of filters."""
-enum FilterType {
-  """Broad-Band Filter"""
-  BroadBand
-
-  """Combination Filter"""
-  Combination
-
-  """Engineering Filter"""
-  Engineering
-
-  """Narrow-Band Filter"""
-  NarrowBand
-
-  """Spectroscopic Filter"""
-  Spectroscopic
-}
-
-"""Enumerated type of partners."""
-enum Partner {
-  """Argentina"""
-  AR
-
-  """Brazil"""
-  BR
-
-  """Canada"""
-  CA
-
-  """Canada-France-Hawaii Telescope"""
-  CFH
-
-  """Chile"""
-  CL
-
-  """Guaranteed Time"""
-  GT
-
-  """Keck Observatory"""
-  KECK
-
-  """Republic of Korea"""
-  KR
-
-  """Long Programs"""
-  LP
-
-  """Subaru Telescope"""
-  SUBARU
-
-  """University of Hawaii"""
-  UH
-
-  """United States"""
-  US
-}
-
-"""Enumerated type of expected conditions."""
-enum ConditionsExpectationType {
-  """Clear Skies"""
-  CLEAR_SKIES
-
-  """Fog"""
-  FOG
-
-  """Thick Clouds"""
-  THICK_CLOUDS
-
-  """Thin Clouds"""
-  THIN_CLOUDS
-}
-
-"""Enumerated type of sources for observed conditions."""
-enum ConditionsMeasurementSource {
-  """Observer"""
-  OBSERVER
-}
-
-"""Enumerated type of seeing trends."""
-enum SeeingTrend {
-  """Getting Better"""
-  GETTING_BETTER
-
-  """Getting Worse"""
-  GETTING_WORSE
-
-  """Staying the Same"""
-  STAYING_THE_SAME
-
-  """Variable"""
-  VARIABLE
-}
 
