@@ -27,6 +27,7 @@ trait ObservationDB {
     type ObservationId    = Observation.Id
     type ProgramId        = Program.Id
     type StepId           = Step.Id
+    type DatasetId        = Dataset.Id
     type TargetId         = Target.Id
     type UserId           = User.Id
     type VisitId          = Visit.Id
@@ -48,6 +49,7 @@ trait ObservationDB {
     type PosBigDecimal    = eu.timepit.refined.types.numeric.PosBigDecimal
     type PosInt           = eu.timepit.refined.types.numeric.PosInt
     type PosLong          = eu.timepit.refined.types.numeric.PosLong
+    type PosShort         = eu.timepit.refined.types.numeric.PosShort
     // Core Types
     type SignalToNoise    = lucuma.core.math.SignalToNoise
     type Timestamp        = lucuma.core.util.Timestamp
