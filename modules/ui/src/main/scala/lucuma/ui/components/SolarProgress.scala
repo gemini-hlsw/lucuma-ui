@@ -19,7 +19,7 @@ object SolarProgress {
       p.css,
       <.div(
         ^.cls := "mars-orbit orbit",
-        <.div(^.cls := "planet mars"),
+        <.div(^.cls    := "planet mars"),
         <.div(
           ^.cls := "earth-orbit orbit",
           <.div(^.cls := "planet earth"),
