@@ -8,13 +8,13 @@ lazy val reactJS = "17.0.2"
 lazy val catsVersion              = "2.10.0"
 lazy val catsRetryVersion         = "3.1.0"
 lazy val circeVersion             = "0.14.6"
-lazy val crystalVersion           = "0.34.6"
+lazy val crystalVersion           = "0.34.7"
 lazy val fs2DomVersion            = "0.3.0-M1"
 lazy val kittensVersion           = "3.0.0"
 lazy val http4sVersion            = "0.23.23"
 lazy val http4sDomVersion         = "0.2.10"
 lazy val lucumaCoreVersion        = "0.87.0"
-lazy val lucumaPrimeStylesVersion = "0.2.9"
+lazy val lucumaPrimeStylesVersion = "0.2.10"
 lazy val lucumaReactVersion       = "0.44.1"
 lazy val lucumaRefinedVersion     = "0.1.2"
 lazy val lucumaSchemasVersion     = "0.61.0"
@@ -123,9 +123,10 @@ lazy val tests =
     .dependsOn(testkit)
     .settings(
       libraryDependencies ++= Seq(
-        "edu.gemini"    %%% "lucuma-core-testkit" % lucumaCoreVersion % Test,
-        "org.scalameta" %%% "munit"               % "0.7.29"          % Test,
-        "org.typelevel" %%% "discipline-munit"    % "1.0.9"           % Test
+        "edu.gemini"    %%% "lucuma-core-testkit"    % lucumaCoreVersion    % Test,
+        "edu.gemini"    %%% "lucuma-schemas-testkit" % lucumaSchemasVersion % Test,
+        "org.scalameta" %%% "munit"                  % "0.7.29"             % Test,
+        "org.typelevel" %%% "discipline-munit"       % "1.0.9"              % Test
       )
     )
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)

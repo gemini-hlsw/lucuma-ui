@@ -1,14 +1,16 @@
 // Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
-import eu.timepit.refined.types.numeric.NonNegInt
-import lucuma.ui.input.FormatUtils._
-import munit.DisciplineSuite
-import org.scalacheck.Arbitrary._
-import org.scalacheck.Prop._
-import org.scalacheck._
+package lucuma.ui.input
 
-final class FormatUtilsSpec extends DisciplineSuite {
+import eu.timepit.refined.types.numeric.NonNegInt
+import lucuma.ui.input.FormatUtils.*
+import munit.DisciplineSuite
+import org.scalacheck.Arbitrary.*
+import org.scalacheck.Prop.*
+import org.scalacheck.*
+
+final class FormatUtilsSpec extends DisciplineSuite:
   val Zero = BigInt(0)
   test("stripZerosPastNPlaces") {
     forAll(arbitrary[BigInt], Gen.choose(0, 999999), Gen.choose(0, 9), Gen.choose(0, 9)) {
@@ -19,4 +21,3 @@ final class FormatUtilsSpec extends DisciplineSuite {
         assertEquals(stripZerosPastNPlaces(s"$i.$d", n), s"$i.$keep")
     }
   }
-}
