@@ -4,8 +4,8 @@
 package lucuma.ui.optics
 
 import cats.syntax.all.*
-import monocle.Lens
 import monocle.Iso
+import monocle.Lens
 
 // Lenses must be disjoint (not overlap), or the result will be unsafe.
 // See https://github.com/optics-dev/Monocle/issues/545
