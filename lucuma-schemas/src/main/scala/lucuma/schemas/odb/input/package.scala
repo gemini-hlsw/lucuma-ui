@@ -10,12 +10,21 @@ import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.syntax.*
 import lucuma.core.enums.Band
+import lucuma.core.enums.GmosNorthFpu
+import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.math.*
 import lucuma.core.math.dimensional.*
 import lucuma.core.model.ExposureTimeMode.*
 import lucuma.core.model.ProposalClass.*
 import lucuma.core.model.*
+import lucuma.core.model.sequence.StepConfig
+import lucuma.core.model.sequence.gmos.DynamicConfig
+import lucuma.core.model.sequence.gmos.GmosCcdMode
+import lucuma.core.model.sequence.gmos.GmosFpuMask
+import lucuma.core.model.sequence.gmos.GmosGratingConfig
+import lucuma.core.model.sequence.gmos.GmosNodAndShuffle
+import lucuma.core.model.sequence.gmos.StaticConfig
 import lucuma.core.util.*
 import lucuma.schemas.ObservationDB.Enums.PosAngleConstraintMode
 import lucuma.schemas.ObservationDB.Types.*
@@ -375,6 +384,8 @@ extension [A](o: Offset.Component[A])
   def toInput: OffsetComponentInput =
     OffsetComponentInput(microarcseconds = o.toAngle.toMicroarcseconds.assign)
 
+extension (o: Offset) def toInput: OffsetInput = OffsetInput(o.p.toInput, o.q.toInput)
+
 extension (o: ObservingMode.GmosNorthLongSlit)
   def toInput: GmosNorthLongSlitInput = GmosNorthLongSlitInput(
     grating = o.grating.assign,
@@ -489,3 +500,120 @@ extension (tw: TimingWindow)
       startUtc = tw.start,
       end = tw.end.map(_.toInput).orIgnore
     )
+
+extension (ccd: GmosCcdMode)
+  def toInput: GmosCcdModeInput =
+    GmosCcdModeInput(xBin = ccd.xBin.assign,
+                     yBin = ccd.yBin.assign,
+                     ampCount = ccd.ampCount.assign,
+                     ampGain = ccd.ampGain.assign,
+                     ampReadMode = ccd.ampReadMode.assign
+    )
+
+extension (g: GmosGratingConfig.South)
+  def toInput: GmosSouthGratingConfigInput =
+    GmosSouthGratingConfigInput(grating = g.grating,
+                                order = g.order,
+                                wavelength = g.wavelength.toInput
+    )
+
+extension (g: GmosGratingConfig.North)
+  def toInput: GmosNorthGratingConfigInput =
+    GmosNorthGratingConfigInput(grating = g.grating,
+                                order = g.order,
+                                wavelength = g.wavelength.toInput
+    )
+
+extension (g: GmosFpuMask.Custom)
+  def toInput: GmosCustomMaskInput =
+    GmosCustomMaskInput(filename = g.filename.value, slitWidth = g.slitWidth)
+
+extension (g: GmosFpuMask[GmosSouthFpu])
+  def toInput: GmosSouthFpuInput =
+    GmosSouthFpuInput(customMask = g.custom.map(_.toInput).orUnassign,
+                      builtin = g.builtinFpu.orUnassign
+    )
+
+extension (g: GmosFpuMask[GmosNorthFpu])
+  def toInput: GmosNorthFpuInput =
+    GmosNorthFpuInput(customMask = g.custom.map(_.toInput).orUnassign,
+                      builtin = g.builtinFpu.orUnassign
+    )
+extension (ns: GmosNodAndShuffle)
+  def toInput: GmosNodAndShuffleInput = GmosNodAndShuffleInput(
+    ns.posA.toInput,
+    ns.posB.toInput,
+    ns.eOffset,
+    ns.shuffleOffset,
+    ns.shuffleCycles
+  )
+
+extension (gmosNStatic: StaticConfig.GmosNorth)
+  def toInput: GmosNorthStaticInput = GmosNorthStaticInput(
+    gmosNStatic.stageMode.assign,
+    gmosNStatic.detector.assign,
+    gmosNStatic.mosPreImaging.assign,
+    gmosNStatic.nodAndShuffle.map(_.toInput).orUnassign
+  )
+
+extension (gmosSStatic: StaticConfig.GmosSouth)
+  def toInput: GmosSouthStaticInput = GmosSouthStaticInput(
+    gmosSStatic.stageMode.assign,
+    gmosSStatic.detector.assign,
+    gmosSStatic.mosPreImaging.assign,
+    gmosSStatic.nodAndShuffle.map(_.toInput).orUnassign
+  )
+
+extension (gmosSDynamic: DynamicConfig.GmosSouth)
+  def toInput: GmosSouthDynamicInput = GmosSouthDynamicInput(
+    gmosSDynamic.exposure.toInput,
+    gmosSDynamic.readout.toInput,
+    gmosSDynamic.dtax,
+    gmosSDynamic.roi,
+    gmosSDynamic.gratingConfig.map(_.toInput).orUnassign,
+    gmosSDynamic.filter.orUnassign,
+    gmosSDynamic.fpu.map(_.toInput).orUnassign
+  )
+
+extension (gmosNDynamic: DynamicConfig.GmosNorth)
+  def toInput: GmosNorthDynamicInput = GmosNorthDynamicInput(
+    gmosNDynamic.exposure.toInput,
+    gmosNDynamic.readout.toInput,
+    gmosNDynamic.dtax,
+    gmosNDynamic.roi,
+    gmosNDynamic.gratingConfig.map(_.toInput).orUnassign,
+    gmosNDynamic.filter.orUnassign,
+    gmosNDynamic.fpu.map(_.toInput).orUnassign
+  )
+
+extension (sc: StepConfig)
+  def toInput: StepConfigInput = sc match {
+    case StepConfig.Bias =>
+      StepConfigInput(bias = true.assign)
+
+    case StepConfig.Dark =>
+      StepConfigInput(dark = true.assign)
+
+    case StepConfig.Gcal(lamp, filter, diffuser, shutter) =>
+      val gcal = StepConfigGcalInput(
+        arcs = lamp.arcs.map(_.toNonEmptyList.toList).orIgnore,
+        continuum = lamp.continuum.orIgnore,
+        filter = filter,
+        diffuser = diffuser,
+        shutter = shutter
+      )
+      StepConfigInput(gcal = gcal.assign)
+
+    case StepConfig.Science(offset, guiding) =>
+      val science = StepConfigScienceInput(
+        offset = offset.toInput,
+        guiding = guiding.assign
+      )
+      StepConfigInput(science = science.assign)
+
+    case StepConfig.SmartGcal(smartGcalType) =>
+      val smartGcal = StepConfigSmartGcalInput(
+        smartGcalType = smartGcalType
+      )
+      StepConfigInput(smartGcal = smartGcal.assign)
+  }
