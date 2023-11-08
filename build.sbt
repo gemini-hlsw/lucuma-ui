@@ -4,7 +4,7 @@ val fs2Version             = "3.9.3"
 val kittensVersion         = "3.1.0"
 val munitVersion           = "0.7.29"
 val munitCatsEffectVersion = "1.0.7"
-val lucumaCoreVersion      = "0.88.1"
+val lucumaCoreVersion      = "0.88.2"
 val lucumaODBSchema        = "0.6.1"
 
 ThisBuild / tlBaseVersion       := "0.63"
