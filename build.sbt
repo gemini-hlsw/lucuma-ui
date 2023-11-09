@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.86"
+ThisBuild / tlBaseVersion       := "0.87"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
@@ -155,6 +155,8 @@ lazy val css = project
       Process(List("npm", "publish"), cssDir).!!
     }
   )
+
+ThisBuild / githubWorkflowSbtCommand := "sbt -v -J-Xmx6g"
 
 ThisBuild / githubWorkflowPublishPreamble +=
   WorkflowStep.Use(
