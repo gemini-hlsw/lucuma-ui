@@ -156,6 +156,8 @@ lazy val css = project
     }
   )
 
+ThisBuild / githubWorkflowSbtCommand := "sbt -v -J-Xmx6g"
+
 ThisBuild / githubWorkflowPublishPreamble +=
   WorkflowStep.Use(
     UseRef.Public("actions", "setup-node", "v3"),
