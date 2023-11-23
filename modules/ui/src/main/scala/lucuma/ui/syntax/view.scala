@@ -19,6 +19,10 @@ trait view:
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B]): ViewF[F, B] =
       self.zoom(splitEpi.get)(splitEpi.modify)
 
+    /**
+     * Prints a message to the console when the View is changed, including current stack trace.
+     * Particularly useful to identify where a View is being changed from.
+     */
     def debug(using F: Sync[F]): ViewF[F, A] =
       ViewF(
         self.get,
