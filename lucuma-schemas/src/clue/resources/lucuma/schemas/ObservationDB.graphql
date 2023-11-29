@@ -194,6 +194,50 @@ AtomId id formatted as `a-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-
 """
 scalar AtomId
 
+"""An atom as recorded by Observe."""
+type AtomRecord {
+  """Atom ID."""
+  id: AtomId!
+
+  """The instrument associated with this atom."""
+  instrument: Instrument!
+
+  """Visit in which this atom was executed."""
+  visit: Visit!
+
+  """Created by Observe at this time."""
+  created: Timestamp!
+
+  """Sequence type."""
+  sequenceType: SequenceType!
+
+  """Number of valid steps required to complete this atom."""
+  stepCount: NonNegShort!
+
+  """Recorded steps associated with this atom."""
+  steps(
+    """
+    Starts the result set at (or after if not existent) the given step creation
+    time.
+    """
+    OFFSET: Timestamp
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): StepRecordSelectResult!
+}
+
+"""AtomRecord query results, limited to a maximum of 1000 entries."""
+type AtomRecordSelectResult {
+  """Matching atom records up to the return size limit of 1000."""
+  matches: [AtomRecord!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
+}
+
 """
 Create or edit a band brightness value with integrated magnitude units.  When creating a new value, all fields except "error" are required.
 """
@@ -610,6 +654,18 @@ input ExchangeInput {
   minPercentTime: IntPercent
 }
 
+"""Execution event types."""
+enum ExecutionEventType {
+  """Sequence-level event type."""
+  SEQUENCE
+
+  """Step-level event type."""
+  STEP
+
+  """Dataset-level event type."""
+  DATASET
+}
+
 """
 Exposure time mode input.  Specify fixed or signal to noise, but not both
 """
@@ -990,27 +1046,6 @@ type GmosNorthAtom implements Atom {
   steps: [GmosNorthStep!]!
 }
 
-"""GMOS North atom as recorded by Observe."""
-type GmosNorthAtomRecord {
-  """Atom ID"""
-  id: AtomId!
-
-  """Visit ID"""
-  visitId: VisitId!
-
-  """Created by Observe at this time."""
-  created: Timestamp!
-
-  """Sequence type."""
-  sequenceType: SequenceType!
-
-  """Number of valid steps required to complete this atom."""
-  stepCount: NonNegShort!
-
-  """Recorded steps"""
-  steps: [GmosNorthStepRecord!]!
-}
-
 """GmosNorth Detector type"""
 enum GmosNorthDetector {
   E2_V
@@ -1269,72 +1304,131 @@ type GmosNorthStep implements Step {
 }
 
 """GMOS North step configuration as recorded by Observe."""
-type GmosNorthStepRecord {
-  """Step id"""
+type GmosNorthStepRecord implements StepRecord {
+  """Step ID."""
   id: StepId!
 
-  """Atom id"""
-  atomId: AtomId!
+  """Instrument associated with the concrete implementation."""
+  instrument: Instrument!
 
-  """Created by Observe at time"""
+  """The atom in which the step was executed."""
+  atom: AtomRecord!
+
+  """The step was created by Observe at this time."""
   created: Timestamp!
 
-  """Step index relative to the referenced atom."""
-  stepIndex: NonNegShort!
-
-  """Started at time"""
+  """Time of the first associated step event, if any."""
   startTime: Timestamp
 
-  """Ended at time"""
+  """Time of the last associated step event, if any."""
   endTime: Timestamp
 
-  """Step duration"""
+  """Step duration, the difference between 'endTime' and 'startTime'."""
   duration: TimeSpan!
 
-  """GmosNorth configuration for this step"""
-  instrumentConfig: GmosNorthDynamic!
-
-  """The executed step itself"""
+  """
+  The step configuration. apart from instrument details in 'instrumentConfig'.
+  """
   stepConfig: StepConfig!
 
-  """Step events associated with this step"""
-  stepEvents: [StepEvent!]!
+  """The observe class of this step."""
+  observeClass: ObserveClass!
 
-  """Step QA state based on a combination of dataset QA states"""
+  """Step QA state based on a combination of dataset QA states."""
   stepQaState: StepQaState
 
-  """Dataset events associated with this step"""
-  datasetEvents: [DatasetEvent!]!
+  """Datasets associated with this step."""
+  datasets(
+    """
+    Starts the result set at (or after if not existent) the given dataset id.
+    """
+    OFFSET: DatasetId
 
-  """Datasets associated with this step"""
-  datasets: [Dataset!]!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetSelectResult!
+
+  """Execution events associated with this step."""
+  events(
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
+
+  """GMOS North instrument configuration for this step."""
+  instrumentConfig: GmosNorthDynamic!
 }
 
 """A GmosNorth visit as recorded by Observe"""
-type GmosNorthVisit {
-  """Visit id"""
+type GmosNorthVisit implements Visit {
+  """Visit id."""
   id: VisitId!
 
-  """Created by Observe at time"""
+  """Implements the Visit.instrument field to return GMOS_NORTH."""
+  instrument: Instrument!
+
+  """Observation associated with this visit."""
+  observation: Observation!
+
+  """Created by Observe at time."""
   created: Timestamp!
 
-  """Started at time"""
+  """Started at time."""
   startTime: Timestamp
 
-  """Ended at time"""
+  """Ended at time."""
   endTime: Timestamp
 
-  """Step duration"""
+  """Visit duration."""
   duration: TimeSpan!
+
+  """Executed (or at least partially executed) atom records for this visit."""
+  atomRecords(
+    """Starts the result set at the given atom creation time."""
+    OFFSET: Timestamp
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): AtomRecordSelectResult!
+
+  """Datasets associated with this visit."""
+  datasets(
+    """
+    Starts the result set at (or after if not existent) the given dataset id.
+    """
+    OFFSET: DatasetId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetSelectResult!
+
+  """Execution events associated with this visit."""
+  events(
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
 
   """GmosNorth static instrument configuration"""
   static: GmosNorthStatic!
-
-  """GmosNorth recorded atoms"""
-  atoms: [GmosNorthAtomRecord!]!
-
-  """Sequence events associated with this visit"""
-  sequenceEvents: [SequenceEvent!]!
 }
 
 """
@@ -1355,27 +1449,6 @@ type GmosSouthAtom implements Atom {
 
   """Individual steps that comprise the atom"""
   steps: [GmosSouthStep!]!
-}
-
-"""GMOS South atom as recorded by Observe."""
-type GmosSouthAtomRecord {
-  """Atom ID"""
-  id: AtomId!
-
-  """Visit ID"""
-  visitId: VisitId!
-
-  """Created by Observe at this time."""
-  created: Timestamp!
-
-  """Sequence type."""
-  sequenceType: SequenceType!
-
-  """Number of valid steps required to complete this atom."""
-  stepCount: NonNegShort!
-
-  """Recorded steps"""
-  steps: [GmosSouthStepRecord!]!
 }
 
 """GmosSouth Detector type"""
@@ -1636,72 +1709,131 @@ type GmosSouthStep implements Step {
 }
 
 """A GmosSouth step configuration as recorded by Observe"""
-type GmosSouthStepRecord {
-  """Step id"""
+type GmosSouthStepRecord implements StepRecord {
+  """Step ID."""
   id: StepId!
 
-  """Atom id"""
-  atomId: AtomId!
+  """Instrument associated with the concrete implementation."""
+  instrument: Instrument!
 
-  """Step index relative to the referenced atom."""
-  stepIndex: NonNegShort!
+  """The atom in which the step was executed."""
+  atom: AtomRecord!
 
-  """Created by Observe at time"""
+  """The step was created by Observe at this time."""
   created: Timestamp!
 
-  """Started at time"""
+  """Time of the first associated step event, if any."""
   startTime: Timestamp
 
-  """Ended at time"""
+  """Time of the last associated step event, if any."""
   endTime: Timestamp
 
-  """Step duration"""
+  """Step duration, the difference between 'endTime' and 'startTime'."""
   duration: TimeSpan!
 
-  """GmosSouth configuration for this step"""
-  instrumentConfig: GmosSouthDynamic!
-
-  """The executed step itself"""
+  """
+  The step configuration. apart from instrument details in 'instrumentConfig'.
+  """
   stepConfig: StepConfig!
 
-  """Step events associated with this step"""
-  stepEvents: [StepEvent!]!
+  """The observe class of this step."""
+  observeClass: ObserveClass!
 
-  """Step QA state based on a combination of dataset QA states"""
+  """Step QA state based on a combination of dataset QA states."""
   stepQaState: StepQaState
 
-  """Dataset events associated with this step"""
-  datasetEvents: [DatasetEvent!]!
+  """Datasets associated with this step."""
+  datasets(
+    """
+    Starts the result set at (or after if not existent) the given dataset id.
+    """
+    OFFSET: DatasetId
 
-  """Datasets associated with this step"""
-  datasets: [Dataset!]!
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetSelectResult!
+
+  """Execution events associated with this step."""
+  events(
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
+
+  """GMOS South instrument configuration for this step."""
+  instrumentConfig: GmosSouthDynamic!
 }
 
 """A GmosSouth visit as recorded by Observe"""
-type GmosSouthVisit {
-  """Visit id"""
+type GmosSouthVisit implements Visit {
+  """Visit id."""
   id: VisitId!
 
-  """Created by Observe at time"""
+  """Implements the Visit.instrument field to return GMOS_SOUTH."""
+  instrument: Instrument!
+
+  """Observation associated with this visit."""
+  observation: Observation!
+
+  """Created by Observe at time."""
   created: Timestamp!
 
-  """Started at time"""
+  """Started at time."""
   startTime: Timestamp
 
-  """Ended at time"""
+  """Ended at time."""
   endTime: Timestamp
 
-  """Step duration"""
-  duration: TimeSpan
+  """Visit duration."""
+  duration: TimeSpan!
+
+  """Executed (or at least partially executed) atom records for this visit."""
+  atomRecords(
+    """Starts the result set at the given atom creation time."""
+    OFFSET: Timestamp
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): AtomRecordSelectResult!
+
+  """Datasets associated with this visit."""
+  datasets(
+    """
+    Starts the result set at (or after if not existent) the given dataset id.
+    """
+    OFFSET: DatasetId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetSelectResult!
+
+  """Execution events associated with this visit."""
+  events(
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
 
   """GmosSouth static instrument configuration"""
   static: GmosSouthStatic!
-
-  """GmosSouth recorded steps"""
-  steps: [GmosSouthStepRecord!]!
-
-  """Sequence events associated with this visit"""
-  sequenceEvents: [SequenceEvent!]!
 }
 
 """Whether guiding is enabled for a particular science step."""
@@ -1896,6 +2028,12 @@ type Mutation {
   """
   linkUser(input: LinkUserInput!): LinkUserResult!
 
+  """Record a new atom"""
+  recordAtom(
+    """Atom configuration parameters"""
+    input: RecordAtomInput!
+  ): RecordAtomResult!
+
   """
   Records a new dataset.  This dataset may be subsequently referenced by dataset events.
   """
@@ -1903,12 +2041,6 @@ type Mutation {
     """Describes the dataset to add."""
     input: RecordDatasetInput!
   ): RecordDatasetResult!
-
-  """Record a new GMOS North atom"""
-  recordGmosNorthAtom(
-    """Atom configuration parameters"""
-    input: RecordAtomInput!
-  ): RecordGmosNorthAtomResult!
 
   """Record a new GMOS North step"""
   recordGmosNorthStep(
@@ -1921,12 +2053,6 @@ type Mutation {
     """Visit creation parameters"""
     input: RecordGmosNorthVisitInput!
   ): RecordGmosNorthVisitResult!
-
-  """Record a new GMOS South atom"""
-  recordGmosSouthAtom(
-    """GMOS South atom configuration parameters"""
-    input: RecordAtomInput!
-  ): RecordGmosSouthAtomResult!
 
   """Record a new GMOS South step"""
   recordGmosSouthStep(
@@ -2325,8 +2451,15 @@ input RadialVelocityInput {
 """Input parameters for creating a new atom record"""
 input RecordAtomInput {
   visitId: VisitId!
+  instrument: Instrument!
   sequenceType: SequenceType!
   stepCount: NonNegShort!
+}
+
+"""The result of recording an atom."""
+type RecordAtomResult {
+  """The newly added atom record itself."""
+  atomRecord: AtomRecord!
 }
 
 """Dataset creation parameters."""
@@ -2347,17 +2480,12 @@ type RecordDatasetResult {
   dataset: Dataset!
 }
 
-"""The result of recording a GMOS North atom."""
-type RecordGmosNorthAtomResult {
-  """The newly added atom record itself."""
-  atomRecord: GmosNorthAtomRecord!
-}
-
 """Input parameters for creating a new GmosNorth StepRecord"""
 input RecordGmosNorthStepInput {
   atomId: AtomId!
   instrument: GmosNorthDynamicInput!
   stepConfig: StepConfigInput!
+  observeClass: ObserveClass!
 }
 
 """The result of recording a GmosNorth step."""
@@ -2378,17 +2506,12 @@ type RecordGmosNorthVisitResult {
   visit: GmosNorthVisit!
 }
 
-"""The result of recording a GMOS South atom."""
-type RecordGmosSouthAtomResult {
-  """The newly added atom record itself."""
-  atomRecord: GmosSouthAtomRecord!
-}
-
 """Input parameters for creating a new GmosSouth StepRecord"""
 input RecordGmosSouthStepInput {
   atomId: AtomId!
   instrument: GmosSouthDynamicInput!
   stepConfig: StepConfigInput!
+  observeClass: ObserveClass!
 }
 
 """The result of recording a GmosSouth step."""
@@ -2749,7 +2872,9 @@ input TargetEditInput {
 }
 
 input GroupEditInput {
-  """Group ID"""
+  """
+  Group ID, or Null to watch top-level group(s), or omit to watch all groups.
+  """
   groupId: GroupId
 
   """Program ID"""
@@ -2788,8 +2913,11 @@ type GroupEdit {
   """Type of edit"""
   editType: EditType!
 
-  """Edited object"""
-  value: Group!
+  """Assocated program"""
+  program: Program!
+
+  """Edited group, or null if it's the top-level group."""
+  value: Group
   id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
 }
 
@@ -3613,16 +3741,32 @@ type Dataset {
   """Dataset id."""
   id: DatasetId!
 
-  """The corresponding step's id."""
-  stepId: StepId!
+  """The corresponding step."""
+  step: StepRecord!
 
   """Dataset index within the step."""
   index: PosShort!
 
-  """Observation associated with this dataset"""
+  """Observation associated with this dataset."""
   observation: Observation!
 
-  """Dataset filename"""
+  """Visit associated with this dataset."""
+  visit: Visit!
+
+  """Events associated with the dataset."""
+  events(
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
+
+  """Dataset filename."""
   filename: DatasetFilename!
 
   """Dataset QA state, if any has been set."""
@@ -3639,21 +3783,30 @@ type Dataset {
 Dataset-level events.  A single dataset will be associated with multiple events
 as it makes its way through observe, readout and write stages.
 """
-type DatasetEvent {
+type DatasetEvent implements ExecutionEvent {
   """Event id."""
   id: ExecutionEventId!
 
-  """Dataset execution stage."""
-  datasetStage: DatasetStage!
-
-  """Identifies the associated dataset."""
-  dataset: Dataset!
+  """Visit associated with this event."""
+  visit: Visit!
 
   """Observation whose execution produced this event."""
   observation: Observation!
 
   """Time at which this event was received."""
   received: Timestamp!
+
+  """Event type."""
+  eventType: ExecutionEventType!
+
+  """The associated step."""
+  step: StepRecord!
+
+  """Dataset execution stage."""
+  datasetStage: DatasetStage!
+
+  """The associated dataset."""
+  dataset: Dataset!
 }
 
 """Dataset filename in standard format."""
@@ -3827,10 +3980,16 @@ type Exchange implements ProposalClass {
 type Execution {
   """
   Calculations dependent on the sequence, such as planned time and offsets.
+  If a sequence cannot be generated for this observation, `null` is returned
+  along with warning messages.
   """
-  digest: ExecutionDigest!
+  digest: ExecutionDigest
 
-  """Full execution config, including acquisition and science sequences."""
+  """
+  Full execution config, including acquisition and science sequences.  If a
+  sequence cannot be generated for this observation, `null` is returned along
+  with warning messages.
+  """
   config(
     """
     The maximum size (number of atoms) of the `possibleFuture` in the sequences.
@@ -3841,9 +4000,22 @@ type Execution {
     projected atom count is available in the execution digest.
     """
     futureLimit: NonNegInt = 25
-  ): ExecutionConfig!
+  ): ExecutionConfig
 
-  """Datasets associated with the observation."""
+  """
+  Executed (or at least partially executed) atom records, across all visits.
+  """
+  atomRecords(
+    """Starts the result set at the given atom creation time."""
+    OFFSET: Timestamp
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): AtomRecordSelectResult!
+
+  """Datasets associated with the observation, across all visits."""
   datasets(
     """
     Starts the result set at (or after if not existent) the given dataset id.
@@ -3856,7 +4028,7 @@ type Execution {
     LIMIT: NonNegInt
   ): DatasetSelectResult!
 
-  """Events associated with the observation"""
+  """Events associated with the observation, across all visits."""
   events(
     """
     Starts the result set at (or after if not existent) the given execution event id.
@@ -3868,6 +4040,19 @@ type Execution {
     """
     LIMIT: NonNegInt
   ): ExecutionEventSelectResult!
+
+  """Visits associated with the observation."""
+  visits(
+    """
+    Starts the result set at (or after if not existent) the given visit id.
+    """
+    OFFSET: VisitId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): VisitSelectResult!
 }
 
 """Execution configuration"""
@@ -3878,17 +4063,20 @@ interface ExecutionConfig {
 
 """Execution event (sequence, step, or dataset events)"""
 interface ExecutionEvent {
-  """Event id"""
+  """Event id."""
   id: ExecutionEventId!
 
-  """Associated visit"""
-  visitId: VisitId!
+  """Visit associated with the event."""
+  visit: Visit!
 
-  """Observation whose execution produced this event"""
+  """Observation whose execution produced this event."""
   observation: Observation!
 
-  """Time at which this event was received"""
+  """Time at which this event was received."""
   received: Timestamp!
+
+  """Event type."""
+  eventType: ExecutionEventType!
 }
 
 """ExecutionEventId id formatted as `e-[1-9a-f][0-9a-f]*`"""
@@ -4834,6 +5022,21 @@ input CreateGroupInput {
 type CreateGroupResult {
   """The newly created group."""
   group: Group!
+}
+
+"""
+A period of time showing which position angles have guide stars available during the period.
+The position angles are tested every 10 degrees.
+"""
+type GuideAvailabilityPeriod {
+  """The start time of the availability period."""
+  start: Timestamp!
+
+  """Then end time of the availability period."""
+  end: Timestamp!
+
+  """The position angles available during this period."""
+  posAngles: [Angle!]!
 }
 
 """The guide star(s) and related information"""
@@ -5970,21 +6173,24 @@ type SequenceDigest {
 """
 Sequence-level events.  As commands are issued to execute a sequence, corresponding events are generated.
 """
-type SequenceEvent {
-  """Event id"""
+type SequenceEvent implements ExecutionEvent {
+  """Event id."""
   id: ExecutionEventId!
 
-  """Associated visit"""
-  visitId: VisitId!
+  """Visit associated with this event."""
+  visit: Visit!
 
-  """Sequence event data"""
-  command: SequenceCommand!
-
-  """Observation whose execution produced this event"""
+  """Observation whose execution produced this event."""
   observation: Observation!
 
-  """Time at which this event was received"""
+  """Time at which this event was received."""
   received: Timestamp!
+
+  """Event type."""
+  eventType: ExecutionEventType!
+
+  """Sequence event data."""
+  command: SequenceCommand!
 }
 
 """Type of sequence, acquisition or science"""
@@ -6272,24 +6478,27 @@ enum StellarLibrarySpectrum {
 """
 Step-level events.  The execution of a single step will generate multiple events.
 """
-type StepEvent {
+type StepEvent implements ExecutionEvent {
   """Event id"""
   id: ExecutionEventId!
 
-  """Identifies the step to which the event refers."""
-  stepId: StepId!
-
-  """Whether this is an acquisition or science sequence step."""
-  sequenceType: SequenceType!
-
-  """Step execution stage."""
-  stepStage: StepStage!
+  """Visit associated with this event."""
+  visit: Visit!
 
   """Observation whose execution produced this event."""
   observation: Observation!
 
   """Time at which this event was received"""
   received: Timestamp!
+
+  """Event type."""
+  eventType: ExecutionEventType!
+
+  """Step associated with this event."""
+  step: StepRecord!
+
+  """Step execution stage."""
+  stepStage: StepStage!
 }
 
 """
@@ -6439,6 +6648,80 @@ type StepEstimate {
   total: TimeSpan!
 }
 
+"""
+A step as recorded by Observe.  There will be one `StepRecord` implementation
+per instrument.
+"""
+interface StepRecord {
+  """Step ID."""
+  id: StepId!
+
+  """Instrument associated with the concrete implementation."""
+  instrument: Instrument!
+
+  """The atom in which the step was executed."""
+  atom: AtomRecord!
+
+  """The step was created by Observe at this time."""
+  created: Timestamp!
+
+  """Time of the first associated step event, if any."""
+  startTime: Timestamp
+
+  """Time of the last associated step event, if any."""
+  endTime: Timestamp
+
+  """Step duration, the difference between 'endTime' and 'startTime'."""
+  duration: TimeSpan!
+
+  """
+  The step configuration, apart from instrument details found in the
+  instrument-specific 'StepRecord' implementation.
+  """
+  stepConfig: StepConfig!
+
+  """The observe class of this step."""
+  observeClass: ObserveClass!
+
+  """Step QA state based on a combination of dataset QA states."""
+  stepQaState: StepQaState
+
+  """Datasets associated with this step."""
+  datasets(
+    """
+    Starts the result set at (or after if not existent) the given dataset id.
+    """
+    OFFSET: DatasetId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetSelectResult!
+
+  """Execution events associated with this step."""
+  events(
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
+}
+
+"""StepRecord query results, limited to a maximum of 1000 entries."""
+type StepRecordSelectResult {
+  """Matching step records up to the return size limit of 1000."""
+  matches: [StepRecord!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
+}
+
 """System Verification"""
 type SystemVerification implements ProposalClass {
   """Minimum percent of requested observation time that is required"""
@@ -6556,6 +6839,19 @@ type TargetEnvironment {
     """The time used for the guide star calculations."""
     observationTime: Timestamp!
   ): [GuideEnvironment!]!
+
+  """
+  Availability of guide stars during a specified time range.
+  There can be multiple `GuideAvailabilityPeriod`s returned if availability changes over the time
+  range. In this case, the `end` of one period will be the same as the `start` of the next period.
+  """
+  guideAvailability(
+    """The starting time of the time range of interest."""
+    start: Timestamp!
+
+    """The ending time of the time range of interest."""
+    end: Timestamp!
+  ): [GuideAvailabilityPeriod!]!
 
   """When set, overrides the default base position of the target group"""
   explicitBase: Coordinates
@@ -6704,6 +7000,82 @@ type User {
   orcidCreditName: String
   orcidFamilyName: String
   orcidEmail: String
+}
+
+"""
+A visit is recorded whenever any part of an observation is attempted.  There
+are specific impementations for each instrument.
+"""
+interface Visit {
+  """Visit id."""
+  id: VisitId!
+
+  """
+  Instrument in use for this visit.  This serves as a discriminator between the
+  various specific instrument visit types.
+  """
+  instrument: Instrument!
+
+  """Observation associated with this visit."""
+  observation: Observation!
+
+  """Created by Observe at time."""
+  created: Timestamp!
+
+  """Started at time."""
+  startTime: Timestamp
+
+  """Ended at time."""
+  endTime: Timestamp
+
+  """Visit duration."""
+  duration: TimeSpan!
+
+  """Executed (or at least partially executed) atom records for this visit."""
+  atomRecords(
+    """Starts the result set at the given atom creation time."""
+    OFFSET: Timestamp
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): AtomRecordSelectResult!
+
+  """Datasets associated with this visit."""
+  datasets(
+    """
+    Starts the result set at (or after if not existent) the given dataset id.
+    """
+    OFFSET: DatasetId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetSelectResult!
+
+  """Execution events associated with this visit."""
+  events(
+    """
+    Starts the result set at (or after if not existent) the given execution event id.
+    """
+    OFFSET: ExecutionEventId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): ExecutionEventSelectResult!
+}
+
+"""Matching visit results, limited to a maximum of 1000 entries."""
+type VisitSelectResult {
+  """Matching visits up to the return size limit of 1000."""
+  matches: [Visit!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 """VisitId id formatted as `v-[1-9a-f][0-9a-f]*`"""
