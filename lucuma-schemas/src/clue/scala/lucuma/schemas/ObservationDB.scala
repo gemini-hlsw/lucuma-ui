@@ -20,39 +20,41 @@ import lucuma.core.math.BrightnessUnits._
 trait ObservationDB {
   object Scalars {
     // Ids
-    type AtomId           = Atom.Id
-    type ExecutionEventId = ExecutionEvent.Id
-    type GroupId          = Group.Id
-    type ObsAttachmentId  = ObsAttachment.Id
-    type ObservationId    = Observation.Id
-    type ProgramId        = Program.Id
-    type StepId           = Step.Id
-    type DatasetId        = Dataset.Id
-    type TargetId         = Target.Id
-    type UserId           = User.Id
-    type VisitId          = Visit.Id
+    type AtomId                = Atom.Id
+    type ExecutionEventId      = ExecutionEvent.Id
+    type GroupId               = Group.Id
+    type ObsAttachmentId       = ObsAttachment.Id
+    type ObservationId         = Observation.Id
+    type ProgramId             = Program.Id
+    type StepId                = Step.Id
+    type DatasetId             = Dataset.Id
+    type TargetId              = Target.Id
+    type UserId                = User.Id
+    type VisitId               = Visit.Id
     // Basic types
-    type BigDecimal       = scala.BigDecimal
-    type Long             = scala.Long
+    type BigDecimal            = scala.BigDecimal
+    type Long                  = scala.Long
     // Formatted strings
-    type DatasetFilename  = String
-    type DmsString        = String
-    type EpochString      = String
-    type HmsString        = String
+    type DatasetFilename       = String
+    type DmsString             = String
+    type EpochString           = String
+    type HmsString             = String
     // Refined
-    type Extinction       = NonNegBigDecimal // """Non-negative floating-point value."""
-    type NonEmptyString   = eu.timepit.refined.types.string.NonEmptyString
-    type NonNegBigDecimal = eu.timepit.refined.types.numeric.NonNegBigDecimal
-    type NonNegInt        = eu.timepit.refined.types.numeric.NonNegInt
-    type NonNegLong       = eu.timepit.refined.types.numeric.NonNegLong
-    type NonNegShort      = eu.timepit.refined.types.numeric.NonNegShort
-    type PosBigDecimal    = eu.timepit.refined.types.numeric.PosBigDecimal
-    type PosInt           = eu.timepit.refined.types.numeric.PosInt
-    type PosLong          = eu.timepit.refined.types.numeric.PosLong
-    type PosShort         = eu.timepit.refined.types.numeric.PosShort
+    type Extinction            = NonNegBigDecimal // """Non-negative floating-point value."""
+    type NonEmptyString        = eu.timepit.refined.types.string.NonEmptyString
+    type NonNegBigDecimal      = eu.timepit.refined.types.numeric.NonNegBigDecimal
+    type NonNegInt             = eu.timepit.refined.types.numeric.NonNegInt
+    type NonNegLong            = eu.timepit.refined.types.numeric.NonNegLong
+    type NonNegShort           = eu.timepit.refined.types.numeric.NonNegShort
+    type PosBigDecimal         = eu.timepit.refined.types.numeric.PosBigDecimal
+    type PosInt                = eu.timepit.refined.types.numeric.PosInt
+    type PosLong               = eu.timepit.refined.types.numeric.PosLong
+    type PosShort              = eu.timepit.refined.types.numeric.PosShort
     // Core Types
-    type SignalToNoise    = lucuma.core.math.SignalToNoise
-    type Timestamp        = lucuma.core.util.Timestamp
+    type SignalToNoise         = lucuma.core.math.SignalToNoise
+    type Timestamp             = lucuma.core.util.Timestamp
+    // Enum Meta
+    type ObsAttachmentTypeMeta = lucuma.schemas.enums.ObsAttachmentType
   }
 
   object Enums {
@@ -105,6 +107,7 @@ trait ObservationDB {
     type LineFluxSurfaceUnits                = Units Of LineFlux[Surface]
     type MosPreImaging                       = enums.MosPreImaging
     type ObsActiveStatus                     = enums.ObsActiveStatus
+    type ObsAttachmentType                   = lucuma.schemas.enums.ObsAttachmentType
     type ObsStatus                           = enums.ObsStatus
     type ObserveClass                        = enums.ObserveClass
     type Partner                             = model.Partner
