@@ -8,7 +8,7 @@ query {
           utc
         }
         ... on TimingWindowEndAfter {
-          duration {
+          after {
             milliseconds
           }         
           repeat {
