@@ -16,10 +16,11 @@ case class ProposalAttachmentType(
   tag:       String,
   shortName: String,
   longName:  String
-) derives Eq:
-  val accept: String = ".pdf" // only PDF files are currently allowed
+) derives Eq
 
 object ProposalAttachmentType:
+  val accept: String = ".pdf" // only PDF files are currently allowed
+
   given Display[ProposalAttachmentType] = Display.by(_.shortName, _.longName)
 
   val tag: Lens[ProposalAttachmentType, String]       = Focus[ProposalAttachmentType](_.tag)
