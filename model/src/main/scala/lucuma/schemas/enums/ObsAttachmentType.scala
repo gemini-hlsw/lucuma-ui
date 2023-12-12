@@ -7,7 +7,6 @@ import cats.Eq
 import cats.derived.*
 import io.circe.*
 import io.circe.generic.semiauto
-import io.circe.generic.semiauto.*
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import lucuma.core.util.NewType
