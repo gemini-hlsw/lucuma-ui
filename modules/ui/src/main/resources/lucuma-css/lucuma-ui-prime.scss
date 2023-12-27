@@ -1,7 +1,7 @@
-@use 'lucuma-ui-common.scss' as lucumaUICommon;
+@use "lucuma-ui-common.scss" as lucumaUICommon;
 
 :root {
-  // unfortunately, primereact uses `scaling factors` to scala the `lg` and `sm` components. It also 
+  // unfortunately, primereact uses `scaling factors` to scala the `lg` and `sm` components. It also
   // seems to apply these to padding, which we don't want. Change the scaling factors seemed inappropriate
   // because it would affect many more componenents, so I had to copy the padding value for the medium button.
   --pl-button-padding: 0.78571429em;
@@ -21,7 +21,7 @@
   --pl-input-line-height: 1.15;
   // This is available as a SASS variable in the primereact designer. Maybe we add our own
   // CSS variable exports in the designer based on the SASS variables?
-  --pl-input-padding: .25rem .5rem;
+  --pl-input-padding: 0.25rem 0.5rem;
 }
 
 // For laying out controls. The "Form*" compoents utilize this, too.
@@ -67,17 +67,24 @@
 
 // For styling of buttons in primereact for different "compactness" and adjust other sizing
 .p-component.p-button {
-  margin-right: .25em; // this is what the current css does for SUI. Might want to improve.
+  margin-right: 0.25em; // this is what the current css does for SUI. Might want to improve.
 
   &.pl-compact {
     padding: var(--pl-compact-button-padding);
   }
 
   &.pl-very-compact {
-    padding: var(--pl-very-compact-button-padding-top) var(--pl-very-compact-button-padding-right);
+    padding: var(--pl-very-compact-button-padding-top)
+      var(--pl-very-compact-button-padding-right);
   }
 
-  svg.svg-inline--fa {
+  // Buttons with simple icon
+  & > svg.svg-inline--fa {
+    width: 1.5em;
+  }
+
+  // Buttons with layered icon
+  & > .fa-layers {
     width: 1.5em;
   }
 
@@ -230,7 +237,7 @@
     }
 
     &.p-divider-dotted:before {
-      border-top-style: dotted
+      border-top-style: dotted;
     }
   }
 
@@ -244,19 +251,19 @@
     }
 
     &.p-divider-dotted:before {
-      border-left-style: dotted
+      border-left-style: dotted;
     }
   }
 }
 
 // "blended" addons for inputtext groups. Includes units and the clearable icon.
 .p-inputgroup:has(.pl-blended-addon) {
-  .p-inputgroup-addon:has(.pl-blended-addon):has(+.p-inputgroup-addon),
+  .p-inputgroup-addon:has(.pl-blended-addon):has(+ .p-inputgroup-addon),
   .p-inputtext {
     border-right: none;
   }
 
-  .p-inputtext.p-disabled~.p-inputgroup-addon:has(.pl-blended-addon) {
+  .p-inputtext.p-disabled ~ .p-inputgroup-addon:has(.pl-blended-addon) {
     opacity: 0.5;
   }
 
