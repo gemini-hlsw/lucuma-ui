@@ -23,6 +23,7 @@ import lucuma.core.model.*
 import lucuma.core.model.sequence.*
 import lucuma.core.util.Enumerated
 import lucuma.core.util.NewType
+import lucuma.core.util.TimeSpan
 import lucuma.core.util.Timestamp
 import lucuma.core.util.WithGid
 import lucuma.core.util.WithUid
@@ -96,6 +97,7 @@ trait MathReusabilityInstances:
 trait TimeReusabilityInstances:
   given Reusability[Instant]   = Reusability.by(i => (i.getEpochSecond, i.getNano))
   given Reusability[Timestamp] = Reusability.byEq
+  given Reusability[TimeSpan]  = Reusability.byEq
 
 /**
  * Generic reusability of refined types
