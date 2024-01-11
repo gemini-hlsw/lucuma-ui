@@ -27,16 +27,6 @@ object ProposalAttachmentType:
   val shortName: Lens[ProposalAttachmentType, String] = Focus[ProposalAttachmentType](_.shortName)
   val longName: Lens[ProposalAttachmentType, String]  = Focus[ProposalAttachmentType](_.longName)
 
-  val values: List[ProposalAttachmentType] =
-    // This is a meta decoder, not a decoder for enum instances (which comes from the `Enumerated` instance)
-    given Decoder[ProposalAttachmentType] = semiauto.deriveDecoder
-
-    DynamicEnums.parsedEnums
-      .downField("proposalAttachmentTypeMeta")
-      .as[List[ProposalAttachmentType]] match
-      case Left(err)   => err.printStackTrace; throw err
-      case Right(json) => json
-
   // The givens are apparently (probably) constructed lazily.
   // See https://alexn.org/blog/2022/05/11/implicit-vs-scala-3-given/
   // We want to fail immediately if there is a problem, so we'll reference
@@ -44,4 +34,6 @@ object ProposalAttachmentType:
   Enumerated[ProposalAttachmentType]
 
   given Enumerated[ProposalAttachmentType] =
-    Enumerated.from(values.head, values.tail: _*).withTag(_.tag)
+    DynamicEnums.enumeratedInstance[ProposalAttachmentType]("proposalAttachmentTypeMeta", _.tag)(
+      using semiauto.deriveDecoder
+    )
