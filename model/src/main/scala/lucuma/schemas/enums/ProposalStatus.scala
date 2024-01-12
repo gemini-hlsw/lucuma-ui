@@ -23,12 +23,6 @@ object ProposalStatus {
   lazy val NotSubmitted: ProposalStatus = Enumerated[ProposalStatus].unsafeFromTag("NOT_SUBMITTED")
   lazy val Submitted: ProposalStatus    = Enumerated[ProposalStatus].unsafeFromTag("SUBMITTED")
 
-  // The givens are apparently (probably) constructed lazily.
-  // See https://alexn.org/blog/2022/05/11/implicit-vs-scala-3-given/
-  // We want to fail immediately if there is a problem, so we'll reference
-  // the enumerated givens here.
-  Enumerated[ProposalStatus]
-
   given Enumerated[ProposalStatus] =
     DynamicEnums.enumeratedInstance[ProposalStatus]("proposalStatusMeta", _.tag)(using
       semiauto.deriveDecoder

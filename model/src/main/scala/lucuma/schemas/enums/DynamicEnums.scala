@@ -17,7 +17,14 @@ object DynamicEnums:
     field: String,
     tagFn: E => String
   )(using Decoder[E]): Enumerated[E] =
-    val values: List[E] = parsedEnums.downField(field).as[List[E]] match
-      case Left(err)   => err.printStackTrace; throw err
-      case Right(list) => list
-    Enumerated.from(values.head, values.tail: _*).withTag(tagFn)
+    parsedEnums.downField(field).as[List[E]] match
+      case Left(err)     => err.printStackTrace; throw err
+      case Right(values) => Enumerated.from(values.head, values.tail: _*).withTag(tagFn)
+
+  // The givens are apparently (probably) constructed lazily.
+  // See https://alexn.org/blog/2022/05/11/implicit-vs-scala-3-given/
+  // We want to fail immediately if there is a problem, so we'll reference
+  // the enumerated givens here.
+  Enumerated[ObsAttachmentType]
+  Enumerated[ProposalAttachmentType]
+  Enumerated[ProposalStatus]

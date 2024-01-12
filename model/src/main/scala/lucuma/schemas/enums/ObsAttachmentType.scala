@@ -35,12 +35,6 @@ object ObsAttachmentType:
 
   def Finder(using e: Enumerated[ObsAttachmentType]): ObsAttachmentType = e.unsafeFromTag("FINDER")
 
-  // The givens are apparently (probably) constructed lazily.
-  // See https://alexn.org/blog/2022/05/11/implicit-vs-scala-3-given/
-  // We want to fail immediately if there is a problem, so we'll reference
-  // the enumerated givens here.
-  Enumerated[ObsAttachmentType]
-
   given Enumerated[ObsAttachmentType] = {
     given Decoder[FileExtension] = Decoder.instance: c =>
       c.downField("fileExtension").as[String].map(FileExtension(_))

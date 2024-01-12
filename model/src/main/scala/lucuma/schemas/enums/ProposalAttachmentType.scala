@@ -27,12 +27,6 @@ object ProposalAttachmentType:
   val shortName: Lens[ProposalAttachmentType, String] = Focus[ProposalAttachmentType](_.shortName)
   val longName: Lens[ProposalAttachmentType, String]  = Focus[ProposalAttachmentType](_.longName)
 
-  // The givens are apparently (probably) constructed lazily.
-  // See https://alexn.org/blog/2022/05/11/implicit-vs-scala-3-given/
-  // We want to fail immediately if there is a problem, so we'll reference
-  // the enumerated givens here.
-  Enumerated[ProposalAttachmentType]
-
   given Enumerated[ProposalAttachmentType] =
     DynamicEnums.enumeratedInstance[ProposalAttachmentType]("proposalAttachmentTypeMeta", _.tag)(
       using semiauto.deriveDecoder
