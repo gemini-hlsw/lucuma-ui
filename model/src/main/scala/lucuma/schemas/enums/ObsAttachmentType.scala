@@ -35,21 +35,10 @@ object ObsAttachmentType:
 
   def Finder(using e: Enumerated[ObsAttachmentType]): ObsAttachmentType = e.unsafeFromTag("FINDER")
 
-  val values: List[ObsAttachmentType] =
-    given Decoder[FileExtension]     = Decoder.instance: c =>
+  given Enumerated[ObsAttachmentType] = {
+    given Decoder[FileExtension] = Decoder.instance: c =>
       c.downField("fileExtension").as[String].map(FileExtension(_))
-    // This is a meta decoder, not a decoder for enum instances (which comes from the `Enumerated` instance)
-    given Decoder[ObsAttachmentType] = semiauto.deriveDecoder
-
-    DynamicEnums.parsedEnums.downField("obsAttachmentTypeMeta").as[List[ObsAttachmentType]] match
-      case Left(err)   => err.printStackTrace; throw err
-      case Right(json) => json
-
-  // The givens are apparently (probably) constructed lazily.
-  // See https://alexn.org/blog/2022/05/11/implicit-vs-scala-3-given/
-  // We want to fail immediately if there is a problem, so we'll reference
-  // the enumerated givens here.
-  Enumerated[ObsAttachmentType]
-
-  given Enumerated[ObsAttachmentType] =
-    Enumerated.from(values.head, values.tail: _*).withTag(_.tag)
+    DynamicEnums.enumeratedInstance[ObsAttachmentType]("obsAttachmentTypeMeta", _.tag)(using
+      semiauto.deriveDecoder
+    )
+  }

@@ -105,6 +105,20 @@ enum ProposalAttachmentType {
   TEAM
 }
 
+enum ProposalStatus {
+  """Not Submitted"""
+  NOT_SUBMITTED
+
+  """Submitted"""
+  SUBMITTED
+
+  """Accepted"""
+  ACCEPTED
+
+  """Not Accepted"""
+  NOT_ACCEPTED
+}
+
 """DatasetEvent creation parameters."""
 input AddDatasetEventInput {
   """Dataset id"""
@@ -149,7 +163,7 @@ Input to the 'addTimeChargeCorrection' mutation. Identifies the visit
 that will be corrected and describes the correction itself.
 """
 input AddTimeChargeCorrectionInput {
-  observation: VisitId!
+  visitId: VisitId!
   correction: TimeChargeCorrectionInput!
 }
 
@@ -224,6 +238,9 @@ type AtomRecord {
 
   """Created by Observe at this time."""
   created: Timestamp!
+
+  """Time interval during which this atom executed."""
+  interval: TimestampInterval!
 
   """Sequence type."""
   sequenceType: SequenceType!
@@ -1362,14 +1379,8 @@ type GmosNorthStepRecord implements StepRecord {
   """The step was created by Observe at this time."""
   created: Timestamp!
 
-  """Time of the first associated step event, if any."""
-  startTime: Timestamp
-
-  """Time of the last associated step event, if any."""
-  endTime: Timestamp
-
-  """Step duration, the difference between 'endTime' and 'startTime'."""
-  duration: TimeSpan!
+  """Time interval during which this step executed."""
+  interval: TimestampInterval!
 
   """
   The step configuration. apart from instrument details in 'instrumentConfig'.
@@ -1379,8 +1390,13 @@ type GmosNorthStepRecord implements StepRecord {
   """The observe class of this step."""
   observeClass: ObserveClass!
 
-  """Step QA state based on a combination of dataset QA states."""
-  stepQaState: StepQaState
+  """
+  QA state based on a combination of dataset QA states.  The worst QA state is
+  taken as the overall step QA state.  For example, one FAIL dataset will
+  result in the step having a FAIL QA state.  Unset QA states are ignored, but
+  if none are set the result will be null.
+  """
+  qaState: DatasetQaState
 
   """Datasets associated with this step."""
   datasets(
@@ -1426,14 +1442,8 @@ type GmosNorthVisit implements Visit {
   """Created by Observe at time."""
   created: Timestamp!
 
-  """Started at time."""
-  startTime: Timestamp
-
-  """Ended at time."""
-  endTime: Timestamp
-
-  """Visit duration."""
-  duration: TimeSpan!
+  """Time interval during which this visit executed."""
+  interval: TimestampInterval!
 
   """Executed (or at least partially executed) atom records for this visit."""
   atomRecords(
@@ -1770,14 +1780,8 @@ type GmosSouthStepRecord implements StepRecord {
   """The step was created by Observe at this time."""
   created: Timestamp!
 
-  """Time of the first associated step event, if any."""
-  startTime: Timestamp
-
-  """Time of the last associated step event, if any."""
-  endTime: Timestamp
-
-  """Step duration, the difference between 'endTime' and 'startTime'."""
-  duration: TimeSpan!
+  """Time interval during which this step executed."""
+  interval: TimestampInterval!
 
   """
   The step configuration. apart from instrument details in 'instrumentConfig'.
@@ -1787,8 +1791,13 @@ type GmosSouthStepRecord implements StepRecord {
   """The observe class of this step."""
   observeClass: ObserveClass!
 
-  """Step QA state based on a combination of dataset QA states."""
-  stepQaState: StepQaState
+  """
+  QA state based on a combination of dataset QA states.  The worst QA state is
+  taken as the overall step QA state.  For example, one FAIL dataset will
+  result in the step having a FAIL QA state.  Unset QA states are ignored, but
+  if none are set the result will be null.
+  """
+  qaState: DatasetQaState
 
   """Datasets associated with this step."""
   datasets(
@@ -1834,14 +1843,8 @@ type GmosSouthVisit implements Visit {
   """Created by Observe at time."""
   created: Timestamp!
 
-  """Started at time."""
-  startTime: Timestamp
-
-  """Ended at time."""
-  endTime: Timestamp
-
-  """Visit duration."""
-  duration: TimeSpan!
+  """Time interval during which this visit executed."""
+  interval: TimestampInterval!
 
   """Executed (or at least partially executed) atom records for this visit."""
   atomRecords(
@@ -2373,6 +2376,12 @@ input ProgramPropertiesInput {
   """The program name, which is both optional and nullable"""
   name: NonEmptyString
 
+  """
+  The proposal status, which is both optional and nullable. 
+  This cannot be specified on create.
+  """
+  proposalStatus: ProposalStatus
+
   """The program proposal is both optional and nullable"""
   proposal: ProposalInput
 
@@ -2854,15 +2863,6 @@ input StepConfigScienceInput {
 input StepConfigSmartGcalInput {
   """Smart Gcal type"""
   smartGcalType: SmartGcalType!
-}
-
-"""Step QA State"""
-enum StepQaState {
-  """StepQaState Pass"""
-  PASS
-
-  """StepQaState Fail"""
-  FAIL
 }
 
 """Step type"""
@@ -3792,11 +3792,8 @@ type Dataset {
   """Dataset QA state, if any has been set."""
   qaState: DatasetQaState
 
-  """Start time, if the dataset collection has started."""
-  start: Timestamp
-
-  """End time, if the dataset collection has finished."""
-  end: Timestamp
+  """Dataset time interval, if the dataset collection has started."""
+  interval: TimestampInterval
 }
 
 """
@@ -3888,52 +3885,6 @@ type DirectorsTime implements ProposalClass {
 
 """Target declination coordinate in format '[+/-]DD:MM:SS.sss'"""
 scalar DmsString
-
-"""
-Equivalent time amount in several unit options (e.g., 120 seconds or 2 minutes)
-"""
-type TimeSpan {
-  """TimeSpan in µs"""
-  microseconds: Long!
-
-  """TimeSpan in ms"""
-  milliseconds: BigDecimal!
-
-  """TimeSpan in seconds"""
-  seconds: BigDecimal!
-
-  """TimeSpan in minutes"""
-  minutes: BigDecimal!
-
-  """TimeSpan in hours"""
-  hours: BigDecimal!
-
-  """TimeSpan as an ISO-8601 string"""
-  iso: String!
-}
-
-"""
-Equivalent time amount in several unit options (exactly one must be specified)
-"""
-input TimeSpanInput {
-  """TimeSpan in µs"""
-  microseconds: Long
-
-  """TimeSpan in ms"""
-  milliseconds: BigDecimal
-
-  """TimeSpan in seconds"""
-  seconds: BigDecimal
-
-  """TimeSpan in minutes"""
-  minutes: BigDecimal
-
-  """TimeSpan in hours"""
-  hours: BigDecimal
-
-  """TimeSpan as an ISO-8601 string"""
-  iso: String
-}
 
 """Either air mass range or elevation range"""
 type ElevationRange {
@@ -5658,6 +5609,9 @@ type Program {
   """Program proposal"""
   proposal: Proposal
 
+  """Proposal status of the program"""
+  proposalStatus: ProposalStatus!
+
   """Principal Investigator"""
   pi: User
 
@@ -5827,6 +5781,12 @@ enum ProposalClassEnum {
   SYSTEM_VERIFICATION
 }
 
+"""Metadata for `enum ProposalStatus`"""
+type ProposalStatusMeta {
+  tag: ProposalStatus!
+  name: String!
+}
+
 """Quasar spectrum"""
 enum QuasarSpectrum {
   """QuasarSpectrum QS0"""
@@ -5978,6 +5938,9 @@ type Query {
 
   """Metadata for `enum ProposalAttachmentType`"""
   proposalAttachmentTypeMeta: [ProposalAttachmentTypeMeta!]!
+
+  """Metadata for `enum ProposalStatus"""
+  proposalStatusMeta: [ProposalStatusMeta!]!
 
   """Retrieves the target with the given id, if it exists"""
   target(
@@ -6261,6 +6224,15 @@ scalar SignalToNoise
 type SignalToNoiseMode {
   """Signal/Noise value"""
   value: SignalToNoise!
+}
+
+"""Telescope Sites"""
+enum Site {
+  """Gemini North"""
+  GN
+
+  """Gemini South"""
+  GS
 }
 
 """Sky background"""
@@ -6693,14 +6665,8 @@ interface StepRecord {
   """The step was created by Observe at this time."""
   created: Timestamp!
 
-  """Time of the first associated step event, if any."""
-  startTime: Timestamp
-
-  """Time of the last associated step event, if any."""
-  endTime: Timestamp
-
-  """Step duration, the difference between 'endTime' and 'startTime'."""
-  duration: TimeSpan!
+  """Time interval during which this step executed."""
+  interval: TimestampInterval!
 
   """
   The step configuration, apart from instrument details found in the
@@ -6711,8 +6677,13 @@ interface StepRecord {
   """The observe class of this step."""
   observeClass: ObserveClass!
 
-  """Step QA state based on a combination of dataset QA states."""
-  stepQaState: StepQaState
+  """
+  QA state based on a combination of dataset QA states.  The worst QA state is
+  taken as the overall step QA state.  For example, one FAIL dataset will
+  result in the step having a FAIL QA state.  Unset QA states are ignored, but
+  if none are set the result will be null.
+  """
+  qaState: DatasetQaState
 
   """Datasets associated with this step."""
   datasets(
@@ -6977,7 +6948,7 @@ maximum time span.
 """
 type TimeChargeCorrection {
   """When the correction was made."""
-  timestamp: Timestamp!
+  created: Timestamp!
 
   """The charge class to be corrected."""
   chargeClass: ChargeClass!
@@ -6991,7 +6962,7 @@ type TimeChargeCorrection {
   amount: TimeSpan!
 
   """The user responsible for the change."""
-  user: User!
+  user: User
 
   """Optional justification for the correction."""
   comment: String
@@ -7026,43 +6997,73 @@ partner).  For each class, the associated time is subtracted and then added to
 uncharged.
 """
 interface TimeChargeDiscount {
-  """Time amount to discount from the program."""
-  program: TimeSpan!
+  """The interval during which this discount applies."""
+  interval: TimestampInterval!
 
   """Time amount to discount from the partner."""
   partner: TimeSpan!
 
-  """
-  The atoms that are impacted (i.e., whose execution time is discounted) by this
-  discount.
-  """
-  atoms: [AtomRecord!]!
+  """Time amount to discount from the program."""
+  program: TimeSpan!
 
-  """Optional additional detail."""
-  comment: String
+  """Additional detail."""
+  comment: String!
 }
 
 """
-A time charge discount that is applied when one or more datasets are marked
-usable (as opposed to pas) or fail.
+A time charge discount that is applied when part of the observation is executed
+outside of nautical twilight boundaries.  The portion that occurs during day
+time is not charged.
 """
-type TimeChargeQaDiscount implements TimeChargeDiscount {
-  """Time amount to discount from the program."""
-  program: TimeSpan!
+type TimeChargeDaylightDiscount implements TimeChargeDiscount {
+  """The interval during which this discount applies."""
+  interval: TimestampInterval!
 
   """Time amount to discount from the partner."""
   partner: TimeSpan!
 
-  """
-  The atoms that are impacted (i.e., whose execution time is discounted) by this
-  discount.
-  """
-  atoms: [AtomRecord!]!
+  """Time amount to discount from the program."""
+  program: TimeSpan!
 
-  """Optional additional detail."""
-  comment: String
+  """Additional detail."""
+  comment: String!
 
-  """Datasets with non-passing QA states."""
+  """The site where the observation was executed."""
+  site: Site!
+}
+
+"""
+A time charge discount that is applied when no data is collected during the
+entirety of the visit.
+"""
+type TimeChargeNoDataDiscount implements TimeChargeDiscount {
+  """The interval during which this discount applies."""
+  interval: TimestampInterval!
+
+  """Time amount to discount from the partner."""
+  partner: TimeSpan!
+
+  """Time amount to discount from the program."""
+  program: TimeSpan!
+
+  """Additional detail."""
+  comment: String!
+}
+
+type TimeChargeQaDiscount implements TimeChargeDiscount {
+  """The interval during which this discount applies."""
+  interval: TimestampInterval!
+
+  """Time amount to discount from the partner."""
+  partner: TimeSpan!
+
+  """Time amount to discount from the program."""
+  program: TimeSpan!
+
+  """Additional detail."""
+  comment: String!
+
+  """Datasets associated with the discount."""
   datasets: [Dataset!]!
 }
 
@@ -7088,6 +7089,67 @@ type TimeChargeInvoice {
   initial 'executionTime'.
   """
   finalCharge: CategorizedTime!
+}
+
+"""
+Equivalent time amount in several unit options (e.g., 120 seconds or 2 minutes)
+"""
+type TimeSpan {
+  """TimeSpan in µs"""
+  microseconds: Long!
+
+  """TimeSpan in ms"""
+  milliseconds: BigDecimal!
+
+  """TimeSpan in seconds"""
+  seconds: BigDecimal!
+
+  """TimeSpan in minutes"""
+  minutes: BigDecimal!
+
+  """TimeSpan in hours"""
+  hours: BigDecimal!
+
+  """TimeSpan as an ISO-8601 string"""
+  iso: String!
+}
+
+"""
+Equivalent time amount in several unit options (exactly one must be specified)
+"""
+input TimeSpanInput {
+  """TimeSpan in µs"""
+  microseconds: Long
+
+  """TimeSpan in ms"""
+  milliseconds: BigDecimal
+
+  """TimeSpan in seconds"""
+  seconds: BigDecimal
+
+  """TimeSpan in minutes"""
+  minutes: BigDecimal
+
+  """TimeSpan in hours"""
+  hours: BigDecimal
+
+  """TimeSpan as an ISO-8601 string"""
+  iso: String
+}
+
+"""
+Time interval marked by a start 'Timestamp' (inclusive) and an end 'Timestamp'
+(exclusive).
+"""
+type TimestampInterval {
+  """Start time of the interval (inclusive)."""
+  start: Timestamp!
+
+  """End time of the interval (exclusive)."""
+  end: Timestamp!
+
+  """Duration of the interval."""
+  duration: TimeSpan!
 }
 
 """ToO Activation"""
@@ -7170,14 +7232,8 @@ interface Visit {
   """Created by Observe at time."""
   created: Timestamp!
 
-  """Started at time."""
-  startTime: Timestamp
-
-  """Ended at time."""
-  endTime: Timestamp
-
-  """Visit duration."""
-  duration: TimeSpan!
+  """Time interval during which this visit executed."""
+  interval: TimestampInterval!
 
   """Executed (or at least partially executed) atom records for this visit."""
   atomRecords(
@@ -7453,6 +7509,24 @@ input WhereEqProposalClassType {
 
   """Matches if the property value is none of the supplied values."""
   NIN: [ProposalClassEnum!]
+}
+
+"""
+Filters on equality of the property.  All supplied
+criteria must match, but usually only one is selected.  E.g., 'EQ: "SUBMITTED'
+"""
+input WhereEqProposalStatus {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ProposalStatus
+
+  """Matches if the property is not the supplied value."""
+  NEQ: ProposalStatus
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [ProposalStatus!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ProposalStatus!]
 }
 
 """
@@ -8220,6 +8294,9 @@ input WhereProgram {
 
   """Matches the program name."""
   name: WhereOptionString
+
+  """Matches the proposalStatus."""
+  proposalStatus: WhereEqProposalStatus
 
   """Matches the proposal."""
   proposal: WhereProposal
