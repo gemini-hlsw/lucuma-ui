@@ -18,8 +18,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Generate token
+        id: generate-token
+        uses: tibdex/github-app-token@v2
+        with:
+          app_id: 206840
+          private_key: ${{ secrets.WORKFLOW_GH_TOKEN }}
       - name: Setup node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: 20
       - name: Install graphqurl
@@ -40,4 +46,4 @@ jobs:
 
           gh pr create --fill --base main || exit 0
         env:
-          GITHUB_TOKEN: ${{ secrets.WORKFLOW_GH_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
