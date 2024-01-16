@@ -39,6 +39,8 @@ trait ObservationDB {
     type DmsString                  = String
     type EpochString                = String
     type HmsString                  = String
+    type UserInvitationId           = String
+    type UserInvitationKey          = String
     // Refined
     type Extinction                 = NonNegBigDecimal // """Non-negative floating-point value."""
     type NonEmptyString             = eu.timepit.refined.types.string.NonEmptyString
