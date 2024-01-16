@@ -32,7 +32,7 @@ import java.time.Instant
  * We usually want group executed steps by visits in the tables, thus dedicating an (expandable) row
  * to the visit.
  */
-sealed trait SequenceRow[D](
+trait SequenceRow[D](
   val id:            Either[Visit.Id, Step.Id],
   instrumentConfig:  Option[D],
   val stepConfig:    Option[StepConfig],
