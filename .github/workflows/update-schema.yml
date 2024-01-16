@@ -1,0 +1,43 @@
+name: Update schemas
+
+on:
+  schedule:
+    # Daily
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-odb-schema:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout current branch (full)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 20
+      - name: Install graphqurl
+        run: npm install -g graphqurl
+      - name: Fetch latest ODB schema
+        run: ./fetchODBSchema.sh dev
+        env:
+          ODB_API_KEY: ${{ secrets.LUCUMA_DEV_API_KEY }}
+      - name: Commit and push changes
+        run: |
+          git config --local user.name 'lucuma-steward[bot]'
+          git config --local user.email '106720676+lucuma-steward[bot]@users.noreply.github.com'
+
+          git checkout -b steward/update-odb-schema
+          git add .
+          git commit -m 'Update ODB Schema' || exit 0
+          git push --force --set-upstream origin steward/update-odb-schema
+
+          gh pr create --fill --base main || exit 0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
