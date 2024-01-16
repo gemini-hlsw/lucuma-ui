@@ -40,4 +40,4 @@ jobs:
 
           gh pr create --fill --base main || exit 0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_GH_TOKEN }}
