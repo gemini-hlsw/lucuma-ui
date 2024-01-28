@@ -5123,6 +5123,8 @@ type GuideEnvironment {
 
 """Enumeration for Guide Probes"""
 enum GuideProbe {
+  PWFS_1
+  PWFS_2
   GMOS_OIWFS
 }
 
@@ -5959,7 +5961,7 @@ type Query {
   """
   Selects the first `LIMIT` matching execution events based on the provided `WHERE` parameter, if any.
   """
-  executionEvents(
+  events(
     """Filters the selection of execution events"""
     WHERE: WhereExecutionEvent
 
@@ -7558,19 +7560,18 @@ input WhereDataset {
   qaState: WhereOptionEqQaState
 }
 
-"""DatasetEvent filter options."""
-input WhereDatasetEvent {
-  """Matches on the step id."""
-  stepId: WhereEqStepId
+input WhereEqExecutionEventType {
+  """Matches if the property is exactly the supplied value."""
+  EQ: ExecutionEventType
 
-  """Matches on the dataset index within the step."""
-  index: WhereOrderPosShort
+  """Matches if the property is not the supplied value."""
+  NEQ: ExecutionEventType
 
-  """Matches on the dataset stage."""
-  stage: WhereOrderDatasetStage
+  """Matches if the property value is any of the supplied options."""
+  IN: [ExecutionEventType!]
 
-  """Matches on the dataset filename."""
-  filename: WhereOptionString
+  """Matches if the property value is none of the supplied values."""
+  NIN: [ExecutionEventType!]
 }
 
 """
@@ -7689,17 +7690,20 @@ input WhereEqVisitId {
 """ExecutionEvent filter options."""
 input WhereExecutionEvent {
   """
-  A list of nested execution event filters that all must match in order for the AND group as a whole to match.
+  A list of nested execution event filters that all must match in order for the
+  AND group as a whole to match.
   """
   AND: [WhereExecutionEvent!]
 
   """
-  A list of nested execution event filters where any one match causes the entire OR group as a whole to match.
+  A list of nested execution event filters where any one match causes the
+  entire OR group as a whole to match.
   """
   OR: [WhereExecutionEvent!]
 
   """
-  A nested execution event filter that must not match in order for the NOT itself to match.
+  A nested execution event filter that must not match in order for the NOT
+  itself to match.
   """
   NOT: WhereExecutionEvent
 
@@ -7715,14 +7719,23 @@ input WhereExecutionEvent {
   """Matches on event reception time"""
   received: WhereOrderTimestamp
 
-  """Matches sequence events only"""
-  sequenceEvent: WhereSequenceEvent
+  """Matches on execution event type"""
+  eventType: WhereEqExecutionEventType
 
-  """Matches step events only"""
-  stepEvent: WhereStepEvent
+  """Matches the sequence command type, for sequence events."""
+  sequenceCommand: WhereOrderSequenceCommand
 
-  """Matches dataset events only"""
-  datasetEvent: WhereDatasetEvent
+  """Matches on the step id, for step and dataset events."""
+  stepId: WhereEqStepId
+
+  """Matches on the step stage, for step events."""
+  stepStage: WhereOrderStepStage
+
+  """Matches on the dataset id, for dataset events."""
+  datasetId: WhereOrderDatasetId
+
+  """Matches on the dataset stage, for dataset events."""
+  datasetStage: WhereOrderDatasetStage
 }
 
 """Observation filter options.  All specified items must match."""
@@ -8497,24 +8510,6 @@ input WhereProposalPartners {
   Matching based on whether the proposal is a joint (i.e., multi-partner) proposal.
   """
   isJoint: Boolean
-}
-
-"""SequenceEvent filter options."""
-input WhereSequenceEvent {
-  """Matches the sequence command type"""
-  command: WhereOrderSequenceCommand
-}
-
-"""StepEvent filter options."""
-input WhereStepEvent {
-  """Matches on the step id."""
-  stepId: WhereEqStepId
-
-  """Matches on the sequence type"""
-  sequenceType: WhereOrderSequenceType
-
-  """Matches on the step stage"""
-  stage: WhereOrderStepStage
 }
 
 """String matching options."""
