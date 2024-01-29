@@ -22,6 +22,8 @@ object ProposalStatus {
 
   lazy val NotSubmitted: ProposalStatus = Enumerated[ProposalStatus].unsafeFromTag("NOT_SUBMITTED")
   lazy val Submitted: ProposalStatus    = Enumerated[ProposalStatus].unsafeFromTag("SUBMITTED")
+  lazy val Accepted: ProposalStatus     = Enumerated[ProposalStatus].unsafeFromTag("ACCEPTED")
+  lazy val NotAccepted: ProposalStatus  = Enumerated[ProposalStatus].unsafeFromTag("NOT_ACCEPTED")
 
   given Enumerated[ProposalStatus] =
     DynamicEnums.enumeratedInstance[ProposalStatus]("proposalStatusMeta", _.tag)(using

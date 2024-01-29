@@ -60,6 +60,7 @@ trait ObservationDB {
     // Enumerated instances, but this prevents a spurious codec from being generated.
     type ObsAttachmentTypeMeta      = lucuma.schemas.enums.ObsAttachmentType
     type ProposalAttachmentTypeMeta = lucuma.schemas.enums.ProposalAttachmentType
+    type ProposalStatusMeta         = lucuma.schemas.enums.ProposalStatus
   }
 
   object Enums {
@@ -119,6 +120,7 @@ trait ObservationDB {
     type PlanetSpectrum                      = enums.PlanetSpectrum
     type PlanetaryNebulaSpectrum             = enums.PlanetaryNebulaSpectrum
     type ProposalAttachmentType              = lucuma.schemas.enums.ProposalAttachmentType
+    type ProposalStatus                      = lucuma.schemas.enums.ProposalStatus
     type QuasarSpectrum                      = enums.QuasarSpectrum
     type ScienceMode                         = enums.ScienceMode
     type SequenceCommand                     = enums.SequenceCommand
