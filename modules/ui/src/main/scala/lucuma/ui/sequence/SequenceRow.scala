@@ -36,9 +36,9 @@ trait SequenceRow[D](
   val id:            Either[Visit.Id, Step.Id],
   instrumentConfig:  Option[D],
   val stepConfig:    Option[StepConfig],
-  val breakpoint:    Breakpoint,
+  // val breakpoint:    Breakpoint,
   val isFinished:    Boolean,
-  val stepEstimate:  Option[StepEstimate],
+  // val stepEstimate:  Option[StepEstimate],
   val signalToNoise: Option[SignalToNoise]
 ):
   lazy val rowId: RowId = RowId(id match
