@@ -10,6 +10,7 @@ import lucuma.ui.syntax.all.given
 import org.scalajs.dom
 
 import scala.scalajs.js.annotation.*
+import japgolly.scalajs.react.ReactDOMClient
 
 trait AppMain extends IOApp.Simple {
   protected def rootComponent: VdomElement
@@ -27,7 +28,7 @@ trait AppMain extends IOApp.Simple {
       elem
     }
 
-    rootComponent.renderIntoDOM(container)
+    ReactDOMClient.createRoot(container).render(rootComponent)
 
     ()
   }
@@ -37,13 +38,13 @@ trait AppMain extends IOApp.Simple {
 object Demo extends AppMain {
   override protected val rootComponent: VdomElement =
     <.div(
-      <.p(
+      <.div(
         FormComponent()
       ),
-      <.p(
+      <.div(
         IconsDemo.component()
       ),
-      <.p(
+      <.div(
         ThemeDemo.component()
       )
     )
