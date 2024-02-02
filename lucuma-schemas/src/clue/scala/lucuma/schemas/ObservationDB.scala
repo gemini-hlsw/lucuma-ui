@@ -15,6 +15,7 @@ import lucuma.core.math.BrightnessUnits._
 
 // gql: import clue.BigNumberEncoders._
 // gql: import io.circe.refined._
+// gql: import lucuma.schemas.decoders.given
 
 @GraphQLSchema
 trait ObservationDB {
@@ -53,6 +54,8 @@ trait ObservationDB {
     type PosLong                    = eu.timepit.refined.types.numeric.PosLong
     type PosShort                   = eu.timepit.refined.types.numeric.PosShort
     // Core Types
+    type ProgramReference           = String           // TODO: Switch to core type when it is actually in core
+    type Semester                   = lucuma.core.model.Semester
     type SignalToNoise              = lucuma.core.math.SignalToNoise
     type Timestamp                  = lucuma.core.util.Timestamp
     // Enum Meta
