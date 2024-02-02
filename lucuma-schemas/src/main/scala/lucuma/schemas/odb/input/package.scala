@@ -35,8 +35,10 @@ import scala.annotation.targetName
 import scala.collection.immutable.SortedMap
 
 extension (id: Observation.Id)
-  def toWhereObservation: WhereObservation =
+  def toWhereObservation: WhereObservation         =
     WhereObservation(id = WhereOrderObservationId(EQ = id.assign).assign)
+  def toObservationEditInput: ObservationEditInput =
+    ObservationEditInput(observationId = id.assign)
 
 extension (ids: List[Observation.Id])
   @targetName("ObservationId_toWhereObservation")
@@ -44,8 +46,21 @@ extension (ids: List[Observation.Id])
     WhereObservation(id = WhereOrderObservationId(IN = ids.assign).assign)
 
 extension (id: Program.Id)
-  def toWhereProgram: WhereProgram =
+  def toWhereProgram: WhereProgram                 =
     WhereProgram(id = WhereOrderProgramId(EQ = id.assign).assign)
+  def toProgramEditInput: ProgramEditInput         =
+    ProgramEditInput(programId = id.assign)
+  @targetName("ProgramId_toWhereObservation")
+  def toWhereObservation: WhereObservation         =
+    WhereObservation(program = toWhereProgram.assign)
+  @targetName("ProgramId_toObservationEditInput")
+  def toObservationEditInput: ObservationEditInput =
+    ObservationEditInput(programId = id.assign)
+  @targetName("ProgramId_ToWhereTarget")
+  def toWhereTarget: WhereTarget                   =
+    WhereTarget(program = toWhereProgram.assign)
+  def toTargetEditInput: TargetEditInput           =
+    TargetEditInput(programId = id.assign)
 
 extension (id: Target.Id)
   def toWhereTarget: WhereTarget =
