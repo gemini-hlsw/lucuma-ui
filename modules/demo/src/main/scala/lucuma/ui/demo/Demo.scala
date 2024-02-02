@@ -4,13 +4,13 @@
 package lucuma.ui.demo
 
 import cats.effect.*
+import japgolly.scalajs.react.ReactDOMClient
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.ui.syntax.all.given
 import org.scalajs.dom
 
 import scala.scalajs.js.annotation.*
-import japgolly.scalajs.react.ReactDOMClient
 
 trait AppMain extends IOApp.Simple {
   protected def rootComponent: VdomElement
