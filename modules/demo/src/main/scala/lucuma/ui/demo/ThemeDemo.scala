@@ -19,5 +19,5 @@ object ThemeDemo:
     .render: (_, theme) =>
       <.div(
         <.h2("Theme!"),
-        <.p(EnumDropdownView("theme".refined, theme))
+        <.div(EnumDropdownView("theme".refined, theme))
       )

@@ -4,6 +4,7 @@
 package lucuma.ui.demo
 
 import cats.effect.*
+import japgolly.scalajs.react.ReactDOMClient
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.ui.syntax.all.given
@@ -27,7 +28,7 @@ trait AppMain extends IOApp.Simple {
       elem
     }
 
-    rootComponent.renderIntoDOM(container)
+    ReactDOMClient.createRoot(container).render(rootComponent)
 
     ()
   }
@@ -37,13 +38,13 @@ trait AppMain extends IOApp.Simple {
 object Demo extends AppMain {
   override protected val rootComponent: VdomElement =
     <.div(
-      <.p(
+      <.div(
         FormComponent()
       ),
-      <.p(
+      <.div(
         IconsDemo.component()
       ),
-      <.p(
+      <.div(
         ThemeDemo.component()
       )
     )
