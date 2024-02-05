@@ -11,3 +11,6 @@ object LayoutStyles:
   val MainBody: Css     = Css("main-body")
   val MainTitle: Css    = Css("main-title")
   val MainUserName: Css = Css("main-user-name")
+
+  // used with MainBody to display a `Message` below the rest of the MainBody
+  val WithMessage: Css = Css("with-message")
