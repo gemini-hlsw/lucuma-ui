@@ -22,6 +22,7 @@ case class SelectButtonEnumView[V[_], A](
   buttonClass:    js.UndefOr[Css] = js.undefined,
   size:           js.UndefOr[PlSize] = js.undefined,
   itemTemplate:   js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  disabled:       js.UndefOr[Boolean] = js.undefined,
   onChange:       A => Callback = (_: A) => Callback.empty,
   modifiers:      Seq[TagMod] = Seq.empty
 )(using
@@ -50,7 +51,8 @@ object SelectButtonEnumView {
           id = props.id.value,
           clazz = props.groupClass,
           itemTemplate = props.itemTemplate,
-          onChange = (a: A) => props.view.set(a) *> props.onChange(a)
+          onChange = (a: A) => props.view.set(a) *> props.onChange(a),
+          disabled = props.disabled
         )
       }
     )

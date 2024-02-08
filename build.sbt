@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.89"
+ThisBuild / tlBaseVersion       := "0.90"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val reactJS = "17.0.2"
