@@ -552,9 +552,13 @@ input CoordinatesInput {
   dec: DeclinationInput
 }
 
-"""Observation creation parameters"""
+"""
+Observation creation parameters.  One of programId or programReference is
+required.  If both are provided, they must refer to the same program.
+"""
 input CreateObservationInput {
-  programId: ProgramId!
+  programId: ProgramId
+  programReference: ProgramReference
   SET: ObservationPropertiesInput
 }
 
@@ -575,9 +579,13 @@ type CreateProgramResult {
   program: Program!
 }
 
-"""Target creation parameters"""
+"""
+Target creation parameters.  One of programId or programReference is required.
+If both are provided, they must refer to the same program.
+"""
 input CreateTargetInput {
-  programId: ProgramId!
+  programId: ProgramId
+  programReference: ProgramReference
   SET: TargetPropertiesInput!
 }
 
@@ -5094,8 +5102,13 @@ input GroupPropertiesInput {
   parentGroupIndex: NonNegShort
 }
 
+"""
+Group creation parameters.  One of programId or programReference is required.
+If both are provided, they must refer to the same program.
+"""
 input CreateGroupInput {
-  programId: ProgramId!
+  programId: ProgramId
+  programReference: ProgramReference
   SET: GroupPropertiesInput
 }
 
