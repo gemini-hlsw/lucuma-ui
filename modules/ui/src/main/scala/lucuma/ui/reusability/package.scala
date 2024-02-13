@@ -158,10 +158,10 @@ trait TableReusabilityInstances:
     Reusability.by(state => (state.columnVisibility, state.sorting))
 
 trait SequenceReusabilityInstances:
-  given [D: Eq]: Reusability[SequenceRow[D]]                              = Reusability.byEq
-  given [D: Eq]: Reusability[SequenceRow.FutureStep[D]]                   = Reusability.byEq
-  given [S, D: Eq]: Reusability[SequenceRow.Executed.ExecutedVisit[S, D]] = Reusability.byEq
-  given [D: Eq]: Reusability[SequenceRow.Executed.ExecutedStep[D]]        = Reusability.byEq
+  given [D: Eq]: Reusability[SequenceRow[D]]                        = Reusability.byEq
+  given [D: Eq]: Reusability[SequenceRow.FutureStep[D]]             = Reusability.byEq
+  given [D: Eq]: Reusability[SequenceRow.Executed.ExecutedVisit[D]] = Reusability.byEq
+  given [D: Eq]: Reusability[SequenceRow.Executed.ExecutedStep[D]]  = Reusability.byEq
 
 package object reusability
     extends UtilReusabilityInstances
