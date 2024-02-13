@@ -6,9 +6,20 @@ package lucuma.schemas.model
 import cats.Eq
 import cats.derived.*
 import eu.timepit.refined.cats.given
-import eu.timepit.refined.types.numeric.PosInt
-import eu.timepit.refined.types.string.NonEmptyString
+import eu.timepit.refined.types.numeric.PosShort
 import lucuma.core.enums.DatasetQaState
+import lucuma.core.model.sequence.Dataset.Filename
+import lucuma.core.util.TimestampInterval
 
-final case class Dataset(index: PosInt, filename: NonEmptyString, qaState: Option[DatasetQaState])
-    derives Eq
+case class Dataset(
+  id:       Dataset.Id,
+  index:    PosShort,
+  filename: Dataset.Filename,
+  qaState:  Option[DatasetQaState],
+  interval: Option[TimestampInterval]
+) derives Eq
+
+object Dataset:
+  type Id       = lucuma.core.model.sequence.Dataset.Id
+  type Filename = lucuma.core.model.sequence.Dataset.Filename
+  val Filename = lucuma.core.model.sequence.Dataset.Filename

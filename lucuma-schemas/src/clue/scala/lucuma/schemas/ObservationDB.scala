@@ -6,12 +6,12 @@ package lucuma.schemas
 import clue.annotation.GraphQLSchema
 import lucuma.core.enums
 import lucuma.core.math.SignalToNoise
-import lucuma.core.math.dimensional._
+import lucuma.core.math.dimensional.*
 import lucuma.core.model
-import lucuma.core.model._
-import lucuma.core.model.sequence._
-import lucuma.core.util._
-import lucuma.core.math.BrightnessUnits._
+import lucuma.core.model.*
+import lucuma.core.model.sequence.*
+import lucuma.core.util.*
+import lucuma.core.math.BrightnessUnits.*
 
 // gql: import clue.BigNumberEncoders._
 // gql: import io.circe.refined._
@@ -22,13 +22,13 @@ trait ObservationDB {
   object Scalars {
     // Ids
     type AtomId                     = Atom.Id
+    type DatasetId                  = Dataset.Id
     type ExecutionEventId           = ExecutionEvent.Id
     type GroupId                    = Group.Id
     type ObsAttachmentId            = ObsAttachment.Id
     type ObservationId              = Observation.Id
     type ProgramId                  = Program.Id
     type StepId                     = Step.Id
-    type DatasetId                  = Dataset.Id
     type TargetId                   = Target.Id
     type UserId                     = User.Id
     type VisitId                    = Visit.Id
@@ -36,7 +36,6 @@ trait ObservationDB {
     type BigDecimal                 = scala.BigDecimal
     type Long                       = scala.Long
     // Formatted strings
-    type DatasetFilename            = String
     type DmsString                  = String
     type EpochString                = String
     type HmsString                  = String
@@ -54,6 +53,7 @@ trait ObservationDB {
     type PosLong                    = eu.timepit.refined.types.numeric.PosLong
     type PosShort                   = eu.timepit.refined.types.numeric.PosShort
     // Core Types
+    type DatasetFilename            = lucuma.core.model.sequence.Dataset.Filename
     type ProgramReference           = String           // TODO: Switch to core type when it is actually in core
     type Semester                   = lucuma.core.model.Semester
     type SignalToNoise              = lucuma.core.math.SignalToNoise

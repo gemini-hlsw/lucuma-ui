@@ -5,55 +5,42 @@ package lucuma.schemas.model
 
 import cats.Eq
 import cats.derived.*
-import lucuma.core.enums.StepQaState
+import lucuma.core.enums.DatasetQaState
+import lucuma.core.enums.ObserveClass
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig
-import lucuma.core.util.TimeSpan
-import org.typelevel.cats.time.given
+import lucuma.core.util.Timestamp
+import lucuma.core.util.TimestampInterval
 
-import java.time.Instant
-
-sealed trait StepRecord[D] derives Eq:
+enum StepRecord[D] derives Eq:
   def id: Step.Id
-  def created: Instant
-  def startTime: Option[Instant]
-  def endTime: Option[Instant]
-  def duration: Option[TimeSpan]
+  def created: Timestamp
+  def interval: Option[TimestampInterval]
   def instrumentConfig: D
   def stepConfig: StepConfig
-  def stepEvents: List[StepEvent]
-  def stepQaState: Option[StepQaState]
-  def datasetEvents: List[DatasetEvent]
+  def observeClass: ObserveClass
+  def qaState: Option[DatasetQaState]
   def datasets: List[Dataset]
 
-object StepRecord:
-  case class GmosNorth protected[schemas] (
+  case GmosNorth protected[schemas] (
     id:               Step.Id,
-    created:          Instant,
-    startTime:        Option[Instant],
-    endTime:          Option[Instant],
-    duration:         Option[TimeSpan],
+    created:          Timestamp,
+    interval:         Option[TimestampInterval],
     instrumentConfig: DynamicConfig.GmosNorth,
     stepConfig:       StepConfig,
-    stepEvents:       List[StepEvent],
-    stepQaState:      Option[StepQaState],
-    datasetEvents:    List[DatasetEvent],
+    observeClass:     ObserveClass,
+    qaState:          Option[DatasetQaState],
     datasets:         List[Dataset]
   ) extends StepRecord[DynamicConfig.GmosNorth]
-      derives Eq
 
-  case class GmosSouth protected[schemas] (
+  case GmosSouth protected[schemas] (
     id:               Step.Id,
-    created:          Instant,
-    startTime:        Option[Instant],
-    endTime:          Option[Instant],
-    duration:         Option[TimeSpan],
+    created:          Timestamp,
+    interval:         Option[TimestampInterval],
     instrumentConfig: DynamicConfig.GmosSouth,
     stepConfig:       StepConfig,
-    stepEvents:       List[StepEvent],
-    stepQaState:      Option[StepQaState],
-    datasetEvents:    List[DatasetEvent],
+    observeClass:     ObserveClass,
+    qaState:          Option[DatasetQaState],
     datasets:         List[Dataset]
   ) extends StepRecord[DynamicConfig.GmosSouth]
-      derives Eq

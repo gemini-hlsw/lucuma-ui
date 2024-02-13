@@ -8,53 +8,35 @@ import cats.derived.*
 import cats.syntax.all.given
 import lucuma.core.enums.SequenceType
 import lucuma.core.model.sequence.gmos.DynamicConfig
-import lucuma.core.model.sequence.gmos.StaticConfig
-import lucuma.core.util.TimeSpan
-import lucuma.core.util.WithUid
-import lucuma.refined.*
-import org.typelevel.cats.time.given
+import lucuma.core.util.Timestamp
+import lucuma.core.util.TimestampInterval
 
-import java.time.Instant
-
-sealed trait Visit[S, D] derives Eq:
+enum Visit[D] derives Eq:
   def id: Visit.Id
-  def created: Instant
-  def startTime: Option[Instant]
-  def endTime: Option[Instant]
-  def duration: Option[TimeSpan]
-  def staticConfig: S
-  def steps: List[StepRecord[D]]
-  def sequenceEvents: List[SequenceEvent]
+  def created: Timestamp
+  def interval: Option[TimestampInterval]
+  def atoms: List[AtomRecord[D]]
 
-  // Remove these implementations when the API supports querying by type directly.
-  // See https://app.shortcut.com/lucuma/story/1853/separate-visit-steps-by-sequence-type
-  def acquisitionSteps: List[StepRecord[D]] =
-    steps.filter(_.stepEvents.headOption.map(_.sequenceType).contains_(SequenceType.Acquisition))
+  def acquisitionAtoms: List[AtomRecord[D]] =
+    atoms.filter(_.sequenceType === SequenceType.Acquisition)
 
-  def scienceSteps: List[StepRecord[D]] =
-    steps.filter(_.stepEvents.headOption.map(_.sequenceType).contains_(SequenceType.Science))
+  def scienceAtoms: List[AtomRecord[D]] =
+    atoms.filter(_.sequenceType === SequenceType.Science)
 
-object Visit extends WithUid('v'.refined):
-  final case class GmosNorth protected[schemas] (
-    id:             Visit.Id,
-    created:        Instant,
-    startTime:      Option[Instant],
-    endTime:        Option[Instant],
-    duration:       Option[TimeSpan],
-    staticConfig:   StaticConfig.GmosNorth,
-    steps:          List[StepRecord.GmosNorth],
-    sequenceEvents: List[SequenceEvent]
-  ) extends Visit[StaticConfig.GmosNorth, DynamicConfig.GmosNorth]
-      derives Eq
+  case GmosNorth protected[schemas] (
+    id:       Visit.Id,
+    created:  Timestamp,
+    interval: Option[TimestampInterval],
+    atoms:    List[AtomRecord[DynamicConfig.GmosNorth]]
+  ) extends Visit[DynamicConfig.GmosNorth]
 
-  final case class GmosSouth protected[schemas] (
-    id:             Visit.Id,
-    created:        Instant,
-    startTime:      Option[Instant],
-    endTime:        Option[Instant],
-    duration:       Option[TimeSpan],
-    staticConfig:   StaticConfig.GmosSouth,
-    steps:          List[StepRecord.GmosSouth],
-    sequenceEvents: List[SequenceEvent]
-  ) extends Visit[StaticConfig.GmosSouth, DynamicConfig.GmosSouth]
-      derives Eq
+  case GmosSouth protected[schemas] (
+    id:       Visit.Id,
+    created:  Timestamp,
+    interval: Option[TimestampInterval],
+    atoms:    List[AtomRecord[DynamicConfig.GmosSouth]]
+  ) extends Visit[DynamicConfig.GmosSouth]
+
+object Visit:
+  type Id = lucuma.core.model.Visit.Id
+  val Id = lucuma.core.model.Visit.Id

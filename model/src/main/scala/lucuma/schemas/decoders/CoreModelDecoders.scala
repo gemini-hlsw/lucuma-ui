@@ -16,23 +16,21 @@ import lucuma.core.math.dimensional._
 import lucuma.core.model.Semester
 import lucuma.core.util.*
 
-trait CoreModelDecoders {
+trait CoreModelDecoders:
   given quantityDecoder[N: Decoder, U]: Decoder[Quantity[N, U]] =
     Decoder.instance(_.as[N].map(_.withUnit[U]))
 
   given taggedMeasureDecoder[N: Decoder, T](using
     unitDecoder: Decoder[Units Of T]
   ): Decoder[Measure[N] Of T] =
-    Decoder.instance(c =>
-      for {
+    Decoder.instance: c =>
+      for
         v <- c.downField("value").as[N]
         u <- c.downField("units").as[Units Of T]
-      } yield u.withValueTagged(v)
-    )
+      yield u.withValueTagged(v)
 
-  given Decoder[WavelengthDither] = Decoder.instance(
+  given Decoder[WavelengthDither] = Decoder.instance:
     _.downField("picometers").as[Int].map(WavelengthDither.intPicometers.get)
-  )
 
   given Decoder[WavelengthDelta] = Decoder.instance(
     _.downField("picometers").as[PosInt].map(WavelengthDelta.apply)
@@ -40,12 +38,15 @@ trait CoreModelDecoders {
 
   // TODO: This needs to be to a common location for schemas and ODB. Currently it is private within the ODB
   given Decoder[Semester] =
-    Decoder.instance(
-      _.as[String].flatMap(s =>
+    Decoder.instance:
+      _.as[String].flatMap: s =>
         Semester.fromString(s).toRight(DecodingFailure(s"Invalid Semester `$s`", List()))
-      )
-    )
 
   given Encoder[Semester] =
     Encoder.encodeString.contramap[Semester](_.toString)
-}
+
+  given Decoder[TimestampInterval] = Decoder.instance: c =>
+    for
+      start <- c.downField("start").as[Timestamp]
+      end   <- c.downField("end").as[Timestamp]
+    yield TimestampInterval.between(start, end)
