@@ -15,7 +15,7 @@ Define the ODB_API_KEY environment variable to use this script. For example:
 
   export ODB_API_KEY="111.4ed718065f21a8f01014c8d08db2c0f74fe3e860ae25bb1f03c5ae4c5e2d0a0e677e6e781a086d0a6638960506cff7db"
 
-You can get an API key from the Explore "User Preferences" menu item.
+You can get an API key from the Explore "User Preferences" menu item in Explore.
 
 END
 )

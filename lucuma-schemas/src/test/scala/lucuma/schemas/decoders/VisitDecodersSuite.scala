@@ -5,112 +5,115 @@ package lucuma.schemas.decoders
 
 import cats.effect.IO
 import cats.syntax.all.*
-import eu.timepit.refined.numeric.Positive
 import lucuma.core.enums.GmosAmpCount
 import lucuma.core.enums.GmosAmpGain
 import lucuma.core.enums.GmosAmpReadMode
 import lucuma.core.enums.GmosDtax
-import lucuma.core.enums.GmosGratingOrder
+import lucuma.core.enums.GmosNorthDetector
+import lucuma.core.enums.GmosNorthFilter
+import lucuma.core.enums.GmosNorthStageMode
 import lucuma.core.enums.GmosRoi
-import lucuma.core.enums.GmosSouthDetector
-import lucuma.core.enums.GmosSouthFpu
-import lucuma.core.enums.GmosSouthGrating
-import lucuma.core.enums.GmosSouthStageMode
 import lucuma.core.enums.GmosXBinning
 import lucuma.core.enums.GmosYBinning
 import lucuma.core.enums.GuideState
 import lucuma.core.enums.MosPreImaging
-import lucuma.core.enums.SequenceCommand
+import lucuma.core.enums.ObserveClass
 import lucuma.core.enums.SequenceType
-import lucuma.core.enums.StepStage
 import lucuma.core.math.Offset
-import lucuma.core.math.Wavelength
-import lucuma.core.model.ExecutionEvent
 import lucuma.core.model.sequence.*
 import lucuma.core.model.sequence.gmos.*
 import lucuma.core.syntax.timespan.*
 import lucuma.core.util.TimeSpan
+import lucuma.core.util.Timestamp
+import lucuma.core.util.TimestampInterval
 import lucuma.refined.*
-import lucuma.schemas.model.SequenceEvent
-import lucuma.schemas.model.StepEvent
+import lucuma.schemas.model.AtomRecord
+import lucuma.schemas.model.ExecutionVisits
 import lucuma.schemas.model.StepRecord
 import lucuma.schemas.model.Visit
 
-import java.time.Instant
+import java.time.LocalDateTime
 import java.util.UUID
 
 class VisitDecodersSuite extends InputStreamSuite {
-  val expectedVisits: List[Visit.GmosSouth] = List(
-    Visit.GmosSouth(
-      id = Visit.Id.fromUuid(UUID.fromString("7d093b73-3ac7-4886-bb34-0005bcb53ba4")),
-      created = Instant.parse("2022-08-22T18:18:46.236929950Z"),
-      startTime = Instant.parse("2022-08-22T18:18:56.336Z").some,
-      endTime = Instant.parse("2022-08-22T18:26:36.809Z").some,
-      duration = 460473.msTimeSpan.some,
-      staticConfig = StaticConfig.GmosSouth(
-        GmosSouthStageMode.FollowXy,
-        GmosSouthDetector.Hamamatsu,
-        MosPreImaging.IsNotMosPreImaging,
-        none
-      ),
-      steps = List(
-        StepRecord.GmosSouth(
-          id = Step.Id.fromUuid(UUID.fromString("f1214814-93c8-4cdb-848b-8a69e61fc754")),
-          created = Instant.parse("2022-08-22T18:19:03.230191206Z"),
-          startTime = Instant.parse("2022-08-22T18:26:42.092Z").some,
-          endTime = Instant.parse("2022-08-22T18:26:36.809Z").some,
-          duration = TimeSpan.Min.some,
-          instrumentConfig = DynamicConfig.GmosSouth(
-            exposure = 120.secTimeSpan,
-            readout = GmosCcdMode(
-              xBin = GmosXBinning.One,
-              yBin = GmosYBinning.One,
-              ampCount = GmosAmpCount.Three,
-              ampGain = GmosAmpGain.Low,
-              ampReadMode = GmosAmpReadMode.Slow
+  val expectedVisits: ExecutionVisits = ExecutionVisits.GmosNorth(
+    StaticConfig.GmosNorth(
+      stageMode = GmosNorthStageMode.FollowXy,
+      detector = GmosNorthDetector.Hamamatsu,
+      mosPreImaging = MosPreImaging.IsNotMosPreImaging,
+      nodAndShuffle = none
+    ),
+    List(
+      Visit.GmosNorth(
+        id = Visit.Id(457L.refined),
+        created =
+          Timestamp.unsafeFromLocalDateTime(LocalDateTime.of(2024, 2, 12, 17, 22, 6, 372335000)),
+        interval = TimestampInterval
+          .between(
+            Timestamp.unsafeFromLocalDateTime(
+              LocalDateTime.of(2024, 2, 12, 17, 22, 6, 937281000)
             ),
-            dtax = GmosDtax.Zero,
-            roi = GmosRoi.FullFrame,
-            gratingConfig = GmosGratingConfig
-              .South(
-                grating = GmosSouthGrating.R600_G5324,
-                order = GmosGratingOrder.Zero,
-                wavelength = Wavelength(520000.refined[Positive])
+            Timestamp.unsafeFromLocalDateTime(LocalDateTime.of(2024, 2, 12, 17, 22, 7, 761573000))
+          )
+          .some,
+        atoms = List(
+          AtomRecord.GmosNorth(
+            id = Atom.Id.fromUuid(UUID.fromString("03e40772-09c1-443d-b4c8-b952995ad109")),
+            created = Timestamp.unsafeFromLocalDateTime(
+              LocalDateTime.of(2024, 2, 12, 17, 22, 6, 673584000)
+            ),
+            interval = TimestampInterval
+              .between(
+                Timestamp.unsafeFromLocalDateTime(
+                  LocalDateTime.of(2024, 2, 12, 17, 22, 7, 761573000)
+                ),
+                Timestamp.unsafeFromLocalDateTime(
+                  LocalDateTime.of(2024, 2, 12, 17, 22, 7, 761573000)
+                )
               )
               .some,
-            filter = none,
-            fpu = GmosFpuMask.Builtin(GmosSouthFpu.LongSlit_1_00).some
-          ),
-          stepConfig = StepConfig.Science(Offset(Offset.P.Zero, Offset.Q.Zero), GuideState.Enabled),
-          stepEvents = List(
-            StepEvent(
-              id = ExecutionEvent.Id(5.refined),
-              received = Instant.parse("2022-08-22T18:26:42.092Z"),
-              sequenceType = SequenceType.Science,
-              stepStage = StepStage.EndStep
-            ),
-            StepEvent(
-              id = ExecutionEvent.Id(4.refined),
-              received = Instant.parse("2022-08-22T18:26:36.809Z"),
-              sequenceType = SequenceType.Science,
-              stepStage = StepStage.StartStep
+            sequenceType = SequenceType.Acquisition,
+            steps = List(
+              StepRecord.GmosNorth(
+                id = Step.Id.fromUuid(UUID.fromString("7adfa674-3753-4158-8dd8-cd08eddbb802")),
+                created = Timestamp.unsafeFromLocalDateTime(
+                  LocalDateTime.of(2024, 2, 12, 17, 22, 7, 490332000)
+                ),
+                interval = TimestampInterval
+                  .between(
+                    Timestamp.unsafeFromLocalDateTime(
+                      LocalDateTime.of(2024, 2, 12, 17, 22, 7, 761573000)
+                    ),
+                    Timestamp.unsafeFromLocalDateTime(
+                      LocalDateTime.of(2024, 2, 12, 17, 22, 7, 761573000)
+                    )
+                  )
+                  .some,
+                instrumentConfig = DynamicConfig.GmosNorth(
+                  exposure = 1000000.µsTimeSpan,
+                  readout = GmosCcdMode(
+                    xBin = GmosXBinning.Two,
+                    yBin = GmosYBinning.Two,
+                    ampCount = GmosAmpCount.Twelve,
+                    ampGain = GmosAmpGain.Low,
+                    ampReadMode = GmosAmpReadMode.Fast
+                  ),
+                  dtax = GmosDtax.Zero,
+                  roi = GmosRoi.Ccd2,
+                  gratingConfig = none,
+                  filter = Some(GmosNorthFilter.RPrime),
+                  fpu = none
+                ),
+                stepConfig = StepConfig.Science(
+                  offset = Offset(Offset.P.Zero, Offset.Q.Zero),
+                  guiding = GuideState.Enabled
+                ),
+                observeClass = ObserveClass.Science,
+                qaState = none,
+                datasets = Nil
+              )
             )
-          ),
-          stepQaState = none,
-          datasetEvents = List.empty,
-          datasets = List.empty
-        )
-      ),
-      sequenceEvents = List(
-        SequenceEvent(
-          id = ExecutionEvent.Id(2.refined),
-          received = Instant.parse("2022-08-22T18:18:56.336Z"),
-          command = SequenceCommand.Start
-        ),
-        SequenceEvent(
-          id = ExecutionEvent.Id(3.refined),
-          received = Instant.parse("2022-08-22T18:20:42.047Z"),
-          command = SequenceCommand.Stop
+          )
         )
       )
     )
@@ -118,8 +121,8 @@ class VisitDecodersSuite extends InputStreamSuite {
 
   test("Visits decoder") {
     jsonResult("/v1.json")
-      .map(_.hcursor.downField("visits"))
-      .map(_.as[List[Visit.GmosSouth]])
+      .map(_.hcursor.downField("observation").downField("execution"))
+      .map(_.as[ExecutionVisits])
       .flatMap(IO.fromEither)
       .map(visits => assertEquals(visits, expectedVisits))
   }

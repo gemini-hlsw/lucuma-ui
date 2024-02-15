@@ -1,104 +1,86 @@
 {
-  "visits": [
-    {
-      "id": "v-7d093b73-3ac7-4886-bb34-0005bcb53ba4",
-      "created": "2022-08-22T18:18:46.236929950Z",
-      "startTime": "2022-08-22T18:18:56.336Z",
-      "endTime": "2022-08-22T18:26:36.809Z",
-      "duration": {
-        "microseconds": 460473000
-      },
-      "staticS": {
-        "stageMode": "FOLLOW_XY",
-        "detector": "HAMAMATSU",
-        "mosPreImaging": "IS_NOT_MOS_PRE_IMAGING"
-      },
-      "stepsS": [
-        {
-          "id": "s-f1214814-93c8-4cdb-848b-8a69e61fc754",
-          "created": "2022-08-22T18:19:03.230191206Z",
-          "startTime": "2022-08-22T18:26:42.092Z",
-          "endTime": "2022-08-22T18:26:36.809Z",
-          "duration": {
-            "microseconds": 0
-          },
-          "instrumentConfig": {
-            "exposure": {
-              "microseconds": 120000000
-            },
-            "readout": {
-              "xBin": "ONE",
-              "yBin": "ONE",
-              "ampCount": "THREE",
-              "ampGain": "LOW",
-              "ampReadMode": "SLOW"
-            },
-            "dtax": "ZERO",
-            "roi": "FULL_FRAME",
-            "gratingConfig": {
-              "grating": "R600_G5324",
-              "order": "ZERO",
-              "wavelength": {
-                "picometers": 520000
-              }
-            },
-            "filter": null,
-            "fpu": {
-              "customMask": null,
-              "builtin": "LONG_SLIT_1_00"
-            }
-          },
-          "stepConfig": {
-            "stepType": "SCIENCE",
-            "offset": {
-              "p": {
-                "microarcseconds": 0
-              },
-              "q": {
-                "microarcseconds": 0
-              }
-            },
-            "guiding": "ENABLED"
-          },
-          "stepEvents": [
-            {
-              "id": "e-5",
-              "received": "2022-08-22T18:26:42.092Z",
-              "payload": {
-                "sequenceType": "SCIENCE",
-                "stepStage": "END_STEP"
-              }
-            },
-            {
-              "id": "e-4",
-              "received": "2022-08-22T18:26:36.809Z",
-              "payload": {
-                "sequenceType": "SCIENCE",
-                "stepStage": "START_STEP"
-              }
-            }
-          ],
-          "stepQaState": null,
-          "datasetEvents": [],
-          "datasets": []
+  "observation": {
+    "execution": {
+      "config": {
+        "instrument": "GMOS_NORTH",
+        "static": {
+          "stageMode": "FOLLOW_XY",
+          "detector": "HAMAMATSU",
+          "mosPreImaging": "IS_NOT_MOS_PRE_IMAGING",
+          "nodAndShuffle": null
         }
-      ],
-      "sequenceEvents": [
-        {
-          "id": "e-2",
-          "received": "2022-08-22T18:18:56.336Z",
-          "payload": {
-            "command": "START"
+      },
+      "visits": {
+        "matches": [
+          {
+            "id": "v-1c9",
+            "instrument": "GMOS_NORTH",
+            "created": "2024-02-12 17:22:06.372335",
+            "interval": {
+              "start": "2024-02-12 17:22:06.937281",
+              "end": "2024-02-12 17:22:07.761573"
+            },
+            "atomRecords": {
+              "matches": [
+                {
+                  "id": "a-03e40772-09c1-443d-b4c8-b952995ad109",
+                  "created": "2024-02-12 17:22:06.673584",
+                  "interval": {
+                    "start": "2024-02-12 17:22:07.761573",
+                    "end": "2024-02-12 17:22:07.761573"
+                  },
+                  "sequenceType": "ACQUISITION",
+                  "steps": {
+                    "matches": [
+                      {
+                        "id": "s-7adfa674-3753-4158-8dd8-cd08eddbb802",
+                        "created": "2024-02-12 17:22:07.490332",
+                        "interval": {
+                          "start": "2024-02-12 17:22:07.761573",
+                          "end": "2024-02-12 17:22:07.761573"
+                        },
+                        "instrumentConfig": {
+                          "exposure": {
+                            "microseconds": 1000000
+                          },
+                          "readout": {
+                            "xBin": "TWO",
+                            "yBin": "TWO",
+                            "ampCount": "TWELVE",
+                            "ampGain": "LOW",
+                            "ampReadMode": "FAST"
+                          },
+                          "dtax": "ZERO",
+                          "roi": "CCD2",
+                          "gratingConfig": null,
+                          "filter": "R_PRIME",
+                          "fpu": null
+                        },
+                        "stepConfig": {
+                          "stepType": "SCIENCE",
+                          "offset": {
+                            "p": {
+                              "microarcseconds": 0
+                            },
+                            "q": {
+                              "microarcseconds": 0
+                            }
+                          },
+                          "guiding": "ENABLED"
+                        },
+                        "observeClass": "SCIENCE",
+                        "datasets": {
+                          "matches": []
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
           }
-        },
-        {
-          "id": "e-3",
-          "received": "2022-08-22T18:20:42.047Z",
-          "payload": {
-            "command": "STOP"
-          }
-        }
-      ]
+        ]
+      }
     }
-  ]
+  }
 }

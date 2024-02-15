@@ -3,14 +3,19 @@
 
 package lucuma.schemas.model
 
+import cats.Eq
+import cats.derived.*
+import lucuma.core.enums.Instrument
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.model.sequence.gmos.StaticConfig
 
-trait ExecutionVisits[S, D]:
-  def visits: List[Visit[S, D]]
+enum ExecutionVisits(val instrument: Instrument) derives Eq:
+  case GmosNorth protected[schemas] (
+    staticConfig: StaticConfig.GmosNorth,
+    visits:       List[Visit.GmosNorth]
+  ) extends ExecutionVisits(Instrument.GmosNorth)
 
-object ExecutionVisits:
-  case class GmosNorth(visits: List[Visit.GmosNorth])
-      extends ExecutionVisits[StaticConfig.GmosNorth, DynamicConfig.GmosNorth]
-  case class GmosSouth(visits: List[Visit.GmosSouth])
-      extends ExecutionVisits[StaticConfig.GmosSouth, DynamicConfig.GmosSouth]
+  case GmosSouth protected[schemas] (
+    staticConfig: StaticConfig.GmosSouth,
+    visits:       List[Visit.GmosSouth]
+  ) extends ExecutionVisits(Instrument.GmosSouth)

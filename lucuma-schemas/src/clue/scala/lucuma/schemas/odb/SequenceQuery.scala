@@ -237,11 +237,10 @@ object SequenceSQL:
 
         fragment sequenceDigestFields on SequenceDigest {
           observeClass
-          plannedTime {
-            charges {
-              chargeClass
-              time { microseconds }
-            }
+          timeEstimate {
+            program { microseconds }
+            partner { microseconds }
+            nonCharged { microseconds }
           }
           offsets { ...offsetFields }
           atomCount

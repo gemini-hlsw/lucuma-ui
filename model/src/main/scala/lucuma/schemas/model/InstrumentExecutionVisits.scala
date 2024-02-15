@@ -3,13 +3,15 @@
 
 package lucuma.schemas.model
 
+import cats.Eq
+import cats.derived.*
 import lucuma.core.enums.Instrument
 
-sealed trait InstrumentExecutionVisits(val instrument: Instrument)
+sealed trait InstrumentExecutionVisits(val instrument: Instrument) derives Eq
 
 object InstrumentExecutionVisits:
   case class GmosNorth(executionVisits: ExecutionVisits.GmosNorth)
-      extends InstrumentExecutionVisits(Instrument.GmosNorth)
+      extends InstrumentExecutionVisits(Instrument.GmosNorth) derives Eq
 
   case class GmosSouth(executionVisits: ExecutionVisits.GmosSouth)
-      extends InstrumentExecutionVisits(Instrument.GmosSouth)
+      extends InstrumentExecutionVisits(Instrument.GmosSouth) derives Eq

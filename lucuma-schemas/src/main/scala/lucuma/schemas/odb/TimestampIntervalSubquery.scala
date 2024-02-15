@@ -4,14 +4,15 @@
 package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
-import lucuma.core.math.Offset
-import lucuma.odb.json.offset.decoder.given
+import lucuma.core.util.TimestampInterval
 import lucuma.schemas.ObservationDB
+import lucuma.schemas.decoders.given
 
-object OffsetSubquery extends GraphQLSubquery.Typed[ObservationDB, Offset]("Offset"):
+object TimestampIntervalSubquery
+    extends GraphQLSubquery.Typed[ObservationDB, TimestampInterval]("TimestampInterval"):
   override val subquery: String = """
         {
-          p { microarcseconds }
-          q { microarcseconds }
+          start
+          end
         }
       """

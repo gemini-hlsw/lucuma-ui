@@ -4,183 +4,139 @@
 package lucuma.schemas.decoders
 
 import cats.syntax.all.*
-import eu.timepit.refined.types.numeric.PosInt
-import eu.timepit.refined.types.string.NonEmptyString
+import eu.timepit.refined.types.numeric.PosShort
 import io.circe.Decoder
 import io.circe.DecodingFailure
-import io.circe.HCursor
-import io.circe.generic.semiauto
 import io.circe.refined.given
 import lucuma.core.enums.DatasetQaState
-import lucuma.core.enums.DatasetStage
 import lucuma.core.enums.Instrument
-import lucuma.core.enums.SequenceCommand
+import lucuma.core.enums.ObserveClass
 import lucuma.core.enums.SequenceType
-import lucuma.core.enums.StepQaState
-import lucuma.core.enums.StepStage
-import lucuma.core.model.ExecutionEvent
+import lucuma.core.model.sequence.Atom
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.model.sequence.gmos.StaticConfig
-import lucuma.core.util.TimeSpan
+import lucuma.core.util.Timestamp
+import lucuma.core.util.TimestampInterval
 import lucuma.odb.json.gmos.given
 import lucuma.odb.json.stepconfig.given
 import lucuma.odb.json.time.decoder.given
 import lucuma.schemas.model.*
 
-import java.time.Instant
-
 trait VisitDecoders:
-  given Decoder[DatasetEvent] = Decoder.instance(c =>
-    for
-      id           <- c.downField("id").as[ExecutionEvent.Id]
-      received     <- c.downField("received").as[Instant]
-      index        <- c.downField("datasetId").downField("index").as[PosInt]
-      payload      <- c.downField("payload").as[HCursor]
-      filename     <- payload.downField("filename").as[NonEmptyString]
-      datasetStage <- payload.downField("datasetStage").as[DatasetStage]
-    yield DatasetEvent(id, received, index, filename, datasetStage)
-  )
+  given Decoder[Dataset.Filename] = Decoder.instance: c =>
+    c.as[String]
+      .flatMap:
+        Dataset.Filename
+          .parse(_)
+          .toRight(DecodingFailure("Error parsing Dataset.Filename", c.history))
 
-  given Decoder[SequenceEvent] = Decoder.instance(c =>
+  given Decoder[Dataset] = Decoder.instance: c =>
     for
-      id       <- c.downField("id").as[ExecutionEvent.Id]
-      received <- c.downField("received").as[Instant]
-      command  <- c.downField("payload").downField("command").as[SequenceCommand]
-    yield SequenceEvent(id, received, command)
-  )
-
-  given Decoder[StepEvent] = Decoder.instance(c =>
-    for
-      id           <- c.downField("id").as[ExecutionEvent.Id]
-      received     <- c.downField("received").as[Instant]
-      payload      <- c.downField("payload").as[HCursor]
-      sequenceType <- payload.downField("sequenceType").as[SequenceType]
-      stepStage    <- payload.downField("stepStage").as[StepStage]
-    yield StepEvent(id, received, sequenceType, stepStage)
-  )
-
-  given Decoder[Dataset] = Decoder.instance(c =>
-    for
-      index    <- c.downField("id").downField("index").as[PosInt]
-      filename <- c.downField("filename").as[NonEmptyString]
+      id       <- c.downField("id").as[Dataset.Id]
+      index    <- c.downField("index").as[PosShort]
+      filename <- c.downField("filename").as[Dataset.Filename]
       qaState  <- c.downField("qaState").as[Option[DatasetQaState]]
-    yield Dataset(index, filename, qaState)
-  )
+      interval <- c.downField("interval").as[Option[TimestampInterval]]
+    yield Dataset(id, index, filename, qaState, interval)
 
-  given Decoder[StepRecord.GmosNorth] = Decoder.instance(c =>
+  given Decoder[StepRecord.GmosNorth] = Decoder.instance: c =>
     for
       id               <- c.downField("id").as[Step.Id]
-      created          <- c.downField("created").as[Instant]
-      startTime        <- c.downField("startTime").as[Option[Instant]]
-      endTime          <- c.downField("endTime").as[Option[Instant]]
-      duration         <- c.downField("duration").as[Option[TimeSpan]]
+      created          <- c.downField("created").as[Timestamp]
+      interval         <- c.downField("interval").as[Option[TimestampInterval]]
       instrumentConfig <- c.downField("instrumentConfig").as[DynamicConfig.GmosNorth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
-      stepEvents       <- c.downField("stepEvents").as[Option[List[StepEvent]]]
-      stepQaState      <- c.downField("stepQaState").as[Option[StepQaState]]
-      datasetEvents    <- c.downField("datasetEvents").as[Option[List[DatasetEvent]]]
-      datasets         <- c.downField("datasets").as[Option[List[Dataset]]]
+      observeClass     <- c.downField("observeClass").as[ObserveClass]
+      qaState          <- c.downField("qaState").as[Option[DatasetQaState]]
+      datasets         <- c.downField("datasets").downField("matches").as[List[Dataset]]
     yield StepRecord.GmosNorth(
       id,
       created,
-      startTime,
-      endTime,
-      duration,
+      interval,
       instrumentConfig,
       stepConfig,
-      stepEvents.orEmpty,
-      stepQaState,
-      datasetEvents.orEmpty,
-      datasets.orEmpty
+      observeClass,
+      qaState,
+      datasets
     )
-  )
 
-  given Decoder[StepRecord.GmosSouth] = Decoder.instance(c =>
+  given Decoder[StepRecord.GmosSouth] = Decoder.instance: c =>
     for
       id               <- c.downField("id").as[Step.Id]
-      created          <- c.downField("created").as[Instant]
-      startTime        <- c.downField("startTime").as[Option[Instant]]
-      endTime          <- c.downField("endTime").as[Option[Instant]]
-      duration         <- c.downField("duration").as[Option[TimeSpan]]
+      created          <- c.downField("created").as[Timestamp]
+      interval         <- c.downField("interval").as[Option[TimestampInterval]]
       instrumentConfig <- c.downField("instrumentConfig").as[DynamicConfig.GmosSouth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
-      stepEvents       <- c.downField("stepEvents").as[Option[List[StepEvent]]]
-      stepQaState      <- c.downField("stepQaState").as[Option[StepQaState]]
-      datasetEvents    <- c.downField("datasetEvents").as[Option[List[DatasetEvent]]]
-      datasets         <- c.downField("datasets").as[Option[List[Dataset]]]
+      observeClass     <- c.downField("observeClass").as[ObserveClass]
+      qaState          <- c.downField("qaState").as[Option[DatasetQaState]]
+      datasets         <- c.downField("datasets").downField("matches").as[List[Dataset]]
     yield StepRecord.GmosSouth(
       id,
       created,
-      startTime,
-      endTime,
-      duration,
+      interval,
       instrumentConfig,
       stepConfig,
-      stepEvents.orEmpty,
-      stepQaState,
-      datasetEvents.orEmpty,
-      datasets.orEmpty
+      observeClass,
+      qaState,
+      datasets
     )
-  )
 
-  // We must specify a name since we have a generated name conflict here.
+  given decoderAtomGmosNorth: Decoder[AtomRecord.GmosNorth] = Decoder.instance: c =>
+    for
+      id           <- c.downField("id").as[Atom.Id]
+      created      <- c.downField("created").as[Timestamp]
+      interval     <- c.downField("interval").as[Option[TimestampInterval]]
+      sequenceType <- c.downField("sequenceType").as[SequenceType]
+      steps        <- c.downField("steps").downField("matches").as[List[StepRecord.GmosNorth]]
+    yield AtomRecord.GmosNorth(id, created, interval, sequenceType, steps)
+
+  given decoderAtomGmosSouth: Decoder[AtomRecord.GmosSouth] = Decoder.instance: c =>
+    for
+      id           <- c.downField("id").as[Atom.Id]
+      created      <- c.downField("created").as[Timestamp]
+      interval     <- c.downField("interval").as[Option[TimestampInterval]]
+      sequenceType <- c.downField("sequenceType").as[SequenceType]
+      steps        <- c.downField("steps").downField("matches").as[List[StepRecord.GmosSouth]]
+    yield AtomRecord.GmosSouth(id, created, interval, sequenceType, steps)
+
+  // We must specify a name since the automatic names only take the last part of the type path,
+  // generating conflicts among all the `.GmosNorth` and `.GmosSouth` types.
   // See https://dotty.epfl.ch/docs/reference/contextual/givens.html#anonymous-givens
-  given decoderVisitGmosNorth: Decoder[Visit.GmosNorth] = Decoder.instance(c =>
+  given decoderVisitGmosNorth: Decoder[Visit.GmosNorth] = Decoder.instance: c =>
     for
-      id             <- c.downField("id").as[Visit.Id]
-      created        <- c.downField("created").as[Instant]
-      startTime      <- c.downField("startTime").as[Option[Instant]]
-      endTime        <- c.downField("endTime").as[Option[Instant]]
-      duration       <- c.downField("duration").as[Option[TimeSpan]]
-      staticConfig   <- c.downField("staticN").as[StaticConfig.GmosNorth]
-      steps          <- c.downField("stepsN").as[List[StepRecord.GmosNorth]]
-      sequenceEvents <- c.downField("sequenceEvents").as[List[SequenceEvent]]
-    yield Visit.GmosNorth(
-      id,
-      created,
-      startTime,
-      endTime,
-      duration,
-      staticConfig,
-      steps,
-      sequenceEvents
-    )
-  )
+      id       <- c.downField("id").as[Visit.Id]
+      created  <- c.downField("created").as[Timestamp]
+      interval <- c.downField("interval").as[Option[TimestampInterval]]
+      steps    <- c.downField("atomRecords").downField("matches").as[List[AtomRecord.GmosNorth]]
+    yield Visit.GmosNorth(id, created, interval, steps)
 
-  given decoderVisitGmosSouth: Decoder[Visit.GmosSouth] = Decoder.instance(c =>
+  given decoderVisitGmosSouth: Decoder[Visit.GmosSouth] = Decoder.instance: c =>
     for
-      id             <- c.downField("id").as[Visit.Id]
-      created        <- c.downField("created").as[Instant]
-      startTime      <- c.downField("startTime").as[Option[Instant]]
-      endTime        <- c.downField("endTime").as[Option[Instant]]
-      duration       <- c.downField("duration").as[Option[TimeSpan]]
-      staticConfig   <- c.downField("staticS").as[StaticConfig.GmosSouth]
-      steps          <- c.downField("stepsS").as[List[StepRecord.GmosSouth]]
-      sequenceEvents <- c.downField("sequenceEvents").as[List[SequenceEvent]]
-    yield Visit.GmosSouth(
-      id,
-      created,
-      startTime,
-      endTime,
-      duration,
-      staticConfig,
-      steps,
-      sequenceEvents
-    )
-  )
+      id       <- c.downField("id").as[Visit.Id]
+      created  <- c.downField("created").as[Timestamp]
+      interval <- c.downField("interval").as[Option[TimestampInterval]]
+      steps    <- c.downField("atomRecords").downField("matches").as[List[AtomRecord.GmosSouth]]
+    yield Visit.GmosSouth(id, created, interval, steps)
 
-  given decoderExecutionVisitsGmosNorth: Decoder[ExecutionVisits.GmosNorth] = semiauto.deriveDecoder
+  given decoderExecutionVisitsGmosNorth: Decoder[ExecutionVisits.GmosNorth] = Decoder.instance: c =>
+    for
+      staticConfig <- c.downField("config").downField("static").as[StaticConfig.GmosNorth]
+      visits       <- c.downField("visits").downField("matches").as[List[Visit.GmosNorth]]
+    yield ExecutionVisits.GmosNorth(staticConfig, visits)
 
-  given decoderExecutionVisitsGmosSouth: Decoder[ExecutionVisits.GmosSouth] = semiauto.deriveDecoder
+  given decoderExecutionVisitsGmosSouth: Decoder[ExecutionVisits.GmosSouth] = Decoder.instance: c =>
+    for
+      staticConfig <- c.downField("config").downField("static").as[StaticConfig.GmosSouth]
+      visits       <- c.downField("visits").downField("matches").as[List[Visit.GmosSouth]]
+    yield ExecutionVisits.GmosSouth(staticConfig, visits)
 
-  given Decoder[InstrumentExecutionVisits] = Decoder.instance: c =>
-    c.downField("instrument")
+  given Decoder[ExecutionVisits] = Decoder.instance: c =>
+    c.downField("config")
+      .downField("instrument")
       .as[Instrument]
       .flatMap:
-        case Instrument.GmosNorth =>
-          c.as[ExecutionVisits.GmosNorth].map(InstrumentExecutionVisits.GmosNorth(_))
-        case Instrument.GmosSouth =>
-          c.as[ExecutionVisits.GmosSouth].map(InstrumentExecutionVisits.GmosSouth(_))
+        case Instrument.GmosNorth => c.as[ExecutionVisits.GmosNorth]
+        case Instrument.GmosSouth => c.as[ExecutionVisits.GmosSouth]
         case _                    => DecodingFailure("Only Gmos supported", c.history).asLeft
