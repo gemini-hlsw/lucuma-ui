@@ -19,7 +19,7 @@ object DynamicEnums:
   )(using Decoder[E]): Enumerated[E] =
     parsedEnums.downField(field).as[List[E]] match
       case Left(err)     => err.printStackTrace; throw err
-      case Right(values) => Enumerated.from(values.head, values.tail: _*).withTag(tagFn)
+      case Right(values) => Enumerated.from(values.head, values.tail*).withTag(tagFn)
 
   // The givens are apparently (probably) constructed lazily.
   // See https://alexn.org/blog/2022/05/11/implicit-vs-scala-3-given/
