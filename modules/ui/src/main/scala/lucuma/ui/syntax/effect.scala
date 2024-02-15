@@ -14,6 +14,9 @@ import scala.concurrent.duration.*
 
 trait effect {
   extension [F[_], A](self: F[A])
+    /**
+     * Materializes exceptions into values as `Pot.Error`, and return values as `Pot.Ready`.
+     */
     def attemptPot(using MonadThrow[F]): F[Pot[A]] = self.attempt.map(_.toTry.some.toPot)
 
     /**
@@ -58,7 +61,7 @@ trait effect {
       tail: Resource[F, fs2.Stream[F, ?]]*
     )(using Temporal[F]): Resource[F, fs2.Stream[F, A]] =
       reRunOnResourceSignals(
-        NonEmptyList.of(head, tail: _*),
+        NonEmptyList.of(head, tail*),
         2.seconds.some // For some reason, compiler can't resolve default parameter value here
       )
 
@@ -71,7 +74,7 @@ trait effect {
       head:     Resource[F, fs2.Stream[F, ?]],
       tail:     Resource[F, fs2.Stream[F, ?]]*
     )(using Temporal[F]): Resource[F, fs2.Stream[F, A]] =
-      reRunOnResourceSignals(NonEmptyList.of(head, tail: _*), debounce.some)
+      reRunOnResourceSignals(NonEmptyList.of(head, tail*), debounce.some)
 
   extension [F[_], A](f: F[Pot[A]])
     /**
@@ -116,7 +119,7 @@ trait effect {
       head: Resource[F, fs2.Stream[F, ?]],
       tail: Resource[F, fs2.Stream[F, ?]]*
     )(using Temporal[F]): Resource[F, fs2.Stream[F, Pot[A]]] =
-      resetOnResourceSignalsB(NonEmptyList.of(head, tail: _*))
+      resetOnResourceSignalsB(NonEmptyList.of(head, tail*))
 
     /**
      * Given an effect `f` producing an A and a bunch of `Resource`s providing signal streams,
@@ -128,7 +131,7 @@ trait effect {
       head:     Resource[F, fs2.Stream[F, ?]],
       tail:     Resource[F, fs2.Stream[F, ?]]*
     )(using Temporal[F]): Resource[F, fs2.Stream[F, Pot[A]]] =
-      resetOnResourceSignalsB(NonEmptyList.of(head, tail: _*), debounce.some)
+      resetOnResourceSignalsB(NonEmptyList.of(head, tail*), debounce.some)
 }
 
 object effect extends effect

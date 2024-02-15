@@ -17,11 +17,11 @@ import lucuma.core.model.sequence.*
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.model.sequence.gmos.GmosFpuMask
 import lucuma.core.util.TimeSpan
+import lucuma.core.util.Timestamp
+import lucuma.core.util.TimestampInterval
 import lucuma.react.table.RowId
 import lucuma.schemas.model.StepRecord
 import lucuma.schemas.model.Visit
-
-import java.time.Instant
 
 /**
  * A row of a sequence table. It can be one of:
@@ -178,26 +178,24 @@ object SequenceRow:
         stepEstimate = none,
         signalToNoise = signalToNoise
       ):
-    def created: Instant
-    def startTime: Option[Instant]
-    def endTime: Option[Instant]
-    def duration: Option[TimeSpan]
+    def created: Timestamp
+    def interval: Option[TimestampInterval]
 
   object Executed:
-    final class ExecutedVisit[S, D](
-      visit:         Visit[S, D],
-      signalToNoise: Visit[S, D] => Option[SignalToNoise]
+    final class ExecutedVisit[D](
+      visit:         Visit[D],
+      signalToNoise: Visit[D] => Option[SignalToNoise]
     ) extends Executed[D](
           id = visit.id.asLeft,
           instrumentConfig = none,
           stepConfig = none,
           signalToNoise = signalToNoise(visit)
         ):
-      export visit.{created, duration, endTime, id => visitId, startTime}
+      export visit.{created, id => visitId, interval}
 
     object ExecutedVisit:
       // TODO Is it same to assume step identity just by id ??
-      given [S, D]: Eq[ExecutedVisit[S, D]] = Eq.by(_.id)
+      given [D]: Eq[ExecutedVisit[D]] = Eq.by(_.id)
 
     final class ExecutedStep[D](
       stepRecord:    StepRecord[D],
@@ -208,28 +206,18 @@ object SequenceRow:
           stepConfig = stepRecord.stepConfig.some,
           signalToNoise = signalToNoise(stepRecord)
         ):
-      export stepRecord.{
-        created,
-        datasetEvents,
-        datasets,
-        duration,
-        endTime,
-        id => stepId,
-        startTime,
-        stepEvents,
-        stepQaState
-      }
+      export stepRecord.{created, datasets, id => stepId, interval, qaState}
 
     object ExecutedStep:
       // TODO Is it same to assume step identity just by id ??
       given [D]: Eq[ExecutedStep[D]] = Eq.by(_.id)
 
   given [S, D]: Eq[SequenceRow[D]] = Eq.instance:
-    case (l: FutureStep[D], r: FutureStep[D])                                                     =>
+    case (l: FutureStep[D], r: FutureStep[D])                         =>
       l === r
-    case (l: Executed.ExecutedVisit[S @unchecked, D], r: Executed.ExecutedVisit[S @unchecked, D]) =>
+    case (l: Executed.ExecutedVisit[D], r: Executed.ExecutedVisit[D]) =>
       l === r
-    case (l: Executed.ExecutedStep[D], r: Executed.ExecutedStep[D])                               =>
+    case (l: Executed.ExecutedStep[D], r: Executed.ExecutedStep[D])   =>
       l === r
-    case _                                                                                        =>
+    case _                                                            =>
       false

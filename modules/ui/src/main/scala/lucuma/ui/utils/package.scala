@@ -58,7 +58,7 @@ extension [F[_], A](listView: ViewF[F, List[A]])
     listView.get.indices.toList.map { i =>
       val atIndex = index[List[A], Int, A](i)
       listView
-        .zoom((atIndex.getOption _).andThen(_.get))(atIndex.modify)
+        .zoom(atIndex.getOption.andThen(_.get))(atIndex.modify)
     }
 
 extension [F[_], K, V](mapView: ViewF[F, Map[K, V]])
