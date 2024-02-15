@@ -11,11 +11,7 @@ import lucuma.schemas.ObservationDB
 object OffsetSubquery extends GraphQLSubquery.Typed[ObservationDB, Offset]("Offset"):
   override val subquery: String = """
         {
-          p {
-            microarcseconds
-          }
-          q {
-            microarcseconds
-          }
+          p { microarcseconds }
+          q { microarcseconds }
         }
       """
