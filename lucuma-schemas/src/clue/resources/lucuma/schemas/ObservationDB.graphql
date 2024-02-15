@@ -240,7 +240,7 @@ type AtomRecord {
   created: Timestamp!
 
   """Time interval during which this atom executed."""
-  interval: TimestampInterval!
+  interval: TimestampInterval
 
   """Sequence type."""
   sequenceType: SequenceType!
@@ -1388,7 +1388,7 @@ type GmosNorthStepRecord implements StepRecord {
   created: Timestamp!
 
   """Time interval during which this step executed."""
-  interval: TimestampInterval!
+  interval: TimestampInterval
 
   """
   The step configuration. apart from instrument details in 'instrumentConfig'.
@@ -1451,7 +1451,7 @@ type GmosNorthVisit implements Visit {
   created: Timestamp!
 
   """Time interval during which this visit executed."""
-  interval: TimestampInterval!
+  interval: TimestampInterval
 
   """Executed (or at least partially executed) atom records for this visit."""
   atomRecords(
@@ -1789,7 +1789,7 @@ type GmosSouthStepRecord implements StepRecord {
   created: Timestamp!
 
   """Time interval during which this step executed."""
-  interval: TimestampInterval!
+  interval: TimestampInterval
 
   """
   The step configuration. apart from instrument details in 'instrumentConfig'.
@@ -1852,7 +1852,7 @@ type GmosSouthVisit implements Visit {
   created: Timestamp!
 
   """Time interval during which this visit executed."""
-  interval: TimestampInterval!
+  interval: TimestampInterval
 
   """Executed (or at least partially executed) atom records for this visit."""
   atomRecords(
@@ -5052,6 +5052,15 @@ type Group {
 
   """Contained elements"""
   elements: [GroupElement!]!
+
+  """
+  Remaining execution time estimate range, assuming it can be calculated.  In
+  order for an observation to have an estimate, it must be fully defined such
+  that a sequence can be generated for it.  If a group has observations that
+  are required and which are not fully defined, the remaining time estimate
+  cannot be calculated.
+  """
+  timeEstimateRange: CategorizedTimeRange
 }
 
 scalar GroupId
@@ -5634,42 +5643,6 @@ enum PlanetaryNebulaSpectrum {
   IC5117
 }
 
-"""
-An estimation of the remaining execution time, categorized by charge class.
-"""
-type PlannedTime {
-  """Individual time charges."""
-  charges: [PlannedTimeCharge!]!
-
-  """
-  The total of all charges (i.e., the remaining execution time estimate ignoring
-  charge class).
-  """
-  total: TimeSpan!
-}
-
-"""A charge class and its corresponding time amount"""
-type PlannedTimeCharge {
-  """Charge class"""
-  chargeClass: ChargeClass!
-
-  """Charge amount"""
-  time: TimeSpan!
-}
-
-"""
-The range of remaining time estimates from minimum to maximum.  The actual
-remaining time should vary between the two extremes, depending upon which
-observations and groups are actually completed.
-"""
-type PlannedTimeRange {
-  """Minimum remaining planned time estimate."""
-  minimum: PlannedTime!
-
-  """Maximum remaining planned time estimate."""
-  maximum: PlannedTime!
-}
-
 """Poor Weather"""
 type PoorWeather implements ProposalClass {
   """Minimum percent of requested observation time that is required"""
@@ -5779,15 +5752,6 @@ type Program {
 
   """All group elements (observations and sub-groups) in the program."""
   allGroupElements: [GroupElement!]!
-
-  """
-  Remaining execution time estimate range, assuming it can be calculated.  In
-  order for an observation to have a 'PlannedTime', it must be fully defined
-  such that a sequence can be generated for it.  If a program has observations
-  that are required and which are not fully defined, the planned time range
-  cannot be calculated.
-  """
-  plannedTimeRange: PlannedTimeRange @deprecated(reason: "Use timeEstimateRange instead.")
 
   """
   Remaining execution time estimate range, assuming it can be calculated.  In
@@ -6317,9 +6281,6 @@ type SequenceDigest {
   """ObserveClass of the whole sequence. """
   observeClass: ObserveClass!
 
-  """PlannedTime for the whole sequence. """
-  plannedTime: PlannedTime! @deprecated(reason: "Use timeEstimate instead.")
-
   """Time estimate for the whole sequence."""
   timeEstimate: CategorizedTime!
 
@@ -6838,7 +6799,7 @@ interface StepRecord {
   created: Timestamp!
 
   """Time interval during which this step executed."""
-  interval: TimestampInterval!
+  interval: TimestampInterval
 
   """
   The step configuration, apart from instrument details found in the
@@ -7402,7 +7363,7 @@ interface Visit {
   created: Timestamp!
 
   """Time interval during which this visit executed."""
-  interval: TimestampInterval!
+  interval: TimestampInterval
 
   """Executed (or at least partially executed) atom records for this visit."""
   atomRecords(
