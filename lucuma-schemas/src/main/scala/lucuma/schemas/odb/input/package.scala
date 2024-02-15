@@ -368,7 +368,7 @@ extension (sidereal: Target.Sidereal)
 
   def toCreateTargetInput(programId: Program.Id): CreateTargetInput =
     CreateTargetInput(
-      programId = programId,
+      programId = programId.assign,
       SET = TargetPropertiesInput(
         name = sidereal.name.assign,
         sidereal = toInput.assign,
@@ -383,7 +383,7 @@ extension (nonsidereal: Target.Nonsidereal)
 
   def toCreateTargetInput(programId: Program.Id): CreateTargetInput =
     CreateTargetInput(
-      programId = programId,
+      programId = programId.assign,
       SET = TargetPropertiesInput(
         name = nonsidereal.name.assign,
         nonsidereal = toInput.assign,
