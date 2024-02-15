@@ -33,7 +33,7 @@ object FormInputTextArea:
     val group = <.div(
       LucumaPrimeStyles.FormField,
       InputTextarea(autoResize = props.autoResize)(^.id := props.id.value, ^.value := props.value)(
-        props.modifiers: _*
+        props.modifiers*
       )
     )
 

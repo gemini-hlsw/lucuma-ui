@@ -17,7 +17,7 @@ lazy val lucumaCoreVersion        = "0.92.0"
 lazy val lucumaPrimeStylesVersion = "0.2.10"
 lazy val lucumaReactVersion       = "0.48.2"
 lazy val lucumaRefinedVersion     = "0.1.2"
-lazy val lucumaSchemasVersion     = "0.72.0-12-1cac34e-SNAPSHOT"
+lazy val lucumaSchemasVersion     = "0.73.0"
 lazy val lucumaSsoVersion         = "0.6.11"
 lazy val monocleVersion           = "3.2.0"
 lazy val mouseVersion             = "1.2.2"
@@ -36,8 +36,8 @@ addCommandAlias(
 
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
-ThisBuild / scalaVersion             := "3.3.1"
-ThisBuild / crossScalaVersions       := Seq("3.3.1")
+ThisBuild / scalaVersion             := "3.4.0"
+ThisBuild / crossScalaVersions       := Seq("3.4.0")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions")
 
 enablePlugins(NoPublishPlugin)

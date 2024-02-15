@@ -18,11 +18,10 @@ import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.model.sequence.gmos.GmosFpuMask
 import lucuma.core.util.TimeSpan
 import lucuma.core.util.Timestamp
+import lucuma.core.util.TimestampInterval
 import lucuma.react.table.RowId
 import lucuma.schemas.model.StepRecord
 import lucuma.schemas.model.Visit
-
-import lucuma.core.util.TimestampInterval
 
 /**
  * A row of a sequence table. It can be one of:
@@ -180,7 +179,7 @@ object SequenceRow:
         signalToNoise = signalToNoise
       ):
     def created: Timestamp
-    def interval: TimestampInterval
+    def interval: Option[TimestampInterval]
 
   object Executed:
     final class ExecutedVisit[D](
