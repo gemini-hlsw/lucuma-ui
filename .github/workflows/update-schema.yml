@@ -28,10 +28,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install graphqurl
-        run: npm install -g graphqurl
+          cache: npm
+      - run: npm ci
       - name: Fetch latest ODB schema
-        run: ./fetchODBSchema.sh dev
+        run: ./fetchODBSchema.mjs dev
         env:
           ODB_API_KEY: ${{ secrets.LUCUMA_DEV_API_KEY }}
       - name: Create Pull Request

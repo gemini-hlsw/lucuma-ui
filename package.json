@@ -1,0 +1,17 @@
+{
+  "name": "lucuma-schemas",
+  "version": "1.0.0",
+  "private": true,
+  "main": "fetchODBSchema.mjs",
+  "description": "Fetch ODB schema",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "start": "./fetchODBSchema.mjs"
+  },
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "graphql": "^16.8.1"
+  }
+}
