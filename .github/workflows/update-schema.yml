@@ -34,16 +34,17 @@ jobs:
         run: ./fetchODBSchema.sh dev
         env:
           ODB_API_KEY: ${{ secrets.LUCUMA_DEV_API_KEY }}
-      - name: Commit and push changes
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: Update ODB Schema
+          commit-message: Update ODB Schema
+          author: lucuma-steward[bot] <106720676+lucuma-steward[bot]@users.noreply.github.com>
+          branch: steward/update-odb-schema
+          delete-branch: true
+          token: ${{ steps.generate-token.outputs.token }}
+      - name: Check Pull Request
         run: |
-          git config --local user.name 'lucuma-steward[bot]'
-          git config --local user.email '106720676+lucuma-steward[bot]@users.noreply.github.com'
-
-          git checkout -b steward/update-odb-schema
-          git add .
-          git commit -m 'Update ODB Schema' || exit 0
-          git push --force --set-upstream origin steward/update-odb-schema
-
-          gh pr create --fill --base main || exit 0
-        env:
-          GITHUB_TOKEN: ${{ steps.generate-token.outputs.token }}
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
