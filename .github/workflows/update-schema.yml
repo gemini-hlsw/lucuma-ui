@@ -40,7 +40,7 @@ jobs:
         with:
           title: Update ODB Schema
           commit-message: Update ODB Schema
-          author: lucuma-steward[bot] <106720676+lucuma-steward[bot]@users.noreply.github.com>
+          committer: lucuma-steward[bot] <106720676+lucuma-steward[bot]@users.noreply.github.com>
           branch: steward/update-odb-schema
           delete-branch: true
           token: ${{ steps.generate-token.outputs.token }}
