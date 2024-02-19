@@ -7,15 +7,17 @@ import cats.effect.Concurrent
 import cats.effect.std.MapRef
 import cats.syntax.all.*
 import cats.effect.Fiber
-import cats.effect.implicits.*
 import cats.Applicative
+import cats.effect.std.Supervisor
+import cats.effect.Resource
 
 final class KeyedSingleEffect[F[_]: Concurrent, K] private (
-  fibers: MapRef[F, K, Option[Fiber[F, Throwable, Unit]]]
+  supervisor: Supervisor[F],
+  fibers:     MapRef[F, K, Option[Fiber[F, Throwable, Unit]]]
 ) {
   def submit(key: K, task: F[Unit]): F[Unit] =
     def execute(update: Option[Fiber[F, Throwable, Unit]] => F[Boolean]): F[Unit] =
-      (task >> update(none).void).start.flatMap(fiber => update(fiber.some)).flatMap {
+      supervisor.supervise(task >> update(none).void).flatMap(fiber => update(fiber.some)).flatMap {
         case false => submit(key, task)
         case true  => Applicative[F].unit
       }
@@ -28,8 +30,10 @@ final class KeyedSingleEffect[F[_]: Concurrent, K] private (
 }
 
 object KeyedSingleEffect {
-  def apply[F[_]: Concurrent, K]: F[KeyedSingleEffect[F, K]] =
-    MapRef.ofSingleImmutableMap[F, K, Fiber[F, Throwable, Unit]](Map.empty).map { fibers =>
-      new KeyedSingleEffect(fibers)
+  def apply[F[_]: Concurrent, K]: Resource[F, KeyedSingleEffect[F, K]] =
+    Supervisor[F].evalMap { supervisor =>
+      MapRef.ofSingleImmutableMap[F, K, Fiber[F, Throwable, Unit]](Map.empty).map { fibers =>
+        new KeyedSingleEffect(supervisor, fibers)
+      }
     }
 }
