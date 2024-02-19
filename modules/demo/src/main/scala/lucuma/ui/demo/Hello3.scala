@@ -13,7 +13,7 @@ import fs2.Stream
 import fs2.Pipe
 import fs2.concurrent.Channel
 
-def keyedSwitchMap[F[_]: Concurrent, I, O, K](
+def keyedSwitchEvalMap[F[_]: Concurrent, I, O, K](
   key: I => K,
   f:   I => F[O]
 ): Pipe[F, I, O] = {
