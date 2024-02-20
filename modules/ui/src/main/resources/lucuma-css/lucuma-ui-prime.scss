@@ -1,4 +1,4 @@
-@use "lucuma-ui-common.scss" as lucumaUICommon;
+@use 'lucuma-ui-common.scss' as lucumaUICommon;
 
 :root {
   // unfortunately, primereact uses `scaling factors` to scala the `lg` and `sm` components. It also
@@ -302,6 +302,14 @@
 
     @media (width >=1200px) {
       width: 1080px;
+    }
+  }
+}
+
+.p-time-span-input {
+  .pl-time-span-input-item {
+    input {
+      width: 44px;
     }
   }
 }

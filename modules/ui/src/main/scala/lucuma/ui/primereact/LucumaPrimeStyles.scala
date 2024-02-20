@@ -42,4 +42,7 @@ trait LucumaPrimeStyles:
     val Small: Css = Css("pl-dialog-small")
     val Large: Css = Css("pl-dialog-large")
 
+  val TimeSpanInput: Css     = Css("p-time-span-input")
+  val TimeSpanInputItem: Css = Css("pl-time-span-input-item")
+
 object LucumaPrimeStyles extends LucumaPrimeStyles
