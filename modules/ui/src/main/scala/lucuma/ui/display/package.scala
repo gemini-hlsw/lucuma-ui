@@ -4,6 +4,7 @@
 package lucuma.ui
 
 import lucuma.core.util.Display
+
 import java.util.concurrent.TimeUnit
 
 package object display:
