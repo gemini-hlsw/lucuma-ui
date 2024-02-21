@@ -25,6 +25,7 @@ import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
 import lucuma.core.math.validation.MathValidators
+import lucuma.core.util.TimeSpan
 import lucuma.core.validation.*
 import lucuma.react.common.ReactFnProps
 import lucuma.react.common.style.Css
@@ -32,6 +33,7 @@ import lucuma.refined.*
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.input.FilterMode
 import lucuma.ui.primereact.FormInputTextView
+import lucuma.ui.primereact.FormTimeSpanInput
 import lucuma.ui.primereact.LucumaPrimeStyles
 import lucuma.ui.primereact.given
 import lucuma.ui.syntax.all.given
@@ -69,7 +71,8 @@ object FormComponent {
     dec:           Declination,
     epoch:         Epoch,
     optionalEpoch: Option[Epoch],
-    scientific:    BigDecimal
+    scientific:    BigDecimal,
+    timeSpan:      TimeSpan
   )
 
   object RootModel {
@@ -87,7 +90,8 @@ object FormComponent {
         Declination.fromStringSignedDMS.getOption("-11:22:33.987654").get,
         Epoch.J2000,
         None,
-        BigDecimal(1.234e-19)
+        BigDecimal(1.234e-19),
+        TimeSpan.Zero
       )
 
     val field1        = Focus[RootModel](_.field1)
@@ -103,6 +107,7 @@ object FormComponent {
     val epoch         = Focus[RootModel](_.epoch)
     val optionalEpoch = Focus[RootModel](_.optionalEpoch)
     val scientific    = Focus[RootModel](_.scientific)
+    val timeSpan      = Focus[RootModel](_.timeSpan)
   }
 
   val component =
@@ -224,6 +229,13 @@ object FormComponent {
                 value = root.zoom(RootModel.scientific),
                 validFormat = InputValidSplitEpi.bigDecimalWithScientificNotation,
                 changeAuditor = ChangeAuditor.scientificNotation()
+              ),
+              FormTimeSpanInput(
+                id = "time-span".refined,
+                label = "Time Span - min 4 hours, max 1 day 3 hours",
+                value = root.zoom(RootModel.timeSpan),
+                min = TimeSpan.fromHours(4).get,
+                max = TimeSpan.fromHours(27).get
               )
             )
           )

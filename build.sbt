@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.92"
+ThisBuild / tlBaseVersion       := "0.93"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val catsVersion              = "2.10.0"
@@ -16,7 +16,7 @@ lazy val lucumaPrimeStylesVersion = "0.2.10"
 lazy val lucumaReactVersion       = "0.48.3"
 lazy val lucumaRefinedVersion     = "0.1.2"
 lazy val lucumaSchemasVersion     = "0.73.0"
-lazy val lucumaSsoVersion         = "0.6.11"
+lazy val lucumaSsoVersion         = "0.6.12"
 lazy val monocleVersion           = "3.2.0"
 lazy val mouseVersion             = "1.2.2"
 lazy val pprintVersion            = "0.8.1"
@@ -158,9 +158,9 @@ ThisBuild / githubWorkflowSbtCommand := "sbt -v -J-Xmx6g"
 
 ThisBuild / githubWorkflowPublishPreamble +=
   WorkflowStep.Use(
-    UseRef.Public("actions", "setup-node", "v3"),
+    UseRef.Public("actions", "setup-node", "v4"),
     Map(
-      "node-version" -> "18",
+      "node-version" -> "20",
       "registry-url" -> "https://registry.npmjs.org"
     )
   )

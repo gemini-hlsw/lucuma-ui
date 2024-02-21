@@ -4,6 +4,7 @@
 package lucuma.ui.demo
 
 import cats.effect.*
+import japgolly.scalajs.react.React
 import japgolly.scalajs.react.ReactDOMClient
 import japgolly.scalajs.react.extra.ReusabilityOverlay
 import japgolly.scalajs.react.vdom.html_<^.*
@@ -28,9 +29,7 @@ trait AppMain extends IOApp.Simple {
       elem
     }
 
-    ReactDOMClient.createRoot(container).render(rootComponent)
-
-    ()
+    ReactDOMClient.createRoot(container).render(React.StrictMode(rootComponent))
   }
 }
 
