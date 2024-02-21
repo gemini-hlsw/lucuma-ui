@@ -18,11 +18,15 @@ import lucuma.ui.reusability.given
 
 import java.util.concurrent.TimeUnit
 import scala.collection.immutable.SortedMap
+import scala.scalajs.js
 
 case class FormTimeSpanInput[V[_]](
   id:       NonEmptyString,
   value:    V[TimeSpan],
   units:    NonEmptyList[TimeUnit] = NonEmptyList.of(TimeUnit.DAYS, TimeUnit.HOURS, TimeUnit.MINUTES),
+  label:    js.UndefOr[TagMod] = js.undefined,
+  min:      js.UndefOr[TimeSpan] = js.undefined,
+  max:      js.UndefOr[TimeSpan] = js.undefined,
   disabled: Boolean = false
 )(using ViewLike[V])
     extends ReactFnProps(FormTimeSpanInput.component)
@@ -36,16 +40,17 @@ object FormTimeSpanInput:
       (u, v) => makeTimeUnitsMap(u, v.orEmpty)
     )
     .render: (props, timeUnitValues) =>
-      <.div(
+      val input = <.div(
         ^.id := props.id.value,
         LucumaPrimeStyles.TimeSpanInput,
         timeUnitValues.value.toVdomArray: (unit, value) =>
+          val unitName = unit.shortName
           InputNumber(
-            id = s"${props.id.value}-${unit.shortName}-input",
+            id = s"${props.id.value}-${unitName}-input",
             maxFractionDigits = 0,
             disabled = props.disabled,
             value = value,
-            suffix = unit.shortName,
+            suffix = unitName,
             min = 0,
             onValueChange = e =>
               // Calculate the total timespan from the individual time units
@@ -57,8 +62,21 @@ object FormTimeSpanInput:
                     TimeUnit.MICROSECONDS.convert(value.toLong, unit)
                   )
                 }
-              props.value.set(newValue).when_(props.value.get.orEmpty =!= newValue)
-          ).withMods(^.key := unit.shortName, LucumaPrimeStyles.TimeSpanInputItem)
+
+              val newValueClamped = clampTimeSpan(newValue, props.min.toOption, props.max.toOption)
+
+              props.value
+                .set(newValueClamped)
+                .when_(newValueClamped =!= props.value.get.orEmpty || newValue =!= newValueClamped)
+          ).withMods(LucumaPrimeStyles.TimeSpanInputItem,
+                     ^.size := Math.max(unitName.length + value.toString.length, 3)
+          ).withKey(unitName)
+            .toUnmounted
+      )
+
+      React.Fragment(
+        props.label.map(l => FormLabel(htmlFor = props.id)(l)),
+        input
       )
 
   /**
@@ -84,3 +102,10 @@ object FormTimeSpanInput:
   private given Enumerated[TimeUnit] = Enumerated
     .fromNEL(NonEmptyList.fromListUnsafe(TimeUnit.values().reverse.toList))
     .withTag(_.shortName)
+
+  /** Clamp a time span to between the given min and max, if they are defined */
+  private def clampTimeSpan(ts: TimeSpan, min: Option[TimeSpan], max: Option[TimeSpan]): TimeSpan =
+    if min.forall(_ <= ts) && max.forall(_ >= ts) then ts
+    else
+      val minClamped = min.fold(ts)(ts.max)
+      max.fold(minClamped)(minClamped.min)

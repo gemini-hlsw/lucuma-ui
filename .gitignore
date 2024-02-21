@@ -34,4 +34,3 @@ metals.sbt
 .hydra/
 .direnv/
 modules/demo/node_modules
-modules/demo/package-lock.json

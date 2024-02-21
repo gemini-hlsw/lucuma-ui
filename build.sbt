@@ -158,9 +158,9 @@ ThisBuild / githubWorkflowSbtCommand := "sbt -v -J-Xmx6g"
 
 ThisBuild / githubWorkflowPublishPreamble +=
   WorkflowStep.Use(
-    UseRef.Public("actions", "setup-node", "v3"),
+    UseRef.Public("actions", "setup-node", "v4"),
     Map(
-      "node-version" -> "18",
+      "node-version" -> "20",
       "registry-url" -> "https://registry.npmjs.org"
     )
   )
