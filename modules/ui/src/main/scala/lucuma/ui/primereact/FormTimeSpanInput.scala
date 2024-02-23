@@ -28,18 +28,22 @@ case class FormTimeSpanInput[V[_]](
   min:      js.UndefOr[TimeSpan] = js.undefined,
   max:      js.UndefOr[TimeSpan] = js.undefined,
   disabled: Boolean = false
-)(using ViewLike[V])
+)(using val vl: ViewLike[V])
     extends ReactFnProps(FormTimeSpanInput.component)
 
 object FormTimeSpanInput:
+  private type AnyF[_]     = Any
   private type Props[V[_]] = FormTimeSpanInput[V]
 
-  def component[V[_]](using ViewLike[V]) = ScalaFnComponent
+  private def componentBuilder[V[_]] = ScalaFnComponent
     .withHooks[Props[V]]
-    .useMemoBy(props => (props.units, props.value.get))(_ =>
-      (u, v) => makeTimeUnitsMap(u, v.orEmpty)
-    )
+    .useMemoBy { props =>
+      import props.given
+      (props.units, props.value.get)
+    }(_ => (u, v) => makeTimeUnitsMap(u, v.orEmpty))
     .render: (props, timeUnitValues) =>
+      import props.given
+
       val input = <.div(
         ^.id := props.id.value,
         LucumaPrimeStyles.TimeSpanInput,
@@ -78,6 +82,8 @@ object FormTimeSpanInput:
         props.label.map(l => FormLabel(htmlFor = props.id)(l)),
         input
       )
+
+  protected val component = componentBuilder[AnyF]
 
   /**
    * Create a map of time units and their values for the given timespan
