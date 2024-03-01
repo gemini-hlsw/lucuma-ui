@@ -54,7 +54,8 @@ trait ObservationDB {
     type PosShort                   = eu.timepit.refined.types.numeric.PosShort
     // Core Types
     type DatasetFilename            = lucuma.core.model.sequence.Dataset.Filename
-    type ProgramReference           = String           // TODO: Switch to core type when it is actually in core
+    type ProposalReferenceLabel     = String           // TODO: Switch to core type when it is actually in core
+    type ProgramReferenceLabel      = String           // TODO: Switch to core type when it is actually in core
     type Semester                   = lucuma.core.model.Semester
     type SignalToNoise              = lucuma.core.math.SignalToNoise
     type Timestamp                  = lucuma.core.util.Timestamp
