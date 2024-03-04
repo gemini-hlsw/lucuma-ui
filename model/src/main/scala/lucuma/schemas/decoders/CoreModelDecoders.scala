@@ -43,7 +43,7 @@ trait CoreModelDecoders:
         Semester.fromString.getOption(s).toRight(DecodingFailure(s"Invalid Semester `$s`", List()))
 
   given Encoder[Semester] =
-    Encoder.encodeString.contramap[Semester](_.toString)
+    Encoder.encodeString.contramap[Semester](_.format)
 
   given Decoder[TimestampInterval] = Decoder.instance: c =>
     for
