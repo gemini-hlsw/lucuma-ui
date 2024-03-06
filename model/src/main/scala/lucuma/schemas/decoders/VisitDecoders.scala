@@ -46,7 +46,7 @@ trait VisitDecoders:
       id               <- c.downField("id").as[Step.Id]
       created          <- c.downField("created").as[Timestamp]
       interval         <- c.downField("interval").as[Option[TimestampInterval]]
-      instrumentConfig <- c.downField("instrumentConfig").as[DynamicConfig.GmosNorth]
+      instrumentConfig <- c.downField("gmosNorth").as[DynamicConfig.GmosNorth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
       observeClass     <- c.downField("observeClass").as[ObserveClass]
       qaState          <- c.downField("qaState").as[Option[DatasetQaState]]
@@ -67,7 +67,7 @@ trait VisitDecoders:
       id               <- c.downField("id").as[Step.Id]
       created          <- c.downField("created").as[Timestamp]
       interval         <- c.downField("interval").as[Option[TimestampInterval]]
-      instrumentConfig <- c.downField("instrumentConfig").as[DynamicConfig.GmosSouth]
+      instrumentConfig <- c.downField("gmosSouth").as[DynamicConfig.GmosSouth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
       observeClass     <- c.downField("observeClass").as[ObserveClass]
       qaState          <- c.downField("qaState").as[Option[DatasetQaState]]
@@ -122,21 +122,25 @@ trait VisitDecoders:
 
   given decoderExecutionVisitsGmosNorth: Decoder[ExecutionVisits.GmosNorth] = Decoder.instance: c =>
     for
-      staticConfig <- c.downField("config").downField("static").as[StaticConfig.GmosNorth]
+      staticConfig <-
+        c.downField("config").downField("gmosNorth").downField("static").as[StaticConfig.GmosNorth]
       visits       <- c.downField("visits").downField("matches").as[List[Visit.GmosNorth]]
     yield ExecutionVisits.GmosNorth(staticConfig, visits)
 
   given decoderExecutionVisitsGmosSouth: Decoder[ExecutionVisits.GmosSouth] = Decoder.instance: c =>
     for
-      staticConfig <- c.downField("config").downField("static").as[StaticConfig.GmosSouth]
+      staticConfig <-
+        c.downField("config").downField("gmosSouth").downField("static").as[StaticConfig.GmosSouth]
       visits       <- c.downField("visits").downField("matches").as[List[Visit.GmosSouth]]
     yield ExecutionVisits.GmosSouth(staticConfig, visits)
 
-  given Decoder[ExecutionVisits] = Decoder.instance: c =>
-    c.downField("config")
-      .downField("instrument")
-      .as[Instrument]
-      .flatMap:
-        case Instrument.GmosNorth => c.as[ExecutionVisits.GmosNorth]
-        case Instrument.GmosSouth => c.as[ExecutionVisits.GmosSouth]
-        case _                    => DecodingFailure("Only Gmos supported", c.history).asLeft
+  given Decoder[Option[ExecutionVisits]] = Decoder.instance: c =>
+    if (c.downField("config").downField("instrument").failed) None.asRight
+    else
+      c.downField("config")
+        .downField("instrument")
+        .as[Instrument]
+        .flatMap:
+          case Instrument.GmosNorth => c.as[ExecutionVisits.GmosNorth].map(_.some)
+          case Instrument.GmosSouth => c.as[ExecutionVisits.GmosSouth].map(_.some)
+          case _                    => DecodingFailure("Only Gmos supported", c.history).asLeft
