@@ -9,16 +9,30 @@ import lucuma.schemas.decoders.given
 import lucuma.schemas.model.ExecutionVisits
 
 object ExecutionVisitsSubquery
-    extends GraphQLSubquery.Typed[ObservationDB, ExecutionVisits]("Execution"):
+    extends GraphQLSubquery.Typed[ObservationDB, Option[ExecutionVisits]]("Execution"):
   override val subquery: String = s"""
     {
       config {
         instrument
-        ... on GmosNorthExecutionConfig {
-          ...gmosNorthStaticConfigFields
+        gmosNorth {
+          static {
+            stageMode
+            detector
+            mosPreImaging
+            nodAndShuffle {
+              ...nodAndShuffleFields
+            }
+          }
         }
-        ... on GmosSouthExecutionConfig {
-          ...gmosSouthStaticConfigFields
+        gmosSouth {
+          static {
+            stageMode
+            detector
+            mosPreImaging
+            nodAndShuffle {
+              ...nodAndShuffleFields
+            }
+          }
         }
       }
       visits {
@@ -63,31 +77,54 @@ object ExecutionVisitsSubquery
                       interval $TimestampIntervalSubquery
                     }
                   }
-                  ... on GmosNorthStepRecord {
-                    instrumentConfig {
-                      exposure $TimeSpanSubquery
-                      readout {
-                        xBin
-                        yBin
-                        ampCount
-                        ampGain
-                        ampReadMode
+                  gmosNorth {
+                    exposure $TimeSpanSubquery
+                    readout {
+                      xBin
+                      yBin
+                      ampCount
+                      ampGain
+                      ampReadMode
+                    }
+                    dtax
+                    roi
+                    gratingConfig {
+                      grating
+                      order
+                      wavelength $WavelengthSubquery
+                    }
+                    filter
+                    fpu {
+                      customMask {
+                        filename
+                        slitWidth
                       }
-                      dtax
-                      roi
-                      gratingConfig {
-                        grating
-                        order
-                        wavelength $WavelengthSubquery
+                      builtin
+                    }
+                  }
+                  gmosSouth {
+                    exposure $TimeSpanSubquery
+                    readout {
+                      xBin
+                      yBin
+                      ampCount
+                      ampGain
+                      ampReadMode
+                    }
+                    dtax
+                    roi
+                    gratingConfig {
+                      grating
+                      order
+                      wavelength $WavelengthSubquery
+                    }
+                    filter
+                    fpu {
+                      customMask {
+                        filename
+                        slitWidth
                       }
-                      filter
-                      fpu {
-                        customMask {
-                          filename
-                          slitWidth
-                        }
-                        builtin
-                      }
+                      builtin
                     }
                   }
                 }
@@ -99,6 +136,8 @@ object ExecutionVisitsSubquery
     }  
   """
 
+  // At some point we hope to support properly having fragments in subQueries, but currently these
+  // fragments need to be redeclared where this subquery is used...
   val Fragments = s"""
     fragment nodAndShuffleFields on GmosNodAndShuffle {
       posA $OffsetSubquery
@@ -106,27 +145,5 @@ object ExecutionVisitsSubquery
       eOffset
       shuffleOffset
       shuffleCycles
-    }
-
-    fragment gmosNorthStaticConfigFields on GmosNorthExecutionConfig {
-      static {
-        stageMode
-        detector
-        mosPreImaging
-        nodAndShuffle {
-          ...nodAndShuffleFields
-        }
-      }
-    }
-
-    fragment gmosSouthStaticConfigFields on GmosSouthExecutionConfig {
-      static {
-        stageMode
-        detector
-        mosPreImaging
-        nodAndShuffle {
-          ...nodAndShuffleFields
-        }
-      }
     }
   """

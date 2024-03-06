@@ -17,7 +17,7 @@ object SequenceSQL:
             execution {
               config(futureLimit: 100) {
                 instrument
-                ... on GmosNorthExecutionConfig {
+                gmosNorth {
                   static {
                     stageMode
                     detector
@@ -33,7 +33,7 @@ object SequenceSQL:
                     ...gmosNorthSequenceFields
                   }
                 }
-                ... on GmosSouthExecutionConfig {
+                gmosSouth {
                   static {
                     stageMode
                     detector

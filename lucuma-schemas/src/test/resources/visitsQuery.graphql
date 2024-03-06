@@ -3,10 +3,10 @@ query {
     execution {
       config {
         instrument
-        ... on GmosNorthExecutionConfig {
+        gmosNorth {
           ...gmosNorthStaticConfigFields
         }
-        ... on GmosSouthExecutionConfig {
+        gmosSouth {
           ...gmosSouthStaticConfigFields
         }
       }
@@ -30,75 +30,73 @@ query {
               sequenceType
               steps {
                 matches {
-                  ... on GmosNorthStepRecord {
-                    id
-                    created
-                    interval {
-                      start
-                      end
+                  id
+                  created
+                  interval {
+                    start
+                    end
+                  }
+                  gmosNorth {
+                    exposure {
+                      microseconds
                     }
-                    instrumentConfig {
-                      exposure {
-                        microseconds
-                      }
-                      readout {
-                        xBin
-                        yBin
-                        ampCount
-                        ampGain
-                        ampReadMode
-                      }
-                      dtax
-                      roi
-                      gratingConfig {
-                        grating
-                        order
-                        wavelength {
-                          picometers
-                        }
-                      }
-                      filter
-                      fpu {
-                        customMask {
-                          filename
-                          slitWidth
-                        }
-                        builtin
+                    readout {
+                      xBin
+                      yBin
+                      ampCount
+                      ampGain
+                      ampReadMode
+                    }
+                    dtax
+                    roi
+                    gratingConfig {
+                      grating
+                      order
+                      wavelength {
+                        picometers
                       }
                     }
-                    stepConfig {
-                      stepType
-                      ... on Gcal {
-                        continuum
-                        arcs
-                        filter
-                        diffuser
-                        shutter
-                      }
-                      ... on Science {
-                        offset {
-                          p {
-                            microarcseconds
-                          }
-                          q {
-                            microarcseconds
-                          }
-                        }
-                        guiding
-                      }
-                    }
-                    observeClass
-                    qaState
-                    datasets {
-                      matches {
-                        id
-                        index
+                    filter
+                    fpu {
+                      customMask {
                         filename
-                        qaState
-                        interval {
-                          start
-                          end
+                        slitWidth
+                      }
+                      builtin
+                    }
+                  }
+                  stepConfig {
+                    stepType
+                    ... on Gcal {
+                      continuum
+                      arcs
+                      filter
+                      diffuser
+                      shutter
+                    }
+                    ... on Science {
+                      offset {
+                        p {
+                          microarcseconds
                         }
+                        q {
+                          microarcseconds
+                        }
+                      }
+                      guiding
+                    }
+                  }
+                  observeClass
+                  qaState
+                  datasets {
+                    matches {
+                      id
+                      index
+                      filename
+                      qaState
+                      interval {
+                        start
+                        end
                       }
                     }
                   }
