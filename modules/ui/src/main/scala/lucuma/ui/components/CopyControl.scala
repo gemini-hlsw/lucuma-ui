@@ -6,7 +6,6 @@ package lucuma.ui.components
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.NewType
-import lucuma.react.clipboard.CopyToClipboard
 import lucuma.react.common.ReactFnProps
 import lucuma.ui.syntax.all.given
 
@@ -29,7 +28,7 @@ object CopyControl:
             LoginStyles.Uncopied.unless(copied.value.value)
           )(
             props.label,
-            CopyToClipboard(
+            CopyTextToClipboard(
               text = props.textToCopy,
               onCopy = (_, copiedCallback) =>
                 copied.setState(Copied(copiedCallback)) *>
