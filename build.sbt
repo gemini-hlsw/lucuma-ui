@@ -1,26 +1,28 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.94"
+ThisBuild / tlBaseVersion       := "0.95"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
-lazy val catsVersion              = "2.10.0"
-lazy val catsRetryVersion         = "3.1.3"
-lazy val circeVersion             = "0.14.6"
-lazy val crystalVersion           = "0.37.3"
-lazy val fs2DomVersion            = "0.3.0-M1"
-lazy val kittensVersion           = "3.3.0"
-lazy val http4sVersion            = "0.23.26"
-lazy val http4sDomVersion         = "0.2.11"
-lazy val lucumaCoreVersion        = "0.94.1"
-lazy val lucumaPrimeStylesVersion = "0.2.10"
-lazy val lucumaReactVersion       = "0.53.0"
-lazy val lucumaRefinedVersion     = "0.1.2"
-lazy val lucumaSchemasVersion     = "0.77.2"
-lazy val lucumaSsoVersion         = "0.6.14"
-lazy val monocleVersion           = "3.2.0"
-lazy val mouseVersion             = "1.2.3"
-lazy val pprintVersion            = "0.8.1"
-lazy val scalaJsReactVersion      = "3.0.0-beta3"
+val Versions = new {
+  val cats              = "2.10.0"
+  val catsRetry         = "3.1.3"
+  val circe             = "0.14.6"
+  val crystal           = "0.37.3"
+  val fs2Dom            = "0.3.0-M1"
+  val kittens           = "3.3.0"
+  val http4s            = "0.23.26"
+  val http4sDom         = "0.2.11"
+  val lucumaCore        = "0.94.1"
+  val lucumaPrimeStyles = "0.2.10"
+  val lucumaReact       = "0.55.0"
+  val lucumaRefined     = "0.1.2"
+  val lucumaSchemas     = "0.77.2"
+  val lucumaSso         = "0.6.14"
+  val monocle           = "3.2.0"
+  val mouse             = "1.2.3"
+  val pprint            = "0.8.1"
+  val scalaJsReact      = "3.0.0-beta3"
+}
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
@@ -61,7 +63,7 @@ lazy val demo =
         ModuleSplitStyle.SmallestModules
       )),
       libraryDependencies ++= Seq(
-        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % scalaJsReactVersion
+        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact
       ),
       Keys.test := {}
     )
@@ -73,33 +75,32 @@ lazy val ui =
     .settings(
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
-        "org.typelevel"                     %%% "cats-core"                    % catsVersion,
-        "org.typelevel"                     %%% "kittens"                      % kittensVersion,
-        "org.typelevel"                     %%% "mouse"                        % mouseVersion,
-        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % scalaJsReactVersion,
-        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % scalaJsReactVersion,
-        "edu.gemini"                        %%% "lucuma-core"                  % lucumaCoreVersion,
-        "edu.gemini"                        %%% "lucuma-react-common"          % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-clipboard"       % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-font-awesome"    % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-resize-detector" % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-tanstack-table"  % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-floatingui"      % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-react-prime-react"     % lucumaReactVersion,
-        "edu.gemini"                        %%% "lucuma-prime-styles"          % lucumaPrimeStylesVersion,
-        "edu.gemini"                        %%% "lucuma-schemas"               % lucumaSchemasVersion,
-        "dev.optics"                        %%% "monocle-core"                 % monocleVersion,
-        "dev.optics"                        %%% "monocle-macro"                % monocleVersion,
-        "edu.gemini"                        %%% "crystal"                      % crystalVersion,
-        "com.lihaoyi"                       %%% "pprint"                       % pprintVersion,
-        "com.armanbilge"                    %%% "fs2-dom"                      % fs2DomVersion,
-        "org.http4s"                        %%% "http4s-core"                  % http4sVersion,
-        "org.http4s"                        %%% "http4s-circe"                 % http4sVersion,
-        "org.http4s"                        %%% "http4s-dom"                   % http4sDomVersion,
-        "com.github.cb372"                  %%% "cats-retry"                   % catsRetryVersion,
-        "io.circe"                          %%% "circe-core"                   % circeVersion,
-        "io.circe"                          %%% "circe-parser"                 % circeVersion,
-        "edu.gemini"                        %%% "lucuma-sso-frontend-client"   % lucumaSsoVersion
+        "org.typelevel"                     %%% "cats-core"                    % Versions.cats,
+        "org.typelevel"                     %%% "kittens"                      % Versions.kittens,
+        "org.typelevel"                     %%% "mouse"                        % Versions.mouse,
+        "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % Versions.scalaJsReact,
+        "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % Versions.scalaJsReact,
+        "edu.gemini"                        %%% "lucuma-core"                  % Versions.lucumaCore,
+        "edu.gemini"                        %%% "lucuma-react-common"          % Versions.lucumaReact,
+        "edu.gemini"                        %%% "lucuma-react-font-awesome"    % Versions.lucumaReact,
+        "edu.gemini"                        %%% "lucuma-react-resize-detector" % Versions.lucumaReact,
+        "edu.gemini"                        %%% "lucuma-react-tanstack-table"  % Versions.lucumaReact,
+        "edu.gemini"                        %%% "lucuma-react-floatingui"      % Versions.lucumaReact,
+        "edu.gemini"                        %%% "lucuma-react-prime-react"     % Versions.lucumaReact,
+        "edu.gemini"                        %%% "lucuma-prime-styles"          % Versions.lucumaPrimeStyles,
+        "edu.gemini"                        %%% "lucuma-schemas"               % Versions.lucumaSchemas,
+        "dev.optics"                        %%% "monocle-core"                 % Versions.monocle,
+        "dev.optics"                        %%% "monocle-macro"                % Versions.monocle,
+        "edu.gemini"                        %%% "crystal"                      % Versions.crystal,
+        "com.lihaoyi"                       %%% "pprint"                       % Versions.pprint,
+        "com.armanbilge"                    %%% "fs2-dom"                      % Versions.fs2Dom,
+        "org.http4s"                        %%% "http4s-core"                  % Versions.http4s,
+        "org.http4s"                        %%% "http4s-circe"                 % Versions.http4s,
+        "org.http4s"                        %%% "http4s-dom"                   % Versions.http4sDom,
+        "com.github.cb372"                  %%% "cats-retry"                   % Versions.catsRetry,
+        "io.circe"                          %%% "circe-core"                   % Versions.circe,
+        "io.circe"                          %%% "circe-parser"                 % Versions.circe,
+        "edu.gemini"                        %%% "lucuma-sso-frontend-client"   % Versions.lucumaSso
       )
     )
 
@@ -111,7 +112,7 @@ lazy val testkit =
     .settings(
       name := "lucuma-ui-testkit",
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "lucuma-core-testkit" % lucumaCoreVersion
+        "edu.gemini" %%% "lucuma-core-testkit" % Versions.lucumaCore
       )
     )
 
@@ -121,10 +122,10 @@ lazy val tests =
     .dependsOn(testkit)
     .settings(
       libraryDependencies ++= Seq(
-        "edu.gemini"    %%% "lucuma-core-testkit"    % lucumaCoreVersion    % Test,
-        "edu.gemini"    %%% "lucuma-schemas-testkit" % lucumaSchemasVersion % Test,
-        "org.scalameta" %%% "munit"                  % "0.7.29"             % Test,
-        "org.typelevel" %%% "discipline-munit"       % "1.0.9"              % Test
+        "edu.gemini"    %%% "lucuma-core-testkit"    % Versions.lucumaCore    % Test,
+        "edu.gemini"    %%% "lucuma-schemas-testkit" % Versions.lucumaSchemas % Test,
+        "org.scalameta" %%% "munit"                  % "0.7.29"               % Test,
+        "org.typelevel" %%% "discipline-munit"       % "1.0.9"                % Test
       )
     )
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
@@ -145,7 +146,7 @@ lazy val css = project
         cssDir / "package.json",
         s"""|{
             |  "name": "lucuma-ui-css",
-            |  "version": "${version.value}",
+            |  "": "${version.value}",
             |  "license": "${licenses.value.head._1}"
             |}
             |""".stripMargin
