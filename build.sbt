@@ -4,7 +4,7 @@ ThisBuild / tlBaseVersion       := "0.94"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 lazy val catsVersion              = "2.10.0"
-lazy val catsRetryVersion         = "3.1.0"
+lazy val catsRetryVersion         = "3.1.3"
 lazy val circeVersion             = "0.14.6"
 lazy val crystalVersion           = "0.37.3"
 lazy val fs2DomVersion            = "0.3.0-M1"
