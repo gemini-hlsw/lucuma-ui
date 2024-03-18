@@ -17,8 +17,8 @@ import java.time.Instant
 
 // should go in testkit (new project!)
 trait ArbUserVault {
-  import ArbUser.*
-  import ArbTime.*
+  import ArbUser.given
+  import ArbTime.given
 
   implicit val userVaultArb: Arbitrary[UserVault] = Arbitrary[UserVault] {
     for {
