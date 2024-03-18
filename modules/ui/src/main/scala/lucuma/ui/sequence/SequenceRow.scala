@@ -6,8 +6,8 @@ package lucuma.ui.sequence
 import cats.Eq
 import cats.syntax.all.*
 import lucuma.core.enums.Breakpoint
-import lucuma.core.enums.GuideState
 import lucuma.core.enums.Instrument
+import lucuma.core.enums.StepGuideState
 import lucuma.core.math.Angle
 import lucuma.core.math.Axis
 import lucuma.core.math.Offset
@@ -62,8 +62,8 @@ trait SequenceRow[D](
     case Some(_)                                   => (Offset.Component.Zero[Axis.P].some, Offset.Component.Zero[Axis.Q].some)
     case _                                         => (none, none)
 
-  lazy val guiding: Option[GuideState] = science.map(_.guiding)
-  lazy val hasGuiding: Boolean         = guiding.contains_(GuideState.Enabled)
+  lazy val guiding: Option[StepGuideState] = science.map(_.guiding)
+  lazy val hasGuiding: Boolean             = guiding.contains_(StepGuideState.Enabled)
 
   lazy val hasBreakpoint: Boolean = breakpoint === Breakpoint.Enabled
 
