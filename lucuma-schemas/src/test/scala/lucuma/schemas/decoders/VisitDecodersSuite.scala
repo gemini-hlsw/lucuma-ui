@@ -18,10 +18,10 @@ import lucuma.core.enums.GmosSouthFilter
 import lucuma.core.enums.GmosSouthStageMode
 import lucuma.core.enums.GmosXBinning
 import lucuma.core.enums.GmosYBinning
-import lucuma.core.enums.GuideState
 import lucuma.core.enums.MosPreImaging
 import lucuma.core.enums.ObserveClass
 import lucuma.core.enums.SequenceType
+import lucuma.core.enums.StepGuideState
 import lucuma.core.math.Offset
 import lucuma.core.model.sequence.*
 import lucuma.core.model.sequence.gmos.*
@@ -109,7 +109,7 @@ class VisitDecodersSuite extends InputStreamSuite {
                 ),
                 stepConfig = StepConfig.Science(
                   offset = Offset(Offset.P.Zero, Offset.Q.Zero),
-                  guiding = GuideState.Enabled
+                  guiding = StepGuideState.Enabled
                 ),
                 observeClass = ObserveClass.Science,
                 qaState = none,
@@ -192,7 +192,7 @@ class VisitDecodersSuite extends InputStreamSuite {
                 ),
                 stepConfig = StepConfig.Science(
                   offset = Offset(Offset.P.Zero, Offset.Q.Zero),
-                  guiding = GuideState.Enabled
+                  guiding = StepGuideState.Enabled
                 ),
                 observeClass = ObserveClass.Science,
                 qaState = none,

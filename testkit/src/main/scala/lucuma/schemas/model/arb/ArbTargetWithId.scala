@@ -5,7 +5,7 @@ package lucuma.schemas.model.arb
 
 import lucuma.core.model.Target
 import lucuma.core.model.arb.ArbTarget.given
-import lucuma.core.util.arb.ArbGid.*
+import lucuma.core.util.arb.ArbGid.given
 import lucuma.schemas.model.*
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.*

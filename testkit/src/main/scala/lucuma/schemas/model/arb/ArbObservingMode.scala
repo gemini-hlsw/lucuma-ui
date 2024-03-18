@@ -13,7 +13,7 @@ import lucuma.core.math.WavelengthDither
 import lucuma.core.math.arb.ArbOffset
 import lucuma.core.math.arb.ArbWavelength
 import lucuma.core.math.arb.ArbWavelengthDither
-import lucuma.core.util.arb.ArbEnumerated.*
+import lucuma.core.util.arb.ArbEnumerated.given
 import lucuma.schemas.model.CentralWavelength
 import lucuma.schemas.model.ObservingMode
 import org.scalacheck.Arbitrary
@@ -22,8 +22,8 @@ import org.scalacheck.Cogen
 import org.scalacheck.Gen
 
 trait ArbObservingMode {
-  import ArbOffset.*
-  import ArbWavelength.*
+  import ArbOffset.given
+  import ArbWavelength.given
   import ArbWavelengthDither.given
 
   given Arbitrary[ObservingMode.GmosNorthLongSlit] =
