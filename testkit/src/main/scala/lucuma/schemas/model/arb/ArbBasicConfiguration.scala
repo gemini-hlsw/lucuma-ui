@@ -7,7 +7,7 @@ import cats.syntax.all.*
 import lucuma.core.enums.*
 import lucuma.core.math.Wavelength
 import lucuma.core.math.arb.ArbWavelength
-import lucuma.core.util.arb.ArbEnumerated.*
+import lucuma.core.util.arb.ArbEnumerated.given
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.schemas.model.CentralWavelength
 import org.scalacheck.Arbitrary
@@ -16,7 +16,7 @@ import org.scalacheck.Cogen
 import org.scalacheck.Gen
 
 trait ArbBasicConfiguration {
-  import ArbWavelength.*
+  import ArbWavelength.given
 
   given Arbitrary[BasicConfiguration.GmosNorthLongSlit] =
     Arbitrary[BasicConfiguration.GmosNorthLongSlit](

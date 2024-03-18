@@ -109,7 +109,7 @@ trait ObservationDB {
     type GmosSouthStageMode                  = enums.GmosSouthStageMode
     type GmosXBinning                        = enums.GmosXBinning
     type GmosYBinning                        = enums.GmosYBinning
-    type GuideState                          = enums.GuideState
+    type GuideState                          = enums.StepGuideState
     type HiiRegionSpectrum                   = enums.HIIRegionSpectrum
     type ImageQuality                        = enums.ImageQuality
     type Instrument                          = enums.Instrument
