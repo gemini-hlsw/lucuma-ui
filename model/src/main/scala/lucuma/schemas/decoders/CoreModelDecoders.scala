@@ -3,16 +3,16 @@
 
 package lucuma.schemas.decoders
 
-import coulomb._
-import coulomb.syntax._
+import coulomb.*
+import coulomb.syntax.*
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
 import io.circe.DecodingFailure
 import io.circe.Encoder
-import io.circe.refined._
+import io.circe.refined.*
 import lucuma.core.math.WavelengthDelta
 import lucuma.core.math.WavelengthDither
-import lucuma.core.math.dimensional._
+import lucuma.core.math.dimensional.*
 import lucuma.core.model.Semester
 import lucuma.core.util.*
 

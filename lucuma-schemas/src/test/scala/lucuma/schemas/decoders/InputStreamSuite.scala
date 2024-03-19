@@ -3,11 +3,11 @@
 
 package lucuma.schemas.decoders
 
-import cats.effect._
-import fs2.io.file._
+import cats.effect.*
+import fs2.io.file.*
 import io.circe.Decoder
 import io.circe.Json
-import io.circe.parser._
+import io.circe.parser.*
 import munit.CatsEffectSuite
 
 trait InputStreamSuite extends CatsEffectSuite {

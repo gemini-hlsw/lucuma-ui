@@ -3,8 +3,8 @@
 
 package lucuma.schemas.decoders
 
-import cats.Order._
-import cats.syntax.all._
+import cats.Order.*
+import cats.syntax.all.*
 import eu.timepit.refined.collection.NonEmpty
 import lucuma.core.enums.TacCategory
 import lucuma.core.enums.ToOActivation
@@ -13,7 +13,7 @@ import lucuma.core.model.Proposal
 import lucuma.core.model.ProposalClass.LargeProgram
 import lucuma.core.model.ZeroTo100
 import lucuma.core.syntax.timespan.*
-import lucuma.refined._
+import lucuma.refined.*
 
 import scala.collection.immutable.SortedMap
 

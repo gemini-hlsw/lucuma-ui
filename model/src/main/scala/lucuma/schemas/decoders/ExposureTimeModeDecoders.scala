@@ -5,7 +5,7 @@ package lucuma.schemas.decoders
 
 import io.circe.Decoder
 import io.circe.generic.semiauto
-import io.circe.refined._
+import io.circe.refined.*
 import lucuma.core.model.ExposureTimeMode
 import lucuma.odb.json.time.decoder.given
 
