@@ -13,7 +13,7 @@ import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
 
-enum StepRecord[D] derives Eq:
+enum StepRecord[+D] derives Eq:
   def id: Step.Id
   def created: Timestamp
   def interval: Option[TimestampInterval]
