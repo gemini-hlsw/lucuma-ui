@@ -14,8 +14,8 @@ import lucuma.core.util.NewType
 import lucuma.react.common.*
 import lucuma.react.floatingui.Placement
 import lucuma.react.floatingui.syntax.*
-import lucuma.ui.utils.Render
 import lucuma.ui.utils.*
+import lucuma.ui.utils.Render
 
 object StepIndex extends NewType[PosInt]
 type StepIndex = StepIndex.Type

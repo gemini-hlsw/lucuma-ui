@@ -23,7 +23,7 @@ import retry.*
 
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.{util => ju}
+import java.util as ju
 import scala.concurrent.duration.*
 
 case class JwtOrcidProfile(exp: Long, `lucuma-user`: User) derives Decoder

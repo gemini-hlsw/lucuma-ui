@@ -9,7 +9,7 @@ import crystal.react.hooks.*
 import io.circe.Json
 import io.circe.syntax.*
 import japgolly.scalajs.react.*
-import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
+import japgolly.scalajs.react.util.DefaultEffects.Async as DefaultA
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.ReactFnPropsWithChildren
 import lucuma.ui.components.SolarProgress

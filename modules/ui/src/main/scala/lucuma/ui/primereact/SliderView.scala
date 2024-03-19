@@ -7,7 +7,7 @@ import cats.syntax.all.*
 import crystal.react.View
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
-import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
 import lucuma.react.primereact.Slider
 

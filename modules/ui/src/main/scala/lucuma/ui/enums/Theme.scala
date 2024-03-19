@@ -6,7 +6,7 @@ package lucuma.ui.enums
 import cats.syntax.all.*
 import japgolly.scalajs.react.ReactCats.*
 import japgolly.scalajs.react.Reusability
-import japgolly.scalajs.react.util.DefaultEffects.{Sync => DefaultS}
+import japgolly.scalajs.react.util.DefaultEffects.Sync as DefaultS
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import lucuma.react.common.style.Css

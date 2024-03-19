@@ -8,7 +8,7 @@ import cats.syntax.all.*
 import crystal.react.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.hooks.CustomHook
-import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
+import japgolly.scalajs.react.util.DefaultEffects.Async as DefaultA
 import lucuma.core.util.NewType
 import lucuma.react.table.*
 import lucuma.ui.reusability.given

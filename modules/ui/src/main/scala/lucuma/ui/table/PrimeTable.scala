@@ -11,8 +11,8 @@ import lucuma.react.SizePx
 import lucuma.react.common.*
 import lucuma.react.common.style.Css
 import lucuma.react.table.*
-import lucuma.typed.{tanstackTableCore => raw}
-import lucuma.typed.{tanstackVirtualCore => rawVirtual}
+import lucuma.typed.tanstackTableCore as raw
+import lucuma.typed.tanstackVirtualCore as rawVirtual
 import org.scalajs.dom.HTMLElement
 
 import scalajs.js

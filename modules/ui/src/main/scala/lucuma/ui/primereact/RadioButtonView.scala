@@ -4,10 +4,10 @@
 package lucuma.ui.primereact
 
 import cats.Eq
-import cats.syntax.all._
+import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
-import japgolly.scalajs.react.vdom.html_<^._
+import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
 import lucuma.react.primereact.RadioButton
 

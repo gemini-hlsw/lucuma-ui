@@ -9,7 +9,7 @@ import crystal.react.*
 import crystal.react.hooks.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
-import japgolly.scalajs.react.util.DefaultEffects.{Async => DefaultA}
+import japgolly.scalajs.react.util.DefaultEffects.Async as DefaultA
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.ReactFnProps
 import lucuma.refined.*
