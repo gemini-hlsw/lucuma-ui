@@ -6,8 +6,8 @@ package lucuma.ui.table.hooks
 import cats.syntax.all.*
 import lucuma.react.SizePx
 import lucuma.react.table.*
-import lucuma.ui.table.ColumnSize.*
 import lucuma.ui.table.*
+import lucuma.ui.table.ColumnSize.*
 import monocle.Focus
 import monocle.Lens
 

@@ -13,7 +13,7 @@ import lucuma.react.primereact.Button
 import lucuma.react.primereact.InputText
 import lucuma.react.primereact.PrimeStyles
 import lucuma.typed.StBuildingComponent
-import lucuma.typed.primereact.components.{Button => CButton}
+import lucuma.typed.primereact.components.Button as CButton
 
 import scalajs.js
 

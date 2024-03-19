@@ -12,7 +12,7 @@ import lucuma.react.floatingui
 import lucuma.react.floatingui.syntax.*
 import lucuma.react.primereact.InputText
 import lucuma.react.primereact.PrimeStyles
-import lucuma.typed.primereact.components.{Button => CButton}
+import lucuma.typed.primereact.components.Button as CButton
 
 import scalajs.js
 

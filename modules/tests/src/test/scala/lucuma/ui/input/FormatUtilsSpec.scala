@@ -6,9 +6,9 @@ package lucuma.ui.input
 import eu.timepit.refined.types.numeric.NonNegInt
 import lucuma.ui.input.FormatUtils.*
 import munit.DisciplineSuite
+import org.scalacheck.*
 import org.scalacheck.Arbitrary.*
 import org.scalacheck.Prop.*
-import org.scalacheck.*
 
 final class FormatUtilsSpec extends DisciplineSuite:
   val Zero = BigInt(0)

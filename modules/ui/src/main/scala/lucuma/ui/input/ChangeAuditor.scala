@@ -4,7 +4,7 @@
 package lucuma.ui.input
 
 import cats.syntax.all.*
-import eu.timepit.refined.api.{Validate => RefinedValidate}
+import eu.timepit.refined.api.Validate as RefinedValidate
 import eu.timepit.refined.numeric.NonNegative
 import eu.timepit.refined.numeric.Positive
 import eu.timepit.refined.refineV
