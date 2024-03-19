@@ -3,11 +3,11 @@
 
 package lucuma.schemas.decoders
 
-import eu.timepit.refined._
+import eu.timepit.refined.*
 import lucuma.core.math.SignalToNoise
 import lucuma.core.model.ExposureTimeMode
 import lucuma.core.syntax.timespan.*
-import lucuma.refined._
+import lucuma.refined.*
 
 class ExposureTimeModeDecodersSuite extends InputStreamSuite {
   test("SignalToNoise decoder") {

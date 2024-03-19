@@ -3,19 +3,19 @@
 
 package lucuma.schemas.decoders
 
-import cats.Order._
-import cats.syntax.all._
+import cats.Order.*
+import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
 import io.circe.DecodingFailure
-import io.circe.refined._
+import io.circe.refined.*
 import lucuma.core.enums.TacCategory
 import lucuma.core.enums.ToOActivation
 import lucuma.core.model.IntPercent
 import lucuma.core.model.Partner
 import lucuma.core.model.Proposal
 import lucuma.core.model.ProposalClass
-import lucuma.core.model.ProposalClass._
+import lucuma.core.model.ProposalClass.*
 import lucuma.core.util.TimeSpan
 import lucuma.odb.json.time.decoder.given
 

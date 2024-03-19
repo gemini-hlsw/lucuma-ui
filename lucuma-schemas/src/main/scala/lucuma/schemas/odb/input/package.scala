@@ -12,12 +12,12 @@ import io.circe.syntax.*
 import lucuma.core.enums.Band
 import lucuma.core.enums.GmosNorthFpu
 import lucuma.core.enums.GmosSouthFpu
-import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.math.*
+import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.math.dimensional.*
+import lucuma.core.model.*
 import lucuma.core.model.ExposureTimeMode.*
 import lucuma.core.model.ProposalClass.*
-import lucuma.core.model.*
 import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.model.sequence.gmos.GmosCcdMode

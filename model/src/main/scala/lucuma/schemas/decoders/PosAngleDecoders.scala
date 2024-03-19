@@ -3,7 +3,7 @@
 
 package lucuma.schemas.decoders
 
-import cats.syntax.all._
+import cats.syntax.all.*
 import io.circe.CursorOp
 import io.circe.Decoder
 import io.circe.DecodingFailure

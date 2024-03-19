@@ -3,7 +3,7 @@
 
 package lucuma.schemas.decoders
 
-import eu.timepit.refined._
+import eu.timepit.refined.*
 import lucuma.core.enums.CloudExtinction
 import lucuma.core.enums.ImageQuality
 import lucuma.core.enums.SkyBackground
