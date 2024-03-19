@@ -11,7 +11,7 @@ import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
 
-enum AtomRecord[D] derives Eq:
+enum AtomRecord[+D] derives Eq:
   def id: Atom.Id
   def created: Timestamp
   def interval: Option[TimestampInterval]

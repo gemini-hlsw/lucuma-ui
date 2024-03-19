@@ -1,11 +1,13 @@
-val circeVersion           = "0.14.6"
-val disciplineMUnitVersion = "1.0.9"
-val fs2Version             = "3.10.0"
-val kittensVersion         = "3.3.0"
-val munitVersion           = "0.7.29"
-val munitCatsEffectVersion = "1.0.7"
-val lucumaCoreVersion      = "0.94.0"
-val lucumaODBSchema        = "0.11.2"
+val Versions = new { // sbt doesn't like object definitions in build.sbt
+  val circe           = "0.14.6"
+  val disciplineMUnit = "1.0.9"
+  val fs2             = "3.10.0"
+  val kittens         = "3.3.0"
+  val lucumaCore      = "0.94.1"
+  val lucumaODBSchema = "0.11.2"
+  val munit           = "0.7.29"
+  val munitCatsEffect = "1.0.7"
+}
 
 ThisBuild / tlBaseVersion       := "0.77"
 ThisBuild / tlCiReleaseBranches := Seq("main")
@@ -25,11 +27,11 @@ val model =
     .settings(
       moduleName := "lucuma-schemas-model",
       libraryDependencies ++= Seq(
-        "edu.gemini"    %%% "lucuma-core"       % lucumaCoreVersion,
-        "edu.gemini"    %%% "lucuma-odb-schema" % lucumaODBSchema,
-        "io.circe"      %%% "circe-core"        % circeVersion,
-        "io.circe"      %%% "circe-generic"     % circeVersion,
-        "org.typelevel" %%% "kittens"           % kittensVersion
+        "io.circe"      %%% "circe-core"        % Versions.circe,
+        "io.circe"      %%% "circe-generic"     % Versions.circe,
+        "org.typelevel" %%% "kittens"           % Versions.kittens,
+        "edu.gemini"    %%% "lucuma-core"       % Versions.lucumaCore,
+        "edu.gemini"    %%% "lucuma-odb-schema" % Versions.lucumaODBSchema
       )
     )
 
@@ -41,7 +43,7 @@ val testkit =
     .settings(
       moduleName := "lucuma-schemas-testkit",
       libraryDependencies ++= Seq(
-        "edu.gemini" %%% "lucuma-core-testkit" % lucumaCoreVersion
+        "edu.gemini" %%% "lucuma-core-testkit" % Versions.lucumaCore
       )
     )
 
@@ -53,8 +55,8 @@ val modelTests =
     .enablePlugins(NoPublishPlugin)
     .settings(
       libraryDependencies ++= Seq(
-        "org.scalameta" %%% "munit"            % munitVersion           % Test,
-        "org.typelevel" %%% "discipline-munit" % disciplineMUnitVersion % Test
+        "org.typelevel" %%% "discipline-munit" % Versions.disciplineMUnit % Test,
+        "org.scalameta" %%% "munit"            % Versions.munit           % Test
       )
     )
 
@@ -66,9 +68,9 @@ val lucumaSchemas =
     .settings(
       moduleName                    := "lucuma-schemas",
       libraryDependencies ++= Seq(
-        "co.fs2"        %%% "fs2-io"              % fs2Version             % Test,
-        "org.scalameta" %%% "munit"               % munitVersion           % Test,
-        "org.typelevel" %%% "munit-cats-effect-3" % munitCatsEffectVersion % Test
+        "co.fs2"        %%% "fs2-io"              % Versions.fs2             % Test,
+        "org.scalameta" %%% "munit"               % Versions.munit           % Test,
+        "org.typelevel" %%% "munit-cats-effect-3" % Versions.munitCatsEffect % Test
       ),
       Compile / clueSourceDirectory := (ThisBuild / baseDirectory).value / "lucuma-schemas" / "src" / "clue",
       // Include schema files in jar.
