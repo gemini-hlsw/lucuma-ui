@@ -32,15 +32,15 @@ import lucuma.schemas.model.Visit
  * We usually want group executed steps by visits in the tables, thus dedicating an (expandable) row
  * to the visit.
  */
-trait SequenceRow[D](
-  val id:            Either[Visit.Id, Step.Id],
-  instrumentConfig:  Option[D],
-  val stepConfig:    Option[StepConfig],
-  val breakpoint:    Breakpoint,
-  val isFinished:    Boolean,
-  val stepEstimate:  Option[StepEstimate],
-  val signalToNoise: Option[SignalToNoise]
-):
+trait SequenceRow[+D]:
+  def id: Either[Visit.Id, Step.Id]
+  protected def instrumentConfig: Option[D]
+  def stepConfig: Option[StepConfig]
+  def breakpoint: Breakpoint
+  def isFinished: Boolean
+  def stepEstimate: Option[StepEstimate]
+  def signalToNoise: Option[SignalToNoise]
+
   lazy val rowId: RowId = RowId(id match
     case Left(visitId) => visitId.toString
     case Right(stepId) => stepId.toString
@@ -112,20 +112,18 @@ trait SequenceRow[D](
     case DynamicConfig.GmosSouth(_, _, _, roi, _, _, _) => roi.shortName.some
 
 object SequenceRow:
-  final class FutureStep[D](
+  case class FutureStep[+D](
     step:          Step[D],
-    val atomId:    Atom.Id,
-    val firstOf:   Option[Int],
+    atomId:        Atom.Id,
+    firstOf:       Option[Int],
     signalToNoise: Option[SignalToNoise]
-  ) extends SequenceRow[D](
-        id = step.id.asRight,
-        instrumentConfig = step.instrumentConfig.some,
-        stepConfig = step.stepConfig.some,
-        breakpoint = step.breakpoint,
-        isFinished = false,
-        stepEstimate = step.estimate.some,
-        signalToNoise = signalToNoise
-      ):
+  ) extends SequenceRow[D]:
+    val id               = step.id.asRight
+    val instrumentConfig = step.instrumentConfig.some
+    val stepConfig       = step.stepConfig.some
+    val breakpoint       = step.breakpoint
+    val isFinished       = false
+    val stepEstimate     = step.estimate.some
     export step.{id => stepId}
 
   object FutureStep:
@@ -133,10 +131,11 @@ object SequenceRow:
       atom:          Atom[D],
       signalToNoise: Step[D] => Option[SignalToNoise]
     ): List[FutureStep[D]] =
-      FutureStep(atom.steps.head,
-                 atom.id,
-                 atom.steps.length.some.filter(_ > 1),
-                 signalToNoise(atom.steps.head)
+      FutureStep(
+        atom.steps.head,
+        atom.id,
+        atom.steps.length.some.filter(_ > 1),
+        signalToNoise(atom.steps.head)
       ) +: atom.steps.tail.map(step =>
         SequenceRow.FutureStep(step, atom.id, none, signalToNoise(step))
       )
@@ -146,78 +145,49 @@ object SequenceRow:
       signalToNoise: Step[D] => Option[SignalToNoise]
     ): List[FutureStep[D]] =
       atoms.flatMap(atom =>
-        FutureStep(atom.steps.head,
-                   atom.id,
-                   atom.steps.length.some.filter(_ > 1),
-                   signalToNoise(atom.steps.head)
+        FutureStep(
+          atom.steps.head,
+          atom.id,
+          atom.steps.length.some.filter(_ > 1),
+          signalToNoise(atom.steps.head)
         ) +: atom.steps.tail.map(step =>
           SequenceRow.FutureStep(step, atom.id, none, signalToNoise(step))
         )
       )
 
-    given [D]: Eq[FutureStep[D]] = Eq.by: x =>
-      (x.id, // TODO Is it same to assume step identity just by id ??
-       x.breakpoint,
-       x.stepEstimate,
-       x.atomId,
-       x.firstOf,
-       x.signalToNoise
-      )
+    given [D]: Eq[FutureStep[D]] = Eq.by(_.id)
 
-  sealed abstract class Executed[D](
-    id:               Either[Visit.Id, Step.Id],
-    instrumentConfig: Option[D],
-    stepConfig:       Option[StepConfig],
-    signalToNoise:    Option[SignalToNoise]
-  ) extends SequenceRow[D](
-        id,
-        instrumentConfig: Option[D],
-        stepConfig: Option[StepConfig],
-        breakpoint = Breakpoint.Disabled,
-        isFinished = true,
-        stepEstimate = none,
-        signalToNoise = signalToNoise
-      ):
+  sealed abstract class Executed[+D] extends SequenceRow[D]:
+    val breakpoint   = Breakpoint.Disabled
+    val isFinished   = true
+    val stepEstimate = none
+
     def created: Timestamp
     def interval: Option[TimestampInterval]
 
   object Executed:
-    final class ExecutedVisit[D](
+    case class ExecutedVisit[+D](
       visit:         Visit[D],
-      signalToNoise: Visit[D] => Option[SignalToNoise]
-    ) extends Executed[D](
-          id = visit.id.asLeft,
-          instrumentConfig = none,
-          stepConfig = none,
-          signalToNoise = signalToNoise(visit)
-        ):
+      signalToNoise: Option[SignalToNoise]
+    ) extends Executed[D]:
+      val id               = visit.id.asLeft
+      val instrumentConfig = none
+      val stepConfig       = none
       export visit.{created, id => visitId, interval}
 
     object ExecutedVisit:
-      // TODO Is it same to assume step identity just by id ??
       given [D]: Eq[ExecutedVisit[D]] = Eq.by(_.id)
 
-    final class ExecutedStep[D](
+    case class ExecutedStep[+D](
       stepRecord:    StepRecord[D],
-      signalToNoise: StepRecord[D] => Option[SignalToNoise]
-    ) extends Executed[D](
-          id = stepRecord.id.asRight,
-          instrumentConfig = stepRecord.instrumentConfig.some,
-          stepConfig = stepRecord.stepConfig.some,
-          signalToNoise = signalToNoise(stepRecord)
-        ):
+      signalToNoise: Option[SignalToNoise]
+    ) extends Executed[D]:
+      val id               = stepRecord.id.asRight
+      val instrumentConfig = stepRecord.instrumentConfig.some
+      val stepConfig       = stepRecord.stepConfig.some
       export stepRecord.{created, datasets, id => stepId, interval, qaState}
 
     object ExecutedStep:
-      // TODO Is it same to assume step identity just by id ??
       given [D]: Eq[ExecutedStep[D]] = Eq.by(_.id)
 
-  given [S, D]: Eq[SequenceRow[D]] = Eq.instance:
-    case (l: FutureStep[D], r: FutureStep[D])                         =>
-      l === r
-    case (l: Executed.ExecutedVisit[D], r: Executed.ExecutedVisit[D]) =>
-      l === r
-    case (l: Executed.ExecutedStep[D], r: Executed.ExecutedStep[D])   =>
-      l === r
-    case _                                                            =>
-      false
+  given [D]: Eq[SequenceRow[D]] = Eq.by(_.id)

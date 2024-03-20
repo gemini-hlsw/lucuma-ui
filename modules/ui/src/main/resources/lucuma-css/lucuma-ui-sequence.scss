@@ -2,6 +2,8 @@
 // Sequence tables
 // ------
 
+@use "lucuma-ui-common.scss" as lucumaUICommon;
+
 .pl-react-table.p-datatable.lucuma-sequence-table {
   .p-datatable-thead > tr > th {
     text-align: center;
@@ -41,4 +43,68 @@
 
 .lucuma-sequence-step-type-dark {
   color: var(--gray-900);
+}
+
+.lucuma-table-header {
+  display: flex;
+
+  &.lucuma-table-header-expandable {
+    cursor: pointer;
+  }
+
+  .lucuma-table-header-content {
+    flex-grow: 1;
+    padding: 0 10px;
+  }
+}
+
+.lucuma-visit-header {
+  display: flex;
+  justify-content: space-between;
+  color: var(--gray-600);
+
+  span {
+    @include lucumaUICommon.text-ellipsis;
+
+    &:first-child {
+      text-align: left;
+    }
+
+    &:not(:last-child) {
+      width: 23%;
+    }
+
+    &:last-child {
+      width: 8%;
+      text-align: right;
+    }
+  }
+}
+
+table tr .lucuma-visit-step-extra {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding-left: 5%;
+
+  .lucuma-visit-step-extra-datetime {
+    width: 20%;
+  }
+
+  .lucuma-visit-step-extra-datasets {
+    flex-grow: 1;
+    text-align: left;
+
+    .lucuma-visit-step-extra-dataset-item {
+      margin-right: 2.5dvw;
+
+      .lucuma-visit-step-extra-dataset-status-icon {
+        padding-left: 0.5dvw;
+      }
+
+      .lucuma-visit-step-extra-dataset-status-label {
+        padding-left: 0.2dvw;
+      }
+    }
+  }
 }

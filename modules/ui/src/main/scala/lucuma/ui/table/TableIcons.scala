@@ -10,6 +10,10 @@ import scala.scalajs.js.annotation.*
 
 object TableIcons:
   @js.native
+  @JSImport("@fortawesome/pro-light-svg-icons", "faChevronRight")
+  val faChevronRight: FAIcon = js.native
+
+  @js.native
   @JSImport("@fortawesome/pro-solid-svg-icons", "faSort")
   val faSort: FAIcon = js.native
 
@@ -23,11 +27,13 @@ object TableIcons:
 
   // This is tedious but lets us do proper tree-shaking
   FontAwesome.library.add(
+    faChevronRight,
     faSort,
     faSortDown,
     faSortUp
   )
 
-  val Sort     = FontAwesomeIcon(faSort)
-  val SortDown = FontAwesomeIcon(faSortDown)
-  val SortUp   = FontAwesomeIcon(faSortUp)
+  val ChevronRight = FontAwesomeIcon(faChevronRight)
+  val Sort         = FontAwesomeIcon(faSort)
+  val SortDown     = FontAwesomeIcon(faSortDown)
+  val SortUp       = FontAwesomeIcon(faSortUp)

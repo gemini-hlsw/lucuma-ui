@@ -30,6 +30,7 @@ import lucuma.core.util.WithUid
 import lucuma.react.SizePx
 import lucuma.react.common.Size
 import lucuma.react.table.*
+import lucuma.schemas.model.Visit
 import lucuma.ui.sequence.SequenceRow
 import lucuma.ui.sso.UserVault
 
@@ -143,6 +144,7 @@ trait ModelReusabiltyInstances
   given Reusability[ProposalClass]                           = Reusability.byEq
   given Reusability[Proposal]                                = Reusability.byEq
   given Reusability[InstrumentExecutionConfig]               = Reusability.byEq
+  given [D: Eq]: Reusability[Visit[D]]                       = Reusability.byEq
 
 trait TableReusabilityInstances:
   given Reusability[SizePx]                    = Reusability.by(_.value)
@@ -158,10 +160,7 @@ trait TableReusabilityInstances:
     Reusability.by(state => (state.columnVisibility, state.sorting))
 
 trait SequenceReusabilityInstances:
-  given [D: Eq]: Reusability[SequenceRow[D]]                        = Reusability.byEq
-  given [D: Eq]: Reusability[SequenceRow.FutureStep[D]]             = Reusability.byEq
-  given [D: Eq]: Reusability[SequenceRow.Executed.ExecutedVisit[D]] = Reusability.byEq
-  given [D: Eq]: Reusability[SequenceRow.Executed.ExecutedStep[D]]  = Reusability.byEq
+  given [D]: Reusability[SequenceRow[D]] = Reusability.byEq
 
 package object reusability
     extends UtilReusabilityInstances

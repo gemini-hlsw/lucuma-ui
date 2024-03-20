@@ -26,10 +26,11 @@ object SequenceIcons:
   // This is tedious but lets us do proper tree-shaking
   FontAwesome.library.add(
     faCircle,
+    faSquare,
     faCrosshairs
   )
 
-  // TODO COlor
+  // TODO Color
   private def letterLayeredIcon(icon: FontAwesomeIcon, letter: Char, clazz: Css): LayeredIcon =
     LayeredIcon(clazz = clazz, fixedWidth = true)(
       icon,
