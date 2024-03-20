@@ -17,3 +17,15 @@ a,
 a:hover {
   text-decoration: none;
 }
+
+.lucuma-indicator-ok {
+  color: var(--green-400);
+}
+
+.lucuma-indicator-warning {
+  color: var(--yellow-500);
+}
+
+.lucuma-indicator-fail {
+  color: var(--red-500);
+}

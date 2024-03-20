@@ -92,7 +92,8 @@ table tr .lucuma-visit-step-extra {
   }
 
   .lucuma-visit-step-extra-datasets {
-    width: 75%;
+    flex-grow: 1;
+    text-align: left;
 
     .lucuma-visit-step-extra-dataset-item {
       margin-right: 2.5dvw;
