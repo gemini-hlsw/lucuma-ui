@@ -9,17 +9,23 @@ object SequenceStyles:
   val SequenceTable: Css = Css("lucuma-sequence-table")
   val StepGuided: Css    = Css("lucuma-sequence-step-guided")
 
-  val TableHeader           = Css("lucuma-table-header")
-  val TableHeaderExpandable = Css("lucuma-table-header-expandable")
-  val TableHeaderContent    = Css("lucuma-table-header-content")
+  val TableHeader           = Css("lucuma-sequence-header")
+  val TableHeaderExpandable = Css("lucuma-sequence-header-expandable")
+  val TableHeaderContent    = Css("lucuma-sequence-header-content")
 
-  val VisitHeader                      = Css("lucuma-visit-header")
-  val VisitStepExtra                   = Css("lucuma-visit-step-extra")
-  val VisitStepExtraDatetime           = Css("lucuma-visit-step-extra-datetime")
-  val VisitStepExtraDatasets           = Css("lucuma-visit-step-extra-datasets")
-  val VisitStepExtraDatasetItem        = Css("lucuma-visit-step-extra-dataset-item")
-  val VisitStepExtraDatasetStatusIcon  = Css("lucuma-visit-step-extra-dataset-status-icon")
-  val VisitStepExtraDatasetStatusLabel = Css("lucuma-visit-step-extra-dataset-status-label")
+  val HiddenColTableHeader: Css = Css("lucuma-sequence-hidden-col-table-header")
+  val RowHasExtra: Css          = Css("lucuma-sequence-row-has-extra")
+  val ExtraRowShown: Css        = Css("lucuma-sequence-extra-row-shown")
+
+  val VisitHeader                      = Css("lucuma-sequence-visit-header")
+  val VisitStepExtra                   = Css("lucuma-sequence-visit-extraRow")
+  val VisitStepExtraDatetime           = Css("lucuma-sequence-visit-extraRow-datetime")
+  val VisitStepExtraDatasets           = Css("lucuma-sequence-visit-extraRow-datasets")
+  val VisitStepExtraDatasetItem        = Css("lucuma-sequence-visit-extraRow-dataset-item")
+  val VisitStepExtraDatasetStatusIcon  = Css("lucuma-sequence-visit-extraRow-dataset-status-icon")
+  val VisitStepExtraDatasetStatusLabel = Css("lucuma-sequence-visit-extraRow-dataset-status-label")
+
+  val CurrentHeader = Css("lucuma-sequence-current-header")
 
   object StepType:
     val Bias: Css   = Css("lucuma-sequence-step-type-bias")

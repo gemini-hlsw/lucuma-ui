@@ -8,18 +8,30 @@ import japgolly.scalajs.react.hooks.CustomHook
 import lucuma.react.SizePx
 import lucuma.react.table.*
 import lucuma.ui.reusability.given
+import lucuma.ui.table.ColumnSize
+import lucuma.ui.table.ColumnSize.*
 
 /**
  * Provides values to be passed to the table definition:
+ *   - `setInitialColWidths`: Convenience method to set column size for all colums to the ones
+ *     passed to the hook. Eg: `cols.map(useDynTable.setInitialColWidths)`.
  *   - `columnSizing`: To be passed directly to table `state` as `PartialTableState.columnSizing`.
  *   - `columnVisibility`: To be passed directly to table `state` as
  *     `PartialTableState.columnVisibility`.
  *   - `onColumnSizingChangeHandler`: To be passed directly to table `onColumnSizingChange`.
+ *
+ * Make sure the table has `table-layout: fixed`.
  */
 class UseDynTable(
+  initialColumnSizes:              Map[ColumnId, ColumnSize],
   colState:                        DynTable.ColState,
   val onColumnSizingChangeHandler: Updater[ColumnSizing] => Callback
 ):
+  def setInitialColWidths[R](cols: List[ColumnDef[R, ?]]) =
+    cols.map:
+      case col @ ColumnDef.Single(_) => col.setColumnSize(initialColumnSizes(col.id))
+      case col @ ColumnDef.Group(_)  => col.setColumnSize(initialColumnSizes(col.id))
+
   export colState.{computedVisibility => columnVisibility, resized => columnSizing}
 
 object UseDynTable:
@@ -40,7 +52,7 @@ object UseDynTable:
             colState.modState: s =>
               dynTable.adjustColSizes(width)(DynTable.ColState.resized.modify(fn)(s))
 
-      UseDynTable(colState.value, onColumnSizingChangeHandler)
+      UseDynTable(dynTable.columnSizes, colState.value, onColumnSizingChangeHandler)
 
   object HooksApiExt:
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):

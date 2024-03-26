@@ -82,7 +82,6 @@
       // Hover on this row, or in the next one if this one has subcomponent.
       &:hover,
       &.has-subcomponent:has(+ :hover) {
-        position: relative;
         background-color: var(--surface-100);
 
         &:not(.has-subcomponent) {
@@ -94,7 +93,6 @@
           box-shadow: inset 0 1px 0 0 var(--green-500);
 
           & + tr {
-            position: relative;
             background-color: var(--surface-100);
             box-shadow: inset 0 -1px 0 0 var(--green-500);
           }
