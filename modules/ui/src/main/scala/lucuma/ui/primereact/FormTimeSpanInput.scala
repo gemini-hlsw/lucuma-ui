@@ -49,33 +49,36 @@ object FormTimeSpanInput:
         LucumaPrimeStyles.TimeSpanInput,
         timeUnitValues.value.toVdomArray: (unit, value) =>
           val unitName = unit.shortName
-          InputNumber(
-            id = s"${props.id.value}-${unitName}-input",
-            maxFractionDigits = 0,
-            disabled = props.disabled,
-            value = value,
-            suffix = unitName,
-            min = 0,
-            onValueChange = e =>
-              // Calculate the total timespan from the individual time units
-              val newValue = timeUnitValues.value
-                .updated(unit, e.valueOption.orEmpty)
-                .toList
-                .foldMap { case (unit, value) =>
-                  TimeSpan.unsafeFromMicroseconds(
-                    TimeUnit.MICROSECONDS.convert(value.toLong, unit)
+          InputGroup(
+            LucumaPrimeStyles.TimeSpanInputItem,
+            InputNumber(
+              id = s"${props.id.value}-${unitName}-input",
+              maxFractionDigits = 0,
+              disabled = props.disabled,
+              value = value,
+              min = 0,
+              onValueChange = e =>
+                // Calculate the total timespan from the individual time units
+                val newValue = timeUnitValues.value
+                  .updated(unit, e.valueOption.orEmpty)
+                  .toList
+                  .foldMap { case (unit, value) =>
+                    TimeSpan.unsafeFromMicroseconds(
+                      TimeUnit.MICROSECONDS.convert(value.toLong, unit)
+                    )
+                  }
+
+                val newValueClamped =
+                  clampTimeSpan(newValue, props.min.toOption, props.max.toOption)
+
+                props.value
+                  .set(newValueClamped)
+                  .when_(
+                    newValueClamped =!= props.value.get.orEmpty || newValue =!= newValueClamped
                   )
-                }
-
-              val newValueClamped = clampTimeSpan(newValue, props.min.toOption, props.max.toOption)
-
-              props.value
-                .set(newValueClamped)
-                .when_(newValueClamped =!= props.value.get.orEmpty || newValue =!= newValueClamped)
-          ).withMods(LucumaPrimeStyles.TimeSpanInputItem,
-                     ^.size := Math.max(unitName.length + value.toString.length, 3)
-          ).withKey(unitName)
-            .toUnmounted
+            ).withMods(^.size := Math.max(value.toString.length, 2)),
+            InputGroup.Addon(unitName)
+          ).withKey(unitName).toUnmounted
       )
 
       React.Fragment(
