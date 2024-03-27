@@ -7,11 +7,11 @@ import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
+import lucuma.react.syntax.*
 import lucuma.react.table.*
 import lucuma.ui.syntax.all.*
-import lucuma.ui.table.HeaderOrRow
-import lucuma.ui.table.TableIcons
-import lucuma.ui.table.TableStyles
+import lucuma.ui.table.*
+import lucuma.ui.table.ColumnSize.*
 import lucuma.ui.utils.formatSN
 
 import SequenceRowFormatters.*
@@ -30,6 +30,38 @@ object SequenceColumns:
   val YBinColumnId: ColumnId         = ColumnId("Ybin")
   val ROIColumnId: ColumnId          = ColumnId("roi")
   val SNColumnId: ColumnId           = ColumnId("sn")
+
+  val BaseColumnSizes: Map[ColumnId, ColumnSize] = Map(
+    IndexAndTypeColumnId -> FixedSize(60.toPx),
+    ExposureColumnId     -> Resizable(77.toPx, min = 77.toPx.some, max = 130.toPx.some),
+    GuideColumnId        -> FixedSize(33.toPx),
+    PColumnId            -> FixedSize(75.toPx),
+    QColumnId            -> FixedSize(75.toPx),
+    WavelengthColumnId   -> Resizable(75.toPx, min = 75.toPx.some, max = 130.toPx.some),
+    FPUColumnId          -> Resizable(132.toPx, min = 132.toPx.some, max = 180.toPx.some),
+    GratingColumnId      -> Resizable(120.toPx, min = 120.toPx.some, max = 180.toPx.some),
+    FilterColumnId       -> Resizable(90.toPx, min = 90.toPx.some, max = 150.toPx.some),
+    XBinColumnId         -> FixedSize(60.toPx),
+    YBinColumnId         -> FixedSize(60.toPx),
+    ROIColumnId          -> Resizable(75.toPx, min = 75.toPx.some, max = 130.toPx.some),
+    SNColumnId           -> Resizable(75.toPx, min = 75.toPx.some, max = 130.toPx.some)
+  )
+
+  // The order in which they are removed by overflow. The ones at the beginning go first.
+  // Missing columns are not removed by overflow. (We declare them in reverse order)
+  val BaseColumnPriorities: List[ColumnId] = List(
+    PColumnId,
+    QColumnId,
+    GuideColumnId,
+    ExposureColumnId,
+    SNColumnId,
+    ROIColumnId,
+    XBinColumnId,
+    YBinColumnId,
+    FilterColumnId,
+    GratingColumnId,
+    FPUColumnId
+  ).reverse
 
   def headerCell[T, R](
     colId:  ColumnId,
