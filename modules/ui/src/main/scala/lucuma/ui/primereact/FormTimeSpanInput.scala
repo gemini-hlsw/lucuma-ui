@@ -68,7 +68,8 @@ object FormTimeSpanInput:
                     )
                   }
 
-                val newValueClamped = clampTimeSpan(newValue, props.min.toOption, props.max.toOption)
+                val newValueClamped =
+                  clampTimeSpan(newValue, props.min.toOption, props.max.toOption)
 
                 props.value
                   .set(newValueClamped)
