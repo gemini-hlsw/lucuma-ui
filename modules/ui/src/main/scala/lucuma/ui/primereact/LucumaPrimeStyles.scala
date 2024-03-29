@@ -39,8 +39,12 @@ trait LucumaPrimeStyles:
   val IconTimes: Css  = IconPrefix |+| Css("pi-times")
 
   object Dialog: // SUI has Mini, Tiny, Small, Large and Fullscreen.
-    val Small: Css = Css("pl-dialog-small")
-    val Large: Css = Css("pl-dialog-large")
+    val Small: Css         = Css("pl-dialog-small")
+    val Large: Css         = Css("pl-dialog-large")
+    val Dialog: Css        = Css("p-dialog")
+    val DialogHeader: Css  = Css("p-dialog-header")
+    val DialogContent: Css = Css("p-dialog-content")
+    val DialogFooter: Css  = Css("p-dialog-footer")
 
   val TimeSpanInput: Css     = Css("p-time-span-input")
   val TimeSpanInputItem: Css = Css("pl-time-span-input-item")
