@@ -338,15 +338,14 @@ extension (p: ProposalClass)
       )
 
 extension (proposal: Proposal)
-  def toInput: ProposalInput = ProposalInput(
+  def toInput: ProposalPropertiesInput = ProposalPropertiesInput(
     title = proposal.title.orUnassign,
     proposalClass = proposal.proposalClass.toInput.assign,
     category = proposal.category.orUnassign,
     toOActivation = proposal.toOActivation.assign,
     `abstract` = proposal.abstrakt.orUnassign,
-    // Temporary fix until the changes in this issue are complete: https://github.com/gemini-hlsw/lucuma-odb/issues/253
-    // partnerSplits = proposal.partnerSplits.toList.map { case (par, pct) =>
-    //   PartnerSplitInput(par, pct)
+    // The API allows the partner splits to be missing, but not empty. We only use this on
+    // create, and it results in an empty partner splits in the response.
     partnerSplits =
       if (proposal.partnerSplits.isEmpty) Input.unassign
       else

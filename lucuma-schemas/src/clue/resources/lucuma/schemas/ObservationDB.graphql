@@ -119,6 +119,9 @@ enum ProposalStatus {
   NOT_ACCEPTED
 }
 
+"""Email address, matching ^\w+@[a-zA-Z_]+?\.[a-zA-Z]{2,3}$"""
+scalar EmailAddress
+
 """DatasetEvent creation parameters."""
 input AddDatasetEventInput {
   """Dataset id"""
@@ -580,6 +583,18 @@ input CreateProgramInput {
 type CreateProgramResult {
   """The newly created program."""
   program: Program!
+}
+
+"""Input for creating a proposal."""
+input CreateProposalInput {
+  programId: ProgramId!
+  SET: ProposalPropertiesInput!
+}
+
+"""The result of creating new proposal"""
+type CreateProposalResult {
+  """The newly created proposal."""
+  proposal: Proposal!
 }
 
 """
@@ -1731,6 +1746,9 @@ input CreateUserInvitationInput {
   """The program to add a user to."""
   programId: ProgramId!
 
+  """The recipient to whom the invitation should be sent."""
+  recipientEmail: EmailAddress!
+
   """The role this user will play in the program."""
   role: ProgramUserRole!
 
@@ -1765,6 +1783,9 @@ type UserInvitation {
 
   """User who issued the invitation."""
   issuer: User!
+
+  """Recipient email address."""
+  recipientEmail: EmailAddress!
 
   """User who redeemed the invitation, if any."""
   redeemer: User
@@ -1926,6 +1947,12 @@ type Mutation {
     input: CreateProgramInput!
   ): CreateProgramResult!
 
+  """Creates a new proposal according to the provided properties"""
+  createProposal(
+    """Proposal description"""
+    input: CreateProposalInput!
+  ): CreateProposalResult
+
   """
   Creates a new target according to the provided parameters.  Only one of sidereal or nonsidereal may be specified.
   """
@@ -1986,6 +2013,9 @@ type Mutation {
   """Set the program reference."""
   setProgramReference(input: SetProgramReferenceInput!): SetProgramReferenceResult!
 
+  """Set the proposal status."""
+  setProposalStatus(input: SetProposalStatusInput!): SetProposalStatusResult!
+
   """
   Unlink a user from a program.
   This operation is available only to Admin and Service users.
@@ -2024,10 +2054,18 @@ type Mutation {
     """Parameters for editing existing observations."""
     input: UpdateObservationsInput!
   ): UpdateObservationsResult!
+
+  """Updates existing programs."""
   updatePrograms(
     """Parameters for updating existing programs."""
     input: UpdateProgramsInput!
   ): UpdateProgramsResult!
+
+  """Updates an existing proposal."""
+  updateProposal(
+    """Parameters for updating an existing proposal."""
+    input: UpdateProposalInput!
+  ): UpdateProposalResult!
 
   """Updates existing targets"""
   updateTargets(
@@ -2242,18 +2280,9 @@ input ProgramPropertiesInput {
   """
   The semester associated with the program, if any. If this value is
   subsequently edited it will result in a new reference, with (likely) a
-  different index.
+  different index. Cannot be unset.
   """
   semester: Semester
-
-  """
-  The proposal status, which is both optional and nullable. 
-  This cannot be specified on create.
-  """
-  proposalStatus: ProposalStatus
-
-  """The program proposal is both optional and nullable"""
-  proposal: ProposalInput
 
   """
   Whether the program is considered deleted (defaults to PRESENT) but may be edited
@@ -2335,7 +2364,7 @@ input ProposalClassInput {
 }
 
 """Program proposal"""
-input ProposalInput {
+input ProposalPropertiesInput {
   """
   The title field may be unset by assigning a null value, or ignored by skipping it altogether
   """
@@ -2573,9 +2602,11 @@ one of the inputs.
 """
 input ProgramReferencePropertiesInput {
   calibration: ProgramReferencePropertiesCalibrationInput
+  commissioning: ProgramReferencePropertiesCommissioningInput
   engineering: ProgramReferencePropertiesEngineeringInput
   example: ProgramReferencePropertiesExampleInput
   library: ProgramReferencePropertiesLibraryInput
+  monitoring: ProgramReferencePropertiesMonitoringInput
   science: ProgramReferencePropertiesScienceInput
 }
 
@@ -2586,6 +2617,12 @@ type SetProgramReferenceResult {
 
 """Inputs required when updating or switching to a calibration program."""
 input ProgramReferencePropertiesCalibrationInput {
+  semester: Semester!
+  instrument: Instrument!
+}
+
+"""Inputs required when updating or switching to a commissioning program."""
+input ProgramReferencePropertiesCommissioningInput {
   semester: Semester!
   instrument: Instrument!
 }
@@ -2607,10 +2644,38 @@ input ProgramReferencePropertiesLibraryInput {
   description: NonEmptyString!
 }
 
+"""Inputs required when updating or switching to a monitoring program."""
+input ProgramReferencePropertiesMonitoringInput {
+  semester: Semester!
+  instrument: Instrument!
+}
+
 """Inputs required when updating or switching to a science program."""
 input ProgramReferencePropertiesScienceInput {
   semester: Semester!
   scienceSubtype: ScienceSubtype!
+}
+
+"""
+Input for setting the proposal status.  Identify the program to update with one
+of `programId`, `proposalReference` or `programReference`.  If more than one of
+these is specified, all must match.
+"""
+input SetProposalStatusInput {
+  programId: ProgramId
+  proposalReference: ProposalReferenceLabel
+  programReference: ProgramReferenceLabel
+  status: ProposalStatus!
+}
+
+"""The result of setting the proposal status."""
+type SetProposalStatusResult {
+  """
+  The program on which the proposal status was set. Returning the program allows checking
+  the proposal reference, program reference and other values that can be affected by changing
+  the proposal status.
+  """
+  program: Program!
 }
 
 """Sidereal target edit parameters"""
@@ -3153,6 +3218,25 @@ type UpdateProgramsResult {
 
   """`true` when there were additional edits that were not returned."""
   hasMore: Boolean!
+}
+
+"""
+Input for updating a proposal.  Identify the program to update with one
+of `programId`, `proposalReference` or `programReference`.  If more than one of
+these is specified, all must match.  Use `SET` to specify the new program
+reference properties.
+"""
+input UpdateProposalInput {
+  programId: ProgramId
+  proposalReference: ProposalReferenceLabel
+  programReference: ProgramReferenceLabel
+  SET: ProposalPropertiesInput!
+}
+
+"""The result of updating a proposal"""
+type UpdateProposalResult {
+  """The updated proposal."""
+  proposal: Proposal!
 }
 
 """
@@ -5140,6 +5224,52 @@ enum Instrument {
   ZORRO
 }
 
+"""Describes an instrument configuration option for spectroscopy."""
+type SpectroscopyConfigOption {
+  name: String!
+  instrument: Instrument!
+  focalPlane: FocalPlane!
+  fpuLabel: String!
+  slitWidth: Angle!
+  slitLength: Angle!
+  disperserLabel: String!
+  filterLabel: String
+  wavelengthMin: Wavelength!
+  wavelengthMax: Wavelength!
+  wavelengthOptimal: Wavelength!
+  wavelengthCoverage: Wavelength!
+  resolution: PosInt!
+  adaptiveOptics: Boolean!
+
+  """A special capability (if any) that the configuration may have."""
+  capability: SpectroscopyCapabilities
+  site: Site!
+
+  """
+  For GMOS North options, the GMOS North configuration.  Null for other
+  instruments.
+  """
+  gmosNorth: SpectroscopyConfigOptionGmosNorth
+
+  """
+  For GMOS South options, the GMOS South configuration.  Null for other
+  instruments.
+  """
+  gmosSouth: SpectroscopyConfigOptionGmosSouth
+}
+
+type SpectroscopyConfigOptionGmosNorth {
+  fpu: GmosNorthBuiltinFpu!
+  grating: GmosNorthGrating!
+  filter: GmosNorthFilter
+}
+
+type SpectroscopyConfigOptionGmosSouth {
+  fpu: GmosSouthBuiltinFpu!
+  grating: GmosSouthGrating!
+  filter: GmosSouthFilter
+}
+
 """An 'Int` in the range 0 to 100"""
 scalar IntPercent
 
@@ -5664,6 +5794,14 @@ type CalibrationProgramReference implements ProgramReference {
   semesterIndex: PosInt!
 }
 
+type CommissioningProgramReference implements ProgramReference {
+  label: ProgramReferenceLabel!
+  type: ProgramType!
+  instrument: Instrument!
+  semester: Semester!
+  semesterIndex: PosInt!
+}
+
 type EngineeringProgramReference implements ProgramReference {
   label: ProgramReferenceLabel!
   type: ProgramType!
@@ -5683,6 +5821,14 @@ type LibraryProgramReference implements ProgramReference {
   type: ProgramType!
   description: NonEmptyString!
   instrument: Instrument!
+}
+
+type MonitoringProgramReference implements ProgramReference {
+  label: ProgramReferenceLabel!
+  type: ProgramType!
+  instrument: Instrument!
+  semester: Semester!
+  semesterIndex: PosInt!
 }
 
 type ScienceProgramReference implements ProgramReference {
@@ -6043,6 +6189,9 @@ type Query {
 
   """Metadata for `enum ProposalStatus"""
   proposalStatusMeta: [ProposalStatusMeta!]!
+
+  """Spectroscopy configuration options matching the WHERE parameter."""
+  spectroscopyConfigOptions(WHERE: WhereSpectroscopyConfigOption): [SpectroscopyConfigOption!]!
 
   """Retrieves the target with the given id, if it exists"""
   target(
@@ -7533,6 +7682,27 @@ type WavelengthDither {
   micrometers: BigDecimal!
 }
 
+input WhereAngle {
+  AND: [WhereAngle!]
+  OR: [WhereAngle!]
+  NOT: WhereAngle
+  microarcseconds: WhereOrderLong
+  microseconds: WhereOrderBigDecimal
+  milliarcseconds: WhereOrderBigDecimal
+  milliseconds: WhereOrderBigDecimal
+  arcseconds: WhereOrderBigDecimal
+  seconds: WhereOrderBigDecimal
+  arcminutes: WhereOrderBigDecimal
+  minutes: WhereOrderBigDecimal
+  degrees: WhereOrderBigDecimal
+  hours: WhereOrderBigDecimal
+}
+
+input WhereBoolean {
+  """Matches if the boolean is the provided value."""
+  EQ: Boolean
+}
+
 """ObsAttachment filter options. All specified items must match."""
 input WhereObsAttachment {
   """
@@ -7768,6 +7938,24 @@ input WhereEqProposalStatus {
 }
 
 """
+Filters on equality (or not) of the site property. All supplied criteria must
+match, but usually only one is selected.
+"""
+input WhereEqSite {
+  """Matches if the site is exactly the supplied value."""
+  EQ: Site
+
+  """Matches if the site is not the supplied value."""
+  NEQ: Site
+
+  """Matches if the site is any of the supplied options."""
+  IN: [Site!]
+
+  """Matches if the site is none of the supplied values."""
+  NIN: [Site!]
+}
+
+"""
 Filters on equality (or not) of the property value and the supplied criteria.
 All supplied criteria must match, but usually only one is selected.  E.g.
 'EQ = "Foo"' will match when the property value is "FOO".
@@ -7978,6 +8166,20 @@ input WhereOrderGroupId {
   LTE: GroupId
 }
 
+input WhereEqFocalPlane {
+  """Matches if the focal plane option is exactly the supplied value."""
+  EQ: FocalPlane
+
+  """Matches if the focal plane option is not the supplied value."""
+  NEQ: FocalPlane
+
+  """Matches if the focal plane option is any of the supplied values."""
+  IN: [FocalPlane!]
+
+  """Matches if the focal plane option is none of the supplied values."""
+  NIN: [FocalPlane!]
+}
+
 """
 Filters on equality (or not) of the instrument and the supplied criteria.
 All supplied criteria must match, but usually only one is selected.  E.g.
@@ -8044,6 +8246,36 @@ input WhereEqScienceSubtype {
 }
 
 """
+Filters on equality (or not) of the SpectroscopyCapabilities property. All
+supplied criteria must match, but usually only one is selected.
+"""
+input WhereOptionEqSpectroscopyCapabilities {
+  """
+  When `true`, matches if the spectroscopy capability value is not defined.
+  """
+  IS_NULL: Boolean
+
+  """Matches if the spectroscopy capability is the supplied value."""
+  EQ: SpectroscopyCapabilities
+
+  """
+  Matches if the spectroscopy capability is anything other than the supplied
+  value.
+  """
+  NEQ: SpectroscopyCapabilities
+
+  """
+  Matches if the spectroscopy capability is any one of the supplied values.
+  """
+  IN: [SpectroscopyCapabilities!]
+
+  """
+  Matches if the spectroscopy capability is not any one of the supplied values.
+  """
+  NIN: [SpectroscopyCapabilities!]
+}
+
+"""
 Filters on equality (or not) of the property value and the supplied criteria.
 All supplied criteria must match, but usually only one is selected.  E.g.
 'EQ = "Foo"' will match when the property value is "FOO".  Defining, `EQ`,
@@ -8093,6 +8325,40 @@ input WhereOptionString {
   Set to `true` (the default) for case sensitive matches, `false` to ignore case.
   """
   MATCH_CASE: Boolean = true
+}
+
+"""
+Filters on equality or order comparisons of BigDecimal properties.  All supplied
+criteria must match, but usually only one is selected.
+"""
+input WhereOrderBigDecimal {
+  """Matches if the BigDecimal is exactly the supplied value."""
+  EQ: BigDecimal
+
+  """Matches if the BigDecimal is not the supplied value."""
+  NEQ: BigDecimal
+
+  """Matches if the BigDecimal is any of the supplied options."""
+  IN: [BigDecimal!]
+
+  """Matches if the BigDecimal is none of the supplied values."""
+  NIN: [BigDecimal!]
+
+  """Matches if the BigDecimal is ordered after (>) the supplied value."""
+  GT: BigDecimal
+
+  """Matches if the BigDecimal is ordered before (<) the supplied value."""
+  LT: BigDecimal
+
+  """
+  Matches if the BigDecimal is ordered after or equal (>=) the supplied value.
+  """
+  GTE: BigDecimal
+
+  """
+  Matches if the BigDecimal is ordered before or equal (<=) the supplied value.
+  """
+  LTE: BigDecimal
 }
 
 """
@@ -8236,38 +8502,69 @@ input WhereOrderTimestamp {
 }
 
 """
-Filters on equality or order comparisons of the property.  All supplied
-criteria must match, but usually only one is selected.  E.g., 'GT = 2'
-for an integer property will match when the value is 3 or more.
+Filters on equality or order comparisons of the integer property.  All supplied
+criteria must match, but usually only one is selected.
 """
 input WhereOrderInt {
-  """Matches if the property is exactly the supplied value."""
+  """Matches if the integer is exactly the supplied value."""
   EQ: Int
 
-  """Matches if the property is not the supplied value."""
+  """Matches if the integer is not the supplied value."""
   NEQ: Int
 
-  """Matches if the property value is any of the supplied options."""
+  """Matches if the integer is any of the supplied options."""
   IN: [Int!]
 
-  """Matches if the property value is none of the supplied values."""
+  """Matches if the integer is none of the supplied values."""
   NIN: [Int!]
 
-  """Matches if the property is ordered after (>) the supplied value."""
+  """Matches if the integer is ordered after (>) the supplied value."""
   GT: Int
 
-  """Matches if the property is ordered before (<) the supplied value."""
+  """Matches if the integer is ordered before (<) the supplied value."""
   LT: Int
 
   """
-  Matches if the property is ordered after or equal (>=) the supplied value.
+  Matches if the integer is ordered after or equal (>=) the supplied value.
   """
   GTE: Int
 
   """
-  Matches if the property is ordered before or equal (<=) the supplied value.
+  Matches if the integer is ordered before or equal (<=) the supplied value.
   """
   LTE: Int
+}
+
+"""
+Filters on equality or order comparisons of long property.  All supplied
+criteria must match, but usually only one is selected.
+"""
+input WhereOrderLong {
+  """Matches if the Long is exactly the supplied value."""
+  EQ: Long
+
+  """Matches if the Long is not the supplied value."""
+  NEQ: Long
+
+  """Matches if the Long is any of the supplied options."""
+  IN: [Long!]
+
+  """Matches if the Long is none of the supplied values."""
+  NIN: [Long!]
+
+  """Matches if the Long is ordered after (>) the supplied value."""
+  GT: Long
+
+  """Matches if the Long is ordered before (<) the supplied value."""
+  LT: Long
+
+  """Matches if the Long is ordered after or equal (>=) the supplied value."""
+  GTE: Long
+
+  """
+  Matches if the Long is ordered before or equal (<=) the supplied value.
+  """
+  LTE: Long
 }
 
 """
@@ -8376,6 +8673,74 @@ input WhereOrderObservationId {
 }
 
 """
+Filters on equality or order comparisons of PosBigDecimal properties.  All
+supplied criteria must match, but usually only one is selected.
+"""
+input WhereOrderPosBigDecimal {
+  """Matches if the PosBigDecimal is exactly the supplied value."""
+  EQ: PosBigDecimal
+
+  """Matches if the PosBigDecimal is not the supplied value."""
+  NEQ: PosBigDecimal
+
+  """Matches if the PosBigDecimal is any of the supplied options."""
+  IN: [PosBigDecimal!]
+
+  """Matches if the PosBigDecimal is none of the supplied values."""
+  NIN: [PosBigDecimal!]
+
+  """Matches if the PosBigDecimal is ordered after (>) the supplied value."""
+  GT: PosBigDecimal
+
+  """Matches if the PosBigDecimal is ordered before (<) the supplied value."""
+  LT: PosBigDecimal
+
+  """
+  Matches if the PosBigDecimal is ordered after or equal (>=) the supplied value.
+  """
+  GTE: PosBigDecimal
+
+  """
+  Matches if the PosBigDecimal is ordered before or equal (<=) the supplied value.
+  """
+  LTE: PosBigDecimal
+}
+
+"""
+Filters on equality or order comparisons of the PosInt property.  All supplied
+criteria must match, but usually only one is selected.
+"""
+input WhereOrderPosInt {
+  """Matches if the PosInt is exactly the supplied value."""
+  EQ: PosInt
+
+  """Matches if the PosInt is not the supplied value."""
+  NEQ: PosInt
+
+  """Matches if the PosInt is any of the supplied options."""
+  IN: [PosInt!]
+
+  """Matches if the PosInt is none of the supplied values."""
+  NIN: [PosInt!]
+
+  """Matches if the PosInt is ordered after (>) the supplied value."""
+  GT: PosInt
+
+  """Matches if the PosInt is ordered before (<) the supplied value."""
+  LT: PosInt
+
+  """
+  Matches if the PosInt is ordered after or equal (>=) the supplied value.
+  """
+  GTE: PosInt
+
+  """
+  Matches if the PosInt is ordered before or equal (<=) the supplied value.
+  """
+  LTE: PosInt
+}
+
+"""
 Filters on equality or order comparisons of the property.  All supplied
 criteria must match, but usually only one is selected.  E.g., 'GT = 2'
 for an integer property will match when the value is 3 or more.
@@ -8408,41 +8773,6 @@ input WhereOrderProgramId {
   Matches if the property is ordered before or equal (<=) the supplied value.
   """
   LTE: ProgramId
-}
-
-"""
-Filters on equality or order comparisons of the property.  All supplied
-criteria must match, but usually only one is selected.  E.g., 'GT = 2'
-for an integer property will match when the value is 3 or more.
-"""
-input WhereOrderPosInt {
-  """Matches if the property is exactly the supplied value."""
-  EQ: PosInt
-
-  """Matches if the property is not the supplied value."""
-  NEQ: PosInt
-
-  """Matches if the property value is any of the supplied options."""
-  IN: [PosInt!]
-
-  """Matches if the property value is none of the supplied values."""
-  NIN: [PosInt!]
-
-  """Matches if the property is ordered after (>) the supplied value."""
-  GT: PosInt
-
-  """Matches if the property is ordered before (<) the supplied value."""
-  LT: PosInt
-
-  """
-  Matches if the property is ordered after or equal (>=) the supplied value.
-  """
-  GTE: PosInt
-
-  """
-  Matches if the property is ordered before or equal (<=) the supplied value.
-  """
-  LTE: PosInt
 }
 
 input WhereProposalReference {
@@ -8809,6 +9139,34 @@ input WhereProposalPartners {
   isJoint: Boolean
 }
 
+"""
+Spectroscopy instrument configuration option matcher.  Configure with the
+properties of interest and pass it to the 'spectroscopyConfigOptions' query
+to find the corresponding configuration options.
+"""
+input WhereSpectroscopyConfigOption {
+  AND: [WhereSpectroscopyConfigOption!]
+  OR: [WhereSpectroscopyConfigOption!]
+  NOT: WhereSpectroscopyConfigOption
+  adaptiveOptics: WhereBoolean
+  capability: WhereOptionEqSpectroscopyCapabilities
+  focalPlane: WhereEqFocalPlane
+  instrument: WhereEqInstrument
+  resolution: WhereOrderPosInt
+  site: WhereEqSite
+  slitLength: WhereAngle
+  slitWidth: WhereAngle
+
+  """
+  Matches configuration options that support the provided wavelength. In other
+  words, those for which the given wavelength falls between the min and max
+  limits of the configuration.
+  """
+  rangeIncludes: WavelengthInput
+  wavelengthOptimal: WhereWavelength
+  wavelengthCoverage: WhereWavelength
+}
+
 """String matching options."""
 input WhereString {
   EQ: NonEmptyString
@@ -8861,6 +9219,16 @@ input WhereTarget {
 
   """Matches the target name."""
   name: WhereString
+}
+
+input WhereWavelength {
+  AND: [WhereWavelength!]
+  OR: [WhereWavelength!]
+  NOT: WhereWavelength
+  picometers: WhereOrderPosInt
+  angstroms: WhereOrderPosBigDecimal
+  nanometers: WhereOrderPosBigDecimal
+  micrometers: WhereOrderPosBigDecimal
 }
 
 type OffsetQ {
