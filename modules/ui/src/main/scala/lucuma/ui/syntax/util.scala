@@ -3,7 +3,6 @@
 
 package lucuma.ui.syntax
 
-import japgolly.scalajs.react.Callback
 import japgolly.scalajs.react.Reusable
 import lucuma.react.common.EnumValue
 
@@ -12,8 +11,6 @@ import scala.scalajs.js
 trait util:
   extension [A](a: A | Unit)(using ev: EnumValue[A])
     def undefToJs: js.UndefOr[String] = a.map(ev.value)
-
-  extension (c: Callback.type) def pprintln[T](a: T): Callback = Callback(_root_.pprint.pprintln(a))
 
   extension [A](reusableList: Reusable[List[A]])
     def sequenceList: List[Reusable[A]] =
