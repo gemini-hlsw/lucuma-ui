@@ -54,9 +54,7 @@ trait ObservationDB {
     type PosShort                   = eu.timepit.refined.types.numeric.PosShort
     // Core Types
     type DatasetFilename            = lucuma.core.model.sequence.Dataset.Filename
-    // TODO: The EmailAddress type is not available outside of the ODB. When it is
-    // moved to core, we can change this to use that type.
-    type EmailAddress               = String
+    type EmailAddress               = lucuma.core.data.EmailAddress
     type ProposalReferenceLabel     = lucuma.core.model.ProposalReference
     type ProgramReferenceLabel      = lucuma.core.model.ProgramReference
     type ObservationReferenceLabel  = lucuma.core.model.ObservationReference
