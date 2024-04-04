@@ -27,7 +27,8 @@ case class SideTabs[A](
   id:             NonEmptyString,
   tab:            View[A],
   pageUrl:        A => String,
-  separatorAfter: A => Boolean
+  separatorAfter: A => Boolean,
+  filterPred:     A => Boolean = (_: A) => true
 )(using val enumerated: Enumerated[A], val display: Display[A])
     extends ReactFnProps(SideTabs.component)
 
@@ -48,6 +49,7 @@ object SideTabs:
             p.id,
             p.tab,
             buttonClass = SideTabsStyles.SideButton,
+            filterPred = p.filterPred,
             itemTemplate = tab =>
               <.div(
                 SideTabsStyles.RotationWrapperOuter |+|
@@ -71,6 +73,7 @@ object SideTabs:
             p.tab,
             groupClass = SideTabsStyles.SideTabsHorizontal,
             buttonClass = SideTabsStyles.TabSelector,
+            filterPred = p.filterPred,
             itemTemplate = tab =>
               <.a(
                 ^.onClick ==> ((e: ReactEvent) => e.preventDefaultCB),

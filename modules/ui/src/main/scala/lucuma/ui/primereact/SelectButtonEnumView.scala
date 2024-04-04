@@ -24,6 +24,7 @@ case class SelectButtonEnumView[V[_], A](
   itemTemplate:   js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
   disabled:       js.UndefOr[Boolean] = js.undefined,
   onChange:       A => Callback = (_: A) => Callback.empty,
+  filterPred:     A => Boolean = (_: A) => true,
   modifiers:      Seq[TagMod] = Seq.empty
 )(using
   val enumerated: Enumerated[A],
@@ -45,9 +46,11 @@ object SelectButtonEnumView {
       props.view.get.map { value =>
         SelectButton[A](
           value = value,
-          Enumerated[A].all.map { s =>
-            SelectItem(s, label = props.display.shortName(s), clazz = props.buttonClass)
-          },
+          Enumerated[A].all
+            .filter(props.filterPred)
+            .map { s =>
+              SelectItem(s, label = props.display.shortName(s), clazz = props.buttonClass)
+            },
           id = props.id.value,
           clazz = props.groupClass,
           itemTemplate = props.itemTemplate,
