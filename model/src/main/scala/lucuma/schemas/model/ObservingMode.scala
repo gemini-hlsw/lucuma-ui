@@ -24,41 +24,175 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
     derives Eq {
   def isCustomized: Boolean
 
-  def fpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match {
-    case n: ObservingMode.GmosNorthLongSlit => n.fpu.asLeft.some
-    case s: ObservingMode.GmosSouthLongSlit => s.fpu.asRight.some
-  }
+  def fpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
+    case ObservingMode.GmosNorthLongSlit(
+          _,
+          _,
+          _,
+          _,
+          _,
+          fpu,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _
+        ) =>
+      fpu.asLeft.some
+    case ObservingMode.GmosSouthLongSlit(
+          _,
+          _,
+          _,
+          _,
+          _,
+          fpu,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _
+        ) =>
+      fpu.asRight.some
 
-  def siteFor: Site = this match {
-    case n: ObservingMode.GmosNorthLongSlit => Site.GN
-    case s: ObservingMode.GmosSouthLongSlit => Site.GS
-  }
+  def siteFor: Site = this match
+    case ObservingMode.GmosNorthLongSlit(
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _
+        ) =>
+      Site.GN
+    case ObservingMode.GmosSouthLongSlit(
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _
+        ) =>
+      Site.GS
 
-  def toBasicConfiguration: BasicConfiguration = this match {
-    case n: ObservingMode.GmosNorthLongSlit =>
-      BasicConfiguration.GmosNorthLongSlit(n.grating, n.filter, n.fpu, n.centralWavelength)
-    case s: ObservingMode.GmosSouthLongSlit =>
-      BasicConfiguration.GmosSouthLongSlit(s.grating, s.filter, s.fpu, s.centralWavelength)
-  }
+  def toBasicConfiguration: BasicConfiguration = this match
+    case ObservingMode.GmosNorthLongSlit(
+          _,
+          grating,
+          _,
+          filter,
+          _,
+          fpu,
+          _,
+          centralWavelength,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _
+        ) =>
+      BasicConfiguration.GmosNorthLongSlit(grating, filter, fpu, centralWavelength)
+    case ObservingMode.GmosSouthLongSlit(
+          _,
+          grating,
+          _,
+          filter,
+          _,
+          fpu,
+          _,
+          centralWavelength,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _,
+          _
+        ) =>
+      BasicConfiguration.GmosSouthLongSlit(grating, filter, fpu, centralWavelength)
 }
 
 object ObservingMode:
   given Decoder[WavelengthDither] =
-    Decoder.instance(c =>
-      for {
-        p <- c.downField("picometers").as[Int]
-      } yield WavelengthDither.intPicometers.get(p)
-    )
+    Decoder.instance:
+      _.downField("picometers").as[Int].map(WavelengthDither.intPicometers.get)
 
   given Decoder[ObservingMode] =
     Decoder
-      .instance(c =>
+      .instance: c =>
         c.downField("gmosNorthLongSlit")
           .as[GmosNorthLongSlit]
-          .orElse(
+          .orElse:
             c.downField("gmosSouthLongSlit").as[GmosSouthLongSlit]
-          )
-      )
 
   case class GmosNorthLongSlit(
     initialGrating:            GmosNorthGrating,
