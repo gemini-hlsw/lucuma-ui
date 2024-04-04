@@ -51,6 +51,7 @@ object ExecutionVisitsSubquery
                 matches {
                   id
                   created
+                  executionState
                   interval $TimestampIntervalSubquery
                   stepConfig {
                     stepType

@@ -23,6 +23,7 @@ import lucuma.odb.json.gmos.given
 import lucuma.odb.json.stepconfig.given
 import lucuma.odb.json.time.decoder.given
 import lucuma.schemas.model.*
+import lucuma.schemas.model.enums.StepExecutionState
 
 trait VisitDecoders:
   given Decoder[Dataset.Filename] = Decoder.instance: c =>
@@ -45,6 +46,7 @@ trait VisitDecoders:
     for
       id               <- c.downField("id").as[Step.Id]
       created          <- c.downField("created").as[Timestamp]
+      executionState   <- c.downField("executionState").as[StepExecutionState]
       interval         <- c.downField("interval").as[Option[TimestampInterval]]
       instrumentConfig <- c.downField("gmosNorth").as[DynamicConfig.GmosNorth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
@@ -54,6 +56,7 @@ trait VisitDecoders:
     yield StepRecord.GmosNorth(
       id,
       created,
+      executionState,
       interval,
       instrumentConfig,
       stepConfig,
@@ -66,6 +69,7 @@ trait VisitDecoders:
     for
       id               <- c.downField("id").as[Step.Id]
       created          <- c.downField("created").as[Timestamp]
+      executionState   <- c.downField("executionState").as[StepExecutionState]
       interval         <- c.downField("interval").as[Option[TimestampInterval]]
       instrumentConfig <- c.downField("gmosSouth").as[DynamicConfig.GmosSouth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
@@ -75,6 +79,7 @@ trait VisitDecoders:
     yield StepRecord.GmosSouth(
       id,
       created,
+      executionState,
       interval,
       instrumentConfig,
       stepConfig,

@@ -32,6 +32,7 @@ query {
                 matches {
                   id
                   created
+                  executionState
                   interval {
                     start
                     end

@@ -137,6 +137,7 @@ trait ObservationDB {
     type SpectroscopyCapabilities            = enums.SpectroscopyCapabilities
     type SmartGcalType                       = enums.SmartGcalType
     type StellarLibrarySpectrum              = enums.StellarLibrarySpectrum
+    type StepExecutionState                  = lucuma.schemas.model.enums.StepExecutionState
     type StepQaState                         = enums.StepQaState
     type StepStage                           = enums.StepStage
     type StepType                            = enums.StepType

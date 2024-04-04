@@ -16,29 +16,23 @@ import lucuma.odb.json.wavelength.decoder.given
 // This is also used to create the configuration.
 sealed abstract class BasicConfiguration(val instrument: Instrument)
     extends Product
-    with Serializable derives Eq {
+    with Serializable derives Eq:
+  def fpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
+    case BasicConfiguration.GmosNorthLongSlit(_, _, fpu, _) => fpu.asLeft.some
+    case BasicConfiguration.GmosSouthLongSlit(_, _, fpu, _) => fpu.asRight.some
 
-  def fpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match {
-    case n: BasicConfiguration.GmosNorthLongSlit => n.fpu.asLeft.some
-    case s: BasicConfiguration.GmosSouthLongSlit => s.fpu.asRight.some
-  }
-
-  def siteFor: Site = this match {
+  def siteFor: Site = this match
     case n: BasicConfiguration.GmosNorthLongSlit => Site.GN
     case s: BasicConfiguration.GmosSouthLongSlit => Site.GS
-  }
-}
 
 object BasicConfiguration:
   given Decoder[BasicConfiguration] =
     Decoder
-      .instance(c =>
+      .instance: c =>
         c.downField("gmosNorthLongSlit")
           .as[GmosNorthLongSlit]
-          .orElse(
+          .orElse:
             c.downField("gmosSouthLongSlit").as[GmosSouthLongSlit]
-          )
-      )
 
   case class GmosNorthLongSlit(
     grating:           GmosNorthGrating,
