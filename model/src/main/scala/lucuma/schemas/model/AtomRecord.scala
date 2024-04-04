@@ -25,7 +25,7 @@ enum AtomRecord[+D] derives Eq:
     created:      Timestamp,
     interval:     Option[TimestampInterval],
     sequenceType: SequenceType,
-    steps:        List[StepRecord[DynamicConfig.GmosNorth]]
+    steps:        List[StepRecord.GmosNorth]
   ) extends AtomRecord[DynamicConfig.GmosNorth]
 
   case GmosSouth protected[schemas] (
@@ -33,11 +33,13 @@ enum AtomRecord[+D] derives Eq:
     created:      Timestamp,
     interval:     Option[TimestampInterval],
     sequenceType: SequenceType,
-    steps:        List[StepRecord[DynamicConfig.GmosSouth]]
+    steps:        List[StepRecord.GmosSouth]
   ) extends AtomRecord[DynamicConfig.GmosSouth]
 
 object AtomRecord:
   object GmosNorth:
+    given Eq[GmosNorth] = Eq.derived
+
     val id: Lens[GmosNorth, Atom.Id] =
       Focus[GmosNorth](_.id)
 
@@ -50,10 +52,12 @@ object AtomRecord:
     val sequenceType: Lens[GmosNorth, SequenceType] =
       Focus[GmosNorth](_.sequenceType)
 
-    val steps: Lens[GmosNorth, List[StepRecord[DynamicConfig.GmosNorth]]] =
+    val steps: Lens[GmosNorth, List[StepRecord.GmosNorth]] =
       Focus[GmosNorth](_.steps)
 
   object GmosSouth:
+    given Eq[GmosSouth] = Eq.derived
+
     val id: Lens[GmosSouth, Atom.Id] =
       Focus[GmosSouth](_.id)
 
@@ -66,5 +70,5 @@ object AtomRecord:
     val sequenceType: Lens[GmosSouth, SequenceType] =
       Focus[GmosSouth](_.sequenceType)
 
-    val steps: Lens[GmosSouth, List[StepRecord[DynamicConfig.GmosSouth]]] =
+    val steps: Lens[GmosSouth, List[StepRecord.GmosSouth]] =
       Focus[GmosSouth](_.steps)

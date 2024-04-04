@@ -29,14 +29,14 @@ enum Visit[+D] derives Eq:
     id:       Visit.Id,
     created:  Timestamp,
     interval: Option[TimestampInterval],
-    atoms:    List[AtomRecord[DynamicConfig.GmosNorth]]
+    atoms:    List[AtomRecord.GmosNorth]
   ) extends Visit[DynamicConfig.GmosNorth]
 
   case GmosSouth(
     id:       Visit.Id,
     created:  Timestamp,
     interval: Option[TimestampInterval],
-    atoms:    List[AtomRecord[DynamicConfig.GmosSouth]]
+    atoms:    List[AtomRecord.GmosSouth]
   ) extends Visit[DynamicConfig.GmosSouth]
 
 object Visit:
@@ -44,6 +44,8 @@ object Visit:
   val Id = lucuma.core.model.Visit.Id
 
   object GmosNorth:
+    given Eq[GmosNorth] = Eq.derived
+
     val id: Lens[GmosNorth, Visit.Id] =
       Focus[GmosNorth](_.id)
 
@@ -53,10 +55,12 @@ object Visit:
     val interval: Lens[GmosNorth, Option[TimestampInterval]] =
       Focus[GmosNorth](_.interval)
 
-    val atoms: Lens[GmosNorth, List[AtomRecord[DynamicConfig.GmosNorth]]] =
+    val atoms: Lens[GmosNorth, List[AtomRecord.GmosNorth]] =
       Focus[GmosNorth](_.atoms)
 
   object GmosSouth:
+    given Eq[GmosSouth] = Eq.derived
+
     val id: Lens[GmosSouth, Visit.Id] =
       Focus[GmosSouth](_.id)
 
@@ -66,5 +70,5 @@ object Visit:
     val interval: Lens[GmosSouth, Option[TimestampInterval]] =
       Focus[GmosSouth](_.interval)
 
-    val atoms: Lens[GmosSouth, List[AtomRecord[DynamicConfig.GmosSouth]]] =
+    val atoms: Lens[GmosSouth, List[AtomRecord.GmosSouth]] =
       Focus[GmosSouth](_.atoms)

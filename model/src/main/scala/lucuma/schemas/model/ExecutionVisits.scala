@@ -6,7 +6,6 @@ package lucuma.schemas.model
 import cats.Eq
 import cats.derived.*
 import lucuma.core.enums.Instrument
-import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.model.sequence.gmos.StaticConfig
 import monocle.Focus
 import monocle.Lens

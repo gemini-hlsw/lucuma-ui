@@ -53,11 +53,16 @@ enum StepRecord[+D] derives Eq:
 
 object StepRecord:
   object GmosNorth:
+    given Eq[GmosNorth] = Eq.derived
+
     val id: Lens[GmosNorth, Step.Id] =
       Focus[GmosNorth](_.id)
 
     val created: Lens[GmosNorth, Timestamp] =
       Focus[GmosNorth](_.created)
+
+    val executionState: Lens[GmosNorth, StepExecutionState] =
+      Focus[GmosNorth](_.executionState)
 
     val interval: Lens[GmosNorth, Option[TimestampInterval]] =
       Focus[GmosNorth](_.interval)
@@ -78,11 +83,16 @@ object StepRecord:
       Focus[GmosNorth](_.datasets)
 
   object GmosSouth:
+    given Eq[GmosSouth] = Eq.derived
+
     val id: Lens[GmosSouth, Step.Id] =
       Focus[GmosSouth](_.id)
 
     val created: Lens[GmosSouth, Timestamp] =
       Focus[GmosSouth](_.created)
+
+    val executionState: Lens[GmosSouth, StepExecutionState] =
+      Focus[GmosSouth](_.executionState)
 
     val interval: Lens[GmosSouth, Option[TimestampInterval]] =
       Focus[GmosSouth](_.interval)
