@@ -24,6 +24,9 @@ object ColumnSize:
     def apply(initial: SizePx, min: SizePx, max: SizePx): Resizable =
       Resizable(initial, min.some, max.some)
 
+    def apply(initial: SizePx, min: SizePx): Resizable =
+      Resizable(initial, min.some, none)
+
   extension [T, V](col: ColumnDef.Single[T, V])
     def setColumnSize(size: ColumnSize): ColumnDef.Single[T, V] =
       col
