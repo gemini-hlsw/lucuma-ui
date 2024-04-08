@@ -7,8 +7,8 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.NewType
 import lucuma.react.common.ReactFnProps
-import lucuma.ui.syntax.all.given
 import lucuma.react.floatingui.syntax.*
+import lucuma.ui.syntax.all.given
 
 import scala.concurrent.duration.*
 
