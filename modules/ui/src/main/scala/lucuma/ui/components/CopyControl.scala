@@ -7,10 +7,17 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.NewType
 import lucuma.react.common.ReactFnProps
+import lucuma.react.floatingui.syntax.*
 import lucuma.ui.syntax.all.given
 
-case class CopyControl(label: String, textToCopy: String)
-    extends ReactFnProps(CopyControl.component)
+import scala.concurrent.duration.*
+
+case class CopyControl(
+  label:      String,
+  textToCopy: String,
+  onCopy:     Boolean => Callback = _ => Callback.empty,
+  delay:      FiniteDuration = 1800.milliseconds
+) extends ReactFnProps(CopyControl.component)
 
 object CopyControl:
   private type Props = CopyControl
@@ -31,12 +38,17 @@ object CopyControl:
             CopyTextToClipboard(
               text = props.textToCopy,
               onCopy = (_, copiedCallback) =>
-                copied.setState(Copied(copiedCallback)) *>
-                  copied.setState(Copied(false)).delayMs(1500).toCallback
+                props.onCopy(copiedCallback) *>
+                  copied.setState(Copied(copiedCallback)) *>
+                  copied.setState(Copied(false)).delay(props.delay).toCallback
             )(
-              <.span(
-                LoginIcons.Clipboard.unless(copied.value.value),
-                LoginIcons.ClipboardCheck.when(copied.value.value)
+              <.div(
+                <.span(LoginIcons.Clipboard)
+                  .withTooltip("Copy to clipboard")
+                  .unless(copied.value.value),
+                <.span(LoginIcons.ClipboardCheck)
+                  .withTooltip("Copied!", open = copied.value.value)
+                  .when(copied.value.value)
               )
             )
           )
