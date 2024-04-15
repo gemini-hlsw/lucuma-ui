@@ -20,7 +20,7 @@ val Versions = new {
   val lucumaSso         = "0.6.16"
   val monocle           = "3.2.0"
   val mouse             = "1.2.3"
-  val pprint            = "0.8.1"
+  val pprint            = "0.9.0"
   val scalaJsReact      = "3.0.0-beta3"
 }
 
