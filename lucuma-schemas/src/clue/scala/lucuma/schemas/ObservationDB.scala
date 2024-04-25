@@ -22,6 +22,7 @@ trait ObservationDB {
   object Scalars {
     // Ids
     type AtomId                     = Atom.Id
+    type CallForProposalsId         = CallForProposals.Id
     type DatasetId                  = Dataset.Id
     type ExecutionEventId           = ExecutionEvent.Id
     type GroupId                    = Group.Id
@@ -80,6 +81,7 @@ trait ObservationDB {
     type CoolStarTemperature                 = enums.CoolStarTemperature
     type DatasetQaState                      = enums.DatasetQaState
     type DatasetStage                        = enums.DatasetStage
+    type EmailStatus                         = enums.EmailStatus
     type EphemerisKeyType                    = enums.EphemerisKeyType
     type FilterType                          = enums.FilterType
     type FluxDensityContinuumIntegratedUnits = Units Of FluxDensityContinuum[Integrated]

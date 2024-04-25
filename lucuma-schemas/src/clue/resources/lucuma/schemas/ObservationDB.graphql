@@ -392,16 +392,10 @@ type CallForProposals {
   decLimitEnd: Declination
 
   """
-  The start time (inclusive) when the observations accepted for this Call may be
+  The active period during which accepted observations for this call may be
   observed.
   """
-  activeStart: Timestamp!
-
-  """
-  The end time (exclusive) when the observations accepted for this Call may be
-  observed.
-  """
-  activeEnd: Timestamp!
+  active: TimestampInterval!
 
   """Partners that may participate in this Call."""
   partners: [CallForProposalsPartner!]!
@@ -430,45 +424,53 @@ input CallForProposalsPropertiesInput {
   """Semester associated with the call. Required on create."""
   semester: Semester
 
-  """Optional RA limit start RA. Required only if raLimitEnd is specified."""
+  """
+  Optional RA limit start RA. Required only if raLimitEnd is specified. Nullable
+  on edit if raLimitEnd is also set to 'null'.
+  """
   raLimitStart: RightAscensionInput
 
-  """Optional RA limit end RA. Required only if raLimitStart is specified."""
+  """
+  Optional RA limit end RA. Required only if raLimitStart is specified. Nullable
+  on edit if raLimitStart is also set to 'null'.
+  """
   raLimitEnd: RightAscensionInput
 
   """
   Optional declination limit start declination. Required only if decLimitEnd is
-  specified.
+  specified.  Nullable on edit if decLimitEnd is also set to 'null'.
   """
   decLimitStart: DeclinationInput
 
   """
   Optional declination limit end declination. Required only if decLimitStart is
-  specified.
+  specified.  Nullable on edit if decLimitStart is also set to 'null'.
   """
   decLimitEnd: DeclinationInput
 
   """
   Active period start time for this call.  Required on create.  Must be before
-  the activeEnd time.
+  the activeEnd time.  Not nullable.
   """
   activeStart: Timestamp
 
   """
   Active period end time for this call.  Required on create.  Must be after
-  the activeStart time.
+  the activeStart time.  Not nullable.
   """
   activeEnd: Timestamp
 
   """
   Partners that may participate in the call along with their respective
-  deadlines.
+  deadlines.  When editing, supply the entire list of all partners.  Nullable
+  on edit.
   """
   partners: [CallForProposalsPartnerInput!]
 
   """
   When specified, the call is limited to the listed instruments.  When not
-  specified, all otherwise available instruments may be used.
+  specified, all otherwise available instruments may be used.  When editing,
+  supply the entire list of instruments to set.  Nullable on edit.
   """
   instruments: [Instrument!]
 
@@ -826,6 +828,52 @@ Elevation range creation and edit parameters.  Choose one of airMass or hourAngl
 input ElevationRangeInput {
   airMass: AirMassRangeInput
   hourAngle: HourAngleRangeInput
+}
+
+type Email {
+  """Sender email address"""
+  senderEmail: EmailAddress!
+
+  """Recipient email address"""
+  recipientEmail: EmailAddress!
+
+  """Email subject"""
+  subject: NonEmptyString!
+
+  """Text format message"""
+  textMessage: NonEmptyString!
+
+  """Html format message"""
+  htmlMessage: NonEmptyString
+
+  """Original time of the email sending attempt"""
+  originalTime: Timestamp!
+
+  """The status of the email"""
+  status: EmailStatus!
+
+  """The time of the last status update"""
+  statusTime: Timestamp!
+}
+
+enum EmailStatus {
+  """Mail provider has queued the message"""
+  QUEUED
+
+  """Mail provider has rejected the message"""
+  REJECTED
+
+  """Mail provider has accepted the message"""
+  ACCEPTED
+
+  """The message has been accepted by the recipient email server"""
+  DELIVERED
+
+  """The message is not deliverable"""
+  PERMANENT_FAILURE
+
+  """The message could not be delivered, but may be deliverable later"""
+  TEMPORARY_FAILURE
 }
 
 """
@@ -1958,6 +2006,9 @@ type UserInvitation {
 
   """Null unless 'supportType' is PARTNER"""
   supportPartner: Partner
+
+  """The email sent for the invitation"""
+  email: Email
 }
 
 type CreateUserInvitationResult {
@@ -2178,13 +2229,7 @@ type Mutation {
   Unlink a user from a program.
   This operation is available only to Admin and Service users.
   """
-  unlinkUser(
-    """The program to unlink the user from."""
-    programId: ProgramId!
-
-    """The user to unlink."""
-    userId: UserId!
-  ): UnlinkUserResult!
+  unlinkUser(input: UnlinkUserInput!): UnlinkUserResult!
 
   """
   Update asterisms, adding or deleting targets, in (potentially) multiple
@@ -2194,6 +2239,12 @@ type Mutation {
     """Bulk update asterism"""
     input: UpdateAsterismsInput!
   ): UpdateAsterismsResult!
+
+  """Update existing calls for proposals."""
+  updateCallsForProposals(
+    """Parameters for editing existing calls for proposals."""
+    input: UpdateCallsForProposalsInput!
+  ): UpdateCallsForProposalsResult!
   updateDatasets(
     """Parameters for editing existing datasets"""
     input: UpdateDatasetsInput!
@@ -3266,6 +3317,47 @@ type UpdateObsAttachmentsResult {
   The edited obs attachments, up to the specified LIMIT or the default maximum of 1000.
   """
   obsAttachments: [ObsAttachment!]!
+
+  """`true` when there were additional edits that were not returned."""
+  hasMore: Boolean!
+}
+
+"""
+Call for proposals selection and update description.  Use `SET` to specify the
+changes, `WHERE` to select the calls to update, and `LIMIT` to control the
+size of the return value.
+"""
+input UpdateCallsForProposalsInput {
+  """Describes the call for proposals properties to modify."""
+  SET: CallForProposalsPropertiesInput!
+
+  """
+  Filters the calls to be updated according to those that match the given
+  constraints.
+  """
+  WHERE: WhereCallForProposals
+
+  """
+  Caps the number of results returned to the given value (if additional calls
+  match the WHERE clause they will be updated but not returned).
+  """
+  LIMIT: NonNegInt
+
+  """Set to `true` to include deleted calls."""
+  includeDeleted: Boolean = false
+}
+
+"""
+The result of updating the selected calls for proposals, up to `LIMIT` or the
+maximum of 1000.  If `hasMore` is true, additional calls were modified and not
+included here.
+"""
+type UpdateCallsForProposalsResult {
+  """
+  The edited observations, up to the specified LIMIT or the default maximum of
+  1000.
+  """
+  callsForProposals: [CallForProposals!]!
 
   """`true` when there were additional edits that were not returned."""
   hasMore: Boolean!
@@ -6207,6 +6299,10 @@ type Query {
 
   """Select all Calls for Proposals."""
   callsForProposals(
+    """Filters the selection of calls for proposals."""
+    WHERE: WhereCallForProposals
+
+    """Starts the result set at (or after if not existent) the given id."""
     OFFSET: CallForProposalsId
 
     """
@@ -7908,6 +8004,44 @@ input WhereBoolean {
   EQ: Boolean
 }
 
+input WhereCallForProposals {
+  """
+  A list of nested call for proposals filters that all must match in order for
+  the AND group as a whole to match.
+  """
+  AND: [WhereCallForProposals!]
+
+  """
+  A list of nested call for proposals filters where any one match causes the
+  entire OR group as a whole to match.
+  """
+  OR: [WhereCallForProposals!]
+
+  """
+  A nested call for proposals filter that must not match in order for the NOT
+  itself to match.
+  """
+  NOT: WhereCallForProposals
+
+  """Matches the call for propsals id."""
+  id: WhereOrderCallForProposalsId
+
+  """Matches the call for proposals type."""
+  type: WhereEqCallForProposalsType
+
+  """Matches the call for proposals semester."""
+  semester: WhereOrderSemester
+
+  """Matches the active period start."""
+  activeStart: WhereOrderTimestamp
+
+  """Matches the active period end."""
+  activeEnd: WhereOrderTimestamp
+
+  """Matches whether the call is still open for some partner."""
+  isOpen: WhereBoolean
+}
+
 """ObsAttachment filter options. All specified items must match."""
 input WhereObsAttachment {
   """
@@ -8051,6 +8185,24 @@ input WhereDatasetReference {
 
   """Matches the exposure index."""
   exposureIndex: WhereOrderPosInt
+}
+
+"""
+Filters on equality (or not) of the call for proposals type.  All supplied
+criteria must match, but usually only one is selected.
+"""
+input WhereEqCallForProposalsType {
+  """Matches if the call for proposals type is exactly the supplied value."""
+  EQ: CallForProposalsType
+
+  """Matches if the call for proposals type is not the supplied value."""
+  NEQ: CallForProposalsType
+
+  """Matches if the call for proposals type is any of the supplied options."""
+  IN: [CallForProposalsType!]
+
+  """Matches if the call for proposals type is none of the supplied values."""
+  NIN: [CallForProposalsType!]
 }
 
 input WhereEqExecutionEventType {
@@ -8564,6 +8716,36 @@ input WhereOrderBigDecimal {
   Matches if the BigDecimal is ordered before or equal (<=) the supplied value.
   """
   LTE: BigDecimal
+}
+
+"""
+Filters on equality or order comparisons of call for proposals ids.  All
+supplied criteria must match, but usually only one is selected.
+"""
+input WhereOrderCallForProposalsId {
+  """Matches if the id is exactly the supplied value."""
+  EQ: CallForProposalsId
+
+  """Matches if the id is not the supplied value."""
+  NEQ: CallForProposalsId
+
+  """Matches if the id is any of the supplied options."""
+  IN: [CallForProposalsId!]
+
+  """Matches if the id is none of the supplied options."""
+  NIN: [CallForProposalsId!]
+
+  """Matches if the id is ordered after (>) the supplied value."""
+  GT: CallForProposalsId
+
+  """Matches if the id is ordered before (<) the supplied value."""
+  LT: CallForProposalsId
+
+  """Matches if the id is ordered after or equal (>=) the supplied value."""
+  GTE: CallForProposalsId
+
+  """Matches if the id is ordered before or equal (<=) the supplied value."""
+  LTE: CallForProposalsId
 }
 
 """
