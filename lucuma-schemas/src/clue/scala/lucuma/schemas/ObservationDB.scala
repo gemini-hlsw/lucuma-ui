@@ -16,9 +16,11 @@ import lucuma.core.math.BrightnessUnits.*
 // gql: import clue.BigNumberEncoders._
 // gql: import io.circe.refined._
 // gql: import lucuma.schemas.decoders.given
+// gql: import lucuma.odb.json.sequence.given
 
 @GraphQLSchema
 trait ObservationDB {
+
   object Scalars {
     // Ids
     type AtomId                     = Atom.Id
