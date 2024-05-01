@@ -5,6 +5,7 @@ package lucuma.ui.sequence
 
 import cats.data.NonEmptyList
 import cats.syntax.all.*
+import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.numeric.PosInt
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
@@ -164,13 +165,18 @@ trait SequenceRowBuilder[D]:
         )
       )
 
+  protected val AlertRowId: RowId = RowId("alert")
+
+  protected case class AlertRow(sequenceType: SequenceType, position: NonNegInt, content: VdomNode)
+
   def stitchSequence(
     visits:           List[VisitData],
     currentVisitId:   Option[Visit.Id],     // Used to move current visit steps to current sequences
     currentStepId:    Option[Step.Id],      // Will be removed from visits
     nextScienceIndex: StepIndex,            // Used to continue numbering from visits
     acquisitionRows:  List[SequenceRow[D]], // Should have completed steps already removed
-    scienceRows:      List[SequenceRow[D]]  // Should have completed steps already removed
+    scienceRows:      List[SequenceRow[D]], // Should have completed steps already removed
+    alertRow:         Option[AlertRow] = none
   ): List[SequenceTableRowType] = {
     val (pastVisits, currentVisits): (List[VisitData], List[VisitData]) =
       visits.partition: visitData =>
@@ -196,6 +202,16 @@ trait SequenceRowBuilder[D]:
     val currentVisitScienceRows: List[SequenceTableRowType] =
       currentVisitsRows(SequenceType.Science)
 
+    def insertAlertRow(
+      sequenceType: SequenceType,
+      stepRows:     List[SequenceTableRowType]
+    ): List[SequenceTableRowType] =
+      alertRow
+        .filter(_.sequenceType === sequenceType)
+        .fold(stepRows): alert =>
+          val (before, after) = stepRows.splitAt(alert.position.value)
+          before ++ List(Expandable(HeaderRow(AlertRowId, alert.content).toHeaderOrRow)) ++ after
+
     def buildSequenceRows(
       sequenceType:     SequenceType,
       currentVisitRows: List[SequenceTableRowType],
@@ -210,11 +226,14 @@ trait SequenceRowBuilder[D]:
               renderCurrentHeader(sequenceType)
             ).toHeaderOrRow,
             currentVisitRows ++
-              steps
-                .zipWithStepIndex(nextIndex)
-                ._1
-                .map: (step, index) =>
-                  Expandable(SequenceIndexedRow(step, index).toHeaderOrRow)
+              insertAlertRow(
+                sequenceType,
+                steps
+                  .zipWithStepIndex(nextIndex)
+                  ._1
+                  .map: (step, index) =>
+                    Expandable(SequenceIndexedRow(step, index).toHeaderOrRow)
+              )
           )
         .toList
 
