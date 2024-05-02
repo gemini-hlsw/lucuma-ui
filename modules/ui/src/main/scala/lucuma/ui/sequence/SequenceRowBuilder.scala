@@ -10,6 +10,7 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.SequenceType
+import lucuma.core.model.sequence.Step
 import lucuma.core.syntax.all.given
 import lucuma.core.util.Timestamp
 import lucuma.react.table.Expandable
@@ -165,10 +166,11 @@ trait SequenceRowBuilder[D]:
 
   def stitchSequence(
     visits:           List[VisitData],
-    currentVisitId:   Option[Visit.Id],
-    nextScienceIndex: StepIndex,
-    acquisitionRows:  List[SequenceRow[D]],
-    scienceRows:      List[SequenceRow[D]]
+    currentVisitId:   Option[Visit.Id],     // Used to move current visit steps to current sequences
+    currentStepId:    Option[Step.Id],      // Will be removed from visits
+    nextScienceIndex: StepIndex,            // Used to continue numbering from visits
+    acquisitionRows:  List[SequenceRow[D]], // Should have completed steps already removed
+    scienceRows:      List[SequenceRow[D]]  // Should have completed steps already removed
   ): List[SequenceTableRowType] = {
     val (pastVisits, currentVisits): (List[VisitData], List[VisitData]) =
       visits.partition: visitData =>
@@ -185,6 +187,7 @@ trait SequenceRowBuilder[D]:
       currentVisits
         .filter(_.sequenceType === sequenceType)
         .flatMap(_.stepRows.toList)
+        .filterNot(stepRow => currentStepId.isDefined && currentStepId === stepRow.step.id.toOption)
         .map(step => Expandable(step.toHeaderOrRow))
 
     val currentVisitAcquisitionRows: List[SequenceTableRowType] =
