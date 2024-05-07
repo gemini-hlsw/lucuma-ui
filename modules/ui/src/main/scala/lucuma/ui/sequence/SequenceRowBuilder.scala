@@ -86,7 +86,7 @@ trait SequenceRowBuilder[D]:
       <.span(SequenceStyles.VisitStepExtraDatasets)(
         step.datasets
           .map: dataset =>
-            <.span(SequenceStyles.VisitStepExtraDatasetItem)(
+            <.span(^.key := dataset.id.toString)(SequenceStyles.VisitStepExtraDatasetItem)(
               dataset.filename.format,
               dataset.qaState.map: qaState =>
                 React.Fragment(
