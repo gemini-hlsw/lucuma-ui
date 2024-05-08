@@ -73,6 +73,7 @@ trait ObservationDB {
   }
 
   object Enums {
+    type AtomStage                           = enums.AtomStage
     type Band                                = enums.Band
     type Breakpoint                          = enums.Breakpoint
     type BrightnessIntegratedUnits           = Units Of Brightness[Integrated]
