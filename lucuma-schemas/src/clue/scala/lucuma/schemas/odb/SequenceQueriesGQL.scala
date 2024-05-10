@@ -8,7 +8,7 @@ import lucuma.core.model.sequence.*
 import lucuma.schemas.ObservationDB
 // gql: import lucuma.odb.json.sequence.given
 
-object SequenceSQL:
+object SequenceQueriesGQL:
   @clue.annotation.GraphQL
   trait SequenceQuery extends GraphQLOperation[ObservationDB]:
     val document = s"""
