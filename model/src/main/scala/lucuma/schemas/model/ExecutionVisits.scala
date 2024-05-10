@@ -5,6 +5,7 @@ package lucuma.schemas.model
 
 import cats.Eq
 import cats.derived.*
+import cats.syntax.eq.*
 import lucuma.core.enums.Instrument
 import lucuma.core.model.sequence.gmos.StaticConfig
 import monocle.Focus
@@ -13,6 +14,25 @@ import monocle.Prism
 import monocle.macros.GenPrism
 
 enum ExecutionVisits(val instrument: Instrument) derives Eq:
+
+  private def removeDuplicateVisitOverlap[D, V <: Visit[D]](
+    left:  List[V],
+    right: List[V]
+  ): List[V] =
+    left.takeWhile: v =>
+      right.headOption.forall(_.id =!= v.id)
+    ++ right
+
+  def extendWith(other: ExecutionVisits): ExecutionVisits =
+    (this, other) match
+      case (GmosNorth(leftConfig, leftVisits), GmosNorth(_, rightVisits)) =>
+        GmosNorth(leftConfig, removeDuplicateVisitOverlap(leftVisits, rightVisits))
+      case (GmosSouth(leftConfig, leftVisits), GmosSouth(_, rightVisits)) =>
+        GmosSouth(leftConfig, removeDuplicateVisitOverlap(leftVisits, rightVisits))
+      case (left, right)                                                  =>
+        throw new Exception:
+          s"Attempted to join ExecutionVisits for different instruments: ${left.instrument} and ${right.instrument}"
+
   case GmosNorth(
     staticConfig: StaticConfig.GmosNorth,
     visits:       List[Visit.GmosNorth]
