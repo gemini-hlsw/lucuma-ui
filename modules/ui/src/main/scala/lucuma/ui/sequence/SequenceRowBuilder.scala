@@ -219,7 +219,7 @@ trait SequenceRowBuilder[D]:
       nextIndex:        StepIndex
     ): List[SequenceTableRowType] =
       Option
-        .when(steps.nonEmpty):
+        .when(currentVisitRows.nonEmpty || steps.nonEmpty):
           Expandable(
             HeaderRow(
               RowId(sequenceType.toString),
