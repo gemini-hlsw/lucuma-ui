@@ -51,7 +51,7 @@ trait SequenceRowBuilder[D]:
     stepRows:     NonEmptyList[SequenceIndexedRow[D]],
     datasetRange: Option[(Short, Short)]
   ):
-    val rowId: RowId = RowId(s"$visitId-sequenceType")
+    val rowId: RowId = RowId(s"$visitId-$sequenceType")
 
   protected def renderVisitHeader(visit: VisitData): VdomNode =
     <.div(SequenceStyles.VisitHeader)( // Steps is non-empty => head is safe
