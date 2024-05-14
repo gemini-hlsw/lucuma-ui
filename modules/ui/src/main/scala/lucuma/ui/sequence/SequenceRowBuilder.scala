@@ -108,13 +108,15 @@ trait SequenceRowBuilder[D]:
     )
 
   private def buildVisitRows(
-    visitId:      Visit.Id,
-    atoms:        List[AtomRecord[D]],
-    sequenceType: SequenceType,
-    startIndex:   StepIndex = StepIndex.One
+    visitId:       Visit.Id,
+    atoms:         List[AtomRecord[D]],
+    sequenceType:  SequenceType,
+    currentStepId: Option[Step.Id], // Will be removed from visit rows
+    startIndex:    StepIndex = StepIndex.One
   ): (Option[VisitData], StepIndex) =
     atoms
       .flatMap(_.steps)
+      .filterNot(step => currentStepId.contains_(step.id))
       .some
       .filter(_.nonEmpty)
       .map: steps =>
@@ -146,7 +148,10 @@ trait SequenceRowBuilder[D]:
    * Returns a streamlined list of visits, splitting them into acquisition and science, followed by
    * the next science index.
    */
-  def visitsSequences(visits: List[Visit[D]]): (List[VisitData], StepIndex) =
+  def visitsSequences(
+    visits:        List[Visit[D]],
+    currentStepId: Option[Step.Id] // Will be removed from visits
+  ): (List[VisitData], StepIndex) =
     visits
       .foldLeft((List.empty[VisitData], StepIndex.One))((accum, visit) =>
         val (seqs, scienceIndex) = accum
@@ -154,10 +159,16 @@ trait SequenceRowBuilder[D]:
         // Acquisition indices restart at 1 in each visit.
         // Science indices continue from one visit to the next.
         val (acquisition, nextAcquisitionIndex) =
-          buildVisitRows(visit.id, visit.acquisitionAtoms, SequenceType.Acquisition)
+          buildVisitRows(visit.id, visit.acquisitionAtoms, SequenceType.Acquisition, currentStepId)
 
         val (science, nextScienceIndex) =
-          buildVisitRows(visit.id, visit.scienceAtoms, SequenceType.Science, scienceIndex)
+          buildVisitRows(
+            visit.id,
+            visit.scienceAtoms,
+            SequenceType.Science,
+            currentStepId,
+            scienceIndex
+          )
 
         (
           seqs ++ List(acquisition, science).flattenOption,
@@ -172,7 +183,6 @@ trait SequenceRowBuilder[D]:
   def stitchSequence(
     visits:           List[VisitData],
     currentVisitId:   Option[Visit.Id],     // Used to move current visit steps to current sequences
-    currentStepId:    Option[Step.Id],      // Will be removed from visits
     nextScienceIndex: StepIndex,            // Used to continue numbering from visits
     acquisitionRows:  List[SequenceRow[D]], // Should have completed steps already removed
     scienceRows:      List[SequenceRow[D]], // Should have completed steps already removed
@@ -193,7 +203,6 @@ trait SequenceRowBuilder[D]:
       currentVisits
         .filter(_.sequenceType === sequenceType)
         .flatMap(_.stepRows.toList)
-        .filterNot(stepRow => currentStepId.isDefined && currentStepId === stepRow.step.id.toOption)
         .map(step => Expandable(step.toHeaderOrRow))
 
     val currentVisitAcquisitionRows: List[SequenceTableRowType] =
