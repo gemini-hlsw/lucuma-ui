@@ -15,18 +15,18 @@ import lucuma.react.table.ColumnId
 import lucuma.react.table.Table
 import lucuma.ui.primereact.LucumaPrimeStyles
 
-case class ColumnSelector[T](
-  table:       Table[T],
+case class ColumnSelector[T, M](
+  table:       Table[T, M],
   columnNames: ColumnId => String,
   clazz:       Css = Css.Empty
 ) extends ReactFnProps(ColumnSelector.component)
 
 object ColumnSelector:
-  private type Props[T] = ColumnSelector[T]
+  private type Props[T, M] = ColumnSelector[T, M]
 
-  private def componentBuilder[T] =
+  private def componentBuilder[T, M] =
     ScalaFnComponent
-      .withHooks[Props[T]]
+      .withHooks[Props[T, M]]
       .usePopupMenuRef
       .render { (props, menuRef) =>
         val menuItems = props.table.getAllColumns().drop(1).map { column =>
@@ -56,4 +56,4 @@ object ColumnSelector:
         )
       }
 
-  private val component = componentBuilder[Any]
+  private val component = componentBuilder[Any, Any]
