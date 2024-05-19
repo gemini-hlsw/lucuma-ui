@@ -27,16 +27,16 @@ object ColumnSize:
     def apply(initial: SizePx, min: SizePx): Resizable =
       Resizable(initial, min.some, none)
 
-  extension [T, V](col: ColumnDef.Single[T, V])
-    def setColumnSize(size: ColumnSize): ColumnDef.Single[T, V] =
+  extension [T, V, TM, CM](col: ColumnDef.Single[T, V, TM, CM])
+    def setColumnSize(size: ColumnSize): ColumnDef.Single[T, V, TM, CM] =
       col
         .setSize(size.initial)
         .setMinSize(size.minSize.orUndefined)
         .setMaxSize(size.maxSize.orUndefined)
         .setEnableResizing(size.enableResize)
 
-  extension [T, V](col: ColumnDef.Group[T])
-    def setColumnSize(size: ColumnSize): ColumnDef.Group[T] =
+  extension [T, TM, CM](col: ColumnDef.Group[T, TM, CM])
+    def setColumnSize(size: ColumnSize): ColumnDef.Group[T, TM, CM] =
       col
         .setSize(size.initial)
         .setMinSize(size.minSize.orUndefined)

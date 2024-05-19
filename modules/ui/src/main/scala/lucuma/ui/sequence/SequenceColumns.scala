@@ -63,10 +63,10 @@ object SequenceColumns:
     FPUColumnId
   ).reverse
 
-  def headerCell[T, R](
+  def headerCell[T, R, TM](
     colId:  ColumnId,
-    colDef: ColumnDef.Applied[Expandable[HeaderOrRow[T]]]
-  ): ColumnDef.Single[Expandable[HeaderOrRow[T]], Option[VdomNode]] =
+    colDef: ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM]
+  ): ColumnDef.Single.WithTableMeta[Expandable[HeaderOrRow[T]], Option[VdomNode], TM] =
     colDef(
       colId,
       _.value.left.toOption.map(_.content),
@@ -79,7 +79,7 @@ object SequenceColumns:
               TagMod(
                 SequenceStyles.TableHeaderExpandable,
                 ^.onClick ==>
-                  (_.stopPropagationCB >> Callback(cell.row.getToggleExpandedHandler()())),
+                  (_.stopPropagationCB >> cell.row.getToggleExpandedHandler()),
                 <.span(
                   TableStyles.ExpanderChevron,
                   TableStyles.ExpanderChevronOpen.when(cell.row.getIsExpanded())
@@ -92,11 +92,12 @@ object SequenceColumns:
 
   // `T` is the actual type of the table row, from which we extract an `R` using `getStep`.
   // `D` is the `DynamicConfig`.
-  def gmosColumns[D, T, R <: SequenceRow[D]](
-    colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]]],
+  // `TM` is the type of the table meta.
+  def gmosColumns[D, T, R <: SequenceRow[D], TM](
+    colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM],
     getStep:  T => Option[R],
     getIndex: T => Option[StepIndex]
-  ): List[ColumnDef.Single[Expandable[HeaderOrRow[T]], ?]] =
+  ): List[ColumnDef.Single.WithTableMeta[Expandable[HeaderOrRow[T]], ?, TM]] =
     List(
       colDef(
         IndexAndTypeColumnId,

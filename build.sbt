@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.102"
+ThisBuild / tlBaseVersion       := "0.103"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
@@ -14,7 +14,7 @@ val Versions = new {
   val http4sDom         = "0.2.11"
   val lucumaCore        = "0.96.4"
   val lucumaPrimeStyles = "0.2.10"
-  val lucumaReact       = "0.58.0"
+  val lucumaReact       = "0.63.0"
   val lucumaRefined     = "0.1.2"
   val lucumaSchemas     = "0.81.5"
   val lucumaSso         = "0.6.17"
