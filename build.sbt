@@ -6,6 +6,7 @@ ThisBuild / tlCiReleaseBranches := Seq("master")
 val Versions = new {
   val cats              = "2.10.0"
   val catsRetry         = "3.1.3"
+  val catsTime          = "0.5.1"
   val circe             = "0.14.7"
   val crystal           = "0.37.3"
   val fs2Dom            = "0.3.0-M1"
@@ -14,7 +15,7 @@ val Versions = new {
   val http4sDom         = "0.2.11"
   val lucumaCore        = "0.96.4"
   val lucumaPrimeStyles = "0.2.10"
-  val lucumaReact       = "0.63.0"
+  val lucumaReact       = "0.64.0"
   val lucumaRefined     = "0.1.2"
   val lucumaSchemas     = "0.81.5"
   val lucumaSso         = "0.6.17"
@@ -76,6 +77,7 @@ lazy val ui =
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"                    % Versions.cats,
+        "org.typelevel"                     %%% "cats-time"                    % Versions.catsTime,
         "org.typelevel"                     %%% "kittens"                      % Versions.kittens,
         "org.typelevel"                     %%% "mouse"                        % Versions.mouse,
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % Versions.scalaJsReact,

@@ -33,9 +33,12 @@ import lucuma.react.table.*
 import lucuma.schemas.model.Visit
 import lucuma.ui.sequence.SequenceRow
 import lucuma.ui.sso.UserVault
+import org.typelevel.cats.time.given
 
+import java.time.Duration
 import java.time.Instant
 import scala.annotation.nowarn
+import scala.collection.immutable.HashSet
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.SortedSet
 
@@ -53,6 +56,7 @@ trait UtilReusabilityInstances:
 
   given sortedSetReuse[A: Order]: Reusability[SortedSet[A]]    = Reusability.byEq
   given sortedMapReuse[K, V: Eq]: Reusability[SortedMap[K, V]] = Reusability.byEq
+  given [T: Reusability]: Reusability[HashSet[T]]              = Reusability.by(_.toSet)
 
   given nonEmptyListReuse[A: Reusability]: Reusability[NonEmptyList[A]] =
     Reusability.by(nel => (nel.head, nel.tail))
@@ -91,12 +95,14 @@ trait MathReusabilityInstances:
   given Reusability[Range.Inclusive]                                  = Reusability.by(x => (x.start, x.end, x.step))
   given Reusability[Area]                                             = Reusability.byEq
   given Reusability[WavelengthDelta]                                  = Reusability.byEq
+  given [T: Eq]: Reusability[BoundedInterval[T]]                      = Reusability.byEq
 
 /**
  * reusability of time types
  */
 trait TimeReusabilityInstances:
-  given Reusability[Instant]   = Reusability.by(i => (i.getEpochSecond, i.getNano))
+  given Reusability[Instant]   = Reusability.byEq
+  given Reusability[Duration]  = Reusability.byEq
   given Reusability[Timestamp] = Reusability.byEq
   given Reusability[TimeSpan]  = Reusability.byEq
 
