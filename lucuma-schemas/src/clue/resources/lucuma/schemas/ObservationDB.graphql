@@ -702,14 +702,14 @@ scalar TransactionId
 
 interface ChronicleEntry {
   id: ChronicleId!
-  transactionId: TransactionId
+  transactionId: TransactionId!
   user: User
   timestamp: Timestamp!
 }
 
 type ConditionsEntry {
   id: ChronicleId!
-  transactionId: TransactionId
+  transactionId: TransactionId!
   user: User
   timestamp: Timestamp!
   measurement: ConditionsMeasurement
@@ -5311,10 +5311,10 @@ type Group {
   program: Program!
 
   """Optionally, a name"""
-  name: String
+  name: NonEmptyString
 
   """Optionally, a description."""
-  description: String
+  description: NonEmptyString
 
   """
   How many do we need to complete? If this is null then it means we have to complete them all
@@ -5331,7 +5331,7 @@ type Group {
   maximumInterval: TimeSpan
 
   """Contained elements"""
-  elements: [GroupElement!]!
+  elements(includeDeleted: Boolean! = false): [GroupElement!]!
 
   """
   Remaining execution time estimate range, assuming it can be calculated.  In
@@ -5341,6 +5341,7 @@ type Group {
   cannot be calculated.
   """
   timeEstimateRange: CategorizedTimeRange
+  existence: Existence!
 }
 
 scalar GroupId
@@ -5353,6 +5354,7 @@ type GroupElement {
   parentIndex: NonNegShort!
   group: Group
   observation: Observation
+  existence: Existence!
 }
 
 input GroupPropertiesInput {
@@ -5389,6 +5391,11 @@ input GroupPropertiesInput {
   Parent index. If unspecified then the element will appear first in the program or parent group (if specified). Cannot be set to null.
   """
   parentGroupIndex: NonNegShort
+
+  """
+  Existence. Defaults to 'present' on creation. Change this value to delete a group (must be empty).
+  """
+  existence: Existence
 }
 
 """
@@ -5576,14 +5583,14 @@ enum Instrument {
 
 """Describes an instrument configuration option for spectroscopy."""
 type SpectroscopyConfigOption {
-  name: String!
+  name: NonEmptyString!
   instrument: Instrument!
   focalPlane: FocalPlane!
-  fpuLabel: String!
+  fpuLabel: NonEmptyString!
   slitWidth: Angle!
   slitLength: Angle!
-  disperserLabel: String!
-  filterLabel: String
+  disperserLabel: NonEmptyString!
+  filterLabel: NonEmptyString
   wavelengthMin: Wavelength!
   wavelengthMax: Wavelength!
   wavelengthOptimal: Wavelength!
@@ -5828,7 +5835,7 @@ type Observation {
   index: PosInt!
 
   """Observation title generated from id and targets"""
-  title: String!
+  title: NonEmptyString!
 
   """User-supplied observation-identifying detail information"""
   subtitle: NonEmptyString
@@ -6101,10 +6108,10 @@ type Program {
   proposalAttachments: [ProposalAttachment!]!
 
   """Top-level group elements (observations and sub-groups) in the program."""
-  groupElements: [GroupElement!]!
+  groupElements(includeDeleted: Boolean! = false): [GroupElement!]!
 
   """All group elements (observations and sub-groups) in the program."""
-  allGroupElements: [GroupElement!]!
+  allGroupElements(includeDeleted: Boolean! = false): [GroupElement!]!
 
   """
   Remaining execution time estimate range, assuming it can be calculated.  In
@@ -6721,6 +6728,7 @@ enum ScienceSubtype {
   DIRECTORS_TIME
   FAST_TURNAROUND
   LARGE_PROGRAM
+  POOR_WEATHER
   QUEUE
   DEMO_SCIENCE
   SYSTEM_VERIFICATION
@@ -7679,7 +7687,7 @@ type TimeChargeCorrection {
   user: User
 
   """Optional justification for the correction."""
-  comment: String
+  comment: NonEmptyString
 }
 
 """Describes a manual correction to time accounting calculations."""
