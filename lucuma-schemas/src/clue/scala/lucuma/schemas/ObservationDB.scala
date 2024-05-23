@@ -73,6 +73,7 @@ trait ObservationDB {
   }
 
   object Enums {
+    type AtomExecutionState                  = lucuma.schemas.model.enums.AtomExecutionState
     type AtomStage                           = enums.AtomStage
     type Band                                = enums.Band
     type Breakpoint                          = enums.Breakpoint
