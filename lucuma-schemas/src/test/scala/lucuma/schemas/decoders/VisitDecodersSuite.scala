@@ -34,6 +34,7 @@ import lucuma.schemas.model.AtomRecord
 import lucuma.schemas.model.ExecutionVisits
 import lucuma.schemas.model.StepRecord
 import lucuma.schemas.model.Visit
+import lucuma.schemas.model.enums.AtomExecutionState
 import lucuma.schemas.model.enums.StepExecutionState
 
 import java.time.LocalDateTime
@@ -66,6 +67,7 @@ class VisitDecodersSuite extends InputStreamSuite {
             created = Timestamp.unsafeFromLocalDateTime(
               LocalDateTime.of(2024, 2, 12, 17, 22, 6, 673584000)
             ),
+            executionState = AtomExecutionState.NotStarted,
             interval = TimestampInterval
               .between(
                 Timestamp.unsafeFromLocalDateTime(
@@ -150,6 +152,7 @@ class VisitDecodersSuite extends InputStreamSuite {
             created = Timestamp.unsafeFromLocalDateTime(
               LocalDateTime.of(2024, 2, 12, 17, 22, 6, 673584000)
             ),
+            executionState = AtomExecutionState.NotStarted,
             interval = TimestampInterval
               .between(
                 Timestamp.unsafeFromLocalDateTime(

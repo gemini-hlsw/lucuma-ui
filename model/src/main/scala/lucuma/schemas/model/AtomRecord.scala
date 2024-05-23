@@ -10,30 +10,34 @@ import lucuma.core.model.sequence.Atom
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
+import lucuma.schemas.model.enums.AtomExecutionState
 import monocle.Focus
 import monocle.Lens
 
 enum AtomRecord[+D] derives Eq:
   def id: Atom.Id
   def created: Timestamp
+  def executionState: AtomExecutionState
   def interval: Option[TimestampInterval]
   def sequenceType: SequenceType
   def steps: List[StepRecord[D]]
 
   case GmosNorth protected[schemas] (
-    id:           Atom.Id,
-    created:      Timestamp,
-    interval:     Option[TimestampInterval],
-    sequenceType: SequenceType,
-    steps:        List[StepRecord.GmosNorth]
+    id:             Atom.Id,
+    created:        Timestamp,
+    executionState: AtomExecutionState,
+    interval:       Option[TimestampInterval],
+    sequenceType:   SequenceType,
+    steps:          List[StepRecord.GmosNorth]
   ) extends AtomRecord[DynamicConfig.GmosNorth]
 
   case GmosSouth protected[schemas] (
-    id:           Atom.Id,
-    created:      Timestamp,
-    interval:     Option[TimestampInterval],
-    sequenceType: SequenceType,
-    steps:        List[StepRecord.GmosSouth]
+    id:             Atom.Id,
+    created:        Timestamp,
+    executionState: AtomExecutionState,
+    interval:       Option[TimestampInterval],
+    sequenceType:   SequenceType,
+    steps:          List[StepRecord.GmosSouth]
   ) extends AtomRecord[DynamicConfig.GmosSouth]
 
 object AtomRecord:
@@ -45,6 +49,9 @@ object AtomRecord:
 
     val created: Lens[GmosNorth, Timestamp] =
       Focus[GmosNorth](_.created)
+
+    val executionState: Lens[GmosNorth, AtomExecutionState] =
+      Focus[GmosNorth](_.executionState)
 
     val interval: Lens[GmosNorth, Option[TimestampInterval]] =
       Focus[GmosNorth](_.interval)
