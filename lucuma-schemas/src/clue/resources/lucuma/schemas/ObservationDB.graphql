@@ -2001,12 +2001,6 @@ input LinkUserInput {
 
   """The role this user will play in the program."""
   role: ProgramUserRole!
-
-  """Must be specified if and only if 'role' is SUPPORT"""
-  supportType: ProgramUserSupportRoleType
-
-  """Must be specified if and only if 'supportType' is PARTNER"""
-  supportPartner: Partner
 }
 
 scalar UserInvitationId
@@ -2023,12 +2017,6 @@ input CreateUserInvitationInput {
 
   """The role this user will play in the program."""
   role: ProgramUserRole!
-
-  """Must be specified if and only if 'role' is SUPPORT"""
-  supportType: ProgramUserSupportRoleType
-
-  """Must be specified if and only if 'supportType' is PARTNER"""
-  supportPartner: Partner
 }
 
 enum UserInvitationStatus {
@@ -2067,12 +2055,6 @@ type UserInvitation {
 
   """The role the redeemer will play in the program."""
   role: ProgramUserRole!
-
-  """Null unless 'role' is SUPPORT"""
-  supportType: ProgramUserSupportRoleType
-
-  """Null unless 'supportType' is PARTNER"""
-  supportPartner: Partner
 
   """The email sent for the invitation"""
   email: Email
@@ -2581,8 +2563,8 @@ enum ProgramUserRole {
   """Co-Investigator"""
   COI
 
-  """Observer (read-only access)"""
-  OBSERVER
+  """Co-Investigator (read-only access)"""
+  COI_RO
 
   """Staff/Partner Support"""
   SUPPORT
