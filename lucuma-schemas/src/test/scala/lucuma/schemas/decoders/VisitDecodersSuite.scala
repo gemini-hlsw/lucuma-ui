@@ -79,6 +79,7 @@ class VisitDecodersSuite extends InputStreamSuite {
               )
               .some,
             sequenceType = SequenceType.Acquisition,
+            generatedId = none,
             steps = List(
               StepRecord.GmosNorth(
                 id = Step.Id.fromUuid(UUID.fromString("7adfa674-3753-4158-8dd8-cd08eddbb802")),
@@ -117,7 +118,8 @@ class VisitDecodersSuite extends InputStreamSuite {
                 ),
                 observeClass = ObserveClass.Science,
                 qaState = none,
-                datasets = Nil
+                datasets = Nil,
+                generatedId = none
               )
             )
           )
@@ -164,6 +166,7 @@ class VisitDecodersSuite extends InputStreamSuite {
               )
               .some,
             sequenceType = SequenceType.Acquisition,
+            generatedId = none,
             steps = List(
               StepRecord.GmosSouth(
                 id = Step.Id.fromUuid(UUID.fromString("7adfa674-3753-4158-8dd8-cd08eddbb802")),
@@ -202,7 +205,8 @@ class VisitDecodersSuite extends InputStreamSuite {
                 ),
                 observeClass = ObserveClass.Science,
                 qaState = none,
-                datasets = Nil
+                datasets = Nil,
+                generatedId = none
               )
             )
           )

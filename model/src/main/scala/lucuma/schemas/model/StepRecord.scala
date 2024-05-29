@@ -26,6 +26,7 @@ enum StepRecord[+D] derives Eq:
   def observeClass: ObserveClass
   def qaState: Option[DatasetQaState]
   def datasets: List[Dataset]
+  def generatedId: Option[Step.Id]
 
   case GmosNorth(
     id:               Step.Id,
@@ -36,7 +37,8 @@ enum StepRecord[+D] derives Eq:
     stepConfig:       StepConfig,
     observeClass:     ObserveClass,
     qaState:          Option[DatasetQaState],
-    datasets:         List[Dataset]
+    datasets:         List[Dataset],
+    generatedId:      Option[Step.Id]
   ) extends StepRecord[DynamicConfig.GmosNorth]
 
   case GmosSouth(
@@ -48,7 +50,8 @@ enum StepRecord[+D] derives Eq:
     stepConfig:       StepConfig,
     observeClass:     ObserveClass,
     qaState:          Option[DatasetQaState],
-    datasets:         List[Dataset]
+    datasets:         List[Dataset],
+    generatedId:      Option[Step.Id]
   ) extends StepRecord[DynamicConfig.GmosSouth]
 
 object StepRecord:
