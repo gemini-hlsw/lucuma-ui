@@ -13,8 +13,8 @@ import lucuma.core.util.NewType
 import lucuma.react.table.*
 import lucuma.ui.reusability.given
 
-case class TableOptionsWithStateStore[F[_], T](
-  tableOptions: TableOptions[T],
+case class TableOptionsWithStateStore[F[_], T, M](
+  tableOptions: TableOptions[T, M],
   stateStore:   TableStateStore[F]
 )
 
@@ -23,8 +23,8 @@ private object UseReactTableWithStateStore:
 
   private object CanSave extends NewType[Boolean]
 
-  private def hook[T] =
-    CustomHook[TableOptionsWithStateStore[DefaultA, T]]
+  private def hook[T, M] =
+    CustomHook[TableOptionsWithStateStore[DefaultA, T, M]]
       .useReactTableBy(_.tableOptions)
       .useState(PrefsLoaded(false))
       .useRef(CanSave(false))
@@ -48,28 +48,28 @@ private object UseReactTableWithStateStore:
 
   object HooksApiExt:
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):
-      final def useReactTableWithStateStore[T](
-        options: TableOptionsWithStateStore[DefaultA, T]
+      final def useReactTableWithStateStore[T, M](
+        options: TableOptionsWithStateStore[DefaultA, T, M]
       )(using
         step:    Step
-      ): step.Next[Table[T]] =
+      ): step.Next[Table[T, M]] =
         useReactTableWithStateStoreBy(_ => options)
 
-      final def useReactTableWithStateStoreBy[T](
-        options: Ctx => TableOptionsWithStateStore[DefaultA, T]
+      final def useReactTableWithStateStoreBy[T, M](
+        options: Ctx => TableOptionsWithStateStore[DefaultA, T, M]
       )(using
         step:    Step
-      ): step.Next[Table[T]] =
+      ): step.Next[Table[T, M]] =
         api.customBy(ctx => hook(options(ctx)))
 
     final class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](
       api: HooksApi.Secondary[Ctx, CtxFn, Step]
     ) extends Primary[Ctx, Step](api):
-      def useReactTableWithStateStoreBy[T](
-        tableDefWithOptions: CtxFn[TableOptionsWithStateStore[DefaultA, T]]
+      def useReactTableWithStateStoreBy[T, M](
+        tableDefWithOptions: CtxFn[TableOptionsWithStateStore[DefaultA, T, M]]
       )(using
         step:                Step
-      ): step.Next[Table[T]] =
+      ): step.Next[Table[T, M]] =
         super.useReactTableWithStateStoreBy(step.squash(tableDefWithOptions)(_))
 
   trait HooksApiExt:

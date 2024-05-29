@@ -97,11 +97,24 @@
   }
 }
 
+// A togglebutton contains a button that needs the padding specified.
+.p-component.p-togglebutton {
+  &.pl-compact .p-component.p-button {
+    padding: var(--pl-compact-button-padding);
+  }
+
+  &.pl-very-compact .p-component.p-button {
+    padding: var(--pl-very-compact-button-padding-top)
+      var(--pl-very-compact-button-padding-right);
+  }
+}
+
 // For different sizes of buttons and text inputs and dropdowns
 .p-component.p-inputtext,
 .p-inputgroup .p-inputgroup-addon,
 .p-component.p-dropdown-panel,
 .pl-form-field-label,
+.p-component.p-togglebutton,
 .p-component.p-button {
   // default size is Medium
   &.pl-mini {

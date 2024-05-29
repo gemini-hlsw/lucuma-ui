@@ -41,10 +41,10 @@ trait SequenceRow[+D]:
   def stepEstimate: Option[StepEstimate]
   def signalToNoise: Option[SignalToNoise]
 
-  lazy val rowId: RowId = RowId(id match
-    case Left(visitId) => visitId.toString
-    case Right(stepId) => stepId.toString
-  )
+  lazy val rowId: RowId = RowId:
+    id match
+      case Left(visitId) => visitId.toString
+      case Right(stepId) => stepId.toString
 
   lazy val instrument: Option[Instrument] = instrumentConfig.map:
     case DynamicConfig.GmosNorth(_, _, _, _, _, _, _) => Instrument.GmosNorth

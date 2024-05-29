@@ -12,8 +12,8 @@ import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.NewType
 import lucuma.react.common.*
-import lucuma.react.floatingui.Placement
-import lucuma.react.floatingui.syntax.*
+import lucuma.react.primereact.Tooltip
+import lucuma.react.primereact.tooltip.*
 import lucuma.ui.utils.*
 import lucuma.ui.utils.Render
 
@@ -22,7 +22,7 @@ object StepIndex extends NewType[PosInt]:
 type StepIndex = StepIndex.Type
 
 private def renderStepType(icon: VdomNode, tooltip: String): VdomNode =
-  <.span(icon).withTooltip(tooltip, Placement.Right)
+  <.span(icon).withTooltip(content = tooltip, showDelay = 100, position = Tooltip.Position.Right)
 
 extension (stepTypeDisplay: StepTypeDisplay)
   private def icon: VdomNode =

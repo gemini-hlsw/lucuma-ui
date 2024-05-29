@@ -5,10 +5,13 @@ package lucuma.ui.sequence
 
 import cats.data.NonEmptyList
 import cats.syntax.all.*
+import eu.timepit.refined.types.numeric.NonNegInt
+import eu.timepit.refined.types.numeric.PosInt
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.SequenceType
+import lucuma.core.model.sequence.Step
 import lucuma.core.syntax.all.given
 import lucuma.core.util.Timestamp
 import lucuma.react.table.Expandable
@@ -48,7 +51,7 @@ trait SequenceRowBuilder[D]:
     stepRows:     NonEmptyList[SequenceIndexedRow[D]],
     datasetRange: Option[(Short, Short)]
   ):
-    val rowId: RowId = RowId(s"$visitId-sequenceType")
+    val rowId: RowId = RowId(s"$visitId-$sequenceType")
 
   protected def renderVisitHeader(visit: VisitData): VdomNode =
     <.div(SequenceStyles.VisitHeader)( // Steps is non-empty => head is safe
@@ -83,7 +86,7 @@ trait SequenceRowBuilder[D]:
       <.span(SequenceStyles.VisitStepExtraDatasets)(
         step.datasets
           .map: dataset =>
-            <.span(SequenceStyles.VisitStepExtraDatasetItem)(
+            <.span(^.key := dataset.id.toString)(SequenceStyles.VisitStepExtraDatasetItem)(
               dataset.filename.format,
               dataset.qaState.map: qaState =>
                 React.Fragment(
@@ -105,13 +108,15 @@ trait SequenceRowBuilder[D]:
     )
 
   private def buildVisitRows(
-    visitId:      Visit.Id,
-    atoms:        List[AtomRecord[D]],
-    sequenceType: SequenceType,
-    startIndex:   StepIndex = StepIndex.One
+    visitId:       Visit.Id,
+    atoms:         List[AtomRecord[D]],
+    sequenceType:  SequenceType,
+    currentStepId: Option[Step.Id], // Will be removed from visit rows
+    startIndex:    StepIndex = StepIndex.One
   ): (Option[VisitData], StepIndex) =
     atoms
       .flatMap(_.steps)
+      .filterNot(step => currentStepId.contains_(step.id))
       .some
       .filter(_.nonEmpty)
       .map: steps =>
@@ -139,61 +144,126 @@ trait SequenceRowBuilder[D]:
       .getOrElse:
         (none, startIndex)
 
-  def visitsSequences(visits: List[Visit[D]]): (List[VisitData], StepIndex) =
+  /**
+   * Returns a streamlined list of visits, splitting them into acquisition and science, followed by
+   * the next science index.
+   */
+  def visitsSequences(
+    visits:        List[Visit[D]],
+    currentStepId: Option[Step.Id] // Will be removed from visits
+  ): (List[VisitData], StepIndex) =
     visits
       .foldLeft((List.empty[VisitData], StepIndex.One))((accum, visit) =>
-        val (seqs, index) = accum
+        val (seqs, scienceIndex) = accum
 
         // Acquisition indices restart at 1 in each visit.
         // Science indices continue from one visit to the next.
-        val acquisition          =
-          buildVisitRows(visit.id, visit.acquisitionAtoms, SequenceType.Acquisition)._1
-        val (science, nextIndex) =
-          buildVisitRows(visit.id, visit.scienceAtoms, SequenceType.Science, index)
+        val (acquisition, nextAcquisitionIndex) =
+          buildVisitRows(visit.id, visit.acquisitionAtoms, SequenceType.Acquisition, currentStepId)
+
+        val (science, nextScienceIndex) =
+          buildVisitRows(
+            visit.id,
+            visit.scienceAtoms,
+            SequenceType.Science,
+            currentStepId,
+            scienceIndex
+          )
 
         (
           seqs ++ List(acquisition, science).flattenOption,
-          nextIndex
+          nextScienceIndex
         )
       )
 
+  protected val AlertRowId: RowId = RowId("alert")
+
+  protected case class AlertRow(sequenceType: SequenceType, position: NonNegInt, content: VdomNode)
+
   def stitchSequence(
-    visits:          List[VisitData],
-    nextIndex:       StepIndex,
-    acquisitionRows: List[SequenceRow[D]],
-    scienceRows:     List[SequenceRow[D]]
+    visits:           List[VisitData],
+    currentVisitId:   Option[Visit.Id],     // Used to move current visit steps to current sequences
+    nextScienceIndex: StepIndex,            // Used to continue numbering from visits
+    acquisitionRows:  List[SequenceRow[D]], // Should have completed steps already removed
+    scienceRows:      List[SequenceRow[D]], // Should have completed steps already removed
+    alertRow:         Option[AlertRow] = none
   ): List[SequenceTableRowType] = {
-    val visitsRows: List[SequenceTableRowType] =
-      visits.map: visit =>
+    val (pastVisits, currentVisits): (List[VisitData], List[VisitData]) =
+      visits.partition: visitData =>
+        !currentVisitId.contains_(visitData.visitId)
+
+    val pastVisitsRows: List[SequenceTableRowType] =
+      pastVisits.map: visit =>
         Expandable(
           HeaderRow(visit.rowId, renderVisitHeader(visit)).toHeaderOrRow,
           visit.stepRows.toList.map(step => Expandable(step.toHeaderOrRow))
         )
 
-    def buildSequenceRows(
-      steps:        List[SequenceRow[D]],
+    def currentVisitsRows(sequenceType: SequenceType): List[SequenceTableRowType] =
+      currentVisits
+        .filter(_.sequenceType === sequenceType)
+        .flatMap(_.stepRows.toList)
+        .map(step => Expandable(step.toHeaderOrRow))
+
+    val currentVisitAcquisitionRows: List[SequenceTableRowType] =
+      currentVisitsRows(SequenceType.Acquisition)
+
+    val currentVisitScienceRows: List[SequenceTableRowType] =
+      currentVisitsRows(SequenceType.Science)
+
+    def insertAlertRow(
       sequenceType: SequenceType,
-      nextIndex:    StepIndex
+      stepRows:     List[SequenceTableRowType]
+    ): List[SequenceTableRowType] =
+      alertRow
+        .filter(_.sequenceType === sequenceType)
+        .fold(stepRows): alert =>
+          val (before, after) = stepRows.splitAt(alert.position.value)
+          before ++ List(Expandable(HeaderRow(AlertRowId, alert.content).toHeaderOrRow)) ++ after
+
+    def buildSequenceRows(
+      sequenceType:     SequenceType,
+      currentVisitRows: List[SequenceTableRowType],
+      steps:            List[SequenceRow[D]],
+      nextIndex:        StepIndex
     ): List[SequenceTableRowType] =
       Option
-        .when(steps.nonEmpty):
+        .when(currentVisitRows.nonEmpty || steps.nonEmpty):
           Expandable(
             HeaderRow(
               RowId(sequenceType.toString),
               renderCurrentHeader(sequenceType)
             ).toHeaderOrRow,
-            steps
-              .zipWithStepIndex(nextIndex)
-              ._1
-              .map: (step, index) =>
-                Expandable(SequenceIndexedRow(step, index).toHeaderOrRow)
+            currentVisitRows ++
+              insertAlertRow(
+                sequenceType,
+                steps
+                  .zipWithStepIndex(nextIndex)
+                  ._1
+                  .map: (step, index) =>
+                    Expandable(SequenceIndexedRow(step, index).toHeaderOrRow)
+              )
           )
         .toList
 
-    val acquisitionTableRows: List[SequenceTableRowType] =
-      buildSequenceRows(acquisitionRows, SequenceType.Acquisition, StepIndex.One)
-    val scienceTableRows: List[SequenceTableRowType]     =
-      buildSequenceRows(scienceRows, SequenceType.Science, nextIndex)
+    val nextAcquisitionIndex: StepIndex =
+      StepIndex(PosInt.unsafeFrom(currentVisitAcquisitionRows.size + 1))
 
-    visitsRows ++ acquisitionTableRows ++ scienceTableRows
+    val acquisitionTableRows: List[SequenceTableRowType] =
+      buildSequenceRows(
+        SequenceType.Acquisition,
+        currentVisitAcquisitionRows,
+        acquisitionRows,
+        nextAcquisitionIndex
+      )
+
+    val scienceTableRows: List[SequenceTableRowType] =
+      buildSequenceRows(
+        SequenceType.Science,
+        currentVisitScienceRows,
+        scienceRows,
+        nextScienceIndex
+      )
+
+    pastVisitsRows ++ acquisitionTableRows ++ scienceTableRows
   }
