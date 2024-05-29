@@ -4,7 +4,7 @@ ThisBuild / tlBaseVersion       := "0.103"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
-  val cats              = "2.10.0"
+  val cats              = "2.12.0"
   val catsRetry         = "3.1.3"
   val catsTime          = "0.5.1"
   val circe             = "0.14.7"
