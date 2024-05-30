@@ -68,8 +68,8 @@ val lucumaSchemas =
     .settings(
       moduleName                    := "lucuma-schemas",
       libraryDependencies ++= Seq(
-        "co.fs2"        %%% "fs2-io"              % Versions.fs2             % Test,
-        "org.scalameta" %%% "munit"               % Versions.munit           % Test,
+        "co.fs2"        %%% "fs2-io"            % Versions.fs2             % Test,
+        "org.scalameta" %%% "munit"             % Versions.munit           % Test,
         "org.typelevel" %%% "munit-cats-effect" % Versions.munitCatsEffect % Test
       ),
       Compile / clueSourceDirectory := (ThisBuild / baseDirectory).value / "lucuma-schemas" / "src" / "clue",
