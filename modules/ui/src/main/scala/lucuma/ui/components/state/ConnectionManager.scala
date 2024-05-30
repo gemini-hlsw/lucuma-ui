@@ -41,10 +41,9 @@ object ConnectionManager {
       (props, _, initializedState, _) => _ =>
         import props.given
 
-        (
-          Logger[DefaultA].debug(s"[ConnectionManager] Token changed. Refreshing connections.") >>
-            props.closeConnections >> props.openConnections(props.payload)
-        ).uncancelable
+        // In clue, connect will be a no-op (with a warn) and initialize will restart the protocol and reestablish subscriptions.
+        (Logger[DefaultA].debug(s"[ConnectionManager] Token changed. Refreshing connections.") >>
+          props.openConnections(props.payload))
           .whenA(initializedState.value)
     }
     .useAsyncEffectOnMountBy { (props, _, initializedState, initializedRef) =>
