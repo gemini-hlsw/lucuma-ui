@@ -1,14 +1,14 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.103"
+ThisBuild / tlBaseVersion       := "0.104"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
-  val cats              = "2.10.0"
+  val cats              = "2.12.0"
   val catsRetry         = "3.1.3"
   val catsTime          = "0.5.1"
   val circe             = "0.14.7"
-  val crystal           = "0.38.0"
+  val crystal           = "0.39.1"
   val fs2Dom            = "0.3.0-M1"
   val kittens           = "3.3.0"
   val http4s            = "0.23.27"
@@ -17,7 +17,7 @@ val Versions = new {
   val lucumaPrimeStyles = "0.3.0"
   val lucumaReact       = "0.65.0"
   val lucumaRefined     = "0.1.2"
-  val lucumaSchemas     = "0.81.5"
+  val lucumaSchemas     = "0.85.1"
   val lucumaSso         = "0.6.17"
   val monocle           = "3.2.0"
   val mouse             = "1.2.3"
@@ -37,8 +37,8 @@ addCommandAlias(
 
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
-ThisBuild / scalaVersion             := "3.4.1"
-ThisBuild / crossScalaVersions       := Seq("3.4.1")
+ThisBuild / scalaVersion             := "3.4.2"
+ThisBuild / crossScalaVersions       := Seq("3.4.2")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions")
 
 enablePlugins(NoPublishPlugin)
@@ -126,8 +126,8 @@ lazy val tests =
       libraryDependencies ++= Seq(
         "edu.gemini"    %%% "lucuma-core-testkit"    % Versions.lucumaCore    % Test,
         "edu.gemini"    %%% "lucuma-schemas-testkit" % Versions.lucumaSchemas % Test,
-        "org.scalameta" %%% "munit"                  % "0.7.29"               % Test,
-        "org.typelevel" %%% "discipline-munit"       % "1.0.9"                % Test
+        "org.scalameta" %%% "munit"                  % "1.0.0"                % Test,
+        "org.typelevel" %%% "discipline-munit"       % "2.0.0"                % Test
       )
     )
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
