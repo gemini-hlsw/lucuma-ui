@@ -41,21 +41,25 @@ object ConnectionManager {
       (props, _, initializedState, _) => _ =>
         import props.given
 
-        (Logger[DefaultA].debug(s"[ConnectionManager] Token changed. Refreshing connections.") >>
+        (Logger[DefaultA].info(s"[ConnectionManager] Token changed. Refreshing connections.") >>
           props.openConnections(props.payload)).whenA(initializedState.value)
     }
     .useAsyncEffectOnMountBy { (props, _, initializedState, initializedRef) =>
       import props.given
 
       val initialize: DefaultA[Unit] =
-        props.openConnections(props.payload) >>
+        Logger[DefaultA]
+          .info("[ConnectionManager] Initializing connections") >>
+          props
+            .openConnections(props.payload)
+            .onCancel(Logger[DefaultA].info("[ConnectionManager] openConnections canceled")) >>
           initializedRef.setAsync(true) >>
           initializedState.setStateAsync(true) >>
           props.onConnect
 
       val cleanup: DefaultA[Unit] =
         initializedRef.getAsync >>= (initialized =>
-          (Logger[DefaultA].debug(s"[ConnectionManager] Terminating connections.") >>
+          (Logger[DefaultA].info(s"[ConnectionManager] Terminating connections.") >>
             props.closeConnections).whenA(initialized)
         )
 
