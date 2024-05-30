@@ -48,6 +48,7 @@ object ExecutionVisitsSubquery
               executionState
               interval $TimestampIntervalSubquery
               sequenceType
+              generatedId
               steps {
                 matches {
                   id
@@ -79,6 +80,7 @@ object ExecutionVisitsSubquery
                       interval $TimestampIntervalSubquery
                     }
                   }
+                  generatedId
                   gmosNorth {
                     exposure $TimeSpanSubquery
                     readout {

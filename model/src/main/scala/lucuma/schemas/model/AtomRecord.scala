@@ -21,6 +21,7 @@ enum AtomRecord[+D] derives Eq:
   def interval: Option[TimestampInterval]
   def sequenceType: SequenceType
   def steps: List[StepRecord[D]]
+  def generatedId: Option[Atom.Id]
 
   case GmosNorth protected[schemas] (
     id:             Atom.Id,
@@ -28,7 +29,8 @@ enum AtomRecord[+D] derives Eq:
     executionState: AtomExecutionState,
     interval:       Option[TimestampInterval],
     sequenceType:   SequenceType,
-    steps:          List[StepRecord.GmosNorth]
+    steps:          List[StepRecord.GmosNorth],
+    generatedId:    Option[Atom.Id]
   ) extends AtomRecord[DynamicConfig.GmosNorth]
 
   case GmosSouth protected[schemas] (
@@ -37,7 +39,8 @@ enum AtomRecord[+D] derives Eq:
     executionState: AtomExecutionState,
     interval:       Option[TimestampInterval],
     sequenceType:   SequenceType,
-    steps:          List[StepRecord.GmosSouth]
+    steps:          List[StepRecord.GmosSouth],
+    generatedId:    Option[Atom.Id]
   ) extends AtomRecord[DynamicConfig.GmosSouth]
 
 object AtomRecord:

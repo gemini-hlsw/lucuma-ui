@@ -54,6 +54,7 @@ trait VisitDecoders:
       observeClass     <- c.downField("observeClass").as[ObserveClass]
       qaState          <- c.downField("qaState").as[Option[DatasetQaState]]
       datasets         <- c.downField("datasets").downField("matches").as[List[Dataset]]
+      generatedId      <- c.downField("generatedId").as[Option[Step.Id]]
     yield StepRecord.GmosNorth(
       id,
       created,
@@ -63,7 +64,8 @@ trait VisitDecoders:
       stepConfig,
       observeClass,
       qaState,
-      datasets
+      datasets,
+      generatedId
     )
 
   given Decoder[StepRecord.GmosSouth] = Decoder.instance: c =>
@@ -77,6 +79,7 @@ trait VisitDecoders:
       observeClass     <- c.downField("observeClass").as[ObserveClass]
       qaState          <- c.downField("qaState").as[Option[DatasetQaState]]
       datasets         <- c.downField("datasets").downField("matches").as[List[Dataset]]
+      generatedId      <- c.downField("generatedId").as[Option[Step.Id]]
     yield StepRecord.GmosSouth(
       id,
       created,
@@ -86,7 +89,8 @@ trait VisitDecoders:
       stepConfig,
       observeClass,
       qaState,
-      datasets
+      datasets,
+      generatedId
     )
 
   given decoderAtomGmosNorth: Decoder[AtomRecord.GmosNorth] = Decoder.instance: c =>
@@ -97,7 +101,16 @@ trait VisitDecoders:
       interval       <- c.downField("interval").as[Option[TimestampInterval]]
       sequenceType   <- c.downField("sequenceType").as[SequenceType]
       steps          <- c.downField("steps").downField("matches").as[List[StepRecord.GmosNorth]]
-    yield AtomRecord.GmosNorth(id, created, executionState, interval, sequenceType, steps)
+      generatedId    <- c.downField("generatedId").as[Option[Atom.Id]]
+    yield AtomRecord.GmosNorth(
+      id,
+      created,
+      executionState,
+      interval,
+      sequenceType,
+      steps,
+      generatedId
+    )
 
   given decoderAtomGmosSouth: Decoder[AtomRecord.GmosSouth] = Decoder.instance: c =>
     for
@@ -107,7 +120,16 @@ trait VisitDecoders:
       interval       <- c.downField("interval").as[Option[TimestampInterval]]
       sequenceType   <- c.downField("sequenceType").as[SequenceType]
       steps          <- c.downField("steps").downField("matches").as[List[StepRecord.GmosSouth]]
-    yield AtomRecord.GmosSouth(id, created, executionState, interval, sequenceType, steps)
+      generatedId    <- c.downField("generatedId").as[Option[Atom.Id]]
+    yield AtomRecord.GmosSouth(
+      id,
+      created,
+      executionState,
+      interval,
+      sequenceType,
+      steps,
+      generatedId
+    )
 
   // We must specify a name since the automatic names only take the last part of the type path,
   // generating conflicts among all the `.GmosNorth` and `.GmosSouth` types.
