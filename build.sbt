@@ -1,12 +1,12 @@
 val Versions = new { // sbt doesn't like object definitions in build.sbt
   val circe           = "0.14.7"
-  val disciplineMUnit = "1.0.9"
+  val disciplineMUnit = "2.0.0"
   val fs2             = "3.10.2"
   val kittens         = "3.3.0"
   val lucumaCore      = "0.97.1"
   val lucumaODBSchema = "0.11.7"
-  val munit           = "0.7.29"
-  val munitCatsEffect = "1.0.7"
+  val munit           = "1.0.0"
+  val munitCatsEffect = "2.0.0"
 }
 
 ThisBuild / tlBaseVersion       := "0.85"
@@ -68,9 +68,9 @@ val lucumaSchemas =
     .settings(
       moduleName                    := "lucuma-schemas",
       libraryDependencies ++= Seq(
-        "co.fs2"        %%% "fs2-io"              % Versions.fs2             % Test,
-        "org.scalameta" %%% "munit"               % Versions.munit           % Test,
-        "org.typelevel" %%% "munit-cats-effect-3" % Versions.munitCatsEffect % Test
+        "co.fs2"        %%% "fs2-io"            % Versions.fs2             % Test,
+        "org.scalameta" %%% "munit"             % Versions.munit           % Test,
+        "org.typelevel" %%% "munit-cats-effect" % Versions.munitCatsEffect % Test
       ),
       Compile / clueSourceDirectory := (ThisBuild / baseDirectory).value / "lucuma-schemas" / "src" / "clue",
       // Include schema files in jar.
