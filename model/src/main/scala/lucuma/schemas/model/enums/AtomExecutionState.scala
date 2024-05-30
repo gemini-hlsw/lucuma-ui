@@ -9,3 +9,4 @@ enum AtomExecutionState(val tag: String) derives Enumerated:
   case NotStarted extends AtomExecutionState("NOT_STARTED")
   case Ongoing    extends AtomExecutionState("ONGOING")
   case Completed  extends AtomExecutionState("COMPLETED")
+  case Abandoned  extends AtomExecutionState("ABANDONED")
