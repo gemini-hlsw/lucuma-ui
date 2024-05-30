@@ -11,3 +11,4 @@ enum StepExecutionState(val tag: String) derives Enumerated:
   case Aborted    extends StepExecutionState("ABORTED")
   case Completed  extends StepExecutionState("COMPLETED")
   case Stopped    extends StepExecutionState("STOPPED")
+  case Abandoned  extends StepExecutionState("ABANDONED")
