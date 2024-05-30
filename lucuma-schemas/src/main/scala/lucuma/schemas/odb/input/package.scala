@@ -17,7 +17,6 @@ import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.math.dimensional.*
 import lucuma.core.model.*
 import lucuma.core.model.ExposureTimeMode.*
-import lucuma.core.model.ProposalClass.*
 import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.model.sequence.gmos.GmosCcdMode
@@ -291,68 +290,6 @@ extension (etm: ExposureTimeMode)
       )
     case SignalToNoiseMode(value)       =>
       ExposureTimeModeInput(signalToNoise = SignalToNoiseModeInput(value = value).assign)
-
-extension (p: ProposalClass)
-  def toInput: ProposalClassInput = p match
-    case DemoScience(minPercentTime)                                  =>
-      ProposalClassInput(demoScience =
-        DemoScienceInput(minPercentTime = minPercentTime.assign).assign
-      )
-    case Exchange(minPercentTime)                                     =>
-      ProposalClassInput(exchange = ExchangeInput(minPercentTime = minPercentTime.assign).assign)
-    case LargeProgram(minPercentTime, minPercentTotalTime, totalTime) =>
-      ProposalClassInput(largeProgram =
-        LargeProgramInput(
-          minPercentTime = minPercentTime.assign,
-          minPercentTotalTime = minPercentTotalTime.assign,
-          totalTime = totalTime.toInput.assign
-        ).assign
-      )
-    case Queue(minPercentTime)                                        =>
-      ProposalClassInput(queue = QueueInput(minPercentTime = minPercentTime.assign).assign)
-    case FastTurnaround(minPercentTime)                               =>
-      ProposalClassInput(fastTurnaround =
-        FastTurnaroundInput(minPercentTime = minPercentTime.assign).assign
-      )
-    case DirectorsTime(minPercentTime)                                =>
-      ProposalClassInput(directorsTime =
-        DirectorsTimeInput(minPercentTime = minPercentTime.assign).assign
-      )
-    case Intensive(minPercentTime, minPercentTotalTime, totalTime)    =>
-      ProposalClassInput(intensive =
-        IntensiveInput(
-          minPercentTime = minPercentTime.assign,
-          minPercentTotalTime = minPercentTotalTime.assign,
-          totalTime = totalTime.toInput.assign
-        ).assign
-      )
-    case SystemVerification(minPercentTime)                           =>
-      ProposalClassInput(systemVerification =
-        SystemVerificationInput(minPercentTime = minPercentTime.assign).assign
-      )
-    case Classical(minPercentTime)                                    =>
-      ProposalClassInput(classical = ClassicalInput(minPercentTime = minPercentTime.assign).assign)
-    case PoorWeather(minPercentTime)                                  =>
-      ProposalClassInput(poorWeather =
-        PoorWeatherInput(minPercentTime = minPercentTime.assign).assign
-      )
-
-extension (proposal: Proposal)
-  def toInput: ProposalPropertiesInput = ProposalPropertiesInput(
-    title = proposal.title.orUnassign,
-    proposalClass = proposal.proposalClass.toInput.assign,
-    category = proposal.category.orUnassign,
-    toOActivation = proposal.toOActivation.assign,
-    `abstract` = proposal.abstrakt.orUnassign,
-    // The API allows the partner splits to be missing, but not empty. We only use this on
-    // create, and it results in an empty partner splits in the response.
-    partnerSplits =
-      if (proposal.partnerSplits.isEmpty) Input.unassign
-      else
-        proposal.partnerSplits.toList.map { case (par, pct) =>
-          PartnerSplitInput(par, pct)
-        }.assign
-  )
 
 extension (sidereal: Target.Sidereal)
   def toInput: SiderealInput = SiderealInput(

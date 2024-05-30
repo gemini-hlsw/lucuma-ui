@@ -45,7 +45,7 @@ class DecodersSuite extends InputStreamSuite {
   inline given Predicate[Long, Positive] with
     transparent inline def isValid(inline t: Long): Boolean = t > 0
 
-  implicit val decoderIdTarget: Decoder[(Target.Id, Target)] = Decoder.instance { c =>
+  given Decoder[(Target.Id, Target)] = Decoder.instance { c =>
     val root = c.downField("data").downField("target")
     for {
       id     <- root.downField("id").as[Target.Id]

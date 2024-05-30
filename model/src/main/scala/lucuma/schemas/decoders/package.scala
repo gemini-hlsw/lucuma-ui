@@ -8,7 +8,6 @@ package object decoders
     with TargetDecoders
     with ConstraintSetDecoders
     with PosAngleDecoders
-    with ProposalDecoders
     with ExposureTimeModeDecoders
     with VisitDecoders
     with TimingWindowDecoders

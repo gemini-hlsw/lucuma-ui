@@ -128,7 +128,7 @@ trait ObservationDB {
     type ObsAttachmentType                   = lucuma.schemas.enums.ObsAttachmentType
     type ObsStatus                           = enums.ObsStatus
     type ObserveClass                        = enums.ObserveClass
-    type Partner                             = model.Partner
+    type Partner                             = enums.Partner
     type PlanetSpectrum                      = enums.PlanetSpectrum
     type PlanetaryNebulaSpectrum             = enums.PlanetaryNebulaSpectrum
     type ProgramType                         = enums.ProgramType
