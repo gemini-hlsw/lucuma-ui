@@ -13,7 +13,7 @@ import lucuma.odb.json.angle.decoder.given
 
 trait PosAngleDecoders {
 
-  implicit val posAngleConstraintDecoder: Decoder[PosAngleConstraint] = {
+  given Decoder[PosAngleConstraint] = {
 
     def missingAngle[A](kind: String, ops: => List[CursorOp]): Decoder.Result[A] =
       DecodingFailure(s"The $kind PosAngleConstraint requires an angle", ops).asLeft[A]

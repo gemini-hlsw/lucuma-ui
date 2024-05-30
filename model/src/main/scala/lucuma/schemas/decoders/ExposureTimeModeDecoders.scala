@@ -11,13 +11,13 @@ import lucuma.odb.json.time.decoder.given
 
 trait ExposureTimeModeDecoders {
 
-  implicit val decoderSignalToNoise: Decoder[ExposureTimeMode.SignalToNoiseMode] =
+  given Decoder[ExposureTimeMode.SignalToNoiseMode] =
     semiauto.deriveDecoder
 
-  implicit val decoderFixedExposure: Decoder[ExposureTimeMode.FixedExposureMode] =
+  given Decoder[ExposureTimeMode.FixedExposureMode] =
     semiauto.deriveDecoder
 
-  implicit val decoderExposureTimeMode: Decoder[ExposureTimeMode] = Decoder.instance { c =>
+  given Decoder[ExposureTimeMode] = Decoder.instance { c =>
     c.downField("signalToNoise")
       .as[ExposureTimeMode.SignalToNoiseMode]
       .orElse(c.downField("fixedExposure").as[ExposureTimeMode.FixedExposureMode])
