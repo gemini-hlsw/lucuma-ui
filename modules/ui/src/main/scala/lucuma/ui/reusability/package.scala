@@ -125,7 +125,6 @@ trait ModelReusabiltyInstances
   given uidReuse[Id <: WithUid#Id]: Reusability[Id]          = Reusability.by(_.toUuid)
   given Reusability[OrcidId]                                 = Reusability.by(_.value.toString)
   given Reusability[OrcidProfile]                            = Reusability.byEq
-  given Reusability[Partner]                                 = Reusability.byEq
   given Reusability[StandardRole]                            = Reusability.byEq
   given Reusability[StandardUser]                            = Reusability.byEq
   given Reusability[CatalogInfo]                             = Reusability.byEq
@@ -147,8 +146,6 @@ trait ModelReusabiltyInstances
   given Reusability[ElevationRange.HourAngle]                = Reusability.byEq
   given Reusability[ElevationRange]                          = Reusability.byEq
   given Reusability[ConstraintSet]                           = Reusability.byEq
-  given Reusability[ProposalClass]                           = Reusability.byEq
-  given Reusability[Proposal]                                = Reusability.byEq
   given Reusability[InstrumentExecutionConfig]               = Reusability.byEq
   given [D: Eq]: Reusability[Visit[D]]                       = Reusability.byEq
 
