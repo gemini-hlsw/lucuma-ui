@@ -126,7 +126,7 @@ lazy val tests =
       libraryDependencies ++= Seq(
         "edu.gemini"    %%% "lucuma-core-testkit"    % Versions.lucumaCore    % Test,
         "edu.gemini"    %%% "lucuma-schemas-testkit" % Versions.lucumaSchemas % Test,
-        "org.scalameta" %%% "munit"                  % "0.7.29"               % Test,
+        "org.scalameta" %%% "munit"                  % "1.0.0"                % Test,
         "org.typelevel" %%% "discipline-munit"       % "2.0.0"                % Test
       )
     )
