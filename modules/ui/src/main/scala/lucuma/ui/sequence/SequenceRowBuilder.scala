@@ -11,6 +11,7 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.SequenceType
+import lucuma.core.model.sequence.Dataset
 import lucuma.core.model.sequence.Step
 import lucuma.core.syntax.all.given
 import lucuma.core.util.Timestamp
@@ -20,7 +21,6 @@ import lucuma.react.table.RowId
 import lucuma.schemas.model.AtomRecord
 import lucuma.schemas.model.Visit
 import lucuma.ui.LucumaIcons
-import lucuma.ui.LucumaStyles
 import lucuma.ui.display.given
 import lucuma.ui.format.DurationFormatter
 import lucuma.ui.format.UtcFormatter
@@ -76,7 +76,11 @@ trait SequenceRowBuilder[D]:
   protected def renderCurrentHeader(sequenceType: SequenceType): VdomNode =
     <.span(SequenceStyles.CurrentHeader, sequenceType.toString)
 
-  protected def renderVisitExtraRow(step: SequenceRow.Executed.ExecutedStep[D]) =
+  protected def renderVisitExtraRow(
+    step:               SequenceRow.Executed.ExecutedStep[D],
+    onDatasetQAChange:  Option[Dataset.Id => Option[DatasetQaState] => Callback] = none,
+    datasetIdsInFlight: Set[Dataset.Id] = Set.empty
+  ) =
     <.div(SequenceStyles.VisitStepExtra)(
       <.span(SequenceStyles.VisitStepExtraDatetime)(
         step.interval
@@ -88,20 +92,9 @@ trait SequenceRowBuilder[D]:
           .map: dataset =>
             <.span(^.key := dataset.id.toString)(SequenceStyles.VisitStepExtraDatasetItem)(
               dataset.filename.format,
-              dataset.qaState.map: qaState =>
-                React.Fragment(
-                  LucumaIcons.Circle.withClass(
-                    SequenceStyles.VisitStepExtraDatasetStatusIcon |+|
-                      (qaState match
-                        case DatasetQaState.Pass   => LucumaStyles.IndicatorOK
-                        case DatasetQaState.Usable => LucumaStyles.IndicatorWarning
-                        case DatasetQaState.Fail   => LucumaStyles.IndicatorFail
-                      )
-                  ),
-                  <.span(SequenceStyles.VisitStepExtraDatasetStatusLabel)(
-                    qaState.shortName
-                  )
-                )
+              if datasetIdsInFlight.contains_(dataset.id)
+              then LucumaIcons.CircleNotch.withClass(SequenceStyles.VisitStepExtraDatasetQAStatus)
+              else DatasetQa(dataset.qaState, onDatasetQAChange.map(_(dataset.id)))
             )
           .toVdomArray
       )

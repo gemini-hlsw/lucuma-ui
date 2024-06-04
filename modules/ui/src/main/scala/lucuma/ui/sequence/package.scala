@@ -22,7 +22,7 @@ object StepIndex extends NewType[PosInt]:
 type StepIndex = StepIndex.Type
 
 private def renderStepType(icon: VdomNode, tooltip: String): VdomNode =
-  <.span(icon).withTooltip(content = tooltip, showDelay = 100, position = Tooltip.Position.Right)
+  <.span(icon).withTooltip(content = tooltip, showDelay = 100, position = Tooltip.Position.Bottom)
 
 extension (stepTypeDisplay: StepTypeDisplay)
   private def icon: VdomNode =

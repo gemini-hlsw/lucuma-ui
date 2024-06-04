@@ -19,13 +19,31 @@ a:hover {
 }
 
 .lucuma-indicator-ok {
-  color: var(--green-400);
+  color: var(--green-400) !important;
 }
 
 .lucuma-indicator-warning {
-  color: var(--yellow-500);
+  color: var(--yellow-500) !important;
 }
 
 .lucuma-indicator-fail {
-  color: var(--red-500);
+  color: var(--red-500) !important;
 }
+
+.lucuma-indicator-unknown {
+  color: var(--gray-400) !important;
+}
+
+.lucuma-toast {
+  .p-toast-message-content {
+    align-items: center;
+    font-size: small;
+    justify-content: space-between;
+
+    /* stylelint-disable-next-line selector-class-pattern */
+    span > svg.svg-inline--fa {
+      padding-right: 0.5em;
+    }
+  }
+}
+
