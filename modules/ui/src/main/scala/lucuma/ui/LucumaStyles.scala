@@ -9,3 +9,6 @@ object LucumaStyles:
   val IndicatorOK: Css      = Css("lucuma-indicator-ok")
   val IndicatorWarning: Css = Css("lucuma-indicator-warning")
   val IndicatorFail: Css    = Css("lucuma-indicator-fail")
+  val IndicatorUnknown: Css = Css("lucuma-indicator-unknown")
+
+  val Toast = Css("lucuma-toast")
