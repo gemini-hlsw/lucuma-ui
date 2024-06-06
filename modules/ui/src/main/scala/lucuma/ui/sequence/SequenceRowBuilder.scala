@@ -4,6 +4,7 @@
 package lucuma.ui.sequence
 
 import cats.data.NonEmptyList
+import cats.effect.IO
 import cats.syntax.all.*
 import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.numeric.PosInt
@@ -21,11 +22,14 @@ import lucuma.react.table.RowId
 import lucuma.schemas.model.AtomRecord
 import lucuma.schemas.model.Visit
 import lucuma.ui.LucumaIcons
+import lucuma.ui.components.LinkIfValid
 import lucuma.ui.display.given
 import lucuma.ui.format.DurationFormatter
 import lucuma.ui.format.UtcFormatter
 import lucuma.ui.sequence.*
 import lucuma.ui.table.*
+import org.http4s.client.Client
+import org.typelevel.log4cats.Logger
 
 import java.time.Duration
 
@@ -76,11 +80,14 @@ trait SequenceRowBuilder[D]:
   protected def renderCurrentHeader(sequenceType: SequenceType): VdomNode =
     <.span(SequenceStyles.CurrentHeader, sequenceType.toString)
 
+  // private val ArchiveBaseUrl = "https://archive.gemini.edu/preview" // In case they want the image instead
+  private val ArchiveBaseUrl = "https://archive.gemini.edu/fullheader"
+
   protected def renderVisitExtraRow(
     step:               SequenceRow.Executed.ExecutedStep[D],
     onDatasetQAChange:  Option[Dataset.Id => Option[DatasetQaState] => Callback] = none,
     datasetIdsInFlight: Set[Dataset.Id] = Set.empty
-  ) =
+  )(using Client[IO], Logger[IO]) =
     <.div(SequenceStyles.VisitStepExtra)(
       <.span(SequenceStyles.VisitStepExtraDatetime)(
         step.interval
@@ -90,8 +97,12 @@ trait SequenceRowBuilder[D]:
       <.span(SequenceStyles.VisitStepExtraDatasets)(
         step.datasets
           .map: dataset =>
+            val datasetName: String = dataset.filename.format
+
             <.span(^.key := dataset.id.toString)(SequenceStyles.VisitStepExtraDatasetItem)(
-              dataset.filename.format,
+              LinkIfValid(s"$ArchiveBaseUrl/$datasetName", ^.target.blank)(
+                datasetName
+              ),
               if datasetIdsInFlight.contains_(dataset.id)
               then LucumaIcons.CircleNotch.withClass(SequenceStyles.VisitStepExtraDatasetQAStatus)
               else DatasetQa(dataset.qaState, onDatasetQAChange.map(_(dataset.id)))

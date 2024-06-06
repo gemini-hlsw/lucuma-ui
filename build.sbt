@@ -13,6 +13,7 @@ val Versions = new {
   val kittens           = "3.3.0"
   val http4s            = "0.23.27"
   val http4sDom         = "0.2.11"
+  val log4catsLogLevel  = "0.3.1"
   val lucumaCore        = "0.98.0"
   val lucumaPrimeStyles = "0.3.0"
   val lucumaReact       = "0.65.1"
@@ -56,7 +57,7 @@ addCommandAlias(
 lazy val demo =
   project
     .in(file("modules/demo"))
-    .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
+    .enablePlugins(ScalaJSPlugin, NoPublishPlugin, LucumaCssPlugin)
     .dependsOn(ui, css)
     .settings(
       Compile / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
@@ -64,7 +65,8 @@ lazy val demo =
         ModuleSplitStyle.SmallestModules
       )),
       libraryDependencies ++= Seq(
-        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact
+        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact,
+        "com.rpiaggio"                      %%% "log4cats-loglevel"        % Versions.log4catsLogLevel
       ),
       Keys.test := {}
     )
