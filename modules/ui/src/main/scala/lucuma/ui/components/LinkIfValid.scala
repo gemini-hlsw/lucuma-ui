@@ -41,11 +41,11 @@ object LinkIfValid:
       .withHooks[Props]
       .useState(false) // isValid
       .useEffectStreamWithDepsBy((_, isValid) => isValid.value): (props, isValid) =>
-        isValudValue =>
+        isValidValue =>
           import props.F
 
           Option
-            .when(!isValudValue):
+            .when(!isValidValue):
               Uri
                 .fromString(s"$ProxyUri/${props.href}")
                 .bimap(
