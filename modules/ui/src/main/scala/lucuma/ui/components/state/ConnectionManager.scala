@@ -34,7 +34,6 @@ object ConnectionManager {
   private val component = ScalaFnComponent
     .withHooks[Props]
     .withPropsChildren
-    // .useContext(AppContext.ctx)
     .useState(false) // initialized as state, which forces rerender on set
     .useRef(false)   // initialized as ref, which can be read asynchronously by cleanup
     .useEffectWithDepsBy((props, _, _, _) => props.vault.token) {

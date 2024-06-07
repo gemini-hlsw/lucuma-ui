@@ -5,6 +5,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
     "@fortawesome/pro-solid-svg-icons": "^6.4.2",
     "@vitejs/plugin-react": "^4.0.4",
+    "loglevel": "1.9.1",
     "primeicons": "^6.0.1",
     "primereact": "^10.5.3",
     "react": "^18.2.0",
