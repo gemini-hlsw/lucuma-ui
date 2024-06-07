@@ -838,6 +838,7 @@ type Dark implements StepConfig {
 """Editable dataset properties"""
 input DatasetPropertiesInput {
   qaState: DatasetQaState
+  comment: NonEmptyString
 }
 
 """Declination, choose one of the available units"""
@@ -1936,6 +1937,9 @@ input LinkUserInput {
 
   """The role this user will play in the program."""
   role: ProgramUserRole!
+
+  """Partner (co-investigators only)"""
+  partner: Partner
 }
 
 scalar UserInvitationId
@@ -1952,6 +1956,9 @@ input CreateUserInvitationInput {
 
   """The role this user will play in the program."""
   role: ProgramUserRole!
+
+  """Partner (co-investigators only)"""
+  partner: Partner
 }
 
 enum UserInvitationStatus {
@@ -1990,6 +1997,9 @@ type UserInvitation {
 
   """The role the redeemer will play in the program."""
   role: ProgramUserRole!
+
+  """Redeemer's partner (co-investigators only)"""
+  partner: Partner
 
   """The email sent for the invitation"""
   email: Email
@@ -2523,6 +2533,7 @@ enum ProgramUserSupportRoleType {
 """An assignment of a user to a program."""
 type ProgramUser {
   role: ProgramUserRole!
+  partner: Partner
   userId: UserId!
   user: User
 }
@@ -2930,6 +2941,9 @@ input RecordDatasetInput {
 
   """Dataset QA State."""
   qaState: DatasetQaState
+
+  """Dataset comment."""
+  comment: NonEmptyString
 }
 
 """The result of recording a new dataset."""
@@ -4336,6 +4350,9 @@ type Dataset {
 
   """Dataset QA state, if any has been set."""
   qaState: DatasetQaState
+
+  """Dataset comment, if any has been set."""
+  comment: NonEmptyString
 
   """Dataset time interval, if the dataset collection has started."""
   interval: TimestampInterval
@@ -8356,6 +8373,9 @@ input WhereDataset {
 
   """Matches the dataset QA state."""
   qaState: WhereOptionEqQaState
+
+  """Matches the dataset comment."""
+  comment: WhereOptionString
 }
 
 input WhereDatasetReference {
