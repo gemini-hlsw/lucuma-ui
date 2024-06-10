@@ -34,3 +34,4 @@ metals.sbt
 .hydra/
 .direnv/
 modules/demo/node_modules
+.jvmopts

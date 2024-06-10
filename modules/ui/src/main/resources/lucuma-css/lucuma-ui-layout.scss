@@ -49,7 +49,7 @@
 
     // The second child should be a PrimeReact `Message`, although other 
     // things might work.
-    div:first-child {
+    > div:first-child {
       overflow: auto;
     }
   }
