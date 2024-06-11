@@ -23,10 +23,11 @@ import scala.concurrent.duration.FiniteDuration
 /**
  * A component that renders a link if the link is valid, otherwise it just renders the children.
  */
-case class LinkIfValid(href: String, mods: TagMod*)(val children: VdomNode*)(using
-  val client: Client[IO],
-  val logger: Logger[IO],
-  val F:      Temporal[IO]
+case class LinkIfValid(client: Client[IO])(val href: String, val mods: TagMod*)(
+  val children: VdomNode*
+)(using
+  val logger:   Logger[IO],
+  val F:        Temporal[IO]
 ) extends ReactFnProps(LinkIfValid.component)
 
 object LinkIfValid:

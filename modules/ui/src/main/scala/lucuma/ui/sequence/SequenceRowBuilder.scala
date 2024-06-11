@@ -8,18 +8,21 @@ import cats.effect.IO
 import cats.syntax.all.*
 import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.numeric.PosInt
+import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.SequenceType
-import lucuma.core.model.sequence.Dataset
 import lucuma.core.model.sequence.Step
 import lucuma.core.syntax.all.given
 import lucuma.core.util.Timestamp
+import lucuma.react.primereact.Tooltip
+import lucuma.react.primereact.tooltip.*
 import lucuma.react.table.Expandable
 import lucuma.react.table.Expanded
 import lucuma.react.table.RowId
 import lucuma.schemas.model.AtomRecord
+import lucuma.schemas.model.Dataset
 import lucuma.schemas.model.Visit
 import lucuma.ui.LucumaIcons
 import lucuma.ui.components.LinkIfValid
@@ -27,6 +30,7 @@ import lucuma.ui.display.given
 import lucuma.ui.format.DurationFormatter
 import lucuma.ui.format.UtcFormatter
 import lucuma.ui.sequence.*
+import lucuma.ui.syntax.render.*
 import lucuma.ui.table.*
 import org.http4s.client.Client
 import org.typelevel.log4cats.Logger
@@ -83,11 +87,24 @@ trait SequenceRowBuilder[D]:
   // private val ArchiveBaseUrl = "https://archive.gemini.edu/preview" // In case they want the image instead
   private val ArchiveBaseUrl = "https://archive.gemini.edu/fullheader"
 
-  protected def renderVisitExtraRow(
+  private def renderQALabel(
+    qaState: Option[DatasetQaState],
+    comment: Option[NonEmptyString]
+  ): String =
+    qaState.fold("QA Not Set")(_.shortName) + comment.fold("")(c => s": $c")
+
+  private def renderQaIcon(
+    qaState: Option[DatasetQaState],
+    comment: Option[NonEmptyString]
+  ): VdomNode =
+    <.span(qaState.renderVdom)
+      .withTooltip(content = renderQALabel(qaState, comment), position = Tooltip.Position.Top)
+
+  protected def renderVisitExtraRow(httpClient: Client[IO])(
     step:               SequenceRow.Executed.ExecutedStep[D],
-    onDatasetQAChange:  Option[Dataset.Id => Option[DatasetQaState] => Callback] = none,
+    renderDatasetQa:    (Dataset, VdomNode) => VdomNode = (_, renderIcon) => renderIcon,
     datasetIdsInFlight: Set[Dataset.Id] = Set.empty
-  )(using Client[IO], Logger[IO]) =
+  )(using Logger[IO]) =
     <.div(SequenceStyles.VisitStepExtra)(
       <.span(SequenceStyles.VisitStepExtraDatetime)(
         step.interval
@@ -100,12 +117,14 @@ trait SequenceRowBuilder[D]:
             val datasetName: String = dataset.filename.format
 
             <.span(^.key := dataset.id.toString)(SequenceStyles.VisitStepExtraDatasetItem)(
-              LinkIfValid(s"$ArchiveBaseUrl/$datasetName", ^.target.blank)(
+              LinkIfValid(httpClient)(s"$ArchiveBaseUrl/$datasetName", ^.target.blank)(
                 datasetName
               ),
-              if datasetIdsInFlight.contains_(dataset.id)
-              then LucumaIcons.CircleNotch.withClass(SequenceStyles.VisitStepExtraDatasetQAStatus)
-              else DatasetQa(dataset.qaState, onDatasetQAChange.map(_(dataset.id)))
+              <.span(SequenceStyles.VisitStepExtraDatasetQAStatus)(
+                if datasetIdsInFlight.contains_(dataset.id)
+                then LucumaIcons.CircleNotch
+                else renderDatasetQa(dataset, renderQaIcon(dataset.qaState, dataset.comment))
+              )
             )
           .toVdomArray
       )

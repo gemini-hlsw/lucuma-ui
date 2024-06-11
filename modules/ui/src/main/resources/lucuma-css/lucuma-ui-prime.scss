@@ -65,19 +65,20 @@
   line-height: var(--pl-input-line-height);
 }
 
-// For styling of buttons in primereact for different "compactness" and adjust other sizing
-.p-component.p-button {
+:not(.p-button-group) > .p-component.p-button {
   margin-right: 0.25em; // this is what the current css does for SUI. Might want to improve.
+}
 
-  &.pl-compact {
-    padding: var(--pl-compact-button-padding);
-  }
+// For styling of buttons in primereact for different "compactness" and adjust other sizing
+.p-component.p-button.pl-compact, .p-component.p-button-group.pl-compact > .p-component.p-button {
+  padding: var(--pl-compact-button-padding);
+}
 
-  &.pl-very-compact {
-    padding: var(--pl-very-compact-button-padding-top)
-      var(--pl-very-compact-button-padding-right);
-  }
+.p-component.p-button.pl-very-compact, .p-component.p-button-group.pl-very-compact > .p-component.p-button {
+  padding: var(--pl-very-compact-button-padding-top) var(--pl-very-compact-button-padding-right);
+}
 
+.p-component.p-button {
   // Buttons with simple icon
   & > svg.svg-inline--fa {
     width: 1.5em;

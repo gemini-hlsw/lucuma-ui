@@ -18,7 +18,7 @@ import typings.loglevel.mod.LogLevelDesc
 import scala.concurrent.duration.*
 
 object LinkIfValidDemo:
-  private given client: Client[IO] = FetchClientBuilder[IO]
+  private val client: Client[IO] = FetchClientBuilder[IO]
     .withRequestTimeout(2.seconds)
     .withCache(dom.RequestCache.`no-store`)
     .create
@@ -29,11 +29,11 @@ object LinkIfValidDemo:
   val component = ScalaFnComponent[Unit]: _ =>
     <.div(
       <.h2("LinkIfValid!"),
-      LinkIfValid("https://google.com", ^.target := "_blank")(
+      LinkIfValid(client)("https://google.com", ^.target := "_blank")(
         "Google"
       ),
       <.br,
-      LinkIfValid("https://elgoog.com", ^.target := "_blank")(
+      LinkIfValid(client)("https://elgoog.com", ^.target := "_blank")(
         "Elgoog"
       )
     )
