@@ -5,6 +5,7 @@ package lucuma.schemas.decoders
 
 import cats.syntax.all.*
 import eu.timepit.refined.types.numeric.PosShort
+import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.Decoder
 import io.circe.DecodingFailure
 import io.circe.refined.given
@@ -40,8 +41,9 @@ trait VisitDecoders:
       index    <- c.downField("index").as[PosShort]
       filename <- c.downField("filename").as[Dataset.Filename]
       qaState  <- c.downField("qaState").as[Option[DatasetQaState]]
+      comment  <- c.downField("comment").as[Option[NonEmptyString]]
       interval <- c.downField("interval").as[Option[TimestampInterval]]
-    yield Dataset(id, index, filename, qaState, interval)
+    yield Dataset(id, index, filename, qaState, comment, interval)
 
   given Decoder[StepRecord.GmosNorth] = Decoder.instance: c =>
     for

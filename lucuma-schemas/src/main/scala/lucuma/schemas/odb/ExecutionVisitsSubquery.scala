@@ -77,6 +77,7 @@ object ExecutionVisitsSubquery
                       index
                       filename
                       qaState
+                      comment
                       interval $TimestampIntervalSubquery
                     }
                   }

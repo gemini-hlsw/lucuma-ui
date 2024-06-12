@@ -7,6 +7,7 @@ import cats.Eq
 import cats.derived.*
 import eu.timepit.refined.cats.given
 import eu.timepit.refined.types.numeric.PosShort
+import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.model.sequence.Dataset.Filename
 import lucuma.core.util.TimestampInterval
@@ -18,6 +19,7 @@ case class Dataset(
   index:    PosShort,
   filename: Dataset.Filename,
   qaState:  Option[DatasetQaState],
+  comment:  Option[NonEmptyString],
   interval: Option[TimestampInterval]
 ) derives Eq
 
@@ -37,6 +39,9 @@ object Dataset:
 
   val qaState: Lens[Dataset, Option[DatasetQaState]] =
     Focus[Dataset](_.qaState)
+
+  val comment: Lens[Dataset, Option[NonEmptyString]] =
+    Focus[Dataset](_.comment)
 
   val interval: Lens[Dataset, Option[TimestampInterval]] =
     Focus[Dataset](_.interval)
