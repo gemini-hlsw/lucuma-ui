@@ -131,19 +131,6 @@ table tr {
 
         .lucuma-sequence-visit-extraRow-dataset-qaStatus {
           margin-left: 0.5dvw;
-
-          &.lucuma-sequence-visit-extraRow-dataset-qaStatus-editable {
-            cursor: pointer;
-
-            .lucuma-sequence-visit-extraRow-dataset-qaStatus-select {
-              margin-left: 0.25dvw;
-              visibility: hidden;
-            }
-
-            &:hover .lucuma-sequence-visit-extraRow-dataset-qaStatus-select {
-              visibility: visible;
-            }
-          }
         }
       }
     }
