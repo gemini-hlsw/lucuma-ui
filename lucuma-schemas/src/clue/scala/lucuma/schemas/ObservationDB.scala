@@ -79,6 +79,7 @@ trait ObservationDB {
     type Breakpoint                          = enums.Breakpoint
     type BrightnessIntegratedUnits           = Units Of Brightness[Integrated]
     type BrightnessSurfaceUnits              = Units Of Brightness[Surface]
+    type CallForProposalsType                = enums.CallForProposalsType
     type CatalogName                         = enums.CatalogName
     type ChargeClass                         = enums.ChargeClass
     type CloudExtinction                     = enums.CloudExtinction
@@ -128,6 +129,7 @@ trait ObservationDB {
     type ObsAttachmentType                   = lucuma.schemas.enums.ObsAttachmentType
     type ObsStatus                           = enums.ObsStatus
     type ObserveClass                        = enums.ObserveClass
+    type ObservationValidationCode           = enums.ObservationValidationCode
     type Partner                             = enums.Partner
     type PlanetSpectrum                      = enums.PlanetSpectrum
     type PlanetaryNebulaSpectrum             = enums.PlanetaryNebulaSpectrum
