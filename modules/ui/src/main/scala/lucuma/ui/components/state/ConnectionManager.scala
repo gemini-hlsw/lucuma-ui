@@ -34,15 +34,16 @@ object ConnectionManager {
   private val component = ScalaFnComponent
     .withHooks[Props]
     .withPropsChildren
-    // .useContext(AppContext.ctx)
     .useState(false) // initialized as state, which forces rerender on set
     .useRef(false)   // initialized as ref, which can be read asynchronously by cleanup
     .useEffectWithDepsBy((props, _, _, _) => props.vault.token) {
       (props, _, initializedState, _) => _ =>
         import props.given
 
+        // In clue, connect will be a no-op (with a warn) and initialize will restart the protocol and reestablish subscriptions.
         (Logger[DefaultA].debug(s"[ConnectionManager] Token changed. Refreshing connections.") >>
-          props.openConnections(props.payload)).whenA(initializedState.value)
+          props.openConnections(props.payload))
+          .whenA(initializedState.value)
     }
     .useAsyncEffectOnMountBy { (props, _, initializedState, initializedRef) =>
       import props.given

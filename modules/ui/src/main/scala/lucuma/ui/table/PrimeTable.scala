@@ -11,13 +11,12 @@ import lucuma.react.SizePx
 import lucuma.react.common.*
 import lucuma.react.common.style.Css
 import lucuma.react.table.*
-import lucuma.typed.tanstackTableCore as raw
 import lucuma.typed.tanstackVirtualCore as rawVirtual
 import org.scalajs.dom.HTMLElement
 
 import scalajs.js
 
-trait PrimeTableProps[T] extends HTMLTableProps[T]:
+trait PrimeTableProps[T, TM] extends HTMLTableProps[T, TM]:
   def hoverableRows: Boolean
   def striped: Boolean
   def celled: Boolean
@@ -34,109 +33,88 @@ trait PrimeTableProps[T] extends HTMLTableProps[T]:
         )
         .orEmpty
 
-case class PrimeTable[T](
-  table:              Table[T],
-  hoverableRows:      Boolean = true,
-  striped:            Boolean = false,
-  celled:             Boolean = false,
-  compact:            js.UndefOr[Compact] = js.undefined,
-  tableMod:           TagMod = TagMod.empty,
-  headerMod:          TagMod = TagMod.empty,
-  headerRowMod:       raw.buildLibCoreHeadersMod.CoreHeaderGroup[T] => TagMod =
-    (_: raw.buildLibCoreHeadersMod.CoreHeaderGroup[T]) => TagMod.empty,
-  headerCellMod:      raw.buildLibTypesMod.Header[T, Any] => TagMod =
-    (_: raw.buildLibTypesMod.Header[T, Any]) => TagMod.empty,
-  bodyMod:            TagMod = TagMod.empty,
-  rowMod:             raw.buildLibTypesMod.Row[T] => TagMod = (_: raw.buildLibTypesMod.Row[T]) => TagMod.empty,
-  cellMod:            raw.buildLibTypesMod.Cell[T, Any] => TagMod = (_: raw.buildLibTypesMod.Cell[T, Any]) =>
-    TagMod.empty,
-  footerMod:          TagMod = TagMod.empty,
-  footerRowMod:       raw.buildLibCoreHeadersMod.CoreHeaderGroup[T] => TagMod =
-    (_: raw.buildLibCoreHeadersMod.CoreHeaderGroup[T]) => TagMod.empty,
-  footerCellMod:      raw.buildLibTypesMod.Header[T, Any] => TagMod =
-    (_: raw.buildLibTypesMod.Header[T, Any]) => TagMod.empty,
-  emptyMessage:       VdomNode = EmptyVdom,
-  renderSubComponent: raw.buildLibTypesMod.Row[T] => Option[VdomNode] =
-    (_: raw.buildLibTypesMod.Row[T]) => none
+case class PrimeTable[T, TM](
+  table:         Table[T, TM],
+  hoverableRows: Boolean = true,
+  striped:       Boolean = false,
+  celled:        Boolean = false,
+  compact:       js.UndefOr[Compact] = js.undefined,
+  tableMod:      TagMod = TagMod.empty,
+  headerMod:     TagMod = TagMod.empty,
+  headerRowMod:  HeaderGroup[T, TM] => TagMod = (_: HeaderGroup[T, TM]) => TagMod.empty,
+  headerCellMod: Header[T, Any, TM, Any] => TagMod = (_: Header[T, Any, TM, Any]) => TagMod.empty,
+  bodyMod:       TagMod = TagMod.empty,
+  rowMod:        Row[T, TM] => TagMod = (_: Row[T, TM]) => TagMod.empty,
+  cellMod:       Cell[T, Any, TM, Any] => TagMod = (_: Cell[T, Any, TM, Any]) => TagMod.empty,
+  footerMod:     TagMod = TagMod.empty,
+  footerRowMod:  HeaderGroup[T, TM] => TagMod = (_: HeaderGroup[T, TM]) => TagMod.empty,
+  footerCellMod: Header[T, Any, TM, Any] => TagMod = (_: Header[T, Any, TM, Any]) => TagMod.empty,
+  emptyMessage:  VdomNode = EmptyVdom
 ) extends ReactFnProps(PrimeTable.component)
-    with PrimeTableProps[T]
+    with PrimeTableProps[T, TM]
 
-case class PrimeVirtualizedTable[T](
-  table:              Table[T],
-  estimateSize:       Int => SizePx,
+case class PrimeVirtualizedTable[T, TM](
+  table:            Table[T, TM],
+  estimateSize:     Int => SizePx,
   // Table options
-  hoverableRows:      Boolean = true,
-  striped:            Boolean = false,
-  celled:             Boolean = false,
-  compact:            js.UndefOr[Compact] = js.undefined,
-  containerMod:       TagMod = TagMod.empty,
-  containerRef:       js.UndefOr[Ref.Simple[HTMLElement]] = js.undefined,
-  tableMod:           TagMod = TagMod.empty,
-  headerMod:          TagMod = TagMod.empty,
-  headerRowMod:       raw.buildLibCoreHeadersMod.CoreHeaderGroup[T] => TagMod =
-    (_: raw.buildLibCoreHeadersMod.CoreHeaderGroup[T]) => TagMod.empty,
-  headerCellMod:      raw.buildLibTypesMod.Header[T, Any] => TagMod =
-    (_: raw.buildLibTypesMod.Header[T, Any]) => TagMod.empty,
-  bodyMod:            TagMod = TagMod.empty,
-  rowMod:             raw.buildLibTypesMod.Row[T] => TagMod = (_: raw.buildLibTypesMod.Row[T]) => TagMod.empty,
-  cellMod:            raw.buildLibTypesMod.Cell[T, Any] => TagMod = (_: raw.buildLibTypesMod.Cell[T, Any]) =>
-    TagMod.empty,
-  footerMod:          TagMod = TagMod.empty,
-  footerRowMod:       raw.buildLibCoreHeadersMod.CoreHeaderGroup[T] => TagMod =
-    (_: raw.buildLibCoreHeadersMod.CoreHeaderGroup[T]) => TagMod.empty,
-  footerCellMod:      raw.buildLibTypesMod.Header[T, Any] => TagMod =
-    (_: raw.buildLibTypesMod.Header[T, Any]) => TagMod.empty,
-  emptyMessage:       VdomNode = EmptyVdom,
-  renderSubComponent: raw.buildLibTypesMod.Row[T] => Option[VdomNode] =
-    (_: raw.buildLibTypesMod.Row[T]) => none,
+  hoverableRows:    Boolean = true,
+  striped:          Boolean = false,
+  celled:           Boolean = false,
+  compact:          js.UndefOr[Compact] = js.undefined,
+  containerMod:     TagMod = TagMod.empty,
+  containerRef:     js.UndefOr[Ref.ToVdom[HTMLElement]] = js.undefined,
+  tableMod:         TagMod = TagMod.empty,
+  headerMod:        TagMod = TagMod.empty,
+  headerRowMod:     HeaderGroup[T, TM] => TagMod = (_: HeaderGroup[T, TM]) => TagMod.empty,
+  headerCellMod:    Header[T, Any, TM, Any] => TagMod = (_: Header[T, Any, TM, Any]) => TagMod.empty,
+  bodyMod:          TagMod = TagMod.empty,
+  rowMod:           Row[T, TM] => TagMod = (_: Row[T, TM]) => TagMod.empty,
+  cellMod:          Cell[T, Any, TM, Any] => TagMod = (_: Cell[T, Any, TM, Any]) => TagMod.empty,
+  footerMod:        TagMod = TagMod.empty,
+  footerRowMod:     HeaderGroup[T, TM] => TagMod = (_: HeaderGroup[T, TM]) => TagMod.empty,
+  footerCellMod:    Header[T, Any, TM, Any] => TagMod = (_: Header[T, Any, TM, Any]) => TagMod.empty,
+  emptyMessage:     VdomNode = EmptyVdom,
   // Virtual options
-  overscan:           js.UndefOr[Int] = js.undefined,
-  getItemKey:         js.UndefOr[Int => rawVirtual.mod.Key] = js.undefined,
-  onChange:           js.UndefOr[HTMLTableVirtualizer => Callback] = js.undefined,
-  virtualizerRef:     js.UndefOr[NonEmptyRef.Simple[Option[HTMLTableVirtualizer]]] = js.undefined,
-  debugVirtualizer:   js.UndefOr[Boolean] = js.undefined
+  overscan:         js.UndefOr[Int] = js.undefined,
+  getItemKey:       js.UndefOr[Int => rawVirtual.mod.Key] = js.undefined,
+  onChange:         js.UndefOr[HTMLTableVirtualizer => Callback] = js.undefined,
+  virtualizerRef:   js.UndefOr[NonEmptyRef.Simple[Option[HTMLTableVirtualizer]]] = js.undefined,
+  debugVirtualizer: js.UndefOr[Boolean] = js.undefined
 ) extends ReactFnProps(PrimeVirtualizedTable.component)
-    with HTMLVirtualizedTableProps[T]
-    with PrimeTableProps[T]
+    with HTMLVirtualizedTableProps[T, TM]
+    with PrimeTableProps[T, TM]
 
-case class PrimeAutoHeightVirtualizedTable[T](
-  table:              Table[T],
-  estimateSize:       Int => SizePx,
+case class PrimeAutoHeightVirtualizedTable[T, TM](
+  table:             Table[T, TM],
+  estimateSize:      Int => SizePx,
   // Table options
-  hoverableRows:      Boolean = true,
-  striped:            Boolean = false,
-  celled:             Boolean = false,
-  compact:            js.UndefOr[Compact] = js.undefined,
-  containerMod:       TagMod = TagMod.empty,
-  containerRef:       js.UndefOr[Ref.Simple[HTMLElement]] = js.undefined,
-  innerContainerMod:  TagMod = TagMod.empty,
-  tableMod:           TagMod = TagMod.empty,
-  headerMod:          TagMod = TagMod.empty,
-  headerRowMod:       raw.buildLibCoreHeadersMod.CoreHeaderGroup[T] => TagMod =
-    (_: raw.buildLibCoreHeadersMod.CoreHeaderGroup[T]) => TagMod.empty,
-  headerCellMod:      raw.buildLibTypesMod.Header[T, Any] => TagMod =
-    (_: raw.buildLibTypesMod.Header[T, Any]) => TagMod.empty,
-  bodyMod:            TagMod = TagMod.empty,
-  rowMod:             raw.buildLibTypesMod.Row[T] => TagMod = (_: raw.buildLibTypesMod.Row[T]) => TagMod.empty,
-  cellMod:            raw.buildLibTypesMod.Cell[T, Any] => TagMod = (_: raw.buildLibTypesMod.Cell[T, Any]) =>
-    TagMod.empty,
-  footerMod:          TagMod = TagMod.empty,
-  footerRowMod:       raw.buildLibCoreHeadersMod.CoreHeaderGroup[T] => TagMod =
-    (_: raw.buildLibCoreHeadersMod.CoreHeaderGroup[T]) => TagMod.empty,
-  footerCellMod:      raw.buildLibTypesMod.Header[T, Any] => TagMod =
-    (_: raw.buildLibTypesMod.Header[T, Any]) => TagMod.empty,
-  emptyMessage:       VdomNode = EmptyVdom,
-  renderSubComponent: raw.buildLibTypesMod.Row[T] => Option[VdomNode] =
-    (_: raw.buildLibTypesMod.Row[T]) => none,
+  hoverableRows:     Boolean = true,
+  striped:           Boolean = false,
+  celled:            Boolean = false,
+  compact:           js.UndefOr[Compact] = js.undefined,
+  containerMod:      TagMod = TagMod.empty,
+  containerRef:      js.UndefOr[Ref.ToVdom[HTMLElement]] = js.undefined,
+  innerContainerMod: TagMod = TagMod.empty,
+  tableMod:          TagMod = TagMod.empty,
+  headerMod:         TagMod = TagMod.empty,
+  headerRowMod:      HeaderGroup[T, TM] => TagMod = (_: HeaderGroup[T, TM]) => TagMod.empty,
+  headerCellMod:     Header[T, Any, TM, Any] => TagMod = (_: Header[T, Any, TM, Any]) => TagMod.empty,
+  bodyMod:           TagMod = TagMod.empty,
+  rowMod:            Row[T, TM] => TagMod = (_: Row[T, TM]) => TagMod.empty,
+  cellMod:           Cell[T, Any, TM, Any] => TagMod = (_: Cell[T, Any, TM, Any]) => TagMod.empty,
+  footerMod:         TagMod = TagMod.empty,
+  footerRowMod:      HeaderGroup[T, TM] => TagMod = (_: HeaderGroup[T, TM]) => TagMod.empty,
+  footerCellMod:     Header[T, Any, TM, Any] => TagMod = (_: Header[T, Any, TM, Any]) => TagMod.empty,
+  emptyMessage:      VdomNode = EmptyVdom,
   // Virtual options
-  overscan:           js.UndefOr[Int] = js.undefined,
-  getItemKey:         js.UndefOr[Int => rawVirtual.mod.Key] = js.undefined,
-  onChange:           js.UndefOr[HTMLTableVirtualizer => Callback] = js.undefined,
-  virtualizerRef:     js.UndefOr[NonEmptyRef.Simple[Option[HTMLTableVirtualizer]]] = js.undefined,
-  debugVirtualizer:   js.UndefOr[Boolean] = js.undefined
+  overscan:          js.UndefOr[Int] = js.undefined,
+  getItemKey:        js.UndefOr[Int => rawVirtual.mod.Key] = js.undefined,
+  onChange:          js.UndefOr[HTMLTableVirtualizer => Callback] = js.undefined,
+  virtualizerRef:    js.UndefOr[NonEmptyRef.Simple[Option[HTMLTableVirtualizer]]] = js.undefined,
+  debugVirtualizer:  js.UndefOr[Boolean] = js.undefined
 ) extends ReactFnProps(PrimeAutoHeightVirtualizedTable.component)
-    with HTMLAutoHeightVirtualizedTableProps[T]
-    with PrimeTableProps[T]
+    with HTMLAutoHeightVirtualizedTableProps[T, TM]
+    with PrimeTableProps[T, TM]
 
 private val baseHTMLRenderer: HTMLTableRenderer[Any] =
   new HTMLTableRenderer[Any]:
@@ -167,14 +145,15 @@ private val baseHTMLRenderer: HTMLTableRenderer[Any] =
     override protected val SortDescIndicator: VdomNode = TableIcons.SortDown.withFixedWidth()
 
 object PrimeTable:
-  private val component = HTMLTableRenderer.componentBuilder[Any, PrimeTable](baseHTMLRenderer)
+  private val component = HTMLTableRenderer.componentBuilder[Any, Any, PrimeTable](baseHTMLRenderer)
 
 object PrimeVirtualizedTable:
   private val component =
-    HTMLTableRenderer.componentBuilderVirtualized[Any, PrimeVirtualizedTable](baseHTMLRenderer)
+    HTMLTableRenderer.componentBuilderVirtualized[Any, Any, PrimeVirtualizedTable](baseHTMLRenderer)
 
 object PrimeAutoHeightVirtualizedTable:
   private val component =
-    HTMLTableRenderer.componentBuilderAutoHeightVirtualized[Any, PrimeAutoHeightVirtualizedTable](
-      baseHTMLRenderer
-    )
+    HTMLTableRenderer
+      .componentBuilderAutoHeightVirtualized[Any, Any, PrimeAutoHeightVirtualizedTable](
+        baseHTMLRenderer
+      )

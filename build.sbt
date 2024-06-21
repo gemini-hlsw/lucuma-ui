@@ -1,26 +1,28 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.96"
+ThisBuild / tlBaseVersion       := "0.108"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
-  val cats              = "2.10.0"
+  val cats              = "2.12.0"
   val catsRetry         = "3.1.3"
-  val circe             = "0.14.6"
-  val crystal           = "0.37.3"
+  val catsTime          = "0.5.1"
+  val circe             = "0.14.8"
+  val crystal           = "0.39.2"
   val fs2Dom            = "0.3.0-M1"
   val kittens           = "3.3.0"
-  val http4s            = "0.23.26"
+  val http4s            = "0.23.27"
   val http4sDom         = "0.2.11"
-  val lucumaCore        = "0.94.1"
-  val lucumaPrimeStyles = "0.2.10"
-  val lucumaReact       = "0.56.0"
+  val log4catsLogLevel  = "0.3.1"
+  val lucumaCore        = "0.98.0"
+  val lucumaPrimeStyles = "0.3.0"
+  val lucumaReact       = "0.66.1"
   val lucumaRefined     = "0.1.2"
-  val lucumaSchemas     = "0.78.1"
-  val lucumaSso         = "0.6.15"
+  val lucumaSchemas     = "0.88.0"
+  val lucumaSso         = "0.6.20"
   val monocle           = "3.2.0"
-  val mouse             = "1.2.3"
-  val pprint            = "0.8.1"
+  val mouse             = "1.3.0"
+  val pprint            = "0.9.0"
   val scalaJsReact      = "3.0.0-beta3"
 }
 
@@ -36,8 +38,8 @@ addCommandAlias(
 
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
-ThisBuild / scalaVersion             := "3.4.1"
-ThisBuild / crossScalaVersions       := Seq("3.4.1")
+ThisBuild / scalaVersion             := "3.4.2"
+ThisBuild / crossScalaVersions       := Seq("3.4.2")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions")
 
 enablePlugins(NoPublishPlugin)
@@ -55,7 +57,7 @@ addCommandAlias(
 lazy val demo =
   project
     .in(file("modules/demo"))
-    .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
+    .enablePlugins(ScalaJSPlugin, NoPublishPlugin, LucumaCssPlugin)
     .dependsOn(ui, css)
     .settings(
       Compile / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
@@ -63,7 +65,8 @@ lazy val demo =
         ModuleSplitStyle.SmallestModules
       )),
       libraryDependencies ++= Seq(
-        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact
+        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact,
+        "com.rpiaggio"                      %%% "log4cats-loglevel"        % Versions.log4catsLogLevel
       ),
       Keys.test := {}
     )
@@ -76,6 +79,7 @@ lazy val ui =
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
         "org.typelevel"                     %%% "cats-core"                    % Versions.cats,
+        "org.typelevel"                     %%% "cats-time"                    % Versions.catsTime,
         "org.typelevel"                     %%% "kittens"                      % Versions.kittens,
         "org.typelevel"                     %%% "mouse"                        % Versions.mouse,
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % Versions.scalaJsReact,
@@ -124,8 +128,8 @@ lazy val tests =
       libraryDependencies ++= Seq(
         "edu.gemini"    %%% "lucuma-core-testkit"    % Versions.lucumaCore    % Test,
         "edu.gemini"    %%% "lucuma-schemas-testkit" % Versions.lucumaSchemas % Test,
-        "org.scalameta" %%% "munit"                  % "0.7.29"               % Test,
-        "org.typelevel" %%% "discipline-munit"       % "1.0.9"                % Test
+        "org.scalameta" %%% "munit"                  % "1.0.0"                % Test,
+        "org.typelevel" %%% "discipline-munit"       % "2.0.0"                % Test
       )
     )
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)

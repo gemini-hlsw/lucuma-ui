@@ -160,24 +160,23 @@ object FormInputTextView {
 
         val error: Option[String] = errorChain.map(_.mkString_(", "))
 
+        def handleTextChange(text: String): Callback =
+          audit(
+            props.changeAuditor,
+            text,
+            displayValue.setState,
+            inputElement.value,
+            cursor.setState,
+            lastKeyCode.value
+          ).flatMap(newS =>
+            // First update the internal state, then call the outside listener
+            errors.setState(none) >>
+              props.onTextChange(newS) >>
+              validate(displayValue.value, props.validFormat, props.onValidChange)
+          )
+
         val onTextChange: ReactEventFrom[HTMLInputElement & Element] => Callback =
-          (e: ReactEventFrom[HTMLInputElement & Element]) => {
-            // Capture the value outside setState, react reuses the events
-            val v = e.target.value
-            audit(
-              props.changeAuditor,
-              v,
-              displayValue.setState,
-              inputElement.value,
-              cursor.setState,
-              lastKeyCode.value
-            ).flatMap(newS =>
-              // First update the internal state, then call the outside listener
-              errors.setState(none) >>
-                props.onTextChange(newS) >>
-                validate(displayValue.value, props.validFormat, props.onValidChange)
-            )
-          }
+          (e: ReactEventFrom[HTMLInputElement & Element]) => handleTextChange(e.target.value)
 
         val submit: Callback =
           validate(
@@ -206,6 +205,20 @@ object FormInputTextView {
           else
             lastKeyCode.set(e.keyCode) >> cursor.setState(none)
 
+        val onPaste: ReactClipboardEvent => Callback = e =>
+          val input      = e.target.asInstanceOf[org.scalajs.dom.HTMLInputElement]
+          val current    = input.value
+          val start      = input.selectionStart
+          val end        = input.selectionEnd
+          val prefix     = current.substring(0, start)
+          val suffix     = current.substring(end)
+          val paste      = e.clipboardData.getData("text")
+          val result     = s"$prefix$paste$suffix"
+          val normalized =
+            props.validFormat.getValid(result).map(props.validFormat.reverseGet).toOption
+          val update     = normalized.foldMap(handleTextChange)
+          e.preventDefaultCB >> update
+
         FormInputText(
           id = props.id,
           label = props.label,
@@ -224,7 +237,7 @@ object FormInputTextView {
           onKeyDown = onKeyDown,
           placeholder = props.placeholder,
           value = displayValue.value,
-          modifiers = props.modifiers
+          modifiers = (^.onPaste ==> onPaste) +: props.modifiers
         )
       }
   }

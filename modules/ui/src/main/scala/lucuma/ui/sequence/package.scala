@@ -6,14 +6,17 @@ package lucuma.ui.sequence
 import cats.syntax.eq.*
 import eu.timepit.refined.types.numeric.PosInt
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.ObserveClass
 import lucuma.core.math.SignalToNoise
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.NewType
 import lucuma.react.common.*
-import lucuma.react.floatingui.Placement
-import lucuma.react.floatingui.syntax.*
+import lucuma.react.primereact.Tooltip
+import lucuma.react.primereact.tooltip.*
+import lucuma.ui.LucumaIcons
+import lucuma.ui.LucumaStyles
 import lucuma.ui.utils.*
 import lucuma.ui.utils.Render
 
@@ -22,7 +25,7 @@ object StepIndex extends NewType[PosInt]:
 type StepIndex = StepIndex.Type
 
 private def renderStepType(icon: VdomNode, tooltip: String): VdomNode =
-  <.span(icon).withTooltip(tooltip, Placement.Right)
+  <.span(icon).withTooltip(content = tooltip, showDelay = 100, position = Tooltip.Position.Bottom)
 
 extension (stepTypeDisplay: StepTypeDisplay)
   private def icon: VdomNode =
@@ -35,6 +38,14 @@ extension (stepTypeDisplay: StepTypeDisplay)
 
 given Render[StepTypeDisplay] = Render.by: stepType =>
   renderStepType(stepType.icon, stepType.name)
+
+given Render[Option[DatasetQaState]] = Render.by: qaState =>
+  LucumaIcons.Circle.withClass:
+    qaState match
+      case Some(DatasetQaState.Pass)   => LucumaStyles.IndicatorOK
+      case Some(DatasetQaState.Usable) => LucumaStyles.IndicatorWarning
+      case Some(DatasetQaState.Fail)   => LucumaStyles.IndicatorFail
+      case None                        => LucumaStyles.IndicatorUnknown
 
 extension [D, R <: SequenceRow[D]](list: List[R])
   /* Zip list with `StepIndex` and return the indexed list and the next index */

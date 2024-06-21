@@ -27,7 +27,7 @@ class UseDynTable(
   colState:                        DynTable.ColState,
   val onColumnSizingChangeHandler: Updater[ColumnSizing] => Callback
 ):
-  def setInitialColWidths[R](cols: List[ColumnDef[R, ?]]) =
+  def setInitialColWidths[R, TM](cols: List[ColumnDef[R, ?, TM, ?]]): List[ColumnDef[R, ?, TM, ?]] =
     cols.map:
       case col @ ColumnDef.Single(_) => col.setColumnSize(initialColumnSizes(col.id))
       case col @ ColumnDef.Group(_)  => col.setColumnSize(initialColumnSizes(col.id))
@@ -37,20 +37,21 @@ class UseDynTable(
 object UseDynTable:
   private val hook = CustomHook[(DynTable, SizePx)] // (dynTable, width)
     .useStateBy(_._1.initialState) // colState
-    .useEffectWithDepsBy((props, _) => // Recompute columns upon resize
-      props._2
-    )((props, colState) => width => colState.modState(s => props._1.adjustColSizes(width)(s)))
+    .useEffectWithDepsBy((props, _) => props._2): (props, colState) =>
+      width => // Recompute columns upon resize
+        CallbackTo:
+          props._1.adjustColSizes(width)(colState.value)
+        .flatMap:
+          colState.setState(_)
     .buildReturning: (props, colState) =>
       val (dynTable, width) = props
 
-      val onColumnSizingChangeHandler: Updater[ColumnSizing] => Callback =
-        (_: Updater[ColumnSizing]) match
-          case Updater.Set(v)  =>
-            colState.modState: s =>
-              dynTable.adjustColSizes(width)(DynTable.ColState.resized.replace(v)(s))
-          case Updater.Mod(fn) =>
-            colState.modState: s =>
-              dynTable.adjustColSizes(width)(DynTable.ColState.resized.modify(fn)(s))
+      def onColumnSizingChangeHandler(updater: Updater[ColumnSizing]): Callback =
+        colState.modState: oldState =>
+          dynTable.adjustColSizes(width):
+            updater match
+              case Updater.Set(v)  => DynTable.ColState.resized.replace(v)(oldState)
+              case Updater.Mod(fn) => DynTable.ColState.resized.modify(fn)(oldState)
 
       UseDynTable(dynTable.columnSizes, colState.value, onColumnSizingChangeHandler)
 

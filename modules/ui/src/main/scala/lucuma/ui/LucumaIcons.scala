@@ -10,11 +10,23 @@ import scala.scalajs.js.annotation.*
 
 object LucumaIcons:
   @js.native
-  @JSImport("@fortawesome/pro-regular-svg-icons", "faCircle")
+  @JSImport("@fortawesome/pro-solid-svg-icons", "faCircle")
   private val faCircle: FAIcon = js.native
 
+  @js.native
+  @JSImport("@fortawesome/pro-solid-svg-icons", "faCircleNotch")
+  private val faCircleNotch: FAIcon = js.native
+
+  @js.native
+  @JSImport("@fortawesome/pro-regular-svg-icons", "faCircleInfo")
+  val faCircleInfo: FAIcon = js.native
+
   FontAwesome.library.add(
-    faCircle
+    faCircle,
+    faCircleNotch,
+    faCircleInfo
   )
 
-  inline def Circle = FontAwesomeIcon(faCircle)
+  inline def Circle      = FontAwesomeIcon(faCircle)
+  inline def CircleNotch = FontAwesomeIcon(faCircleNotch).withSpin()
+  inline def CircleInfo  = FontAwesomeIcon(faCircleInfo)

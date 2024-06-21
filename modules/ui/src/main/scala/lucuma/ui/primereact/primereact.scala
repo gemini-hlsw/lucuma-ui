@@ -12,6 +12,7 @@ import lucuma.react.common.Css
 import lucuma.react.primereact.Button
 import lucuma.react.primereact.InputText
 import lucuma.react.primereact.PrimeStyles
+import lucuma.react.primereact.SelectButtonOptional
 import lucuma.typed.StBuildingComponent
 import lucuma.typed.primereact.components.Button as CButton
 
@@ -39,6 +40,18 @@ extension (button: Button)
   def huge    = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Huge)
   def massive = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Massive)
 
+extension [A: Eq](button: SelectButtonOptional[A])
+  def compact = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Compact)
+
+  def mini    = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Mini)
+  def tiny    = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Tiny)
+  def small   = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Small)
+  def medium  = button // medium is the default
+  def large   = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Large)
+  def big     = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Big)
+  def huge    = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Huge)
+  def massive = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Massive)
+
 extension (input: InputText)
   def mini    = input.copy(clazz = input.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Mini)
   def tiny    = input.copy(clazz = input.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Tiny)
@@ -55,8 +68,9 @@ extension [A](
   def clearable: FormInputTextView[View, Option[A]] =
     input.value.get.filter(_ => input.disabled.forall(_ === false)).fold(input) { _ =>
       val newAddon =
-        <.span(^.cls := (LucumaPrimeStyles.BlendedAddon |+| LucumaPrimeStyles.IconTimes).htmlClass,
-               ^.onClick --> input.value.set(none)
+        <.span(
+          LucumaPrimeStyles.BlendedAddon |+| LucumaPrimeStyles.IconTimes,
+          ^.onClick --> input.value.set(none)
         )
       // will go before other addons, but the units will still be first.
       input.copy(postAddons = newAddon :: input.postAddons)

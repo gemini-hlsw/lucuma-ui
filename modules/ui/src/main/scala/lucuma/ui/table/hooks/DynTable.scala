@@ -109,7 +109,7 @@ case class DynTable(
 
           // If bounded columns are more than the viewport width, drop the lowest priority column and start again.
           if (totalBounded > width.value && prioritizedRemainingCols.nonEmpty)
-            // We must remove columns one by one, since removing one causes the resto to recompute.
+            // We must remove columns one by one, since removing one causes the rest to recompute.
             go1(overflowColumn)
           else
             val remainingSpace: Int = width.value - totalBounded
