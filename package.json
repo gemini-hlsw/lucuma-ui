@@ -12,6 +12,6 @@
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "graphql": "^16.8.1"
+    "graphql": "^16.9.0"
   }
 }
