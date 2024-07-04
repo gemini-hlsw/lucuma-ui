@@ -15,8 +15,17 @@ ThisBuild / crossScalaVersions  := Seq("3.4.2")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
-ThisBuild / scalafixScalaBinaryVersion                               := "2.13"
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
+
+// Publish the package to npm, using the version from the git tag (won't be committed to the repo)
+ThisBuild / githubWorkflowPublish += WorkflowStep.Run(
+  name = Some("Publish npm package"),
+  env = Map("NPM_TOKEN" -> "${{ secrets.NPM_REPO_TOKEN }}"),
+  commands = List(
+    "npm version from-git --git-tag-version=false",
+    "npm publish --access public --provenance"
+  )
+)
 
 lazy val root = tlCrossRootProject.aggregate(model, testkit, lucumaSchemas, modelTests)
 

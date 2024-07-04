@@ -135,3 +135,10 @@ jobs:
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_CREDENTIAL_HOST: ${{ secrets.SONATYPE_CREDENTIAL_HOST }}
         run: sbt tlCiRelease
+
+      - name: Publish npm package
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_REPO_TOKEN }}
+        run: |
+          npm version from-git --git-tag-version=false
+          npm publish --access public --provenance
