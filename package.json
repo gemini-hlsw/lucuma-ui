@@ -2,8 +2,10 @@
   "name": "lucuma-schemas",
   "version": "1.0.0",
   "private": true,
-  "main": "fetchODBSchema.mjs",
-  "description": "Fetch ODB schema",
+  "description": "Schemas for lucuma DB",
+  "exports": {
+    "./odb": "./lucuma-schemas/src/clue/resources/lucuma/schemas/ObservationDB.graphql"
+  },
   "directories": {
     "test": "tests"
   },
