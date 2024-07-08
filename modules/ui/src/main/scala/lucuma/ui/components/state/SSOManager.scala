@@ -66,4 +66,4 @@ object SSOManager:
               yield ())
                 .onError: t =>
                   Logger[DefaultA].error(t)("Error refreshing user token") >> props.setVault(none)
-      .render((props, _) => EmptyVdom) // This is a "phantom" component. Doesn't render anything.
+      .render((_, _) => EmptyVdom) // This is a "phantom" component. Doesn't render anything.
