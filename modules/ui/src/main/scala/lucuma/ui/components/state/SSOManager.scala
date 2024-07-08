@@ -3,7 +3,9 @@
 
 package lucuma.ui.components.state
 
+import cats.effect.Async
 import cats.effect.IO
+import cats.effect.Sync
 import cats.syntax.all.*
 import crystal.react.*
 import crystal.react.hooks.*
@@ -13,57 +15,55 @@ import japgolly.scalajs.react.util.DefaultEffects.Async as DefaultA
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.ReactFnProps
 import lucuma.refined.*
+import lucuma.ui.reusability.given
 import lucuma.ui.sso.SSOClient
 import lucuma.ui.sso.UserVault
 import org.typelevel.log4cats.Logger
 
 import java.time.Instant
+import scala.concurrent.duration.*
 
 case class SSOManager(
   ssoClient:  SSOClient[DefaultA],
   expiration: Instant,
   setVault:   Option[UserVault] => DefaultA[Unit],
   setMessage: NonEmptyString => DefaultA[Unit]
-)(using val logger: Logger[DefaultA])
+)(using val F: Async[DefaultA], val logger: Logger[DefaultA])
     extends ReactFnProps(SSOManager.component)
 
 object SSOManager:
   private type Props = SSOManager
 
-  private def tokenRefresher(
-    expiration: Instant,
-    setVault:   Option[UserVault] => DefaultA[Unit],
-    setMessage: NonEmptyString => DefaultA[Unit],
-    ssoClient:  SSOClient[DefaultA]
-  ): DefaultA[Unit] =
-    for {
-      vaultOpt <- ssoClient.refreshToken(expiration)
-      _        <- setVault(vaultOpt)
-      _        <- vaultOpt.fold(setMessage("Your session has expired".refined))(vault =>
-                    tokenRefresher(vault.expiration, setVault, setMessage, ssoClient)
-                  )
-    } yield ()
+  // We check the expiration periodically instead of using a timeout to the next expiration.
+  // This ensures that we resync again if the computer goes to sleep.
+  private val ExpirationCheckInterval: FiniteDuration = 1.second
 
   private val component =
     ScalaFnComponent
       .withHooks[Props]
-      .useRef(none[DefaultA[Unit]]) // cancelToken
-      .useAsyncEffectOnMountBy { (props, cancelToken) =>
-        import props.given
+      // Needed because of the infamous bug where useEffect doesn't run if it's the only hook.
+      .useState(())
+      .useEffectStreamWithDepsBy((props, _) => props.expiration): (props, _) =>
+        expiration =>
+          import props.given
 
-        tokenRefresher(props.expiration, props.setVault, props.setMessage, props.ssoClient)
-          .onError(t =>
-            Logger[DefaultA].error(t)("Error refreshing SSO token") >>
-              (props.setVault(none) >>
-                props.setMessage(
-                  "There was an error while checking the validity of your session".refined
-                ))
-          )
-          .start
-          .flatMap(fiber => cancelToken.setAsync(fiber.cancel.some))
-          .as(
-            cancelToken.getAsync >>=
-              (cancelOpt => cancelOpt.foldMap(_ >> props.setVault(none)))
-          )
-      }
+          val refreshInstant: Instant =
+            expiration.minus(props.ssoClient.config.expirationAnticipation)
+
+          fs2.Stream
+            .awakeDelay(ExpirationCheckInterval)
+            .evalMap(_ => Sync[DefaultA].delay(Instant.now))
+            .takeThrough(_.isBefore(refreshInstant)) // When the stream ends, refresh the token.
+            .void ++
+            fs2.Stream.eval:
+              (for
+                _        <- Logger[DefaultA].debug("Refreshing user token")
+                vaultOpt <- props.ssoClient.whoami
+                _        <- Logger[DefaultA].debug:
+                              s"User token refreshed. New expiration: ${vaultOpt.map(_.expiration)}."
+                _        <- props.setVault(vaultOpt)
+                _        <- props.setMessage("Your session has expired".refined).whenA(vaultOpt.isEmpty)
+              yield ())
+                .onError: t =>
+                  Logger[DefaultA].error(t)("Error refreshing user token") >> props.setVault(none)
       .render((_, _) => EmptyVdom) // This is a "phantom" component. Doesn't render anything.
