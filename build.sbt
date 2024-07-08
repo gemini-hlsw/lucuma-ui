@@ -23,6 +23,7 @@ ThisBuild / githubWorkflowPublishPostamble += WorkflowStep.Run(
   cond = Some("github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/v')"),
   commands = List(
     "echo \"//registry.npmjs.org/:_authToken=${{ secrets.NPM_REPO_TOKEN }}\" > ~/.npmrc",
+    "npm version from-git --git-tag-version=false",
     "npm publish --access public"
   )
 )
