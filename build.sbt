@@ -20,9 +20,8 @@ ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false
 // Publish the package to npm, using the version from the git tag (won't be committed to the repo)
 ThisBuild / githubWorkflowPublish += WorkflowStep.Run(
   name = Some("Publish npm package"),
-  env = Map("NPM_TOKEN" -> "${{ secrets.NPM_REPO_TOKEN }}"),
   commands = List(
-    "echo \"//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}\" > ~/.npmrc",
+    "echo \"//registry.npmjs.org/:_authToken=${{ secrets.NPM_REPO_TOKEN }}\" > ~/.npmrc",
     "npm publish --access public --provenance"
   )
 )

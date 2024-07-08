@@ -137,8 +137,6 @@ jobs:
         run: sbt tlCiRelease
 
       - name: Publish npm package
-        env:
-          NPM_TOKEN: ${{ secrets.NPM_REPO_TOKEN }}
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_REPO_TOKEN }}" > ~/.npmrc
           npm publish --access public --provenance
