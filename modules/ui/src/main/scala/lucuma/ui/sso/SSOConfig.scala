@@ -11,17 +11,16 @@ import io.circe.*
 import org.http4s.Uri
 import org.http4s.circe.*
 
+import java.time.Duration
 import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.FiniteDuration
 
 case class SSOConfig(
-  uri:                        Uri,
-  readTimeoutSeconds:         Long = 3,
-  refreshTimeoutDeltaSeconds: Long = 10, // time before expiration to renew
-  refreshIntervalFactor:      Long = 1
+  uri:                           Uri,
+  readTimeoutSeconds:            Long = 3,
+  expirationAnticipationSeconds: Long = 10 // time before expiration to renew
 ) derives Eq,
       Show,
       Decoder:
-  val readTimeout: FiniteDuration         = FiniteDuration(readTimeoutSeconds, TimeUnit.SECONDS)
-  val refreshTimeoutDelta: FiniteDuration =
-    FiniteDuration(refreshTimeoutDeltaSeconds, TimeUnit.SECONDS)
+  val readTimeout: FiniteDuration      = FiniteDuration(readTimeoutSeconds, TimeUnit.SECONDS)
+  val expirationAnticipation: Duration = Duration.ofSeconds(expirationAnticipationSeconds)

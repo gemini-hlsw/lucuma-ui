@@ -22,9 +22,7 @@ import org.typelevel.log4cats.Logger
 import retry.*
 
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 import java.util as ju
-import scala.concurrent.duration.*
 
 case class JwtOrcidProfile(exp: Long, `lucuma-user`: User) derives Decoder
 
@@ -106,14 +104,6 @@ case class SSOClient[F[_]: Async: Logger](config: SSOConfig):
         .use_ *> whoami
 
     }
-
-  def refreshToken(expiration: Instant): F[Option[UserVault]] =
-    Sync[F].delay(Instant.now).flatMap { n =>
-      val sleepTime = config.refreshTimeoutDelta.max(
-        n.until(expiration, ChronoUnit.SECONDS).seconds - config.refreshTimeoutDelta
-      )
-      Temporal[F].sleep(sleepTime / config.refreshIntervalFactor)
-    } >> whoami.flatTap(_ => Logger[F].info("User token refreshed"))
 
   val logout: F[Unit] =
     retryingOnAllErrors(retryPolicy[F], logError[F]("Calling logout")) {
