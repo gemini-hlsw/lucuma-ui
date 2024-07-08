@@ -22,7 +22,7 @@ ThisBuild / githubWorkflowPublish += WorkflowStep.Run(
   name = Some("Publish npm package"),
   env = Map("NPM_TOKEN" -> "${{ secrets.NPM_REPO_TOKEN }}"),
   commands = List(
-    "npm version from-git --git-tag-version=false",
+    "echo \"//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}\" > ~/.npmrc",
     "npm publish --access public --provenance"
   )
 )
