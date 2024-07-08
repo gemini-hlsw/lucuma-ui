@@ -139,4 +139,4 @@ jobs:
       - name: Publish npm package
         run: |
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_REPO_TOKEN }}" > ~/.npmrc
-          npm publish --access public --provenance
+          npm publish --access public
