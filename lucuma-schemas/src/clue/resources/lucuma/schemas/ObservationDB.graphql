@@ -173,6 +173,7 @@ input AirMassRangeInput {
 """Time allocation"""
 type Allocation {
   partner: Partner!
+  scienceBand: ScienceBand!
   duration: TimeSpan!
 }
 
@@ -402,34 +403,15 @@ type CallForProposals {
   semester: Semester!
 
   """
-  When specified specified, the start limit defines the beginning (inclusive) of
-  an RA range in which observations will be accepted.
+  Coordinate limits for targets that may be observed in this Call for Proposals.
   """
-  raLimitStart: RightAscension
-
-  """
-  When specified specified, the end limit defines the end (inclusive) of an RA
-  range in which observations will be accepted.
-  """
-  raLimitEnd: RightAscension
-
-  """
-  When specified specified, the start limit defines the beginning (inclusive) of
-  a declination range in which observations will be accepted.
-  """
-  decLimitStart: Declination
-
-  """
-  When specified specified, the end limit defines the end (inclusive) of
-  a declination range in which observations will be accepted.
-  """
-  decLimitEnd: Declination
+  coordinateLimits: SiteCoordinateLimits!
 
   """
   The active period during which accepted observations for this call may be
   observed.
   """
-  active: TimestampInterval!
+  active: DateInterval!
 
   """
   The submission deadline to use for any partners without an explicit partner
@@ -465,40 +447,30 @@ input CallForProposalsPropertiesInput {
   semester: Semester
 
   """
-  Optional RA limit start RA. Required only if raLimitEnd is specified. Nullable
-  on edit if raLimitEnd is also set to 'null'.
+  Coordinate limits.  If not specified, they will default according to the
+  coordinates that are safely visible during the active period of the call.
   """
-  raLimitStart: RightAscensionInput
+  coordinateLimits: SiteCoordinateLimitsInput
 
   """
-  Optional RA limit end RA. Required only if raLimitStart is specified. Nullable
-  on edit if raLimitStart is also set to 'null'.
+  Active period start date (inclusive) for this call.  The date is considered to
+  be the local date at each observation site.  Observations may begin the
+  evening of the indicated date at the site of the observation.
+  
+  The start date is required on create and must be before the `activeEnd` date.
+  Not nullable.  Limited to dates between 1900 and 2100 (exclusive).
   """
-  raLimitEnd: RightAscensionInput
+  activeStart: Date
 
   """
-  Optional declination limit start declination. Required only if decLimitEnd is
-  specified.  Nullable on edit if decLimitEnd is also set to 'null'.
+  Active period end date (exclusive) for this call.  The date is considered to
+  be the local date at each observation site.  Observations may end the
+  morning of the indicated date at the site of the observation.
+  
+  The end date is required on create and must be after the `activeStart` date.
+  Not nullable.  Limited to dates between 1900 and 2100 (exclusive).
   """
-  decLimitStart: DeclinationInput
-
-  """
-  Optional declination limit end declination. Required only if decLimitStart is
-  specified.  Nullable on edit if decLimitStart is also set to 'null'.
-  """
-  decLimitEnd: DeclinationInput
-
-  """
-  Active period start time for this call.  Required on create.  Must be before
-  the activeEnd time.  Not nullable.
-  """
-  activeStart: Timestamp
-
-  """
-  Active period end time for this call.  Required on create.  Must be after
-  the activeStart time.  Not nullable.
-  """
-  activeEnd: Timestamp
+  activeEnd: Date
 
   """
   Specifies a submission deadline to use for any partners without an explicit
@@ -522,6 +494,26 @@ input CallForProposalsPropertiesInput {
 
   """DELETED or PRESENT.  On create defaults to PRESENT."""
   existence: Existence
+}
+
+"""Coordinate limits input per site."""
+input SiteCoordinateLimitsInput {
+  north: CoordinateLimitsInput
+  south: CoordinateLimitsInput
+}
+
+input CoordinateLimitsInput {
+  """Optional RA limit start RA."""
+  raStart: RightAscensionInput
+
+  """Optional RA limit end RA."""
+  raEnd: RightAscensionInput
+
+  """Optional declination limit start declination."""
+  decStart: DeclinationInput
+
+  """Optional declination limit end declination."""
+  decEnd: DeclinationInput
 }
 
 """Groups a partner with its submission deadline."""
@@ -758,6 +750,33 @@ type AddConditionsEntryResult {
   conditionsEntry: ConditionsEntry!
 }
 
+"""RA/Dec limits."""
+type CoordinateLimits {
+  """
+  The start limit defines the beginning (inclusive) of an RA range in which
+  observations will be accepted.
+  """
+  raStart: RightAscension!
+
+  """
+  The end limit defines the end (inclusive) of an RA range in which observations
+  will be accepted.
+  """
+  raEnd: RightAscension!
+
+  """
+  The start limit defines the beginning (inclusive) of a declination range in
+  which observations will be accepted.
+  """
+  decStart: Declination!
+
+  """
+  The end limit defines the end (inclusive) of a declination range in which
+  observations will be accepted.
+  """
+  decEnd: Declination!
+}
+
 """Absolute coordinates relative base epoch"""
 input CoordinatesInput {
   ra: RightAscensionInput
@@ -839,6 +858,25 @@ type Dark implements StepConfig {
 input DatasetPropertiesInput {
   qaState: DatasetQaState
   comment: NonEmptyString
+}
+
+"""
+Date in ISO-8601 representation in format YYYY-MM-DD (e.g., '2024-07-31').
+"""
+scalar Date
+
+"""
+Date interval marked by a start 'Date' (inclusive) and an end 'Date' (exclusive).
+Dates are interpreted as local dates.
+"""
+type DateInterval {
+  """
+  Start date, local to the observation site, of the interval (inclusive).
+  """
+  start: Date!
+
+  """End date, local to the observation site, of the interval (exclusive)."""
+  end: Date!
 }
 
 """Declination, choose one of the available units"""
@@ -2347,6 +2385,12 @@ input ObservationPropertiesInput {
   activeStatus: ObsActiveStatus
 
   """
+  The science band to assign to this observation.  Set to `null` to remove the
+  science band.
+  """
+  scienceBand: ScienceBand
+
+  """
   Reference time used for time-dependent calculations such as average parallactic angle
   """
   visualizationTime: Timestamp
@@ -2398,6 +2442,9 @@ input ObservationPropertiesInput {
   Index in enclosing group or at the top level if ungrouped. If left unspecified on creation, observation will be added last in its enclosing group or at the top level. Cannot be set to null.
   """
   groupIndex: NonNegShort
+
+  """Set the notes for  thhe observer"""
+  observerNotes: NonEmptyString
 }
 
 type Offset {
@@ -3074,6 +3121,7 @@ input ScienceRequirementsInput {
 input SetAllocationInput {
   programId: ProgramId!
   partner: Partner!
+  scienceBand: ScienceBand!
   duration: TimeSpanInput!
 }
 
@@ -5540,6 +5588,7 @@ type Group {
   """
   timeEstimateRange: CategorizedTimeRange
   existence: Existence!
+  system: Boolean!
 }
 
 scalar GroupId
@@ -6021,6 +6070,12 @@ type Observation {
   activeStatus: ObsActiveStatus!
 
   """
+  Observations are associated with a science band once time has been allocated
+  to a program.
+  """
+  scienceBand: ScienceBand
+
+  """
   Reference time used by default for visualization and time-dependent calculations (e.g., average parallactic angle)
   """
   visualizationTime: Timestamp
@@ -6073,6 +6128,12 @@ type Observation {
   Index in enclosing group or at the top level if ungrouped. If left unspecified on creation, observation will be added last in its enclosing group or at the top level. Cannot be set to null.
   """
   groupIndex: NonNegShort!
+
+  """The Calibration role of this observation"""
+  calibrationRole: CalibrationRole
+
+  """Notes for the observer"""
+  observerNotes: NonEmptyString
 }
 
 type Itc {
@@ -6877,6 +6938,14 @@ enum ScienceMode {
   SPECTROSCOPY
 }
 
+"""Science observation priorities."""
+enum ScienceBand {
+  BAND1
+  BAND2
+  BAND3
+  BAND4
+}
+
 """
 Science program types, for science programs only (i.e., not calibration,
 engineering, library, etc.).
@@ -7049,6 +7118,15 @@ enum Site {
 
   """Gemini South"""
   GS
+}
+
+"""Coordinate limits per site."""
+type SiteCoordinateLimits {
+  """Gemini North coordinate limits."""
+  north: CoordinateLimits!
+
+  """Gemini South coordinate limits."""
+  south: CoordinateLimits!
 }
 
 """Sky background"""
@@ -8300,10 +8378,10 @@ input WhereCallForProposals {
   semester: WhereOrderSemester
 
   """Matches the active period start."""
-  activeStart: WhereOrderTimestamp
+  activeStart: WhereOrderDate
 
   """Matches the active period end."""
-  activeEnd: WhereOrderTimestamp
+  activeEnd: WhereOrderDate
 
   """Matches whether the call is still open for some partner."""
   isOpen: WhereBoolean
@@ -8708,6 +8786,9 @@ input WhereObservation {
 
   """Matches the observation active status."""
   activeStatus: WhereOrderObsActiveStatus
+
+  """Matches the observation science band."""
+  scienceBand: WhereOptionOrderScienceBand
 }
 
 input WhereObservationReference {
@@ -9070,6 +9151,39 @@ input WhereOrderDatasetStage {
 }
 
 """
+Filters on equality or order comparisons of the Date property.  All supplied
+criteria must match, but usually only one is selected.  Dates are specified
+in ISO 8601 format (e.g., YYYY-MM-DD).
+"""
+input WhereOrderDate {
+  """Matches if the date is exactly the supplied value."""
+  EQ: Date
+
+  """Matches if the date is not the supplied value."""
+  NEQ: Date
+
+  """Matches if the date value is any of the supplied options."""
+  IN: [Date!]
+
+  """Matches if the date value is none of the supplied values."""
+  NIN: [Date!]
+
+  """Matches if the date is ordered after (>) the supplied value."""
+  GT: Date
+
+  """Matches if the date is ordered before (<) the supplied value."""
+  LT: Date
+
+  """Matches if the date is ordered after or equal (>=) the supplied value."""
+  GTE: Date
+
+  """
+  Matches if the date is ordered before or equal (<=) the supplied value.
+  """
+  LTE: Date
+}
+
+"""
 Filters on equality or order comparisons of the property.  All supplied
 criteria must match, but usually only one is selected.  E.g., 'GT = 2'
 for an integer property will match when the value is 3 or more.
@@ -9425,6 +9539,46 @@ input WhereProposalReference {
 
   """Matches the index in the proposal reference."""
   semesterIndex: WhereOrderPosInt
+}
+
+"""
+Filters on equality or order comparisons of science bands.  All supplied
+criteria must match, but usually only one is selected.
+"""
+input WhereOptionOrderScienceBand {
+  """
+  When `true`, matches if the science band is not defined. When `false` matches
+  if the science band is defined.
+  """
+  IS_NULL: Boolean
+
+  """Matches if the science band is exactly the supplied value."""
+  EQ: ScienceBand
+
+  """Matches if the science band is not the supplied value."""
+  NEQ: ScienceBand
+
+  """Matches if the science band is any of the supplied options."""
+  IN: [ScienceBand!]
+
+  """Matches if the science band is none of the supplied values."""
+  NIN: [ScienceBand!]
+
+  """Matches if the science band is ordered after (>) the supplied value."""
+  GT: ScienceBand
+
+  """Matches if the science band is ordered before (<) the supplied value."""
+  LT: ScienceBand
+
+  """
+  Matches if the science band is ordered after or equal (>=) the supplied value.
+  """
+  GTE: ScienceBand
+
+  """
+  Matches if the science band is ordered before or equal (<=) the supplied value.
+  """
+  LTE: ScienceBand
 }
 
 """
