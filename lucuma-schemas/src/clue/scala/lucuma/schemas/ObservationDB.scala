@@ -70,6 +70,8 @@ trait ObservationDB {
     type ObsAttachmentTypeMeta      = lucuma.schemas.enums.ObsAttachmentType
     type ProposalAttachmentTypeMeta = lucuma.schemas.enums.ProposalAttachmentType
     type ProposalStatusMeta         = lucuma.schemas.enums.ProposalStatus
+
+    type Date = java.time.LocalDate
   }
 
   object Enums {
