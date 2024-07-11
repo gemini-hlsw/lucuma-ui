@@ -41,9 +41,7 @@ object SSOManager:
   private val component =
     ScalaFnComponent
       .withHooks[Props]
-      // Needed because of the infamous bug where useEffect doesn't run if it's the only hook.
-      .useState(())
-      .useEffectStreamWithDepsBy((props, _) => props.expiration): (props, _) =>
+      .useEffectStreamWithDepsBy(props => props.expiration): props =>
         expiration =>
           import props.given
 
@@ -66,4 +64,4 @@ object SSOManager:
               yield ())
                 .onError: t =>
                   Logger[DefaultA].error(t)("Error refreshing user token") >> props.setVault(none)
-      .render((_, _) => EmptyVdom) // This is a "phantom" component. Doesn't render anything.
+      .render(_ => EmptyVdom) // This is a "phantom" component. Doesn't render anything.

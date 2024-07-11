@@ -43,42 +43,40 @@ object IfLogged:
   private type Props[E] = IfLogged[E]
 
   private def componentBuilder[E] =
-    ScalaFnComponent
-      .withHooks[Props[E]]
-      .render: props =>
-        import props.given
+    ScalaFnComponent[Props[E]]: props =>
+      import props.given
 
-        val vaultSet   = props.userVault.async.set
-        val messageSet = props.userSelectionMessage.async.set.compose((_: NonEmptyString).some)
+      val vaultSet   = props.userVault.async.set
+      val messageSet = props.userSelectionMessage.async.set.compose((_: NonEmptyString).some)
 
-        props.userVault.get.fold[VdomElement](
-          UserSelectionForm(
-            props.systemName,
-            props.systemNameStyle,
-            props.ssoClient,
-            props.userVault,
-            props.userSelectionMessage,
-            props.allowGuest
+      props.userVault.get.fold[VdomElement](
+        UserSelectionForm(
+          props.systemName,
+          props.systemNameStyle,
+          props.ssoClient,
+          props.userVault,
+          props.userSelectionMessage,
+          props.allowGuest
+        )
+      ) { vault =>
+        React.Fragment(
+          SSOManager(props.ssoClient, vault.expiration, vaultSet, messageSet),
+          ConnectionManager(
+            vault,
+            props.openConnections,
+            props.closeConnections,
+            props.onConnect
+          )(
+            LogoutTracker(
+              vaultSet,
+              messageSet,
+              props.channelName,
+              props.isLogoutEvent,
+              props.getEventNonce,
+              props.createEventWithNonce
+            )(props.render(_))
           )
-        ) { vault =>
-          React.Fragment(
-            SSOManager(props.ssoClient, vault.expiration, vaultSet, messageSet),
-            ConnectionManager(
-              vault,
-              props.openConnections,
-              props.closeConnections,
-              props.onConnect
-            )(
-              LogoutTracker(
-                vaultSet,
-                messageSet,
-                props.channelName,
-                props.isLogoutEvent,
-                props.getEventNonce,
-                props.createEventWithNonce
-              )(props.render(_))
-            )
-          )
-        }
+        )
+      }
 
   private val component = componentBuilder[Any]
