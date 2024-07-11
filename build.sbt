@@ -23,7 +23,7 @@ val Versions = new {
   val monocle           = "3.2.0"
   val mouse             = "1.3.1"
   val pprint            = "0.9.0"
-  val scalaJsReact      = "3.0.0-beta3"
+  val scalaJsReact      = "3.0.0-beta4"
 }
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
