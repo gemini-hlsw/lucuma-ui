@@ -12,21 +12,37 @@ class SyntaxSuite extends munit.FunSuite:
 
   test("toHoursMinutes should format a TimeSpan"):
     assertEquals(TimeSpan.Zero.toHoursMinutes, "0mins")
-    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofHours(1)).toHoursMinutes, "1hrs")
+    assertEquals(TimeSpan.Zero.toHoursMinutes(true), "0m")
+    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofHours(1)).toHoursMinutes(false), "1hrs")
+    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofHours(1)).toHoursMinutes(true), "1h")
     assertEquals(TimeSpan.unsafeFromDuration(Duration.ofMinutes(30)).toHoursMinutes, "30mins")
-    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofHours(1).plusMinutes(30)).toHoursMinutes,
-                 "1hrs 30mins"
+    assertEquals(
+      TimeSpan.unsafeFromDuration(Duration.ofHours(1).plusMinutes(30)).toHoursMinutes,
+      "1hrs 30mins"
+    )
+    assertEquals(
+      TimeSpan.unsafeFromDuration(Duration.ofHours(1).plusMinutes(30)).toHoursMinutes(true),
+      "1h 30m"
     )
 
   test("toHoursMinutes should round to the nearest minute"):
-    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofMinutes(30).plusSeconds(30)).toHoursMinutes,
-                 "31mins"
+    assertEquals(
+      TimeSpan.unsafeFromDuration(Duration.ofMinutes(30).plusSeconds(30)).toHoursMinutes,
+      "31mins"
     )
-    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofMinutes(30).plusSeconds(29)).toHoursMinutes,
-                 "30mins"
+    assertEquals(
+      TimeSpan.unsafeFromDuration(Duration.ofMinutes(30).plusSeconds(29)).toHoursMinutes,
+      "30mins"
     )
-    assertEquals(TimeSpan
-                   .unsafeFromDuration(Duration.ofHours(1).plusMinutes(30).plusSeconds(30))
-                   .toHoursMinutes,
-                 "1hrs 31mins"
+    assertEquals(
+      TimeSpan
+        .unsafeFromDuration(Duration.ofHours(1).plusMinutes(30).plusSeconds(30))
+        .toHoursMinutes,
+      "1hrs 31mins"
+    )
+    assertEquals(
+      TimeSpan
+        .unsafeFromDuration(Duration.ofHours(1).plusMinutes(30).plusSeconds(30))
+        .toHoursMinutes(true),
+      "1h 31m"
     )

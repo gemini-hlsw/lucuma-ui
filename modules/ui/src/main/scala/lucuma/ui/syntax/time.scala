@@ -12,12 +12,22 @@ trait time:
      * Format a timespan in the format `${hh}hrs ${mm}mins`
      */
     def toHoursMinutes: String =
-      val hours   = timespan.toHoursPart
-      // Remaining minutes, rounded to the nearest minute
-      val minutes = timespan.toMinutes.setScale(0, BigDecimal.RoundingMode.HALF_UP) % 60
+      toHoursMinutes(shortUnits = false)
 
-      if hours === 0 then s"${minutes}mins"
-      else if minutes === 0 then s"${hours}hrs"
-      else s"${hours}hrs ${minutes}mins"
+    /**
+     * Format a timespan in the format `${hh}hrs ${mm}mins` or `${hh}h ${mm}m`
+     */
+    def toHoursMinutes(shortUnits: Boolean = false): String =
+      val hours       = timespan.toHoursPart
+      val hourUnits   = if (shortUnits) "h" else "hrs"
+      def hourStr     = s"$hours$hourUnits"
+      // Remaining minutes, rounded to the nearest minute
+      val minutes     = timespan.toMinutes.setScale(0, BigDecimal.RoundingMode.HALF_UP) % 60
+      val minuteUnits = if (shortUnits) "m" else "mins"
+      def minuteStr   = s"$minutes$minuteUnits"
+
+      if hours === 0 then minuteStr
+      else if minutes === 0 then hourStr
+      else s"$hourStr $minuteStr"
 
 object time extends time
