@@ -48,7 +48,9 @@ object SSOManager:
           val refreshInstant: Instant =
             expiration.minus(props.ssoClient.config.expirationAnticipation)
 
-          fs2.Stream
+          fs2.Stream.eval:
+            Logger[DefaultA].debug(s"Next token refresh: $refreshInstant")
+          ++ fs2.Stream
             .awakeDelay(ExpirationCheckInterval)
             .evalMap(_ => Sync[DefaultA].delay(Instant.now))
             .takeThrough(_.isBefore(refreshInstant)) // When the stream ends, refresh the token.

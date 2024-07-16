@@ -41,4 +41,4 @@ trait view:
     def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewOptF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
 
-object views extends view
+object view extends view
