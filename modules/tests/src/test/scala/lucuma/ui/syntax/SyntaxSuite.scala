@@ -4,6 +4,7 @@
 package lucuma.ui.syntax
 
 import lucuma.core.util.TimeSpan
+import lucuma.ui.TimeUnitsFormat
 import lucuma.ui.syntax.time.*
 
 import java.time.Duration
@@ -12,16 +13,23 @@ class SyntaxSuite extends munit.FunSuite:
 
   test("toHoursMinutes should format a TimeSpan"):
     assertEquals(TimeSpan.Zero.toHoursMinutes, "0mins")
-    assertEquals(TimeSpan.Zero.toHoursMinutes(true), "0m")
-    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofHours(1)).toHoursMinutes(false), "1hrs")
-    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofHours(1)).toHoursMinutes(true), "1h")
+    assertEquals(TimeSpan.Zero.toHoursMinutes(TimeUnitsFormat.Letter), "0m")
+    assertEquals(TimeSpan.unsafeFromDuration(Duration.ofHours(1)).toHoursMinutes, "1hrs")
+    assertEquals(
+      TimeSpan.unsafeFromDuration(Duration.ofHours(1)).toHoursMinutes(TimeUnitsFormat.Letter),
+      "1h"
+    )
     assertEquals(TimeSpan.unsafeFromDuration(Duration.ofMinutes(30)).toHoursMinutes, "30mins")
     assertEquals(
-      TimeSpan.unsafeFromDuration(Duration.ofHours(1).plusMinutes(30)).toHoursMinutes,
+      TimeSpan
+        .unsafeFromDuration(Duration.ofHours(1).plusMinutes(30))
+        .toHoursMinutes(TimeUnitsFormat.Abbreviation),
       "1hrs 30mins"
     )
     assertEquals(
-      TimeSpan.unsafeFromDuration(Duration.ofHours(1).plusMinutes(30)).toHoursMinutes(true),
+      TimeSpan
+        .unsafeFromDuration(Duration.ofHours(1).plusMinutes(30))
+        .toHoursMinutes(TimeUnitsFormat.Letter),
       "1h 30m"
     )
 
@@ -43,6 +51,6 @@ class SyntaxSuite extends munit.FunSuite:
     assertEquals(
       TimeSpan
         .unsafeFromDuration(Duration.ofHours(1).plusMinutes(30).plusSeconds(30))
-        .toHoursMinutes(true),
+        .toHoursMinutes(TimeUnitsFormat.Letter),
       "1h 31m"
     )
