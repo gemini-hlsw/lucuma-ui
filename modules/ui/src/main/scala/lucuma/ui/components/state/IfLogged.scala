@@ -25,7 +25,7 @@ case class IfLogged[E](
   ssoClient:            SSOClient[DefaultA],
   userVault:            View[Option[UserVault]],
   userSelectionMessage: View[Option[NonEmptyString]],
-  openConnections:      Map[String, Json] => DefaultA[Unit],
+  openConnections:      DefaultA[Map[String, Json]] => DefaultA[Unit],
   closeConnections:     DefaultA[Unit],
   onConnect:            DefaultA[Unit],
   channelName:          NonEmptyString,
