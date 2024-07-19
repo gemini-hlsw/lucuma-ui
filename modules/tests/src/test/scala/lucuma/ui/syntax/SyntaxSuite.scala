@@ -28,9 +28,9 @@ class SyntaxSuite extends munit.FunSuite:
     )
     assertEquals(
       TimeSpan
-        .unsafeFromDuration(Duration.ofHours(1).plusMinutes(30))
+        .unsafeFromDuration(Duration.ofHours(25).plusMinutes(30))
         .toHoursMinutes(TimeUnitsFormat.Letter),
-      "1h 30m"
+      "25h 30m"
     )
 
   test("toHoursMinutes should round to the nearest minute"):
@@ -44,9 +44,9 @@ class SyntaxSuite extends munit.FunSuite:
     )
     assertEquals(
       TimeSpan
-        .unsafeFromDuration(Duration.ofHours(1).plusMinutes(30).plusSeconds(30))
+        .unsafeFromDuration(Duration.ofHours(25).plusMinutes(30).plusSeconds(30))
         .toHoursMinutes,
-      "1hrs 31mins"
+      "25hrs 31mins"
     )
     assertEquals(
       TimeSpan

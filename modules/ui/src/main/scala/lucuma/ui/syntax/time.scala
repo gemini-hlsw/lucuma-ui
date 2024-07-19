@@ -19,7 +19,7 @@ trait time:
      * Format a timespan in the format `${hh}hrs ${mm}mins` or `${hh}h ${mm}m`
      */
     def toHoursMinutes(unitsFormat: TimeUnitsFormat): String =
-      val hours     = timespan.toHoursPart
+      val hours     = timespan.toHours.setScale(0, BigDecimal.RoundingMode.FLOOR)
       def hourStr   = s"$hours${unitsFormat.hours}"
       // Remaining minutes, rounded to the nearest minute
       val minutes   = timespan.toMinutes.setScale(0, BigDecimal.RoundingMode.HALF_UP) % 60
