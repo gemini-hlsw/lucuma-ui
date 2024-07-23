@@ -3,30 +3,19 @@
 
 package lucuma.ui.syntax
 
-import cats.syntax.eq.*
 import lucuma.core.util.TimeSpan
-import lucuma.ui.TimeUnitsFormat
+import lucuma.ui.format.TimeSpanFormatter
 
 trait time:
-  extension (timespan: TimeSpan)
+  extension (timeSpan: TimeSpan)
     /**
      * Format a timespan in the format `${hh}hrs ${mm}mins`
      */
+    @deprecated(
+      "Use lucuma.ui.format.TimeSpanFormat.HoursMinutesAbbreviation.format() instead.",
+      since = "0.113.0"
+    )
     def toHoursMinutes: String =
-      toHoursMinutes(TimeUnitsFormat.Abbreviation)
-
-    /**
-     * Format a timespan in the format `${hh}hrs ${mm}mins` or `${hh}h ${mm}m`
-     */
-    def toHoursMinutes(unitsFormat: TimeUnitsFormat): String =
-      val hours     = timespan.toHours.setScale(0, BigDecimal.RoundingMode.FLOOR)
-      def hourStr   = s"$hours${unitsFormat.hours}"
-      // Remaining minutes, rounded to the nearest minute
-      val minutes   = timespan.toMinutes.setScale(0, BigDecimal.RoundingMode.HALF_UP) % 60
-      def minuteStr = s"$minutes${unitsFormat.minutes}"
-
-      if hours === 0 then minuteStr
-      else if minutes === 0 then hourStr
-      else s"$hourStr $minuteStr"
+      TimeSpanFormatter.HoursMinutesAbbreviation.format(timeSpan)
 
 object time extends time
