@@ -81,6 +81,7 @@ trait ObservationDB {
     type Breakpoint                          = enums.Breakpoint
     type BrightnessIntegratedUnits           = Units Of Brightness[Integrated]
     type BrightnessSurfaceUnits              = Units Of Brightness[Surface]
+    type CalibrationRole                     = enums.CalibrationRole
     type CallForProposalsType                = enums.CallForProposalsType
     type CatalogName                         = enums.CatalogName
     type ChargeClass                         = enums.ChargeClass
