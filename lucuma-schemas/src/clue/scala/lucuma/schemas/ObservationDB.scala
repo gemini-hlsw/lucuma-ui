@@ -61,6 +61,7 @@ trait ObservationDB {
     type ProposalReferenceLabel     = lucuma.core.model.ProposalReference
     type ProgramReferenceLabel      = lucuma.core.model.ProgramReference
     type ObservationReferenceLabel  = lucuma.core.model.ObservationReference
+    type DatasetReferenceLabel      = lucuma.core.model.sequence.DatasetReference
     type Semester                   = lucuma.core.model.Semester
     type SignalToNoise              = lucuma.core.math.SignalToNoise
     type Timestamp                  = lucuma.core.util.Timestamp
