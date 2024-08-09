@@ -429,6 +429,14 @@ type CallForProposals {
   """Partners that may participate in this Call."""
   partners: [CallForProposalsPartner!]!
 
+  """Whether this Call allows PIs without a partner to participate."""
+  allowsNonPartnerPi: Boolean!
+
+  """
+  The submission deadline for non-partner PIs, when allowed to participate.
+  """
+  nonPartnerDeadline: Timestamp
+
   """
   When specified, the observations executed in this Call will only use these
   instruments.  When not specified, all otherwise available instruments may be
@@ -1983,8 +1991,8 @@ input LinkUserInput {
   """The role this user will play in the program."""
   role: ProgramUserRole!
 
-  """Partner (co-investigators only)"""
-  partner: Partner
+  """Partner associated with this user, if any."""
+  partnerLink: PartnerLinkInput
 }
 
 scalar UserInvitationId
@@ -2002,8 +2010,8 @@ input CreateUserInvitationInput {
   """The role this user will play in the program."""
   role: ProgramUserRole!
 
-  """Partner (co-investigators only)"""
-  partner: Partner
+  """Partner associated with this user, if any."""
+  partnerLink: PartnerLinkInput
 }
 
 enum UserInvitationStatus {
@@ -2043,8 +2051,8 @@ type UserInvitation {
   """The role the redeemer will play in the program."""
   role: ProgramUserRole!
 
-  """Redeemer's partner (co-investigators only)"""
-  partner: Partner
+  """Redeemer's partner, if any."""
+  partnerLink: PartnerLink!
 
   """The email sent for the invitation"""
   email: Email
@@ -2516,6 +2524,73 @@ enum Partner {
 }
 
 """
+Partner link options (and `PartnerLink` discriminator). A user / partner
+relationship is one of (a) the user is associated with a particular partner
+(i.e., `HAS_PARTNER`), (b) the user is explicitly associated with no partner
+(i.e., `HAS_NON_PARTNER`), or (c) the link is simply not set.
+"""
+enum PartnerLinkType {
+  HAS_PARTNER
+  HAS_NON_PARTNER
+  HAS_UNSPECIFIED_PARTNER
+}
+
+"""Represents the association of a user with a `Partner`, if any."""
+interface PartnerLink {
+  """Partner link discriminator."""
+  linkType: PartnerLinkType!
+}
+
+"""
+A `PartnerLink` employed when a user is associated with a specific
+`Partner`.
+"""
+type HasPartner implements PartnerLink {
+  """Always `HAS_PARTNER`"""
+  linkType: PartnerLinkType!
+
+  """The associated partner."""
+  partner: Partner!
+}
+
+"""
+A `PartnerLink` employed when a user is explicitly associated with
+no `Partner`.
+"""
+type HasNonPartner implements PartnerLink {
+  """Always `HAS_NON_PARTNER"""
+  linkType: PartnerLinkType!
+}
+
+"""
+A `PartnerLink` employed when a user's `PartnerLink` has not
+(yet) been made.
+"""
+type HasUnspecifiedPartner implements PartnerLink {
+  """Always `HAS_UNSPECIFIED_PARTNER`"""
+  linkType: PartnerLinkType!
+}
+
+"""
+Describes the user / partner association.  Only one of `partner` or `linkType`
+should be specified, but as long as they are consistent both may be supplied.
+"""
+input PartnerLinkInput {
+  """
+  Describes the state of the association between a user and a partner. The
+  link type is assumed to be `HAS_PARTNER` if the `partner` is specified.
+  Otherwise, if `partner` is `null`, the link type is required.
+  """
+  linkType: PartnerLinkType
+
+  """
+  If the user should be associated with a particular partner, it is specified
+  here.  Only set `partner` or `linkType`, but not both.
+  """
+  partner: Partner
+}
+
+"""
 Partner splits detail how requested time for a Queue or Classical proposal
 should be distributed amongst Gemini partners.
 """
@@ -2607,7 +2682,7 @@ enum ProgramUserSupportRoleType {
 """An assignment of a user to a program."""
 type ProgramUser {
   role: ProgramUserRole!
-  partner: Partner
+  partnerLink: PartnerLink!
   userId: UserId!
   user: User
 }
@@ -8476,6 +8551,9 @@ input WhereCallForProposals {
 
   """Matches whether the call is still open for some partner."""
   isOpen: WhereBoolean
+
+  """Matches whether non-partner PIs may participate."""
+  allowsNonPartnerPi: WhereBoolean
 }
 
 """ObsAttachment filter options. All specified items must match."""
