@@ -15,7 +15,7 @@ import lucuma.react.primereact.SelectItem
 
 import scalajs.js
 
-final case class FormDropdown[V[_], A](
+final case class FormDropdown[A](
   id:               NonEmptyString,
   value:            A,
   options:          List[SelectItem[A]],
@@ -30,6 +30,8 @@ final case class FormDropdown[V[_], A](
   dropdownIcon:     js.UndefOr[String] = js.undefined,
   tooltip:          js.UndefOr[VdomNode] = js.undefined,
   tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
+  itemTemplate:     js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  valueTemplate:    js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
   onChange:         js.UndefOr[A => Callback] = js.undefined,
   onChangeE:        js.UndefOr[(A, ReactEvent) => Callback] = js.undefined, // called after onChange
   modifiers:        Seq[TagMod] = Seq.empty
@@ -40,9 +42,7 @@ final case class FormDropdown[V[_], A](
   inline def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormDropdown {
-  private type AnyF[_] = Any
-
-  private def buildComponent[V[_], A] = ScalaFnComponent[FormDropdown[V, A]] { props =>
+  private def buildComponent[A] = ScalaFnComponent[FormDropdown[A]] { props =>
     import props.given
 
     React.Fragment(
@@ -58,6 +58,8 @@ object FormDropdown {
         placeholder = props.placeholder,
         disabled = props.disabled,
         dropdownIcon = props.dropdownIcon,
+        itemTemplate = props.itemTemplate,
+        valueTemplate = props.valueTemplate,
         onChange = props.onChange,
         onChangeE = props.onChangeE,
         modifiers = props.modifiers
@@ -65,5 +67,5 @@ object FormDropdown {
     )
   }
 
-  private val component = buildComponent[AnyF, Any]
+  private val component = buildComponent[Any]
 }

@@ -15,25 +15,30 @@ import lucuma.react.primereact.SelectItem
 
 import scalajs.js
 
-final case class FormDropdownOptional[V[_], A](
-  id:               NonEmptyString,
-  value:            Option[A],
-  options:          List[SelectItem[A]],
-  label:            js.UndefOr[TagMod] = js.undefined,
-  size:             js.UndefOr[PlSize] = js.undefined,
-  clazz:            js.UndefOr[Css] = js.undefined,
-  panelClass:       js.UndefOr[Css] = js.undefined,
-  filter:           js.UndefOr[Boolean] = js.undefined,
-  showFilterClear:  js.UndefOr[Boolean] = js.undefined,
-  placeholder:      js.UndefOr[String] = js.undefined,
-  disabled:         js.UndefOr[Boolean] = js.undefined,
-  dropdownIcon:     js.UndefOr[String] = js.undefined,
-  tooltip:          js.UndefOr[VdomNode] = js.undefined,
-  tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
-  onChange:         js.UndefOr[Option[A] => Callback] = js.undefined,
-  onChangeE:        js.UndefOr[(Option[A], ReactEvent) => Callback] =
+case class FormDropdownOptional[A](
+  id:                   NonEmptyString,
+  value:                Option[A],
+  options:              List[SelectItem[A]],
+  label:                js.UndefOr[TagMod] = js.undefined,
+  size:                 js.UndefOr[PlSize] = js.undefined,
+  clazz:                js.UndefOr[Css] = js.undefined,
+  panelClass:           js.UndefOr[Css] = js.undefined,
+  showClear:            Boolean = false,
+  filter:               js.UndefOr[Boolean] = js.undefined,
+  showFilterClear:      js.UndefOr[Boolean] = js.undefined,
+  placeholder:          js.UndefOr[String] = js.undefined,
+  disabled:             js.UndefOr[Boolean] = js.undefined,
+  dropdownIcon:         js.UndefOr[String] = js.undefined,
+  tooltip:              js.UndefOr[VdomNode] = js.undefined,
+  tooltipPlacement:     floatingui.Placement = floatingui.Placement.Top,
+  emptyMessage:         js.UndefOr[VdomNode] = js.undefined,
+  itemTemplate:         js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  valueTemplate:        js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  emptyMessageTemplate: js.UndefOr[VdomNode] = js.undefined,
+  onChange:             js.UndefOr[Option[A] => Callback] = js.undefined,
+  onChangeE:            js.UndefOr[(Option[A], ReactEvent) => Callback] =
     js.undefined, // called after onChange
-  modifiers:        Seq[TagMod] = Seq.empty
+  modifiers:            Seq[TagMod] = Seq.empty
 )(using val eqAA: Eq[A])
     extends ReactFnProps(FormDropdownOptional.component):
   inline def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
@@ -41,9 +46,7 @@ final case class FormDropdownOptional[V[_], A](
   inline def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormDropdownOptional {
-  private type AnyF[_] = Any
-
-  private def buildComponent[V[_], A] = ScalaFnComponent[FormDropdownOptional[V, A]] { props =>
+  private def buildComponent[A] = ScalaFnComponent[FormDropdownOptional[A]] { props =>
     import props.given
 
     React.Fragment(
@@ -54,11 +57,16 @@ object FormDropdownOptional {
         options = props.options,
         clazz = LucumaPrimeStyles.FormField |+| props.clazz.toOption.orEmpty,
         panelClass = props.panelClass,
+        showClear = props.showClear,
         filter = props.filter,
         showFilterClear = props.showFilterClear,
         placeholder = props.placeholder,
         disabled = props.disabled,
         dropdownIcon = props.dropdownIcon,
+        emptyMessage = props.emptyMessage,
+        itemTemplate = props.itemTemplate,
+        valueTemplate = props.valueTemplate,
+        emptyMessageTemplate = props.emptyMessageTemplate,
         onChange = props.onChange,
         onChangeE = props.onChangeE,
         modifiers = props.modifiers
@@ -66,5 +74,5 @@ object FormDropdownOptional {
     )
   }
 
-  private val component = buildComponent[AnyF, Any]
+  private val component = buildComponent[Any]
 }

@@ -27,6 +27,8 @@ case class EnumOptionalDropdown[A](
   showFilterClear: js.UndefOr[Boolean] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
   size:            js.UndefOr[PlSize] = js.undefined,
+  itemTemplate:    js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  valueTemplate:   js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
   onChange:        js.UndefOr[Option[A] => Callback] = js.undefined,
   onChangeE:       js.UndefOr[(Option[A], ReactEvent) => Callback] =
     js.undefined, // called after onChange
@@ -63,6 +65,8 @@ object EnumOptionalDropdown {
       showFilterClear = props.showFilterClear,
       disabled = props.disabled,
       placeholder = props.placeholder,
+      itemTemplate = props.itemTemplate,
+      valueTemplate = props.valueTemplate,
       onChange = props.onChange,
       onChangeE = props.onChangeE,
       modifiers = props.modifiers

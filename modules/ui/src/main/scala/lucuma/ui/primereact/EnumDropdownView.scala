@@ -26,6 +26,8 @@ final case class EnumDropdownView[V[_], A](
   disabled:        js.UndefOr[Boolean] = js.undefined,
   placeholder:     js.UndefOr[String] = js.undefined,
   size:            js.UndefOr[PlSize] = js.undefined,
+  itemTemplate:    js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  valueTemplate:   js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
   onChangeE:       js.UndefOr[(Option[A], ReactEvent) => Callback] =
     js.undefined, // called after the view is set
   modifiers:       Seq[TagMod] = Seq.empty
@@ -58,6 +60,8 @@ object EnumDropdownView {
       showFilterClear = props.showFilterClear,
       disabled = props.disabled,
       placeholder = props.placeholder,
+      itemTemplate = props.itemTemplate,
+      valueTemplate = props.valueTemplate,
       onChange = v => props.value.set(v.get),
       onChangeE = props.onChangeE,
       modifiers = props.modifiers

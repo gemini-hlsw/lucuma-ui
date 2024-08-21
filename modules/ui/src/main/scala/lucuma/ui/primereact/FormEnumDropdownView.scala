@@ -10,6 +10,7 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import lucuma.react.common.*
+import lucuma.react.primereact.SelectItem
 
 import scalajs.js
 
@@ -25,6 +26,8 @@ final case class FormEnumDropdownView[V[_], A](
   disabled:        js.UndefOr[Boolean] = js.undefined,
   placeholder:     js.UndefOr[String] = js.undefined,
   size:            js.UndefOr[PlSize] = js.undefined,
+  itemTemplate:    js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  valueTemplate:   js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
   onChangeE:       js.UndefOr[(Option[A], ReactEvent) => Callback] =
     js.undefined, // called after the view is set
   modifiers:       Seq[TagMod] = Seq.empty
@@ -56,6 +59,8 @@ object FormEnumDropdownView {
         disabled = props.disabled,
         placeholder = props.placeholder,
         size = props.size,
+        itemTemplate = props.itemTemplate,
+        valueTemplate = props.valueTemplate,
         onChangeE = props.onChangeE,
         modifiers = props.modifiers
       )
