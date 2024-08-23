@@ -5,7 +5,6 @@ package lucuma.schemas
 
 import clue.annotation.GraphQLSchema
 import lucuma.core.enums
-import lucuma.core.math.SignalToNoise
 import lucuma.core.math.dimensional.*
 import lucuma.core.model
 import lucuma.core.model.*
