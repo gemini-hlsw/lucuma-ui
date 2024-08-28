@@ -925,6 +925,9 @@ enum EditType {
 
   """EditType Updated"""
   UPDATED
+
+  """EditType Deleted. Used for hard deletion of calibrations"""
+  DELETED_CAL
 }
 
 """
@@ -2402,9 +2405,11 @@ type ObservationEdit {
   """Type of edit"""
   editType: EditType!
 
-  """Edited object"""
-  value: Observation!
-  id: Long! @deprecated(reason: "id is no longer computed; a constant value is returned")
+  """The observationId of the edited object"""
+  observationId: ObservationId!
+
+  """Edited object, can be null if the value was deleted"""
+  value: Observation
 }
 
 """Observation properties"""
@@ -2690,6 +2695,12 @@ input ProgramPropertiesInput {
 input ProgramUserPropertiesInput {
   """The user's partner."""
   partnerLink: PartnerLinkInput
+
+  """The user's educational status."""
+  educationalStatus: EducationalStatus
+
+  """Is a thesis included in the proposal."""
+  thesis: Boolean
 }
 
 """The role a user a plays when assigned to a program."""
@@ -2722,6 +2733,12 @@ type ProgramUser {
   partnerLink: PartnerLink!
   program: Program
   user: User
+
+  """User educational status. PHD/Undergrad/Grad/Other"""
+  educationalStatus: EducationalStatus
+
+  """Flag indicating whether the user's proposal is part of a thesis."""
+  thesis: Boolean
 }
 
 """Proper motion component, choose one of the available units"""
@@ -4773,6 +4790,21 @@ type Declination {
 
 """Target declination coordinate in format '[+/-]DD:MM:SS.sss'"""
 scalar DmsString
+
+"""Educational Status Phd/Grad/Undergrad/Other"""
+enum EducationalStatus {
+  """Educational Status PhD"""
+  PHD
+
+  """Educational Status Grad Student"""
+  GRAD_STUDENT
+
+  """Educational Status Undergrad Student"""
+  UNDERGRAD_STUDENT
+
+  """Educational Status Other"""
+  OTHER
+}
 
 """Either air mass range or elevation range"""
 type ElevationRange {
@@ -8644,6 +8676,14 @@ input WhereBoolean {
   EQ: Boolean
 }
 
+input WhereOptionBoolean {
+  """Matches if the value is not defined."""
+  IS_NULL: Boolean
+
+  """Matches if the boolean is the provided value."""
+  EQ: Boolean
+}
+
 input WhereCallForProposals {
   """
   A list of nested call for proposals filters that all must match in order for
@@ -8849,6 +8889,29 @@ input WhereEqCallForProposalsType {
 
   """Matches if the call for proposals type is none of the supplied values."""
   NIN: [CallForProposalsType!]
+}
+
+"""
+Filters on equality (or not) of the user educational status and the supplied
+criteria. All supplied criteria must match, but usually only one is selected.
+"""
+input WhereOptionEqEducationalStatus {
+  """
+  When `true`, matches if the QaState is not defined. When `false` matches if the QaState is defined.
+  """
+  IS_NULL: Boolean
+
+  """Matches if the property is exactly the supplied value."""
+  EQ: EducationalStatus
+
+  """Matches if the property is not the supplied value."""
+  NEQ: EducationalStatus
+
+  """Matches if the property value is any of the supplied options."""
+  IN: [EducationalStatus!]
+
+  """Matches if the property value is none of the supplied values."""
+  NIN: [EducationalStatus!]
 }
 
 input WhereEqExecutionEventType {
@@ -10326,6 +10389,12 @@ input WhereProgramUser {
 
   """Matches the partner."""
   partnerLink: WherePartnerLink
+
+  """Matches the educational status."""
+  educationalStatus: WhereOptionEqEducationalStatus
+
+  """Matches the thesis flag."""
+  thesis: WhereOptionBoolean
 }
 
 """Proposal filter options.  All specified items must match."""
