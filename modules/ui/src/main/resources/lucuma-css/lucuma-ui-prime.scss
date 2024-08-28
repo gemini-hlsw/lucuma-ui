@@ -324,3 +324,7 @@
   display: flex;
   gap: 0.5em;
 }
+
+.pl-react-table.pl-very-compact .p-datatable-tbody > tr > td.p-datatable-emptymessage {
+  padding: 0;
+}
