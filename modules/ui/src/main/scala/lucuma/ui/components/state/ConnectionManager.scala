@@ -35,6 +35,7 @@ object ConnectionManager:
     .withPropsChildren
     .useShadowRef(pc => pc.props.payload)
     .useResourceOnMountBy: (props, _, payloadRef) => // Returns Pot[Unit]; Ready when connected.
-      Resource.make(props.openConnections(payloadRef.getAsync))(_ => props.closeConnections)
+      Resource.make(props.openConnections(payloadRef.getAsync))(_ => props.closeConnections) >>
+        Resource.eval(props.onConnect)
     .render: (_, children, _, connectedPot) =>
       connectedPot.renderPot(_ => children)

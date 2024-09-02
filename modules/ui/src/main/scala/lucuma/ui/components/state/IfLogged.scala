@@ -58,7 +58,7 @@ object IfLogged:
           props.userSelectionMessage,
           props.allowGuest
         )
-      ) { vault =>
+      ): vault =>
         React.Fragment(
           SSOManager(props.ssoClient, vault.expiration, vaultSet, messageSet),
           ConnectionManager(
@@ -66,7 +66,7 @@ object IfLogged:
             props.openConnections,
             props.closeConnections,
             props.onConnect
-          )(
+          ).withKey(s"${vault.user.id}-${vault.user.role.toString}")(
             LogoutTracker(
               vaultSet,
               messageSet,
@@ -77,6 +77,5 @@ object IfLogged:
             )(props.render(_))
           )
         )
-      }
 
   private val component = componentBuilder[Any]

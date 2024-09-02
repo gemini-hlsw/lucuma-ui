@@ -34,11 +34,10 @@ object LogoutTracker:
       .withHooks[Props[E]]
       // Create a nonce
       .useMemo(())(_ => System.currentTimeMillis)
-      .useResourceOnMountBy { (props, _) =>
+      .useResourceOnMountBy: (props, _) =>
         import props.given
         BroadcastChannel[DefaultA, E](props.channelName.value)
-      }
-      .useStreamBy((_, _, bc) => bc.isReady)((props, nonce, bc) =>
+      .useStreamBy((_, _, bc) => bc.isReady): (props, nonce, bc) =>
         _ =>
           bc.toOption.map(_.messages).orEmpty.evalTap { e =>
             if (props.isLogoutEvent(e.data))
@@ -48,16 +47,12 @@ object LogoutTracker:
             else
               Applicative[DefaultA].unit
           }
-      )
-      .render { (props, nonce, bc, _) =>
-        bc.toOption.fold[VdomNode](React.Fragment())(bc =>
-          props.render(
-            bc.postMessage(
+      .render: (props, nonce, bc, _) =>
+        bc.toOption.fold[VdomNode](React.Fragment()): bc =>
+          props.render:
+            bc.postMessage:
               props.createEventWithNonce(nonce.value.toString)
-            ).attempt
+            .attempt
               .void
-          )
-        )
-      }
 
   private val component = componentBuilder[Any]
