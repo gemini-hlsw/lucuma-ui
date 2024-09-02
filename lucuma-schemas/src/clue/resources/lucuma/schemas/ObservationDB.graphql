@@ -6196,7 +6196,7 @@ type ItcResultSet {
 type ItcResult {
   targetId: TargetId!
   exposureTime: TimeSpan!
-  exposures: NonNegInt!
+  exposureCount: NonNegInt!
   signalToNoise: SignalToNoise!
 }
 
