@@ -89,6 +89,7 @@ trait ObservationDB {
     type CoolStarTemperature                 = enums.CoolStarTemperature
     type DatasetQaState                      = enums.DatasetQaState
     type DatasetStage                        = enums.DatasetStage
+    type EducationalStatus                   = enums.EducationalStatus
     type EmailStatus                         = enums.EmailStatus
     type EphemerisKeyType                    = enums.EphemerisKeyType
     type FilterType                          = enums.FilterType
@@ -101,6 +102,7 @@ trait ObservationDB {
     type GcalDiffuser                        = enums.GcalDiffuser
     type GcalFilter                          = enums.GcalFilter
     type GcalShutter                         = enums.GcalShutter
+    type Gender                              = enums.Gender
     type GmosAmpCount                        = enums.GmosAmpCount
     type GmosAmpGain                         = enums.GmosAmpGain
     type GmosAmpReadMode                     = enums.GmosAmpReadMode
