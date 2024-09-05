@@ -3,14 +3,14 @@
 
 package lucuma.ui.primereact
 
+import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
-
-import scalajs.js
 import lucuma.react.primereact.Tooltip
 import lucuma.react.primereact.tooltip.*
-import eu.timepit.refined.types.string.NonEmptyString
+
+import scalajs.js
 
 case class FormInfo(
   value:           TagMod,
