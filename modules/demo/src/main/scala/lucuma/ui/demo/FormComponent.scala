@@ -28,7 +28,6 @@ import lucuma.core.math.validation.MathValidators
 import lucuma.core.util.TimeSpan
 import lucuma.core.validation.*
 import lucuma.react.common.ReactFnProps
-import lucuma.react.common.style.Css
 import lucuma.refined.*
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.input.FilterMode
