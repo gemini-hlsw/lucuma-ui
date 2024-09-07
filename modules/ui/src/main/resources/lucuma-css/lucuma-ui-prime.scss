@@ -328,3 +328,8 @@
 .pl-react-table.pl-very-compact .p-datatable-tbody > tr > td.p-datatable-emptymessage {
   padding: 0;
 }
+
+.p-dropdown-label-empty {
+  opacity: 0.5;
+  visibility: visible;
+}
