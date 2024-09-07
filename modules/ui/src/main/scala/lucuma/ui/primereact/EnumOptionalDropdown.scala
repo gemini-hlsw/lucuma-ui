@@ -16,24 +16,26 @@ import lucuma.react.primereact.SelectItem
 import scalajs.js
 
 case class EnumOptionalDropdown[A](
-  id:              NonEmptyString,
-  value:           Option[A],
-  exclude:         Set[A] = Set.empty[A],
-  disabledItems:   Set[A] = Set.empty[A],
-  clazz:           js.UndefOr[Css] = js.undefined,
-  showClear:       Boolean = true,
-  panelClass:      js.UndefOr[Css] = js.undefined,
-  filter:          js.UndefOr[Boolean] = js.undefined,
-  showFilterClear: js.UndefOr[Boolean] = js.undefined,
-  disabled:        js.UndefOr[Boolean] = js.undefined,
-  size:            js.UndefOr[PlSize] = js.undefined,
-  itemTemplate:    js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
-  valueTemplate:   js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
-  onChange:        js.UndefOr[Option[A] => Callback] = js.undefined,
-  onChangeE:       js.UndefOr[(Option[A], ReactEvent) => Callback] =
+  id:                   NonEmptyString,
+  value:                Option[A],
+  exclude:              Set[A] = Set.empty[A],
+  disabledItems:        Set[A] = Set.empty[A],
+  clazz:                js.UndefOr[Css] = js.undefined,
+  showClear:            Boolean = true,
+  panelClass:           js.UndefOr[Css] = js.undefined,
+  filter:               js.UndefOr[Boolean] = js.undefined,
+  showFilterClear:      js.UndefOr[Boolean] = js.undefined,
+  disabled:             js.UndefOr[Boolean] = js.undefined,
+  size:                 js.UndefOr[PlSize] = js.undefined,
+  itemTemplate:         js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  valueTemplate:        js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
+  emptyMessage:         js.UndefOr[VdomNode] = js.undefined,
+  emptyMessageTemplate: js.UndefOr[VdomNode] = js.undefined,
+  onChange:             js.UndefOr[Option[A] => Callback] = js.undefined,
+  onChangeE:            js.UndefOr[(Option[A], ReactEvent) => Callback] =
     js.undefined, // called after onChange
-  placeholder:     js.UndefOr[String] = js.undefined,
-  modifiers:       Seq[TagMod] = Seq.empty
+  placeholder:          js.UndefOr[String] = js.undefined,
+  modifiers:            Seq[TagMod] = Seq.empty
 )(using val enumerated: Enumerated[A], val display: Display[A])
     extends ReactFnProps(EnumOptionalDropdown.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
@@ -67,6 +69,8 @@ object EnumOptionalDropdown {
       placeholder = props.placeholder,
       itemTemplate = props.itemTemplate,
       valueTemplate = props.valueTemplate,
+      emptyMessage = props.emptyMessage,
+      emptyMessageTemplate = props.emptyMessageTemplate,
       onChange = props.onChange,
       onChangeE = props.onChangeE,
       modifiers = props.modifiers

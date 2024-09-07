@@ -17,7 +17,6 @@ import lucuma.react.common.GenericFnComponentPC
 import lucuma.react.common.ReactRender
 
 import scala.scalajs.js
-import scala.scalajs.js.UndefOr
 
 trait mod:
   // Syntaxis for apply
