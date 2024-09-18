@@ -139,6 +139,7 @@ trait ObservationDB {
     type PlanetSpectrum                      = enums.PlanetSpectrum
     type PlanetaryNebulaSpectrum             = enums.PlanetaryNebulaSpectrum
     type ProgramType                         = enums.ProgramType
+    type ProgramUserRole                     = enums.ProgramUserRole
     type ProposalAttachmentType              = lucuma.schemas.enums.ProposalAttachmentType
     type ProposalStatus                      = lucuma.schemas.enums.ProposalStatus
     type QuasarSpectrum                      = enums.QuasarSpectrum
