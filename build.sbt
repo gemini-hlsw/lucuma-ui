@@ -9,7 +9,7 @@ val Versions = new { // sbt doesn't like object definitions in build.sbt
   val munitCatsEffect = "2.0.0"
 }
 
-ThisBuild / tlBaseVersion       := "0.100"
+ThisBuild / tlBaseVersion       := "0.101"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.5.1")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
