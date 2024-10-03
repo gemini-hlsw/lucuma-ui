@@ -143,6 +143,7 @@ trait ObservationDB {
     type ProposalAttachmentType              = lucuma.schemas.enums.ProposalAttachmentType
     type ProposalStatus                      = lucuma.schemas.enums.ProposalStatus
     type QuasarSpectrum                      = enums.QuasarSpectrum
+    type ScienceBand                         = enums.ScienceBand
     type ScienceMode                         = enums.ScienceMode
     type SequenceCommand                     = enums.SequenceCommand
     type SequenceType                        = enums.SequenceType
