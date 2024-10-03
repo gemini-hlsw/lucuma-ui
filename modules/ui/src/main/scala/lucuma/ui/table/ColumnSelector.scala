@@ -17,7 +17,7 @@ import lucuma.ui.primereact.LucumaPrimeStyles
 
 case class ColumnSelector[T, M](
   table:       Table[T, M],
-  columnNames: ColumnId => String,
+  columnNames: ColumnId => Option[String],
   clazz:       Css = Css.Empty
 ) extends ReactFnProps(ColumnSelector.component)
 
@@ -29,19 +29,24 @@ object ColumnSelector:
       .withHooks[Props[T, M]]
       .usePopupMenuRef
       .render { (props, menuRef) =>
-        val menuItems = props.table.getAllColumns().drop(1).map { column =>
-          val colId = column.id
-          MenuItem.Custom(
-            <.div(
-              LucumaPrimeStyles.CheckboxWithLabel,
-              Checkbox(id = colId.value,
-                       checked = column.getIsVisible(),
-                       onChange = _ => column.toggleVisibility()
-              ),
-              <.label(^.htmlFor := colId.value, props.columnNames(colId))
-            )
-          )
-        }
+        val menuItems =
+          props.table
+            .getAllColumns()
+            .drop(1)
+            .filter(col => props.columnNames(col.id).isDefined)
+            .map { column =>
+              val colId = column.id
+              MenuItem.Custom(
+                <.div(
+                  LucumaPrimeStyles.CheckboxWithLabel,
+                  Checkbox(id = colId.value,
+                           checked = column.getIsVisible(),
+                           onChange = _ => column.toggleVisibility()
+                  ),
+                  <.label(^.htmlFor := colId.value, props.columnNames(colId))
+                )
+              )
+            }
         React.Fragment(
           Button(
             label = "Columns",
