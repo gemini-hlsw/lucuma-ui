@@ -3,6 +3,7 @@
 
 package lucuma.schemas.decoders
 
+import cats.data.NonEmptyList
 import cats.syntax.all.*
 import eu.timepit.refined.types.numeric.PosShort
 import eu.timepit.refined.types.string.NonEmptyString
@@ -17,7 +18,6 @@ import lucuma.core.model.sequence.Atom
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig
-import lucuma.core.model.sequence.gmos.StaticConfig
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
 import lucuma.odb.json.gmos.given
@@ -138,41 +138,44 @@ trait VisitDecoders:
   // See https://dotty.epfl.ch/docs/reference/contextual/givens.html#anonymous-givens
   given decoderVisitGmosNorth: Decoder[Visit.GmosNorth] = Decoder.instance: c =>
     for
-      id       <- c.downField("id").as[Visit.Id]
-      created  <- c.downField("created").as[Timestamp]
-      interval <- c.downField("interval").as[Option[TimestampInterval]]
-      steps    <- c.downField("atomRecords").downField("matches").as[List[AtomRecord.GmosNorth]]
+      instrument <- c.downField("instrument").as[Instrument]
+      _          <- instrument match
+                      case i if i === Instrument.GmosNorth => Right(())
+                      case _                               => Left(DecodingFailure("Not a GmosNorth Visit", c.history))
+      id         <- c.downField("id").as[Visit.Id]
+      created    <- c.downField("created").as[Timestamp]
+      interval   <- c.downField("interval").as[Option[TimestampInterval]]
+      steps      <- c.downField("atomRecords").downField("matches").as[List[AtomRecord.GmosNorth]]
     yield Visit.GmosNorth(id, created, interval, steps)
 
   given decoderVisitGmosSouth: Decoder[Visit.GmosSouth] = Decoder.instance: c =>
     for
-      id       <- c.downField("id").as[Visit.Id]
-      created  <- c.downField("created").as[Timestamp]
-      interval <- c.downField("interval").as[Option[TimestampInterval]]
-      steps    <- c.downField("atomRecords").downField("matches").as[List[AtomRecord.GmosSouth]]
+      instrument <- c.downField("instrument").as[Instrument]
+      _          <- instrument match
+                      case i if i === Instrument.GmosSouth => Right(())
+                      case _                               => Left(DecodingFailure("Not a GmosSouth Visit", c.history))
+      id         <- c.downField("id").as[Visit.Id]
+      created    <- c.downField("created").as[Timestamp]
+      interval   <- c.downField("interval").as[Option[TimestampInterval]]
+      steps      <- c.downField("atomRecords").downField("matches").as[List[AtomRecord.GmosSouth]]
     yield Visit.GmosSouth(id, created, interval, steps)
 
   given decoderExecutionVisitsGmosNorth: Decoder[ExecutionVisits.GmosNorth] = Decoder.instance: c =>
-    for
-      staticConfig <-
-        c.downField("config").downField("gmosNorth").downField("static").as[StaticConfig.GmosNorth]
-      visits       <- c.downField("visits").downField("matches").as[List[Visit.GmosNorth]]
-    yield ExecutionVisits.GmosNorth(staticConfig, visits)
+    c.downField("visits")
+      .downField("matches")
+      .as[NonEmptyList[Visit.GmosNorth]]
+      .map:
+        ExecutionVisits.GmosNorth(_)
 
   given decoderExecutionVisitsGmosSouth: Decoder[ExecutionVisits.GmosSouth] = Decoder.instance: c =>
-    for
-      staticConfig <-
-        c.downField("config").downField("gmosSouth").downField("static").as[StaticConfig.GmosSouth]
-      visits       <- c.downField("visits").downField("matches").as[List[Visit.GmosSouth]]
-    yield ExecutionVisits.GmosSouth(staticConfig, visits)
+    c.downField("visits")
+      .downField("matches")
+      .as[NonEmptyList[Visit.GmosSouth]]
+      .map:
+        ExecutionVisits.GmosSouth(_)
 
-  given Decoder[Option[ExecutionVisits]] = Decoder.instance: c =>
-    if (c.downField("config").downField("instrument").failed) None.asRight
-    else
-      c.downField("config")
-        .downField("instrument")
-        .as[Instrument]
-        .flatMap:
-          case Instrument.GmosNorth => c.as[ExecutionVisits.GmosNorth].map(_.some)
-          case Instrument.GmosSouth => c.as[ExecutionVisits.GmosSouth].map(_.some)
-          case _                    => DecodingFailure("Only Gmos supported", c.history).asLeft
+  given Decoder[Option[ExecutionVisits]] =
+    List(Decoder[ExecutionVisits.GmosNorth].widen, Decoder[ExecutionVisits.GmosSouth].widen)
+      .reduceLeft(_ or _)
+      .map(_.some)
+      .or(Decoder.const(none))

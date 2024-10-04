@@ -1,7 +1,6 @@
 {
   "observation": {
     "execution": {
-      "config": null,
       "visits": {
         "matches": []
       }

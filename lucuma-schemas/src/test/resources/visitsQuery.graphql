@@ -1,15 +1,5 @@
 query {
   observation(observationId: "o-14d") {
-    execution {
-      config {
-        instrument
-        gmosNorth {
-          ...gmosNorthStaticConfigFields
-        }
-        gmosSouth {
-          ...gmosSouthStaticConfigFields
-        }
-      }
       visits {
         matches {
           id
