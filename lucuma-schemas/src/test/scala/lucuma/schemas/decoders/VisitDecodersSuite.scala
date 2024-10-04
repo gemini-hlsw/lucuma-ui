@@ -3,22 +3,18 @@
 
 package lucuma.schemas.decoders
 
+import cats.data.NonEmptyList
 import cats.effect.IO
 import cats.syntax.all.*
 import lucuma.core.enums.GmosAmpCount
 import lucuma.core.enums.GmosAmpGain
 import lucuma.core.enums.GmosAmpReadMode
 import lucuma.core.enums.GmosDtax
-import lucuma.core.enums.GmosNorthDetector
 import lucuma.core.enums.GmosNorthFilter
-import lucuma.core.enums.GmosNorthStageMode
 import lucuma.core.enums.GmosRoi
-import lucuma.core.enums.GmosSouthDetector
 import lucuma.core.enums.GmosSouthFilter
-import lucuma.core.enums.GmosSouthStageMode
 import lucuma.core.enums.GmosXBinning
 import lucuma.core.enums.GmosYBinning
-import lucuma.core.enums.MosPreImaging
 import lucuma.core.enums.ObserveClass
 import lucuma.core.enums.SequenceType
 import lucuma.core.enums.StepGuideState
@@ -42,13 +38,7 @@ import java.util.UUID
 
 class VisitDecodersSuite extends InputStreamSuite {
   val expectedVisitsGmosNorth: ExecutionVisits = ExecutionVisits.GmosNorth(
-    StaticConfig.GmosNorth(
-      stageMode = GmosNorthStageMode.FollowXy,
-      detector = GmosNorthDetector.Hamamatsu,
-      mosPreImaging = MosPreImaging.IsNotMosPreImaging,
-      nodAndShuffle = none
-    ),
-    List(
+    NonEmptyList.of(
       Visit.GmosNorth(
         id = Visit.Id(457L.refined),
         created =
@@ -129,13 +119,7 @@ class VisitDecodersSuite extends InputStreamSuite {
   )
 
   val expectedVisitsGmosSouth: ExecutionVisits = ExecutionVisits.GmosSouth(
-    StaticConfig.GmosSouth(
-      stageMode = GmosSouthStageMode.FollowXy,
-      detector = GmosSouthDetector.Hamamatsu,
-      mosPreImaging = MosPreImaging.IsNotMosPreImaging,
-      nodAndShuffle = none
-    ),
-    List(
+    NonEmptyList.of(
       Visit.GmosSouth(
         id = Visit.Id(457L.refined),
         created =

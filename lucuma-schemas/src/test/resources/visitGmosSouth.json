@@ -1,17 +1,6 @@
 {
   "observation": {
     "execution": {
-      "config": {
-        "instrument": "GMOS_SOUTH",
-        "gmosSouth": {
-          "static": {
-            "stageMode": "FOLLOW_XY",
-            "detector": "HAMAMATSU",
-            "mosPreImaging": "IS_NOT_MOS_PRE_IMAGING",
-            "nodAndShuffle": null
-          }
-        }
-      },
       "visits": {
         "matches": [
           {

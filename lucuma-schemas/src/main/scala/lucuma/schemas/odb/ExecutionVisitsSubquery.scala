@@ -12,29 +12,6 @@ object ExecutionVisitsSubquery
     extends GraphQLSubquery.Typed[ObservationDB, Option[ExecutionVisits]]("Execution"):
   override val subquery: String = s"""
     {
-      config {
-        instrument
-        gmosNorth {
-          static {
-            stageMode
-            detector
-            mosPreImaging
-            nodAndShuffle {
-              ...nodAndShuffleFields
-            }
-          }
-        }
-        gmosSouth {
-          static {
-            stageMode
-            detector
-            mosPreImaging
-            nodAndShuffle {
-              ...nodAndShuffleFields
-            }
-          }
-        }
-      }
       visits(OFFSET: $$visitIdOffset) {
         matches {
           id
