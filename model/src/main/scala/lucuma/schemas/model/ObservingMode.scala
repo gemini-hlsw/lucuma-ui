@@ -217,8 +217,7 @@ object ObservingMode:
     explicitWavelengthDithers: Option[NonEmptyList[WavelengthDither]],
     defaultSpatialOffsets:     NonEmptyList[Offset.Q],
     explicitSpatialOffsets:    Option[NonEmptyList[Offset.Q]]
-  ) extends ObservingMode(Instrument.GmosNorth)
-      derives Eq:
+  ) extends ObservingMode(Instrument.GmosNorth) derives Eq:
     def isCustomized: Boolean =
       initialGrating =!= grating ||
         initialFilter =!= filter ||
@@ -318,8 +317,7 @@ object ObservingMode:
     explicitWavelengthDithers: Option[NonEmptyList[WavelengthDither]],
     defaultSpatialOffsets:     NonEmptyList[Offset.Q],
     explicitSpatialOffsets:    Option[NonEmptyList[Offset.Q]]
-  ) extends ObservingMode(Instrument.GmosSouth)
-      derives Eq:
+  ) extends ObservingMode(Instrument.GmosSouth) derives Eq:
     def isCustomized: Boolean =
       initialGrating =!= grating ||
         initialFilter =!= filter ||

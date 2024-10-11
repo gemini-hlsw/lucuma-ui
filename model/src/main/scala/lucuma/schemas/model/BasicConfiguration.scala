@@ -39,8 +39,7 @@ object BasicConfiguration:
     filter:            Option[GmosNorthFilter],
     fpu:               GmosNorthFpu,
     centralWavelength: CentralWavelength
-  ) extends BasicConfiguration(Instrument.GmosNorth)
-      derives Eq
+  ) extends BasicConfiguration(Instrument.GmosNorth) derives Eq
 
   object GmosNorthLongSlit:
     given Decoder[GmosNorthLongSlit] = deriveDecoder
@@ -50,8 +49,7 @@ object BasicConfiguration:
     filter:            Option[GmosSouthFilter],
     fpu:               GmosSouthFpu,
     centralWavelength: CentralWavelength
-  ) extends BasicConfiguration(Instrument.GmosSouth)
-      derives Eq
+  ) extends BasicConfiguration(Instrument.GmosSouth) derives Eq
 
   object GmosSouthLongSlit:
     given Decoder[GmosSouthLongSlit] = deriveDecoder

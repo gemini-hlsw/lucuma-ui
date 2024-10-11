@@ -485,8 +485,8 @@ extension (g: GmosFpuMask[GmosSouthFpu])
                       builtin = g.builtinFpu.orUnassign
     )
 
-extension (g: GmosFpuMask[GmosNorthFpu])
-  def toInput: GmosNorthFpuInput =
+extension (g:  GmosFpuMask[GmosNorthFpu])
+  def toInput: GmosNorthFpuInput      =
     GmosNorthFpuInput(customMask = g.custom.map(_.toInput).orUnassign,
                       builtin = g.builtinFpu.orUnassign
     )
