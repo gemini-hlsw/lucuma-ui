@@ -2721,13 +2721,10 @@ input ProgramPropertiesInput {
   name: NonEmptyString
 
   """
-  Set the proprietaryMonths for this program.  This property is only applicable
-  to normal science programs (i.e., not CAL, ENG, MON programs etc.). It is
-  automatically set (or reset) when/if the program's Call For Proposals is
-  assigned.  Otherwise it defaults to 0 months but may be changed via this
-  input.
+  Sets the GOA properties for this program.  If not specified on create,
+  default values are used.
   """
-  proprietaryMonths: NonNegInt
+  goa: GoaPropertiesInput
 
   """
   Whether the program is considered deleted (defaults to PRESENT) but may be edited
@@ -5923,6 +5920,53 @@ enum GmosYBinning {
   FOUR
 }
 
+"""Gemini Observatory Archive properties for a particular program."""
+type GoaProperties {
+  """
+  How many months to withhold public access to the data.  This property is
+  applicable to science programs, defaults to the proprietary period associated
+  with the Call for Proposals if any; 0 months otherwise.
+  """
+  proprietaryMonths: NonNegInt!
+
+  """
+  Whether the PI wishes to be notified when new data are received. This property
+  is applicable to science programs and defaults to true.
+  """
+  shouldNotify: Boolean!
+
+  """
+  Whether the header (as well as the data itself) should remain private.  This
+  property is applicable to science programs and defaults to false.
+  """
+  privateHeader: Boolean!
+}
+
+"""
+Gemini Observatory Archive properties creation and editing input for a
+particular program.
+"""
+input GoaPropertiesInput {
+  """
+  How many months to withhold public access to the data.  This property is
+  applicable to science programs, defaults to the proprietary period associated
+  with the Call for Proposals if any; 0 months otherwise.
+  """
+  proprietaryMonths: NonNegInt
+
+  """
+  Whether the PI wishes to be notified when new data are received. This property
+  is applicable to science programs and defaults to true.
+  """
+  shouldNotify: Boolean
+
+  """
+  Whether the header (as well as the data itself) should remain private.  This
+  property is applicable to science programs and defaults to false.
+  """
+  privateHeader: Boolean
+}
+
 """A group of observations and other groups."""
 type Group {
   id: GroupId!
@@ -6865,12 +6909,8 @@ type Program {
   """Calibration role of the program"""
   calibrationRole: CalibrationRole
 
-  """
-  How many months to withhold public access to the data.  This property is
-  applicable to science programs, defaults to the proprietary period associated
-  with the Call for Proposals if any; 0 months otherwise.
-  """
-  proprietaryMonths: NonNegInt!
+  """Observatory archive properties related to this program."""
+  goa: GoaProperties!
 }
 
 """ProgramId id formatted as `p-[1-9a-f][0-9a-f]*`"""
