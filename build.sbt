@@ -1,15 +1,16 @@
 val Versions = new { // sbt doesn't like object definitions in build.sbt
   val circe           = "0.14.10"
+  val circeRefined    = "0.15.1"
   val disciplineMUnit = "2.0.0"
   val fs2             = "3.11.0"
   val kittens         = "3.4.0"
-  val lucumaCore      = "0.105.0"
-  val lucumaODBSchema = "0.13.1"
+  val lucumaCore      = "0.105.3"
+  val lucumaODBSchema = "0.14.0"
   val munit           = "1.0.2"
   val munitCatsEffect = "2.0.0"
 }
 
-ThisBuild / tlBaseVersion       := "0.103"
+ThisBuild / tlBaseVersion       := "0.104"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.5.1")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
@@ -39,6 +40,7 @@ val model =
       libraryDependencies ++= Seq(
         "io.circe"      %%% "circe-core"        % Versions.circe,
         "io.circe"      %%% "circe-generic"     % Versions.circe,
+        "io.circe"      %%% "circe-refined"     % Versions.circeRefined,
         "org.typelevel" %%% "kittens"           % Versions.kittens,
         "edu.gemini"    %%% "lucuma-core"       % Versions.lucumaCore,
         "edu.gemini"    %%% "lucuma-odb-schema" % Versions.lucumaODBSchema

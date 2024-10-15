@@ -24,6 +24,7 @@ trait ObservationDB {
     // Ids
     type AtomId                     = Atom.Id
     type CallForProposalsId         = CallForProposals.Id
+    type ConfigurationRequestId     = ConfigurationRequest.Id
     type DatasetId                  = Dataset.Id
     type ExecutionEventId           = ExecutionEvent.Id
     type GroupId                    = Group.Id
