@@ -14,7 +14,7 @@ trait ViewLike[VL[_]]:
 
 given ViewLike[View] with
   extension [A](v: View[A])
-    def get: Option[A] = v.get.some
+    def get: Option[A]      = v.get.some
     def set(a: A): Callback = v.set(a)
 
 // Note that any ViewLike[ViewOpt] where the ViewOpt is None will never get set, it only provides
@@ -22,5 +22,5 @@ given ViewLike[View] with
 // ViewLike[ViewOpt] should probably disabled when the ViewOpt is empty, or handled in some other way.
 given ViewLike[ViewOpt] with
   extension [A](v: ViewOpt[A])
-    def get: Option[A] = v.get
+    def get: Option[A]      = v.get
     def set(a: A): Callback = v.set(a)
