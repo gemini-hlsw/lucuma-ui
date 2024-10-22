@@ -51,18 +51,6 @@ object SequenceQueriesGQL:
                 }
               }
             }
-            itc {
-              science {
-                selected {
-                  signalToNoise
-                }
-              }
-              acquisition {
-                selected {
-                  signalToNoise
-                }
-              }
-            }            
           }
         }
 
