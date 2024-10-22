@@ -12,7 +12,7 @@ val Versions = new { // sbt doesn't like object definitions in build.sbt
 
 ThisBuild / tlBaseVersion       := "0.105"
 ThisBuild / tlCiReleaseBranches := Seq("main")
-ThisBuild / crossScalaVersions  := Seq("3.5.1")
+ThisBuild / crossScalaVersions  := Seq("3.5.2")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
