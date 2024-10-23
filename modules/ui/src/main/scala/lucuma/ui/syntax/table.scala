@@ -10,7 +10,10 @@ import lucuma.react.table.*
 
 trait table:
   extension [T, TM](row: Row[T, TM])
-    def getMultiRowSelectedHandler(table: Table[T, TM]): ReactMouseEvent => Callback =
+    def getMultiRowSelectedHandler(
+      table: Table[T, TM],
+      rowId: RowId = row.id
+    ): ReactMouseEvent => Callback =
       (e: ReactMouseEvent) =>
         val isShiftPressed: Boolean   = e.shiftKey
         val isCmdCtrlPressed: Boolean = e.metaKey || e.ctrlKey
@@ -22,11 +25,10 @@ trait table:
           if (isShiftPressed && selectedRows.nonEmpty) {
             // If shift is pressed extend
             val allRows: List[(Row[T, TM], Int)] = table.getRowModel().rows.zipWithIndex
-            val currentId: RowId                 = row.id
             // selectedRow is not empty, these won't fail
             val firstId: RowId                   = selectedRows.head.id
             val lastId: RowId                    = selectedRows.last.id
-            val indexOfCurrent: Int              = allRows.indexWhere(_._1.id == currentId)
+            val indexOfCurrent: Int              = allRows.indexWhere(_._1.id == rowId)
             val indexOfFirst: Int                = allRows.indexWhere(_._1.id == firstId)
             val indexOfLast: Int                 = allRows.indexWhere(_._1.id == lastId)
             if (indexOfCurrent =!= -1 && indexOfFirst =!= -1 && indexOfLast =!= -1)
@@ -44,7 +46,10 @@ trait table:
                       .map { case (row, _) => row.id -> true }*
                   )
             else Callback.empty
-          } else row.toggleSelected()
+          } else
+            table.modRowSelection: rowSelection =>
+              RowSelection:
+                rowSelection.value + (rowId -> rowSelection.value.get(rowId).fold(true)(!_))
         )
 
 object table extends table
