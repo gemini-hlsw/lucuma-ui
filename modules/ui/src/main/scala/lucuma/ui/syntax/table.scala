@@ -9,11 +9,8 @@ import japgolly.scalajs.react.ReactMouseEvent
 import lucuma.react.table.*
 
 trait table:
-  extension [T, TM](row: Row[T, TM])
-    def getMultiRowSelectedHandler(
-      table: Table[T, TM],
-      rowId: RowId = row.id
-    ): ReactMouseEvent => Callback =
+  extension [T, TM](table: Table[T, TM])
+    def getMultiRowSelectedHandler(rowId: RowId): ReactMouseEvent => Callback =
       (e: ReactMouseEvent) =>
         val isShiftPressed: Boolean   = e.shiftKey
         val isCmdCtrlPressed: Boolean = e.metaKey || e.ctrlKey
