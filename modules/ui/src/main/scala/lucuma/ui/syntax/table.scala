@@ -3,10 +3,10 @@
 
 package lucuma.ui.syntax
 
-import lucuma.react.table.*
-import japgolly.scalajs.react.ReactMouseEvent
-import japgolly.scalajs.react.Callback
 import cats.syntax.eq.*
+import japgolly.scalajs.react.Callback
+import japgolly.scalajs.react.ReactMouseEvent
+import lucuma.react.table.*
 
 trait table:
   extension [T, TM](row: Row[T, TM])
