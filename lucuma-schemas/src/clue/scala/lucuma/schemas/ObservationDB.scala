@@ -133,6 +133,7 @@ trait ObservationDB {
     type MosPreImaging                       = enums.MosPreImaging
     type ObsActiveStatus                     = enums.ObsActiveStatus
     type ObsAttachmentType                   = lucuma.schemas.enums.ObsAttachmentType
+    type ObservationWorkflowState            = enums.ObservationWorkflowState
     type ObsStatus                           = enums.ObsStatus
     type ObserveClass                        = enums.ObserveClass
     type ObservationValidationCode           = enums.ObservationValidationCode
