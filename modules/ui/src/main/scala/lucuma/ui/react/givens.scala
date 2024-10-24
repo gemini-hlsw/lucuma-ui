@@ -8,9 +8,9 @@ import japgolly.scalajs.react.React
 import japgolly.scalajs.react.vdom.html_<^.*
 
 given Monoid[VdomNode] = new Monoid[VdomNode]:
-  val empty: VdomNode = EmptyVdom
+  val empty: VdomNode                             = EmptyVdom
   def combine(x: VdomNode, y: VdomNode): VdomNode = React.Fragment(x, y)
 
 given Monoid[TagMod] = new Monoid[TagMod]:
-  val empty: TagMod = TagMod.empty
+  val empty: TagMod                         = TagMod.empty
   def combine(x: TagMod, y: TagMod): TagMod = TagMod(x, y)

@@ -52,13 +52,13 @@ final case class FormInputTextView[V[_], A](
   modifiers:     Seq[TagMod] = Seq.empty
 )(using val eq: Eq[A], val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextView.component):
-  def stringValue: String = value.get.foldMap(validFormat.reverseGet)
-  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
-  def withMods(mods:          TagMod*)     = addModifiers(mods)
-  def apply(mods:             TagMod*)     = addModifiers(mods)
+  def stringValue: String                                   = value.get.foldMap(validFormat.reverseGet)
+  def addModifiers(modifiers: Seq[TagMod])                  = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)                      = addModifiers(mods)
+  def apply(mods:             TagMod*)                      = addModifiers(mods)
   def addPostAddons(addons: List[TagMod | CButton.Builder]) =
     copy(postAddons = this.postAddons ++ addons)
-  def withPostAddons(addons: (TagMod | CButton.Builder)*) = addPostAddons(addons.toList)
+  def withPostAddons(addons:  (TagMod | CButton.Builder)*)  = addPostAddons(addons.toList)
 
 object FormInputTextView {
   type AnyF[_] = Any
