@@ -19,6 +19,7 @@ final case class EnumDropdownOptionalView[V[_], A](
   id:                   NonEmptyString,
   value:                V[Option[A]],
   exclude:              Set[A] = Set.empty[A],
+  disabledItems:        Set[A] = Set.empty[A],
   clazz:                js.UndefOr[Css] = js.undefined,
   panelClass:           js.UndefOr[Css] = js.undefined,
   showClear:            Boolean = true,
@@ -56,7 +57,13 @@ object EnumDropdownOptionalView {
       value = props.value.get.flatten,
       options = props.enumerated.all
         .filter(v => !props.exclude.contains(v))
-        .map(e => SelectItem[A](label = props.display.shortName(e), value = e)),
+        .map(e =>
+          SelectItem[A](
+            label = props.display.shortName(e),
+            value = e,
+            disabled = props.disabledItems.contains(e)
+          )
+        ),
       showClear = props.showClear,
       clazz = props.clazz.toOption.orEmpty |+| sizeCls,
       panelClass = props.panelClass.toOption.orEmpty |+| sizeCls,
