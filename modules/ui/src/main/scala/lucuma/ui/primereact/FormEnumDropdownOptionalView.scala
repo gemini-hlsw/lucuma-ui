@@ -19,6 +19,7 @@ final case class FormEnumDropdownOptionalView[V[_], A](
   value:                V[Option[A]],
   label:                js.UndefOr[TagMod] = js.undefined,
   exclude:              Set[A] = Set.empty[A],
+  disabledItems:        Set[A] = Set.empty[A],
   clazz:                js.UndefOr[Css] = js.undefined,
   panelClass:           js.UndefOr[Css] = js.undefined,
   showClear:            Boolean =
@@ -57,6 +58,7 @@ object FormEnumDropdownOptionalView {
           id = props.id,
           value = props.value,
           exclude = props.exclude,
+          disabledItems = props.disabledItems,
           clazz = LucumaPrimeStyles.FormField |+| props.clazz.toOption.orEmpty,
           panelClass = props.panelClass,
           showClear = props.showClear,
