@@ -8,8 +8,6 @@ import cats.syntax.all.*
 import lucuma.core.enums.Breakpoint
 import lucuma.core.enums.Instrument
 import lucuma.core.enums.StepGuideState
-import lucuma.core.math.Angle
-import lucuma.core.math.Axis
 import lucuma.core.math.Offset
 import lucuma.core.math.SignalToNoise
 import lucuma.core.math.Wavelength
@@ -29,13 +27,14 @@ import lucuma.schemas.model.Visit
  *   - `Executed`:
  *     - `ExecutedVisit`
  *     - `ExecutedStep`
- * We usually want group executed steps by visits in the tables, thus dedicating an (expandable) row
- * to the visit.
+ * We usually want to group executed steps by visits in the tables, thus dedicating an (expandable)
+ * row to the visit.
  */
 trait SequenceRow[+D]:
   def id: Either[Visit.Id, Step.Id]
   protected def instrumentConfig: Option[D]
   def stepConfig: Option[StepConfig]
+  def telescopeConfig: Option[TelescopeConfig]
   def breakpoint: Breakpoint
   def isFinished: Boolean
   def stepEstimate: Option[StepEstimate]
@@ -53,16 +52,9 @@ trait SequenceRow[+D]:
   lazy val stepTypeDisplay: Option[StepTypeDisplay] =
     stepConfig.flatMap(StepTypeDisplay.fromStepConfig)
 
-  lazy val science: Option[StepConfig.Science] = stepConfig.flatMap(StepConfig.science.getOption)
+  lazy val offset: Option[Offset] = telescopeConfig.map(_.offset)
 
-  lazy val offset: Option[Offset] = science.map(_.offset)
-
-  lazy val (p, q): (Option[Offset.P], Option[Offset.Q]) = stepConfig match
-    case Some(StepConfig.Science(Offset(p, q), _)) => (p.some, q.some)
-    case Some(_)                                   => (Offset.Component.Zero[Axis.P].some, Offset.Component.Zero[Axis.Q].some)
-    case _                                         => (none, none)
-
-  lazy val guiding: Option[StepGuideState] = science.map(_.guiding)
+  lazy val guiding: Option[StepGuideState] = telescopeConfig.map(_.guiding)
   lazy val hasGuiding: Boolean             = guiding.contains_(StepGuideState.Enabled)
 
   lazy val hasBreakpoint: Boolean = breakpoint === Breakpoint.Enabled
@@ -121,6 +113,7 @@ object SequenceRow:
     val id               = step.id.asRight
     val instrumentConfig = step.instrumentConfig.some
     val stepConfig       = step.stepConfig.some
+    val telescopeConfig  = step.telescopeConfig.some
     val breakpoint       = step.breakpoint
     val isFinished       = false
     val stepEstimate     = step.estimate.some
@@ -173,6 +166,7 @@ object SequenceRow:
       val id               = visit.id.asLeft
       val instrumentConfig = none
       val stepConfig       = none
+      val telescopeConfig  = none
       export visit.{created, id => visitId, interval}
 
     object ExecutedVisit:
@@ -185,6 +179,7 @@ object SequenceRow:
       val id               = stepRecord.id.asRight
       val instrumentConfig = stepRecord.instrumentConfig.some
       val stepConfig       = stepRecord.stepConfig.some
+      val telescopeConfig  = stepRecord.telescopeConfig.some
       export stepRecord.{created, datasets, id => stepId, interval, qaState}
 
     object ExecutedStep:
