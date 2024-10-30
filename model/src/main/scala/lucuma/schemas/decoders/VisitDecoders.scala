@@ -17,6 +17,7 @@ import lucuma.core.enums.SequenceType
 import lucuma.core.model.sequence.Atom
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
+import lucuma.core.model.sequence.TelescopeConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
@@ -53,6 +54,7 @@ trait VisitDecoders:
       interval         <- c.downField("interval").as[Option[TimestampInterval]]
       instrumentConfig <- c.downField("gmosNorth").as[DynamicConfig.GmosNorth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
+      telescopeConfig  <- c.downField("telescopeConfig").as[TelescopeConfig]
       observeClass     <- c.downField("observeClass").as[ObserveClass]
       qaState          <- c.downField("qaState").as[Option[DatasetQaState]]
       datasets         <- c.downField("datasets").downField("matches").as[List[Dataset]]
@@ -64,6 +66,7 @@ trait VisitDecoders:
       interval,
       instrumentConfig,
       stepConfig,
+      telescopeConfig,
       observeClass,
       qaState,
       datasets,
@@ -78,6 +81,7 @@ trait VisitDecoders:
       interval         <- c.downField("interval").as[Option[TimestampInterval]]
       instrumentConfig <- c.downField("gmosSouth").as[DynamicConfig.GmosSouth]
       stepConfig       <- c.downField("stepConfig").as[StepConfig]
+      telescopeConfig  <- c.downField("telescopeConfig").as[TelescopeConfig]
       observeClass     <- c.downField("observeClass").as[ObserveClass]
       qaState          <- c.downField("qaState").as[Option[DatasetQaState]]
       datasets         <- c.downField("datasets").downField("matches").as[List[Dataset]]
@@ -89,6 +93,7 @@ trait VisitDecoders:
       interval,
       instrumentConfig,
       stepConfig,
+      telescopeConfig,
       observeClass,
       qaState,
       datasets,

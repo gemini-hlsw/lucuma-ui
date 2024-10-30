@@ -50,7 +50,9 @@
                           "fpu": null
                         },
                         "stepConfig": {
-                          "stepType": "SCIENCE",
+                          "stepType": "SCIENCE"
+                        },
+                        "telescopeConfig": {
                           "offset": {
                             "p": {
                               "microarcseconds": 0

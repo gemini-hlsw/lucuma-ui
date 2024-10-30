@@ -102,7 +102,8 @@ class VisitDecodersSuite extends InputStreamSuite {
                   filter = Some(GmosNorthFilter.RPrime),
                   fpu = none
                 ),
-                stepConfig = StepConfig.Science(
+                stepConfig = StepConfig.Science,
+                telescopeConfig = TelescopeConfig(
                   offset = Offset(Offset.P.Zero, Offset.Q.Zero),
                   guiding = StepGuideState.Enabled
                 ),
@@ -183,7 +184,8 @@ class VisitDecodersSuite extends InputStreamSuite {
                   filter = Some(GmosSouthFilter.RPrime),
                   fpu = none
                 ),
-                stepConfig = StepConfig.Science(
+                stepConfig = StepConfig.Science,
+                telescopeConfig = TelescopeConfig(
                   offset = Offset(Offset.P.Zero, Offset.Q.Zero),
                   guiding = StepGuideState.Enabled
                 ),

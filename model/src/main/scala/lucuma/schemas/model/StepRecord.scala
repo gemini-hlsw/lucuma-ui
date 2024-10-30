@@ -9,6 +9,7 @@ import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.ObserveClass
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
+import lucuma.core.model.sequence.TelescopeConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
@@ -23,6 +24,7 @@ enum StepRecord[+D] derives Eq:
   def interval: Option[TimestampInterval]
   def instrumentConfig: D
   def stepConfig: StepConfig
+  def telescopeConfig: TelescopeConfig
   def observeClass: ObserveClass
   def qaState: Option[DatasetQaState]
   def datasets: List[Dataset]
@@ -35,6 +37,7 @@ enum StepRecord[+D] derives Eq:
     interval:         Option[TimestampInterval],
     instrumentConfig: DynamicConfig.GmosNorth,
     stepConfig:       StepConfig,
+    telescopeConfig:  TelescopeConfig,
     observeClass:     ObserveClass,
     qaState:          Option[DatasetQaState],
     datasets:         List[Dataset],
@@ -48,6 +51,7 @@ enum StepRecord[+D] derives Eq:
     interval:         Option[TimestampInterval],
     instrumentConfig: DynamicConfig.GmosSouth,
     stepConfig:       StepConfig,
+    telescopeConfig:  TelescopeConfig,
     observeClass:     ObserveClass,
     qaState:          Option[DatasetQaState],
     datasets:         List[Dataset],
@@ -75,6 +79,9 @@ object StepRecord:
 
     val stepConfig: Lens[GmosNorth, StepConfig] =
       Focus[GmosNorth](_.stepConfig)
+
+    val telescopeConfig: Lens[GmosNorth, TelescopeConfig] =
+      Focus[GmosNorth](_.telescopeConfig)
 
     val observeClass: Lens[GmosNorth, ObserveClass] =
       Focus[GmosNorth](_.observeClass)
@@ -105,6 +112,9 @@ object StepRecord:
 
     val stepConfig: Lens[GmosSouth, StepConfig] =
       Focus[GmosSouth](_.stepConfig)
+
+    val telescopeConfig: Lens[GmosSouth, TelescopeConfig] =
+      Focus[GmosSouth](_.telescopeConfig)
 
     val observeClass: Lens[GmosSouth, ObserveClass] =
       Focus[GmosSouth](_.observeClass)

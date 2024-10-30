@@ -71,10 +71,6 @@ object SequenceQueriesGQL:
             diffuser
             shutter
           }
-          ... on Science {
-            offset { ...offsetFields }
-            guiding
-          }
           ... on SmartGcal {
             smartGcalType
           }
@@ -133,6 +129,10 @@ object SequenceQueriesGQL:
             stepConfig {
               ...stepConfigFields
             }
+            telescopeConfig {
+              offset { ...offsetFields }
+              guiding
+            }
             estimate {
               ...stepEstimateFields
             }
@@ -180,6 +180,10 @@ object SequenceQueriesGQL:
             stepConfig {
               ...stepConfigFields
             }
+            telescopeConfig {
+              offset { ...offsetFields }
+              guiding
+            }    
             estimate {
               ...stepEstimateFields
             }

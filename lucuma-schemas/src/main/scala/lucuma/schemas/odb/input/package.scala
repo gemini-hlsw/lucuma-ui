@@ -18,6 +18,7 @@ import lucuma.core.math.dimensional.*
 import lucuma.core.model.*
 import lucuma.core.model.ExposureTimeMode.*
 import lucuma.core.model.sequence.StepConfig
+import lucuma.core.model.sequence.TelescopeConfig
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.model.sequence.gmos.GmosCcdMode
 import lucuma.core.model.sequence.gmos.GmosFpuMask
@@ -481,14 +482,16 @@ extension (g: GmosFpuMask.Custom)
 
 extension (g: GmosFpuMask[GmosSouthFpu])
   def toInput: GmosSouthFpuInput =
-    GmosSouthFpuInput(customMask = g.custom.map(_.toInput).orUnassign,
-                      builtin = g.builtinFpu.orUnassign
+    GmosSouthFpuInput(
+      customMask = g.custom.map(_.toInput).orUnassign,
+      builtin = g.builtinFpu.orUnassign
     )
 
 extension (g:  GmosFpuMask[GmosNorthFpu])
   def toInput: GmosNorthFpuInput      =
-    GmosNorthFpuInput(customMask = g.custom.map(_.toInput).orUnassign,
-                      builtin = g.builtinFpu.orUnassign
+    GmosNorthFpuInput(
+      customMask = g.custom.map(_.toInput).orUnassign,
+      builtin = g.builtinFpu.orUnassign
     )
 extension (ns: GmosNodAndShuffle)
   def toInput: GmosNodAndShuffleInput = GmosNodAndShuffleInput(
@@ -538,7 +541,7 @@ extension (gmosNDynamic: DynamicConfig.GmosNorth)
   )
 
 extension (sc: StepConfig)
-  def toInput: StepConfigInput = sc match {
+  def toInput: StepConfigInput = sc match
     case StepConfig.Bias =>
       StepConfigInput(bias = true.assign)
 
@@ -555,16 +558,13 @@ extension (sc: StepConfig)
       )
       StepConfigInput(gcal = gcal.assign)
 
-    case StepConfig.Science(offset, guiding) =>
-      val science = StepConfigScienceInput(
-        offset = offset.toInput,
-        guiding = guiding.assign
-      )
-      StepConfigInput(science = science.assign)
+    case StepConfig.Science =>
+      StepConfigInput(science = true.assign)
 
     case StepConfig.SmartGcal(smartGcalType) =>
-      val smartGcal = StepConfigSmartGcalInput(
-        smartGcalType = smartGcalType
-      )
+      val smartGcal = StepConfigSmartGcalInput(smartGcalType = smartGcalType)
       StepConfigInput(smartGcal = smartGcal.assign)
-  }
+
+extension (tc: TelescopeConfig)
+  def toInput: TelescopeConfigInput =
+    TelescopeConfigInput(offset = tc.offset.toInput.assign, guiding = tc.guiding.assign)
