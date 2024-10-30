@@ -24,6 +24,7 @@ enum StepRecord[+D] derives Eq:
   def interval: Option[TimestampInterval]
   def instrumentConfig: D
   def stepConfig: StepConfig
+  def telescopeConfig: TelescopeConfig
   def observeClass: ObserveClass
   def qaState: Option[DatasetQaState]
   def datasets: List[Dataset]
