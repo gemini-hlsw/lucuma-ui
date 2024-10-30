@@ -1,5 +1,6 @@
 query {
   observation(observationId: "o-14d") {
+    execution {
       visits {
         matches {
           id
@@ -66,17 +67,17 @@ query {
                       diffuser
                       shutter
                     }
-                    ... on Science {
-                      offset {
-                        p {
-                          microarcseconds
-                        }
-                        q {
-                          microarcseconds
-                        }
+                  }
+                  telescopeConfig {
+                    offset {
+                      p {
+                        microarcseconds
                       }
-                      guiding
+                      q {
+                        microarcseconds
+                      }
                     }
+                    guiding
                   }
                   observeClass
                   qaState
@@ -98,50 +99,6 @@ query {
           }
         }
       }
-    }
-  }
-}
-
-fragment nodAndShuffleFields on GmosNodAndShuffle {
-  posA {
-    p {
-      microarcseconds
-    }
-    q {
-      microarcseconds
-    }
-  }
-  posB {
-    p {
-      microarcseconds
-    }
-    q {
-      microarcseconds
-    }
-  }
-  eOffset
-  shuffleOffset
-  shuffleCycles
-}
-
-fragment gmosNorthStaticConfigFields on GmosNorthExecutionConfig {
-  static {
-    stageMode
-    detector
-    mosPreImaging
-    nodAndShuffle {
-      ...nodAndShuffleFields
-    }
-  }
-}
-
-fragment gmosSouthStaticConfigFields on GmosSouthExecutionConfig {
-  static {
-    stageMode
-    detector
-    mosPreImaging
-    nodAndShuffle {
-      ...nodAndShuffleFields
     }
   }
 }

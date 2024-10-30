@@ -41,10 +41,10 @@ object ExecutionVisitsSubquery
                       diffuser
                       shutter
                     }
-                    ... on Science {
-                      offset $OffsetSubquery
-                      guiding
-                    }
+                  }
+                  telescopeConfig {
+                    offset $OffsetSubquery
+                    guiding
                   }
                   observeClass
                   qaState
