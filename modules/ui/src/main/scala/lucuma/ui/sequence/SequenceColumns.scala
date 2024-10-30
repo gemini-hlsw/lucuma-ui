@@ -129,13 +129,13 @@ object SequenceColumns:
       ),
       colDef(
         PColumnId,
-        _.value.toOption.map(row => getStep(row).flatMap(_.p)),
+        _.value.toOption.map(row => getStep(row).flatMap(_.offset.map(_.p))),
         header = _ => "p",
         cell = _.value.map(_.map(FormatOffsetP(_).value)).orEmpty
       ),
       colDef(
         QColumnId,
-        _.value.toOption.map(row => getStep(row).flatMap(_.q)),
+        _.value.toOption.map(row => getStep(row).flatMap(_.offset.map(_.q))),
         header = _ => "q",
         cell = _.value.map(_.map(FormatOffsetQ(_).value)).orEmpty
       ),

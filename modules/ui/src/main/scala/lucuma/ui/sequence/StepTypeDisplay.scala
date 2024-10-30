@@ -27,7 +27,7 @@ object StepTypeDisplay:
       StepTypeDisplay.Arc.some
     case gcal @ StepConfig.Gcal(_, _, _, _) if gcal.lampType === GcalLampType.Flat =>
       StepTypeDisplay.Flat.some
-    case StepConfig.Science(_, _)                                                  =>
+    case StepConfig.Science                                                        =>
       StepTypeDisplay.Object.some
     case _                                                                         =>
       none
