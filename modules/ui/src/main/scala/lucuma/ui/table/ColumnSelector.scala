@@ -13,8 +13,8 @@ import lucuma.react.primereact.PopupMenu
 import lucuma.react.primereact.hooks.all.*
 import lucuma.react.table.ColumnId
 import lucuma.react.table.ColumnVisibility
-import lucuma.ui.primereact.LucumaPrimeStyles
 import lucuma.react.table.Visibility
+import lucuma.ui.primereact.LucumaPrimeStyles
 
 case class ColumnSelector(
   allColumns:             List[(ColumnId, String)],
