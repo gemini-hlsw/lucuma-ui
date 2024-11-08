@@ -12,41 +12,39 @@ import lucuma.react.primereact.MenuItem
 import lucuma.react.primereact.PopupMenu
 import lucuma.react.primereact.hooks.all.*
 import lucuma.react.table.ColumnId
-import lucuma.react.table.Table
+import lucuma.react.table.ColumnVisibility
+import lucuma.react.table.Visibility
 import lucuma.ui.primereact.LucumaPrimeStyles
 
-case class ColumnSelector[T, M](
-  table:       Table[T, M],
-  columnNames: ColumnId => Option[String],
-  clazz:       Css = Css.Empty
+case class ColumnSelector(
+  allColumns:             List[(ColumnId, String)],
+  columnVisibility:       ColumnVisibility,
+  toggleColumnVisibility: ColumnId => Callback,
+  clazz:                  Css = Css.Empty
 ) extends ReactFnProps(ColumnSelector.component)
 
 object ColumnSelector:
-  private type Props[T, M] = ColumnSelector[T, M]
+  private type Props = ColumnSelector
 
-  private def componentBuilder[T, M] =
+  private val component =
     ScalaFnComponent
-      .withHooks[Props[T, M]]
+      .withHooks[Props]
       .usePopupMenuRef
-      .render { (props, menuRef) =>
+      .render: (props, menuRef) =>
         val menuItems =
-          props.table
-            .getAllColumns()
-            .drop(1)
-            .filter(col => props.columnNames(col.id).isDefined)
-            .map { column =>
-              val colId = column.id
+          props.allColumns
+            .map: (colId, colName) =>
               MenuItem.Custom(
-                <.div(
-                  LucumaPrimeStyles.CheckboxWithLabel,
-                  Checkbox(id = colId.value,
-                           checked = column.getIsVisible(),
-                           onChange = _ => column.toggleVisibility()
+                <.div(LucumaPrimeStyles.CheckboxWithLabel)(
+                  Checkbox(
+                    id = colId.value,
+                    checked = !props.columnVisibility.value.get(colId).contains(Visibility.Hidden),
+                    onChange = _ => props.toggleColumnVisibility(colId)
                   ),
-                  <.label(^.htmlFor := colId.value, props.columnNames(colId))
+                  <.label(^.htmlFor := colId.value, colName)
                 )
               )
-            }
+
         React.Fragment(
           Button(
             label = "Columns",
@@ -59,6 +57,3 @@ object ColumnSelector:
           ),
           PopupMenu(model = menuItems, clazz = props.clazz).withRef(menuRef.ref)
         )
-      }
-
-  private val component = componentBuilder[Any, Any]
