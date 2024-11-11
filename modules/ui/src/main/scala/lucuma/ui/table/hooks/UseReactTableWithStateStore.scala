@@ -30,7 +30,21 @@ private object UseReactTableWithStateStore:
       .useRef(CanSave(false))
       .useEffectOnMountBy((props, table, prefsLoadad, canSave) =>
         (props.stateStore.load() >>=
-          (mod => table.modState(mod).to[DefaultA] >> prefsLoadad.setStateAsync(PrefsLoaded(true))))
+          (mod =>
+            val newState: TableState = mod(table.getState())
+
+            // We apply partial state changes in case there are partial state overrides.
+            table.setColumnVisibility(newState.columnVisibility).to[DefaultA] >>
+              // table.setColumnOrder(newState.columnOrder).to[DefaultA] >> // Not implemented yet in lucuma-react
+              table.setColumnPinning(newState.columnPinning).to[DefaultA] >>
+              table.setRowPinning(newState.rowPinning).to[DefaultA] >>
+              table.setSorting(newState.sorting).to[DefaultA] >>
+              table.setExpanded(newState.expanded).to[DefaultA] >>
+              table.setColumnSizing(newState.columnSizing).to[DefaultA] >>
+              table.setColumnSizingInfo(newState.columnSizingInfo).to[DefaultA] >>
+              table.setRowSelection(newState.rowSelection).to[DefaultA] >>
+              prefsLoadad.setStateAsync(PrefsLoaded(true))
+          ))
           .guaranteeCase(outcome => canSave.setAsync(CanSave(true)).unlessA(outcome.isSuccess))
       )
       .useEffectWithDepsBy((_, table, _, _) => table.getState())((props, _, prefsLoadad, canSave) =>
