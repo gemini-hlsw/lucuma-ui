@@ -3,10 +3,10 @@
 
 package lucuma.ui.table
 
-import crystal.react.View
 import lucuma.react.table.Updater
 
-def stateInViewHandler[S](view: View[S]) = (u: Updater[S]) =>
-  u match
-    case Updater.Set(v) => view.set(v)
-    case Updater.Mod(f) => view.mod(f)
+def stateInViewHandler[F[_], S](mod: (S => S) => F[Unit]): Updater[S] => F[Unit] =
+  (u: Updater[S]) =>
+    u match
+      case Updater.Set(v) => mod(_ => v)
+      case Updater.Mod(f) => mod(f)
