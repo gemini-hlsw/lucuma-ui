@@ -15,6 +15,7 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.ReactFnPropsWithChildren
 import lucuma.ui.sso.UserVault
 import lucuma.ui.syntax.all.*
+import org.http4s.headers.Authorization
 import org.typelevel.log4cats.Logger
 
 case class ConnectionManager(
@@ -25,7 +26,9 @@ case class ConnectionManager(
 )(using
   val logger:       Logger[DefaultA]
 ) extends ReactFnPropsWithChildren(ConnectionManager.component):
-  val payload: Map[String, Json] = Map("Authorization" -> vault.authorizationHeader.asJson)
+  val payload: Map[String, Json] = Map(
+    Authorization.name.toString -> vault.authorizationHeader.credentials.renderString.asJson
+  )
 
 object ConnectionManager:
   private type Props = ConnectionManager
