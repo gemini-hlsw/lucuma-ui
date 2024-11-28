@@ -9,12 +9,17 @@ import eu.timepit.refined.cats.*
 import eu.timepit.refined.types.string.NonEmptyString
 import lucuma.core.model.User
 import monocle.Focus
+import org.http4s.AuthScheme
+import org.http4s.Credentials
+import org.http4s.headers.Authorization
 import org.typelevel.cats.time.instances.instant.*
 
 import java.time.Instant
 
 case class UserVault(user: User, expiration: Instant, token: NonEmptyString) derives Eq:
-  lazy val authorizationHeader: String = s"Bearer ${token.value}"
+  lazy val authorizationHeader: Authorization =
+    Authorization:
+      Credentials.Token(AuthScheme.Bearer, token.value)
 
 object UserVault:
   val user  = Focus[UserVault](_.user)
