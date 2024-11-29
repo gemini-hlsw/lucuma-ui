@@ -21,12 +21,18 @@ object LucumaIcons:
   @JSImport("@fortawesome/pro-regular-svg-icons", "faCircleInfo")
   val faCircleInfo: FAIcon = js.native
 
+  @js.native
+  @JSImport("@fortawesome/pro-duotone-svg-icons", "faGears")
+  val faGears: FAIcon = js.native
+
   FontAwesome.library.add(
     faCircle,
     faCircleNotch,
-    faCircleInfo
+    faCircleInfo,
+    faGears
   )
 
   inline def Circle      = FontAwesomeIcon(faCircle)
   inline def CircleNotch = FontAwesomeIcon(faCircleNotch).withSpin()
   inline def CircleInfo  = FontAwesomeIcon(faCircleInfo)
+  inline def Gears       = FontAwesomeIcon(faGears)
