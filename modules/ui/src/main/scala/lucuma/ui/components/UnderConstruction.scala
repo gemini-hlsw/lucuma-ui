@@ -12,21 +12,16 @@ import lucuma.ui.syntax.all.given
 
 object UnderConstruction:
   protected val component =
-    ScalaComponent
-      .builder[Unit]
-      .stateless
-      .render { _ =>
-        <.div(LucumaStyles.HVCenter)(
-          <.div(
-            <.div("Under Construction"),
-            <.div(LucumaStyles.HVCenter)(
-              LucumaIcons.Gears
-                .withSize(IconSize.X5)
-                .withTitle("Under construction")
-            )
+    ScalaFnComponent[Unit]: _ =>
+      <.div(LucumaStyles.HVCenter)(
+        <.div(
+          <.div("Under Construction"),
+          <.div(LucumaStyles.HVCenter)(
+            LucumaIcons.Gears
+              .withSize(IconSize.X5)
+              .withTitle("Under construction")
           )
         )
-      }
-      .build
+      )
 
-  def apply() = component()
+  inline def apply() = component()
