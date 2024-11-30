@@ -12,3 +12,5 @@ object LucumaStyles:
   val IndicatorUnknown: Css = Css("lucuma-indicator-unknown")
 
   val Toast = Css("lucuma-toast")
+
+  val HVCenter = Css("lucuma-horizontal-vertical-center")
