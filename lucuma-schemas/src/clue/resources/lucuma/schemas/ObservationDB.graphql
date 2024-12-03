@@ -111,6 +111,17 @@ type AddDatasetEventResult {
   event: DatasetEvent!
 }
 
+input AddProgramUserInput {
+  orcidId: String!
+  programId: ProgramId!
+  role: ProgramUserRole!
+  SET: ProgramUserPropertiesInput
+}
+
+type AddProgramUserResult {
+  programUser: ProgramUser!
+}
+
 """SequenceEvent creation parameters."""
 input AddSequenceEventInput {
   visitId: VisitId!
@@ -2176,6 +2187,13 @@ type Mutation {
   ): AddDatasetEventResult!
 
   """
+  Looks up or creates (if necessary) a user associated with a given ORCID id and
+  adds it to the given program.  No invitation is sent as a result of this
+  operation.
+  """
+  addProgramUser(input: AddProgramUserInput!): AddProgramUserResult!
+
+  """
   Adds a sequence event associated with the given visit. Multiple events
   will be produced during the execution of a sequence as it is started,
   paused, continued, etc.
@@ -2760,6 +2778,7 @@ input ProgramPropertiesInput {
 input ProgramUserPropertiesInput {
   """The user's partner."""
   partnerLink: PartnerLinkInput
+  fallbackProfile: UserProfileInput
 
   """The user's educational status."""
   educationalStatus: EducationalStatus
@@ -2804,6 +2823,7 @@ type ProgramUser {
   partnerLink: PartnerLink!
   program: Program
   user: User
+  fallbackProfile: UserProfile!
 
   """User educational status. PHD/Undergrad/Grad/Other"""
   educationalStatus: EducationalStatus
@@ -5028,7 +5048,7 @@ type Execution {
   ): ExecutionConfig
 
   """Determines the execution state as a whole of this observation."""
-  state: ObservationExecutionState!
+  executionState: ExecutionState!
 
   """
   Executed (or at least partially executed) atom records, across all visits.
@@ -6646,22 +6666,23 @@ type Observation {
   workflow: ObservationWorkflow!
 }
 
-enum ObservationExecutionState {
+enum ExecutionState {
   """
-  The observation isn't sufficiently defined, or there is a problem that
-  must first be resolved.
+  The sequence or observation isn't sufficiently defined, or there is a problem
+  that must first be resolved.
   """
   NOT_DEFINED
 
-  """No execution visit has been recorded for this observation."""
+  """No execution visit has been recorded."""
   NOT_STARTED
 
   """
-  At least one visit was made for this observation, but it is not yet complete.
+  At least one visit was made, but the sequence or observation is not yet
+  complete.
   """
   ONGOING
 
-  """No more science data is expected for this observation."""
+  """No more data is expected."""
   COMPLETED
 }
 
@@ -7363,6 +7384,34 @@ type Query {
   ): ObservationSelectResult!
 
   """
+  Observations grouped by commonly held observing modes. Identify the program by
+  specifying only one of programId, programReference, or proposalReference.  If
+  more than one is provided, all must match.  If none are set, nothing will
+  match.
+  """
+  observingModeGroup(
+    """Program ID"""
+    programId: ProgramId
+
+    """Proposal Reference"""
+    proposalReference: ProposalReferenceLabel
+
+    """Program reference"""
+    programReference: ProgramReferenceLabel
+
+    """Filters the selection of observations."""
+    WHERE: WhereObservation
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+
+    """Set to true to include deleted values"""
+    includeDeleted: Boolean! = false
+  ): ObservingModeGroupSelectResult!
+
+  """
   Returns the program with the given id or reference, if any. Identify the
   program by specifying only one of programId, programReference, or
   proposalReference. If more than one is provided, all must match.  If none are
@@ -7530,9 +7579,6 @@ type ObservingMode {
 }
 
 type ObservingModeGroup {
-  """IDs of observations that use the same constraints"""
-  observationIds: [ObservationId!]!
-
   """Observations associated with the common value"""
   observations(
     """Set to true to include deleted values"""
@@ -7550,7 +7596,10 @@ type ObservingModeGroup {
   ): ObservationSelectResult!
 
   """Commonly held value across the observations"""
-  observingMode: ObservingMode
+  observingMode: ObservingMode!
+
+  """Link back to program."""
+  program: Program!
 }
 
 """
@@ -7679,6 +7728,13 @@ type SequenceDigest {
   and any remaining atoms not included in 'possibleFuture'.
   """
   atomCount: NonNegInt!
+
+  """
+  Execution state for the sequence. Note, acquisition sequences are never
+  'COMPLETED'.  The execution state for the observation as a whole is that of
+  the science sequence.
+  """
+  executionState: ExecutionState!
 }
 
 """
@@ -8844,10 +8900,21 @@ type User {
   type: UserType!
   serviceName: String
   orcidId: String
-  orcidGivenName: String
-  orcidCreditName: String
-  orcidFamilyName: String
-  orcidEmail: String
+  profile: UserProfile!
+}
+
+type UserProfile {
+  givenName: String
+  familyName: String
+  creditName: String
+  email: String
+}
+
+input UserProfileInput {
+  givenName: String
+  familyName: String
+  creditName: String
+  email: String
 }
 
 """
@@ -10769,6 +10836,9 @@ input WhereProgramUser {
   """Matches the partner."""
   partnerLink: WherePartnerLink
 
+  """Matches the fallback profile."""
+  fallbackProfile: WhereUserProfile
+
   """Matches the educational status."""
   educationalStatus: WhereOptionEqEducationalStatus
 
@@ -10962,10 +11032,14 @@ input WhereUser {
   """Matches the user type."""
   type: WhereEqUserType
   orcidId: WhereOptionString
-  orcidGivenName: WhereOptionString
-  orcidCreditName: WhereOptionString
-  orcidFamilyName: WhereOptionString
-  orcidEmail: WhereOptionString
+  profile: WhereUserProfile
+}
+
+input WhereUserProfile {
+  givenName: WhereOptionString
+  creditName: WhereOptionString
+  familyName: WhereOptionString
+  email: WhereOptionString
 }
 
 input WhereWavelength {

@@ -27,6 +27,7 @@ import lucuma.core.math.RadialVelocity
 import lucuma.core.math.RightAscension
 import lucuma.core.math.Wavelength
 import lucuma.core.math.dimensional.*
+import lucuma.core.math.dimensional.syntax.*
 import lucuma.core.math.units.*
 import lucuma.core.model.CatalogInfo
 import lucuma.core.model.EmissionLine
