@@ -62,7 +62,7 @@ case class DynTable(
   def adjustColSizes(width: SizePx)(colState: DynTable.ColState): DynTable.ColState = {
     // Recurse at go1 when a column is dropped.
     // This level just to avoid clearing overflow on co-recursion
-    @tailrec
+    // @tailrec // Scala 3.5.2 thinks there are no recursive calls. Let's leave this commented in case it gets fixed.
     def go1(colState: DynTable.ColState): DynTable.ColState =
       lazy val visible: Set[ColumnId] =
         columnSizes.keySet.filterNot(colId =>
