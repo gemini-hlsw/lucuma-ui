@@ -9,19 +9,21 @@ val Versions = new {
   val catsTime          = "0.5.1"
   val circe             = "0.14.10"
   val crystal           = "0.46.0"
+  val disciplineMunit   = "2.0.0"
   val fs2Dom            = "0.3.0-M1"
   val kittens           = "3.4.0"
   val http4s            = "0.23.30"
   val http4sDom         = "0.2.11"
   val log4catsLogLevel  = "0.3.1"
-  val lucumaCore        = "0.108.0"
+  val lucumaCore        = "0.110.0"
   val lucumaPrimeStyles = "0.3.0"
   val lucumaReact       = "0.73.2"
   val lucumaRefined     = "0.1.2"
-  val lucumaSchemas     = "0.107.2"
-  val lucumaSso         = "0.6.29"
+  val lucumaSchemas     = "0.108.0"
+  val lucumaSso         = "0.7.0"
   val monocle           = "3.3.0"
   val mouse             = "1.3.2"
+  val munit             = "1.0.3"
   val pprint            = "0.9.0"
   val scalaJsReact      = "3.0.0-beta6"
 }
@@ -126,10 +128,10 @@ lazy val tests =
     .dependsOn(testkit)
     .settings(
       libraryDependencies ++= Seq(
-        "edu.gemini"    %%% "lucuma-core-testkit"    % Versions.lucumaCore    % Test,
-        "edu.gemini"    %%% "lucuma-schemas-testkit" % Versions.lucumaSchemas % Test,
-        "org.scalameta" %%% "munit"                  % "1.0.2"                % Test,
-        "org.typelevel" %%% "discipline-munit"       % "2.0.0"                % Test
+        "edu.gemini"    %%% "lucuma-core-testkit"    % Versions.lucumaCore      % Test,
+        "edu.gemini"    %%% "lucuma-schemas-testkit" % Versions.lucumaSchemas   % Test,
+        "org.scalameta" %%% "munit"                  % Versions.munit           % Test,
+        "org.typelevel" %%% "discipline-munit"       % Versions.disciplineMunit % Test
       )
     )
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
