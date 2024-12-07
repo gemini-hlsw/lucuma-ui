@@ -55,7 +55,7 @@ object UseDynTable:
 
       UseDynTable(dynTable.columnSizes, colState.value, onColumnSizingChangeHandler)
 
-  object HooksApiExt:
+  object HooksApiExt {
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):
       /**
        * Computes a dynamic table state, automatically computing column overflows and sizes.
@@ -98,6 +98,7 @@ object UseDynTable:
         step: Step
       ): step.Next[UseDynTable] =
         useDynTableBy(step.squash(props)(_))
+  }
 
   protected trait HooksApiExt:
     import HooksApiExt.*
