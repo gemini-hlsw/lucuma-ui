@@ -36,12 +36,12 @@ case class FormInputText(
   onKeyDown:        js.UndefOr[ReactKeyboardEventFromInput => Callback] = js.undefined,
   modifiers:        Seq[TagMod] = Seq.empty
 ) extends ReactFnProps(FormInputText.component):
-  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
-  def withMods(mods:          TagMod*)     = addModifiers(mods)
-  def apply(mods:             TagMod*)     = addModifiers(mods)
+  def addModifiers(modifiers: Seq[TagMod])                  = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)                      = addModifiers(mods)
+  def apply(mods:             TagMod*)                      = addModifiers(mods)
   def addPostAddons(addons: List[TagMod | CButton.Builder]) =
     copy(postAddons = this.postAddons ++ addons)
-  def withPostAddons(addons: (TagMod | CButton.Builder)*) = addPostAddons(addons.toList)
+  def withPostAddons(addons:  (TagMod | CButton.Builder)*)  = addPostAddons(addons.toList)
 
 object FormInputText {
   private val component = ScalaFnComponent[FormInputText] { props =>
