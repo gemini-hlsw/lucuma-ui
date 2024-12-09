@@ -22,55 +22,53 @@ trait ObservationDB {
 
   object Scalars {
     // Ids
-    type AtomId                     = Atom.Id
-    type CallForProposalsId         = CallForProposals.Id
-    type ConfigurationRequestId     = ConfigurationRequest.Id
-    type DatasetId                  = Dataset.Id
-    type ExecutionEventId           = ExecutionEvent.Id
-    type GroupId                    = Group.Id
-    type ObsAttachmentId            = ObsAttachment.Id
-    type ObservationId              = Observation.Id
-    type ProgramId                  = Program.Id
-    type StepId                     = Step.Id
-    type TargetId                   = Target.Id
-    type UserId                     = User.Id
-    type VisitId                    = Visit.Id
+    type AtomId                    = Atom.Id
+    type AttachmentId              = Attachment.Id
+    type CallForProposalsId        = CallForProposals.Id
+    type ConfigurationRequestId    = ConfigurationRequest.Id
+    type DatasetId                 = Dataset.Id
+    type ExecutionEventId          = ExecutionEvent.Id
+    type GroupId                   = Group.Id
+    type ObservationId             = Observation.Id
+    type ProgramId                 = Program.Id
+    type StepId                    = Step.Id
+    type TargetId                  = Target.Id
+    type UserId                    = User.Id
+    type VisitId                   = Visit.Id
     // Basic types
-    type BigDecimal                 = scala.BigDecimal
-    type Long                       = scala.Long
+    type BigDecimal                = scala.BigDecimal
+    type Long                      = scala.Long
     // Formatted strings
-    type DmsString                  = String
-    type EpochString                = String
-    type HmsString                  = String
-    type UserInvitationId           = String
-    type UserInvitationKey          = String
+    type DmsString                 = String
+    type EpochString               = String
+    type HmsString                 = String
+    type UserInvitationId          = String
+    type UserInvitationKey         = String
     // Refined
-    type Extinction                 = NonNegBigDecimal // """Non-negative floating-point value."""
-    type NonEmptyString             = eu.timepit.refined.types.string.NonEmptyString
-    type NonNegBigDecimal           = eu.timepit.refined.types.numeric.NonNegBigDecimal
-    type NonNegInt                  = eu.timepit.refined.types.numeric.NonNegInt
-    type NonNegLong                 = eu.timepit.refined.types.numeric.NonNegLong
-    type NonNegShort                = eu.timepit.refined.types.numeric.NonNegShort
-    type PosBigDecimal              = eu.timepit.refined.types.numeric.PosBigDecimal
-    type PosInt                     = eu.timepit.refined.types.numeric.PosInt
-    type PosLong                    = eu.timepit.refined.types.numeric.PosLong
-    type PosShort                   = eu.timepit.refined.types.numeric.PosShort
+    type Extinction                = NonNegBigDecimal // """Non-negative floating-point value."""
+    type NonEmptyString            = eu.timepit.refined.types.string.NonEmptyString
+    type NonNegBigDecimal          = eu.timepit.refined.types.numeric.NonNegBigDecimal
+    type NonNegInt                 = eu.timepit.refined.types.numeric.NonNegInt
+    type NonNegLong                = eu.timepit.refined.types.numeric.NonNegLong
+    type NonNegShort               = eu.timepit.refined.types.numeric.NonNegShort
+    type PosBigDecimal             = eu.timepit.refined.types.numeric.PosBigDecimal
+    type PosInt                    = eu.timepit.refined.types.numeric.PosInt
+    type PosLong                   = eu.timepit.refined.types.numeric.PosLong
+    type PosShort                  = eu.timepit.refined.types.numeric.PosShort
     // Core Types
-    type DatasetFilename            = lucuma.core.model.sequence.Dataset.Filename
-    type EmailAddress               = lucuma.core.data.EmailAddress
-    type ProposalReferenceLabel     = lucuma.core.model.ProposalReference
-    type ProgramReferenceLabel      = lucuma.core.model.ProgramReference
-    type ObservationReferenceLabel  = lucuma.core.model.ObservationReference
-    type DatasetReferenceLabel      = lucuma.core.model.sequence.DatasetReference
-    type Semester                   = lucuma.core.model.Semester
-    type SignalToNoise              = lucuma.core.math.SignalToNoise
-    type Timestamp                  = lucuma.core.util.Timestamp
+    type DatasetFilename           = lucuma.core.model.sequence.Dataset.Filename
+    type EmailAddress              = lucuma.core.data.EmailAddress
+    type ProposalReferenceLabel    = lucuma.core.model.ProposalReference
+    type ProgramReferenceLabel     = lucuma.core.model.ProgramReference
+    type ObservationReferenceLabel = lucuma.core.model.ObservationReference
+    type DatasetReferenceLabel     = lucuma.core.model.sequence.DatasetReference
+    type Semester                  = lucuma.core.model.Semester
+    type SignalToNoise             = lucuma.core.math.SignalToNoise
+    type Timestamp                 = lucuma.core.util.Timestamp
     // Enum Meta
     // These mappings cannot be used, because the decoder is for the
     // Enumerated instances, but this prevents a spurious codec from being generated.
-    type ObsAttachmentTypeMeta      = lucuma.schemas.enums.ObsAttachmentType
-    type ProposalAttachmentTypeMeta = lucuma.schemas.enums.ProposalAttachmentType
-    type ProposalStatusMeta         = lucuma.schemas.enums.ProposalStatus
+    type ProposalStatusMeta        = lucuma.schemas.enums.ProposalStatus
 
     type Date = java.time.LocalDate
   }
@@ -78,6 +76,7 @@ trait ObservationDB {
   object Enums {
     type AtomExecutionState                  = lucuma.schemas.model.enums.AtomExecutionState
     type AtomStage                           = enums.AtomStage
+    type AttachmentType                      = enums.AttachmentType
     type Band                                = enums.Band
     type Breakpoint                          = enums.Breakpoint
     type BrightnessIntegratedUnits           = Units Of Brightness[Integrated]
@@ -132,7 +131,6 @@ trait ObservationDB {
     type LineFluxSurfaceUnits                = Units Of LineFlux[Surface]
     type MosPreImaging                       = enums.MosPreImaging
     type ObsActiveStatus                     = enums.ObsActiveStatus
-    type ObsAttachmentType                   = lucuma.schemas.enums.ObsAttachmentType
     type ObservationWorkflowState            = enums.ObservationWorkflowState
     type ObsStatus                           = enums.ObsStatus
     type ObserveClass                        = enums.ObserveClass
@@ -142,7 +140,6 @@ trait ObservationDB {
     type PlanetaryNebulaSpectrum             = enums.PlanetaryNebulaSpectrum
     type ProgramType                         = enums.ProgramType
     type ProgramUserRole                     = enums.ProgramUserRole
-    type ProposalAttachmentType              = lucuma.schemas.enums.ProposalAttachmentType
     type ProposalStatus                      = lucuma.schemas.enums.ProposalStatus
     type QuasarSpectrum                      = enums.QuasarSpectrum
     type ScienceBand                         = enums.ScienceBand
