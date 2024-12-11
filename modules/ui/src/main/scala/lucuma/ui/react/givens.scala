@@ -11,6 +11,10 @@ given Monoid[VdomNode] = new Monoid[VdomNode]:
   val empty: VdomNode                             = EmptyVdom
   def combine(x: VdomNode, y: VdomNode): VdomNode = React.Fragment(x, y)
 
+given Monoid[VdomElement] = new Monoid[VdomElement]:
+  val empty: VdomElement                                   = React.Fragment()
+  def combine(x: VdomElement, y: VdomElement): VdomElement = React.Fragment(x, y)
+
 given Monoid[TagMod] = new Monoid[TagMod]:
   val empty: TagMod                         = TagMod.empty
   def combine(x: TagMod, y: TagMod): TagMod = TagMod(x, y)
