@@ -86,6 +86,7 @@ trait ObservationDB {
     type CatalogName                         = enums.CatalogName
     type ChargeClass                         = enums.ChargeClass
     type CloudExtinction                     = enums.CloudExtinction
+    type ConfigurationRequestStatus          = enums.ConfigurationRequestStatus
     type CoolStarTemperature                 = enums.CoolStarTemperature
     type DatasetQaState                      = enums.DatasetQaState
     type DatasetStage                        = enums.DatasetStage

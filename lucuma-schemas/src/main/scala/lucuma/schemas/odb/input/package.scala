@@ -3,6 +3,7 @@
 
 package lucuma.schemas.odb.input
 
+import cats.syntax.all.*
 import clue.data.Input
 import clue.data.syntax.*
 import eu.timepit.refined.types.numeric.NonNegInt
@@ -26,6 +27,7 @@ import lucuma.core.model.sequence.gmos.GmosGratingConfig
 import lucuma.core.model.sequence.gmos.GmosNodAndShuffle
 import lucuma.core.model.sequence.gmos.StaticConfig
 import lucuma.core.util.*
+import lucuma.schemas.ObservationDB.Enums.PartnerLinkType
 import lucuma.schemas.ObservationDB.Enums.PosAngleConstraintMode
 import lucuma.schemas.ObservationDB.Types.*
 import lucuma.schemas.model.BasicConfiguration
@@ -69,6 +71,14 @@ extension (id: Target.Id)
 extension (ids: List[Target.Id])
   def toWhereTargets: WhereTarget =
     WhereTarget(OR = ids.map(_.toWhereTarget).assign)
+
+extension (id: ConfigurationRequest.Id)
+  def toWhereConfigurationRequest: WhereConfigurationRequest =
+    WhereConfigurationRequest(id = WhereOrderConfigurationRequestId(EQ = id.assign).assign)
+
+extension (ids: List[ConfigurationRequest.Id])
+  def toWhereConfigurationRequest: WhereConfigurationRequest =
+    WhereConfigurationRequest(id = WhereOrderConfigurationRequestId(IN = ids.assign).assign)
 
 extension (a: Angle)
   def toInput: AngleInput =
@@ -291,6 +301,16 @@ extension (etm: ExposureTimeMode)
       )
     case SignalToNoiseMode(value)       =>
       ExposureTimeModeInput(signalToNoise = SignalToNoiseModeInput(value = value).assign)
+
+extension (pl: Option[PartnerLink])
+  def toInput: PartnerLinkInput =
+    pl match
+      case Some(PartnerLink.HasPartner(p)) =>
+        PartnerLinkInput(PartnerLinkType.HasPartner.assign, p.assign)
+      case Some(PartnerLink.HasNonPartner) =>
+        PartnerLinkInput(PartnerLinkType.HasNonPartner.assign, none.orUnassign)
+      case _                               =>
+        PartnerLinkInput(PartnerLinkType.HasUnspecifiedPartner.assign, none.orUnassign)
 
 extension (sidereal: Target.Sidereal)
   def toInput: SiderealInput = SiderealInput(
