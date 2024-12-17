@@ -270,6 +270,15 @@
   --plot-plot-band-exclude-window-opacity: 0.2;
 }
 
+@mixin custom-light {
+  --active-row-background: var(--orange-50);
+  --disabled-row-background: var(--bluegray-50);
+  --disabled-row-color: var(--bluegray-400);
+  --negative-row-background: var(--red-50);
+  --negative-row-color: var(--red-400);
+  --muted-color: var(--gray-600);
+}
+
 .light-theme {
   // Values here come from the default SUI theme
   // COLORS
@@ -293,4 +302,5 @@
   @include header-light;
   @include plot-light;
   @include datepicker-light;
+  @include custom-light;
 }

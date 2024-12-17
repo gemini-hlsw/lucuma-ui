@@ -391,6 +391,15 @@
   --plot-plot-band-exclude-window-opacity: 0.25;
 }
 
+@mixin custom-dark {
+  --active-row-background: var(--orange-900);
+  --disabled-row-background: var(--bluegray-800);
+  --disabled-row-color: var(--bluegray-300);
+  --negative-row-background: var(--red-900);
+  --negative-row-color: var(--red-100);
+  --muted-color: var(--gray-300);
+}
+
 .dark-theme {
   // Values defined based on slate theme
   // COLORS
@@ -414,4 +423,5 @@
   @include header-dark;
   @include plot-dark;
   @include datepicker-dark;
+  @include custom-dark;
 }
