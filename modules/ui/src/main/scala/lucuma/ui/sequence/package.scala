@@ -12,13 +12,19 @@ import lucuma.core.math.SignalToNoise
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.NewType
+import lucuma.react.SizePx
 import lucuma.react.common.*
 import lucuma.react.primereact.Tooltip
 import lucuma.react.primereact.tooltip.*
+import lucuma.react.syntax.*
 import lucuma.ui.LucumaIcons
 import lucuma.ui.LucumaStyles
 import lucuma.ui.utils.*
 import lucuma.ui.utils.Render
+
+object SequenceRowHeight:
+  val Regular: SizePx   = 25.toPx
+  val WithExtra: SizePx = 60.toPx
 
 object StepIndex extends NewType[PosInt]:
   val One: StepIndex = StepIndex(PosInt.unsafeFrom(1))
