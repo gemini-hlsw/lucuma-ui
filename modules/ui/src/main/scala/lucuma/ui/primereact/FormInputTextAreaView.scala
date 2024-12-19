@@ -27,6 +27,7 @@ final case class FormInputTextAreaView[V[_]](
   autoResize:       js.UndefOr[Boolean] = js.undefined,
   tooltip:          js.UndefOr[VdomNode] = js.undefined,
   tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
+  onTextChange:     String => Callback = _ => Callback.empty,
   modifiers:        Seq[TagMod] = Seq.empty
 )(using val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextAreaView.component):
@@ -42,10 +43,13 @@ object FormInputTextAreaView:
 
   private type Props[V[_]] = FormInputTextAreaView[V]
 
-  private def onChange[V[_]](valueView: View[String]): ReactEventFromTextArea => Callback =
+  private def onChange[V[_]](
+    valueView:    View[String],
+    onTextChange: String => Callback
+  ): ReactEventFromTextArea => Callback =
     (e: ReactEventFromTextArea) => {
       val v = e.target.value
-      valueView.set(v)
+      valueView.set(v) *> onTextChange(v)
     }
 
   private def onBlur[V[_]](props: Props[V], valueView: View[String]): Callback =
@@ -68,7 +72,7 @@ object FormInputTextAreaView:
         props.tooltipPlacement,
         props.modifiers
       )(
-        ^.onChange ==> onChange[V](valueView),
+        ^.onChange ==> onChange[V](valueView, props.onTextChange),
         ^.onBlur --> onBlur(props, valueView)
       )
     )

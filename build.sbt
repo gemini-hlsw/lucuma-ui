@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.124"
+ThisBuild / tlBaseVersion       := "0.125"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
