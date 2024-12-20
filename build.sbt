@@ -17,9 +17,9 @@ val Versions = new {
   val log4catsLogLevel  = "0.3.1"
   val lucumaCore        = "0.112.1"
   val lucumaPrimeStyles = "0.3.0"
-  val lucumaReact       = "0.74.0"
+  val lucumaReact       = "0.75.0"
   val lucumaRefined     = "0.1.2"
-  val lucumaSchemas     = "0.110.1"
+  val lucumaSchemas     = "0.110.3"
   val lucumaSso         = "0.7.2"
   val monocle           = "3.3.0"
   val mouse             = "1.3.2"
@@ -40,8 +40,8 @@ addCommandAlias(
 
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
-ThisBuild / scalaVersion             := "3.5.2"
-ThisBuild / crossScalaVersions       := Seq("3.5.2")
+ThisBuild / scalaVersion             := "3.6.2"
+ThisBuild / crossScalaVersions       := Seq("3.6.2")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions")
 
 enablePlugins(NoPublishPlugin)
