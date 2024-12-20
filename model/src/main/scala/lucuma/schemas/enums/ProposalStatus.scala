@@ -3,8 +3,6 @@
 
 package lucuma.schemas.enums
 
-import cats.Eq
-import cats.derived.*
 import io.circe.*
 import io.circe.generic.semiauto
 import lucuma.core.util.Display
@@ -12,7 +10,7 @@ import lucuma.core.util.Enumerated
 import monocle.Focus
 import monocle.Lens
 
-case class ProposalStatus(tag: String, name: String) derives Eq
+case class ProposalStatus(tag: String, name: String)
 
 object ProposalStatus {
   given Display[ProposalStatus] = Display.byShortName(_.name)
