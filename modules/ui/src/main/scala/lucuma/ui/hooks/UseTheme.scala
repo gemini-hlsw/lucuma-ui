@@ -10,11 +10,14 @@ import japgolly.scalajs.react.hooks.CustomHook
 import lucuma.ui.enums.Theme
 
 private object UseTheme:
-  private val hook =
-    CustomHook[Theme]
-      .useStateViewBy(initial => initial)
-      .useEffectOnMountBy((initial, state) => Theme.init(initial) >>= state.set)
-      .buildReturning((_, theme) => theme.withOnMod(_.mount))
+  def useTheme(initial: => Theme): HookResult[View[Theme]] =
+    for
+      theme <- useStateView(initial)
+      _     <- useEffectOnMount(Theme.init(initial) >>= theme.set)
+    yield theme.withOnMod(_.mount)
+
+  private val hook: CustomHook[Theme, View[Theme]] =
+    CustomHook.fromHookResult(useTheme(_))
 
   object HooksApiExt:
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):

@@ -3,4 +3,6 @@
 
 package lucuma.ui.hooks
 
+export UseTheme.useTheme
+
 export UseTheme.syntax.*
