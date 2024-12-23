@@ -1,12 +1,14 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
 
+const scalaVersion = '3.6.2';
+
 // https://vitejs.dev/config/
 export default ({ command, mode }) => {
   const sjs =
     mode == "production"
-      ? path.resolve(__dirname, "target/scala-3.5.2/demo-opt/")
-      : path.resolve(__dirname, "target/scala-3.5.2/demo-fastopt/");
+      ? path.resolve(__dirname, `target/scala-${scalaVersion}/demo-opt/`)
+      : path.resolve(__dirname, `target/scala-${scalaVersion}/demo-fastopt/`);
   const webapp = path.resolve(__dirname, "src/main/webapp/");
   const themeConfig = path.resolve(webapp, "theme/theme.config");
   const themeSite = path.resolve(webapp, "theme/site");
