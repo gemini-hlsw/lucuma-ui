@@ -111,6 +111,9 @@ trait SequenceRowBuilder[D]:
           .map(_.start.toInstant)
           .fold("---")(start => UtcFormatter.format(start))
       ),
+      <.span(SequenceStyles.VisitStepExtraStatus)(
+        step.executionState.renderVdom
+      ),
       <.span(SequenceStyles.VisitStepExtraDatasets)(
         step.datasets
           .map: dataset =>

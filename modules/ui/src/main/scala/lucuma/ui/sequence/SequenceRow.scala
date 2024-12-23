@@ -180,7 +180,15 @@ object SequenceRow:
       val instrumentConfig = stepRecord.instrumentConfig.some
       val stepConfig       = stepRecord.stepConfig.some
       val telescopeConfig  = stepRecord.telescopeConfig.some
-      export stepRecord.{created, datasets, id => stepId, interval, qaState}
+      export stepRecord.{
+        created,
+        datasets,
+        executionState,
+        generatedId,
+        id => stepId,
+        interval,
+        qaState
+      }
 
     object ExecutedStep:
       given [D]: Eq[ExecutedStep[D]] = Eq.by(_.id)

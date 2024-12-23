@@ -14,9 +14,11 @@ import lucuma.core.model.sequence.gmos.DynamicConfig
 import lucuma.core.util.NewType
 import lucuma.react.SizePx
 import lucuma.react.common.*
+import lucuma.react.primereact.Tag
 import lucuma.react.primereact.Tooltip
 import lucuma.react.primereact.tooltip.*
 import lucuma.react.syntax.*
+import lucuma.schemas.model.enums.StepExecutionState
 import lucuma.ui.LucumaIcons
 import lucuma.ui.LucumaStyles
 import lucuma.ui.utils.*
@@ -52,6 +54,21 @@ given Render[Option[DatasetQaState]] = Render.by: qaState =>
       case Some(DatasetQaState.Usable) => LucumaStyles.IndicatorWarning
       case Some(DatasetQaState.Fail)   => LucumaStyles.IndicatorFail
       case None                        => LucumaStyles.IndicatorUnknown
+
+given Render[StepExecutionState] = Render.by:
+  case StepExecutionState.NotStarted | StepExecutionState.Ongoing | StepExecutionState.Completed =>
+    EmptyVdom
+  case other @ (StepExecutionState.Aborted | StepExecutionState.Stopped |
+      StepExecutionState.Abandoned) =>
+    Tag(
+      other match
+        case StepExecutionState.Aborted   => "Aborted"
+        case StepExecutionState.Stopped   => "Stopped Early"
+        case StepExecutionState.Abandoned => "Abandoned",
+      severity = other match
+        case StepExecutionState.Stopped => Tag.Severity.Info
+        case _                          => Tag.Severity.Danger
+    )
 
 extension [D, R <: SequenceRow[D]](list: List[R])
   /* Zip list with `StepIndex` and return the indexed list and the next index */
