@@ -3,7 +3,6 @@
 
 package lucuma.ui.sequence
 
-import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.Css
 import lucuma.react.fa.*
 
