@@ -23,42 +23,44 @@ private object UseReactTableWithStateStore:
 
   private object CanSave extends NewType[Boolean]
 
-  private def hook[T, M] =
-    CustomHook[TableOptionsWithStateStore[DefaultA, T, M]]
-      .useReactTableBy(_.tableOptions)
-      .useState(PrefsLoaded(false))
-      .useRef(CanSave(false))
-      .useEffectOnMountBy((props, table, prefsLoadad, canSave) =>
-        (props.stateStore.load() >>=
-          (mod =>
-            val newState: TableState = mod(table.getState())
+  def useReactTableWithStateStore[T, M](
+    options: TableOptionsWithStateStore[DefaultA, T, M]
+  ): HookResult[Table[T, M]] =
+    for
+      table       <- useReactTable(options.tableOptions)
+      prefsLoadad <- useState(PrefsLoaded(false))
+      canSave     <- useRef(CanSave(false))
+      _           <- useEffectOnMount:
+                       (options.stateStore.load() >>=
+                         (mod =>
+                           val newState: TableState = mod(table.getState())
 
-            // We apply partial state changes in case there are partial state overrides.
-            table.setColumnVisibility(newState.columnVisibility).to[DefaultA] >>
-              // table.setColumnOrder(newState.columnOrder).to[DefaultA] >> // Not implemented yet in lucuma-react
-              table.setColumnPinning(newState.columnPinning).to[DefaultA] >>
-              table.setRowPinning(newState.rowPinning).to[DefaultA] >>
-              table.setSorting(newState.sorting).to[DefaultA] >>
-              table.setExpanded(newState.expanded).to[DefaultA] >>
-              table.setColumnSizing(newState.columnSizing).to[DefaultA] >>
-              table.setColumnSizingInfo(newState.columnSizingInfo).to[DefaultA] >>
-              table.setRowSelection(newState.rowSelection).to[DefaultA] >>
-              prefsLoadad.setStateAsync(PrefsLoaded(true))
-          ))
-          .guaranteeCase(outcome => canSave.setAsync(CanSave(true)).unlessA(outcome.isSuccess))
-      )
-      .useEffectWithDepsBy((_, table, _, _) => table.getState())((props, _, prefsLoadad, canSave) =>
-        state =>
-          // Don't save prefs while we are still attempting to load them or if we just loaded them.
-          props.stateStore
-            .save(state)
-            .whenA(canSave.value.value)
-            >>
-              canSave
-                .setAsync(CanSave(true))
-                .whenA(prefsLoadad.value.value && !canSave.value.value)
-      )
-      .buildReturning((_, table, _, _) => table)
+                           // We apply partial state changes in case there are partial state overrides.
+                           table.setColumnVisibility(newState.columnVisibility).to[DefaultA] >>
+                             // table.setColumnOrder(newState.columnOrder).to[DefaultA] >> // Not implemented yet in lucuma-react
+                             table.setColumnPinning(newState.columnPinning).to[DefaultA] >>
+                             table.setRowPinning(newState.rowPinning).to[DefaultA] >>
+                             table.setSorting(newState.sorting).to[DefaultA] >>
+                             table.setExpanded(newState.expanded).to[DefaultA] >>
+                             table.setColumnSizing(newState.columnSizing).to[DefaultA] >>
+                             table.setColumnSizingInfo(newState.columnSizingInfo).to[DefaultA] >>
+                             table.setRowSelection(newState.rowSelection).to[DefaultA] >>
+                             prefsLoadad.setStateAsync(PrefsLoaded(true))
+                         ))
+                         .guaranteeCase(outcome => canSave.setAsync(CanSave(true)).unlessA(outcome.isSuccess))
+      _           <- useEffectWithDeps(table.getState()): state =>
+                       // Don't save prefs while we are still attempting to load them or if we just loaded them.
+                       options.stateStore
+                         .save(state)
+                         .whenA(canSave.value.value)
+                         >>
+                           canSave
+                             .setAsync(CanSave(true))
+                             .whenA(prefsLoadad.value.value && !canSave.value.value)
+    yield table
+
+  private def hook[T, M]: CustomHook[TableOptionsWithStateStore[DefaultA, T, M], Table[T, M]] =
+    CustomHook.fromHookResult(useReactTableWithStateStore(_))
 
   object HooksApiExt:
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):

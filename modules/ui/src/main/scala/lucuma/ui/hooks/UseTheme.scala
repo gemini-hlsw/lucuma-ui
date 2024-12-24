@@ -3,18 +3,22 @@
 
 package lucuma.ui.hooks
 
-import crystal.react.*
+import crystal.react.View
 import crystal.react.hooks.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.hooks.CustomHook
 import lucuma.ui.enums.Theme
 
+def useTheme(initial: => Theme): HookResult[View[Theme]] =
+  for
+    theme <- useStateView(initial)
+    _     <- useEffectOnMount(Theme.init(initial) >>= theme.set)
+  yield theme.withOnMod(_.mount)
+
 private object UseTheme:
-  private val hook =
-    CustomHook[Theme]
-      .useStateViewBy(initial => initial)
-      .useEffectOnMountBy((initial, state) => Theme.init(initial) >>= state.set)
-      .buildReturning((_, theme) => theme.withOnMod(_.mount))
+
+  private val hook: CustomHook[Theme, View[Theme]] =
+    CustomHook.fromHookResult(useTheme(_))
 
   object HooksApiExt:
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):

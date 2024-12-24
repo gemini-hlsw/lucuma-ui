@@ -3,4 +3,6 @@
 
 package lucuma.ui.table.hooks
 
+export UseDynTable.useDynTable, UseReactTableWithStateStore.useReactTableWithStateStore
+
 export UseDynTable.syntax.*, UseReactTableWithStateStore.syntax.*

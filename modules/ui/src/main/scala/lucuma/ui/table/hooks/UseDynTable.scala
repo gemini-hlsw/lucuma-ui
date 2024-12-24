@@ -35,25 +35,23 @@ class UseDynTable(
   export colState.{computedVisibility => columnVisibility, resized => columnSizing}
 
 object UseDynTable:
-  private val hook = CustomHook[(DynTable, SizePx)] // (dynTable, width)
-    .useStateBy(_._1.initialState) // colState
-    .useEffectWithDepsBy((props, _) => props._2): (props, colState) =>
-      width => // Recompute columns upon resize
-        CallbackTo:
-          props._1.adjustColSizes(width)(colState.value)
-        .flatMap:
-          colState.setState(_)
-    .buildReturning: (props, colState) =>
-      val (dynTable, width) = props
-
+  def useDynTable(dynTableDef: DynTable, width: SizePx): HookResult[UseDynTable] =
+    for
+      colState <- useState(dynTableDef.initialState)
+      _        <- useEffectWithDeps(width): w => // Recompute columns upon resize
+                    CallbackTo(dynTableDef.adjustColSizes(w)(colState.value)) >>= colState.setState
+    yield
       def onColumnSizingChangeHandler(updater: Updater[ColumnSizing]): Callback =
         colState.modState: oldState =>
-          dynTable.adjustColSizes(width):
+          dynTableDef.adjustColSizes(width):
             updater match
               case Updater.Set(v)  => DynTable.ColState.resized.replace(v)(oldState)
               case Updater.Mod(fn) => DynTable.ColState.resized.modify(fn)(oldState)
 
-      UseDynTable(dynTable.columnSizes, colState.value, onColumnSizingChangeHandler)
+      UseDynTable(dynTableDef.columnSizes, colState.value, onColumnSizingChangeHandler)
+
+  private val hook: CustomHook[(DynTable, SizePx), UseDynTable] =
+    CustomHook.fromHookResult(useDynTable(_, _))
 
   object HooksApiExt {
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):
