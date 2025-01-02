@@ -31,6 +31,7 @@ trait ObservationDB {
     type GroupId                   = Group.Id
     type ObservationId             = Observation.Id
     type ProgramId                 = Program.Id
+    type ProgramUserId             = ProgramUser.Id
     type StepId                    = Step.Id
     type TargetId                  = Target.Id
     type UserId                    = User.Id
