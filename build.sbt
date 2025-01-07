@@ -15,17 +15,17 @@ val Versions = new {
   val http4s            = "0.23.30"
   val http4sDom         = "0.2.11"
   val log4catsLogLevel  = "0.3.1"
-  val lucumaCore        = "0.113.0"
+  val lucumaCore        = "0.112.2"
   val lucumaPrimeStyles = "0.3.0"
   val lucumaReact       = "0.78.1"
   val lucumaRefined     = "0.1.2"
   val lucumaSchemas     = "0.110.3"
-  val lucumaSso         = "0.7.3"
+  val lucumaSso         = "0.7.2"
   val monocle           = "3.3.0"
   val mouse             = "1.3.2"
   val munit             = "1.0.4"
   val pprint            = "0.9.0"
-  val scalaJsReact      = "3.0.0-beta8"
+  val scalaJsReact      = "3.0.0-beta10"
 }
 
 ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
