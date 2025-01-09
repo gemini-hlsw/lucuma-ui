@@ -1489,6 +1489,12 @@ type GmosNorthDynamic {
 
   """GMOS North FPU"""
   fpu: GmosNorthFpu
+
+  """
+  Central wavelength, which is taken from the grating (if defined) or else
+  from the filter (if defined).
+  """
+  centralWavelength: Wavelength
 }
 
 """GMOS North instrument configuration input"""
@@ -1764,6 +1770,12 @@ type GmosSouthDynamic {
 
   """GMOS South FPU"""
   fpu: GmosSouthFpu
+
+  """
+  Central wavelength, which is taken from the grating (if defined) or else
+  from the filter (if defined).
+  """
+  centralWavelength: Wavelength
 }
 
 """GMOS South instrument configuration input"""
@@ -3748,6 +3760,18 @@ type Subscription {
   """
   groupEdit(input: GroupEditInput): GroupEdit!
   configurationRequestEdit(input: ConfigurationRequestEditInput): ConfigurationRequestEdit!
+  executionEventAdded(input: ExecutionEventAddedInput): ExecutionEventAdded!
+}
+
+input ExecutionEventAddedInput {
+  programId: ProgramId
+  observationId: ObservationId
+  visitId: VisitId
+  eventType: WhereEqExecutionEventType
+}
+
+type ExecutionEventAdded {
+  value: ExecutionEvent!
 }
 
 input TargetEditInput {
