@@ -5226,6 +5226,87 @@ type ExposureTimeMode {
   fixedExposure: FixedExposureMode
 }
 
+"""Flamingos2 Disperser"""
+enum Flamingos2Disperser {
+  """Flamingos2Disperser R=1200 (J + H) grism"""
+  R1200JH
+
+  """Flamingos2Disperser R=1200 (H + K) grism"""
+  R1200HK
+
+  """Flamingos2Disperser R=3000 (J or H or K) grism"""
+  R3000
+}
+
+"""Flamingos2 Filter"""
+enum Flamingos2Filter {
+  """Flamingos2Filter Y (1.02 um)"""
+  Y
+
+  """Flamingos2Filter F1056 (1.056 um)"""
+  F1056
+
+  """Flamingos2Filter J (1.25 um)"""
+  J
+
+  """Flamingos2Filter H (1.65 um)"""
+  H
+
+  """Flamingos2Filter JH (spectroscopic)"""
+  JH
+
+  """Flamingos2Filter HK (spectroscopic)"""
+  HK
+
+  """Flamingos2Filter J-low (1.15 um)"""
+  J_LOW
+
+  """Flamingos2Filter K-long (2.20 um)"""
+  K_LONG
+
+  """Flamingos2Filter K-short (2.15 um)"""
+  K_SHORT
+
+  """Flamingos2Filter F1063 (1.063 um)"""
+  F1063
+
+  """Flamingos2Filter K-blue (2.06 um)"""
+  K_BLUE
+
+  """Flamingos2Filter Open"""
+  OPEN
+
+  """Flamingos2Filter Dark"""
+  DARK
+}
+
+"""Flamingos2 FPU"""
+enum Flamingos2Fpu {
+  """Flamingos2Fpu 2-Pixel Pinhole Grid"""
+  PINHOLE
+
+  """Flamingos2Fpu Sub-Pixel Pinhole Gr"""
+  SUB_PIX_PINHOLE
+
+  """Flamingos2Fpu 1-Pixel Long Slit"""
+  LONG_SLIT_1
+
+  """Flamingos2Fpu 2-Pixel Long Slit"""
+  LONG_SLIT_2
+
+  """Flamingos2Fpu 1-Pixel Long Slit"""
+  LONG_SLIT_3
+
+  """Flamingos2Fpu 4-Pixel Long Slit"""
+  LONG_SLIT_4
+
+  """Flamingos2Fpu 6-Pixel Long Slit"""
+  LONG_SLIT_6
+
+  """Flamingos2Fpu 8-Pixel Long Slit"""
+  LONG_SLIT_8
+}
+
 """Metadata for `enum FilterType`"""
 type FilterTypeMeta {
   tag: FilterType!
@@ -6134,6 +6215,14 @@ type Group {
   cannot be calculated.
   """
   timeEstimateRange: CategorizedTimeRange
+
+  """
+  Prepared time by band ignoring `minimumRequired`, for observations that can be
+  calculated.  In order for an observation to have an estimate, it must be
+  fully defined such that a sequence can be generated for it.  All defined
+  observations in every band present in the group are included.
+  """
+  timeEstimateBanded: [BandedTime!]!
   existence: Existence!
   system: Boolean!
 }
@@ -6420,6 +6509,12 @@ type SpectroscopyConfigOption {
   instruments.
   """
   gmosSouth: SpectroscopyConfigOptionGmosSouth
+
+  """
+  For Flamingos2 options, the Flamingos 2configuration.  Null for other
+  instruments.
+  """
+  flamingos2: SpectroscopyConfigOptionFlamingos2
 }
 
 type SpectroscopyConfigOptionGmosNorth {
@@ -6432,6 +6527,12 @@ type SpectroscopyConfigOptionGmosSouth {
   fpu: GmosSouthBuiltinFpu!
   grating: GmosSouthGrating!
   filter: GmosSouthFilter
+}
+
+type SpectroscopyConfigOptionFlamingos2 {
+  fpu: Flamingos2Fpu!
+  disperser: Flamingos2Disperser!
+  filter: Flamingos2Filter!
 }
 
 """An 'Int` in the range 0 to 100"""
@@ -6630,7 +6731,7 @@ type Observation {
   scienceBand: ScienceBand
 
   """
-  Reference time used for execution and visualization and time-dependent calculations 
+  Reference time used for execution and visualization and time-dependent calculations
   (e.g., average parallactic angle and guide star selection)
   """
   observationTime: Timestamp
@@ -7031,6 +7132,14 @@ type Program {
   timeEstimateRange: CategorizedTimeRange
 
   """
+  Prepared time by band ignoring `minimumRequired` in groups, for observations
+  that can be calculated.  In order for an observation to have an estimate, it
+  must be fully defined such that a sequence can be generated for it.  All
+  defined observations in every band present in the program are included.
+  """
+  timeEstimateBanded: [BandedTime!]!
+
+  """
   Program-wide time charge, summing all corrected observation time charges.
   """
   timeCharge: [BandedTime!]!
@@ -7398,6 +7507,13 @@ type Query {
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
   ): ObservationSelectResult!
+
+  """
+  Selects observations via a normal predicate *and* an additional filter for allowed
+  workflow states. This query is intended for operations and is available only for
+  service users.
+  """
+  observationsByWorkflowState(WHERE: WhereObservation, states: [ObservationWorkflowState!]): [Observation!]!
 
   """
   Selects the first `LIMIT` matching configuration requests based on the provided `WHERE` parameter, if any.
