@@ -5,7 +5,7 @@ ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
   val cats              = "2.13.0"
-  val catsRetry         = "3.1.3"
+  val catsRetry         = "4.0.0"
   val catsTime          = "0.5.1"
   val circe             = "0.14.10"
   val crystal           = "0.47.3"
