@@ -635,6 +635,22 @@ type CategorizedTimeRange {
   maximum: CategorizedTime!
 }
 
+"""Input used to change the role of a program user."""
+input ChangeProgramUserRoleInput {
+  """Program user to update."""
+  programUserId: ProgramUserId!
+
+  """New role they should assume."""
+  newRole: ProgramUserRole!
+}
+
+"""
+Result of the program user role update, which is the updated program user itself.
+"""
+type ChangeProgramUserRoleResult {
+  programUser: ProgramUser!
+}
+
 """
 Describes an observation clone operation, making any edits in the `SET`
 parameter.  The observation status in the cloned observation defaults to NEW.
@@ -2237,6 +2253,9 @@ type Mutation {
   be introduced.
   """
   addTimeChargeCorrection(input: AddTimeChargeCorrectionInput!): AddTimeChargeCorrectionResult!
+
+  """Update the role of a program user."""
+  changeProgramUserRole(input: ChangeProgramUserRoleInput!): ChangeProgramUserRoleResult!
   cloneObservation(
     """Parameters for cloning an existing observation"""
     input: CloneObservationInput!
