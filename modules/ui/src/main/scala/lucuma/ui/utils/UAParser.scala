@@ -20,7 +20,7 @@ sealed trait UAParser extends js.Object {
 
 object UAParser {
   def apply(ua: String): UAParser =
-    if (scala.scalajs.runtime.linkingInfo.productionMode) new UAParserProd(ua)
+    if (scala.scalajs.LinkingInfo.productionMode) new UAParserProd(ua)
     else new UAParserDev(ua)
 
   @js.native
