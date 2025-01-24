@@ -44,10 +44,10 @@ object UserSelectionForm:
     inline def showButtons: Boolean = supportedOrcidBrowser
 
   private object BrowserInfo:
-    def supportedOrcidBrowser: DefaultA[BrowserInfo] =
+    def supportedOrcidBrowser(using logger: Logger[DefaultA]): DefaultA[BrowserInfo] =
       DefaultA.handleError(
         DefaultA.delay:
-          val browser  = UAParser(dom.window.navigator.userAgent).getBrowser()
+          val browser  = new UAParser(dom.window.navigator.userAgent).getBrowser()
           val verRegex = raw"(\d{0,3}).(\d{0,3})\.?(.*)?".r
 
           (browser.name, browser.version) match {
@@ -56,14 +56,19 @@ object UserSelectionForm:
             case ("Safari", _)                                          => BrowserInfo(true, true)
             case _                                                      => BrowserInfo(true, false)
           }
-      )(_ => DefaultA.delay(BrowserInfo(true, true)))
+      )(e =>
+        logger.error(e)("Error checking browser compatibility") *> DefaultA.delay(
+          BrowserInfo(true, false)
+        )
+      )
 
   private val component =
-    ScalaFnComponent
-      .withHooks[Props]
-      .useState(IsOpen(true))
-      .useEffectResultOnMount(BrowserInfo.supportedOrcidBrowser)
-      .render: (props, isOpen, browserInfoPot) =>
+    ScalaFnComponent[Props]: props =>
+      for {
+        isOpen         <- useState(IsOpen(true))
+        browserInfoPot <-
+          useEffectResultOnMount(BrowserInfo.supportedOrcidBrowser(using props.logger))
+      } yield
         import props.given
 
         val guest: Callback =

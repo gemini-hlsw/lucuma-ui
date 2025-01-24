@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.128"
+ThisBuild / tlBaseVersion       := "0.129"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
@@ -45,16 +45,6 @@ ThisBuild / crossScalaVersions       := Seq("3.6.3")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions", "-explain-cyclic")
 
 enablePlugins(NoPublishPlugin)
-
-addCommandAlias(
-  "restartWDS",
-  "; demo/fastOptJS/stopWebpackDevServer; demo/fastOptJS/startWebpackDevServer; ~demo/fastOptJS"
-)
-
-addCommandAlias(
-  "stopWDS",
-  "; demo/fastOptJS/stopWebpackDevServer"
-)
 
 lazy val demo =
   project

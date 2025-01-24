@@ -11,5 +11,9 @@
     "react": "^18.3.1",
     "sass": "^1.83.4",
     "vite": "^4.5.9"
+  },
+  "dependencies": {
+    "ua-parser-js": "^2.0.0",
+    "vite-plugin-env-compatible": "^2.0.1"
   }
 }

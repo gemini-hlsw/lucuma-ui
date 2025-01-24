@@ -1,7 +1,8 @@
 import react from "@vitejs/plugin-react";
 import path from "path";
+import env from 'vite-plugin-env-compatible';
 
-const scalaVersion = '3.6.2';
+const scalaVersion = '3.6.3';
 
 // https://vitejs.dev/config/
 export default ({ command, mode }) => {
@@ -16,6 +17,10 @@ export default ({ command, mode }) => {
     root: "src/main/webapp",
     resolve: {
       alias: [
+        {
+          find: 'process',
+          replacement: 'process/browser',
+        },
         {
           find: "@sjs",
           replacement: sjs,
@@ -44,6 +49,6 @@ export default ({ command, mode }) => {
       },
       outDir: path.resolve(__dirname, "../docs"),
     },
-    plugins: [react()],
+    plugins: [env(), react()],
   };
 };
