@@ -2777,8 +2777,13 @@ type ProgramEdit {
 
 """Program properties"""
 input ProgramPropertiesInput {
-  """The program name, which is both optional and nullable"""
+  """The program name / title, which is both optional and nullable."""
   name: NonEmptyString
+
+  """
+  The program description / abstract, which is both optional and nullable.
+  """
+  description: NonEmptyString
 
   """
   Sets the GOA properties for this program.  If not specified on create,
@@ -3207,19 +3212,9 @@ input SystemVerificationInput {
 """Program proposal"""
 input ProposalPropertiesInput {
   """
-  The title field may be unset by assigning a null value, or ignored by skipping it altogether
-  """
-  title: NonEmptyString
-
-  """
   The category field may be unset by assigning a null value, or ignored by skipping it altogether
   """
   category: TacCategory
-
-  """
-  The abstract field may be unset by assigning a null value, or ignored by skipping it altogether
-  """
-  abstract: NonEmptyString
 
   """
   Sets the associated Call for Proposals. This is optional upon creation, but
@@ -7082,8 +7077,11 @@ type Program {
   """DELETED or PRESENT"""
   existence: Existence!
 
-  """Program name"""
+  """Program name / title."""
   name: NonEmptyString
+
+  """Program description / abstract."""
+  description: NonEmptyString
 
   """Program type"""
   type: ProgramType!
@@ -7319,14 +7317,8 @@ type Proposal {
   """
   call: CallForProposals
 
-  """Proposal title"""
-  title: NonEmptyString
-
   """Proposal TAC category"""
   category: TacCategory
-
-  """Abstract"""
-  abstract: NonEmptyString
 
   """
   Properties of this proposal that are dependent upon the Call for Proposals
