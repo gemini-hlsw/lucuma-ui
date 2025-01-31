@@ -5,10 +5,10 @@ package lucuma.schemas.decoders
 
 import eu.timepit.refined.*
 import lucuma.core.math.SignalToNoise
+import lucuma.core.math.Wavelength
 import lucuma.core.model.ExposureTimeMode
 import lucuma.core.syntax.timespan.*
 import lucuma.refined.*
-import lucuma.core.math.Wavelength
 
 class ExposureTimeModeDecodersSuite extends InputStreamSuite {
   test("SignalToNoise decoder") {
