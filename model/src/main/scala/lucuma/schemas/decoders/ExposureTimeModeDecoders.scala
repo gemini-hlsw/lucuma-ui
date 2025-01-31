@@ -8,18 +8,19 @@ import io.circe.generic.semiauto
 import io.circe.refined.*
 import lucuma.core.model.ExposureTimeMode
 import lucuma.odb.json.time.decoder.given
+import lucuma.odb.json.wavelength.decoder.given
 
 trait ExposureTimeModeDecoders {
 
   given Decoder[ExposureTimeMode.SignalToNoiseMode] =
     semiauto.deriveDecoder
 
-  given Decoder[ExposureTimeMode.FixedExposureMode] =
+  given Decoder[ExposureTimeMode.TimeAndCountMode] =
     semiauto.deriveDecoder
 
   given Decoder[ExposureTimeMode] = Decoder.instance { c =>
     c.downField("signalToNoise")
       .as[ExposureTimeMode.SignalToNoiseMode]
-      .orElse(c.downField("fixedExposure").as[ExposureTimeMode.FixedExposureMode])
+      .orElse(c.downField("timeAndCount").as[ExposureTimeMode.TimeAndCountMode])
   }
 }
