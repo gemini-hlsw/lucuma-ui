@@ -5,6 +5,7 @@ package lucuma.schemas.decoders
 
 import eu.timepit.refined.*
 import lucuma.core.math.SignalToNoise
+import lucuma.core.math.Wavelength
 import lucuma.core.model.ExposureTimeMode
 import lucuma.core.syntax.timespan.*
 import lucuma.refined.*
@@ -12,15 +13,19 @@ import lucuma.refined.*
 class ExposureTimeModeDecodersSuite extends InputStreamSuite {
   test("SignalToNoise decoder") {
     val expected: ExposureTimeMode =
-      ExposureTimeMode.SignalToNoiseMode(value =
-        SignalToNoise.unsafeFromBigDecimalExact(BigDecimal(1.23))
+      ExposureTimeMode.SignalToNoiseMode(
+        value = SignalToNoise.unsafeFromBigDecimalExact(BigDecimal(1.23)),
+        at = Wavelength.fromIntNanometers(500).get
       )
     assertParsedStreamEquals("/signalToNoise.json", expected)
   }
 
   test("FixedExposure decoder") {
     val expected: ExposureTimeMode =
-      ExposureTimeMode.FixedExposureMode(count = 99.refined, 47.µsTimeSpan)
+      ExposureTimeMode.TimeAndCountMode(count = 99.refined,
+                                        time = 47.µsTimeSpan,
+                                        at = Wavelength.fromIntNanometers(500).get
+      )
     assertParsedStreamEquals("/fixedExposure.json", expected)
   }
 }

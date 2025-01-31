@@ -298,15 +298,18 @@ extension (ts: TimeSpan)
 
 extension (etm: ExposureTimeMode)
   def toInput: ExposureTimeModeInput = etm match
-    case FixedExposureMode(count, time) =>
-      ExposureTimeModeInput(fixedExposure =
-        FixedExposureModeInput(
+    case TimeAndCountMode(time, count, at) =>
+      ExposureTimeModeInput(timeAndCount =
+        TimeAndCountExposureTimeModeInput(
           count = NonNegInt.unsafeFrom(count.value),
-          time = time.toInput
+          time = time.toInput,
+          at = at.toInput
         ).assign
       )
-    case SignalToNoiseMode(value)       =>
-      ExposureTimeModeInput(signalToNoise = SignalToNoiseModeInput(value = value).assign)
+    case SignalToNoiseMode(value, at)      =>
+      ExposureTimeModeInput(signalToNoise =
+        SignalToNoiseExposureTimeModeInput(value = value, at = at.toInput).assign
+      )
 
 extension (pl: Option[PartnerLink])
   def toInput: PartnerLinkInput =
