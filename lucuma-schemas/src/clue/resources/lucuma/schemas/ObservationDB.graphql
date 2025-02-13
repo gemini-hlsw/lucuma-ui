@@ -2819,6 +2819,13 @@ input ProgramUserPropertiesInput {
 
   """The user's reported gender."""
   gender: Gender
+
+  """
+  Whether the user has data access.  This property may be changed only by the
+  PI (or staff).  If a COI attempts to change the data access flag, the entire
+  update is ignored.
+  """
+  hasDataAccess: Boolean
 }
 
 """The role a user a plays when assigned to a program."""
@@ -2831,6 +2838,9 @@ enum ProgramUserRole {
 
   """Co-Investigator (read-only access)"""
   COI_RO
+
+  """External"""
+  EXTERNAL
 
   """Staff/Partner Primary Support"""
   SUPPORT_PRIMARY
@@ -2875,6 +2885,9 @@ type ProgramUser {
 
   """User invitations, if any, associated with this program user."""
   invitations: [UserInvitation!]!
+
+  """Has access to data."""
+  hasDataAccess: Boolean!
 }
 
 """Proper motion component, choose one of the available units"""
@@ -7486,6 +7499,15 @@ type Query {
   """Metadata for `enum FilterType`"""
   filterTypeMeta: [FilterTypeMeta!]!
 
+  """
+  Obtains a list of program references for which the user with ORCiD `orcidId`
+  has GOA data-download access privileges.  These will be those for which the
+  user is a ProgramUser of any role with the `hasDataAccess` flag set.
+  
+  This query is for use by staff and the GOA and will fail for other users.
+  """
+  goaDataDownloadAccess(orcidId: String!): [ProgramReferenceLabel!]!
+
   """Returns the group indicated by the given groupId, if found."""
   group(groupId: GroupId!): Group
 
@@ -11050,6 +11072,9 @@ input WhereProgramUser {
 
   """Matches the gender status."""
   gender: WhereOptionEqGender
+
+  """Matches the data access flag."""
+  hasDataAccess: WhereBoolean
 }
 
 """Proposal filter options.  All specified items must match."""
