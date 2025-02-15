@@ -9,7 +9,7 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.hooks.CustomHook
 import lucuma.ui.enums.Theme
 
-def useTheme(initial: => Theme): HookResult[View[Theme]] =
+def useTheme(initial: => Theme = Theme.System): HookResult[View[Theme]] =
   for
     theme <- useStateView(initial)
     _     <- useEffectOnMount(Theme.init(initial) >>= theme.set)
