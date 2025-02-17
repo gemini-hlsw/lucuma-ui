@@ -148,6 +148,7 @@ trait ObservationDB {
     type ScienceMode                         = enums.ScienceMode
     type SequenceCommand                     = enums.SequenceCommand
     type SequenceType                        = enums.SequenceType
+    type Site                                = enums.Site
     type SkyBackground                       = enums.SkyBackground
     type SpectroscopyCapabilities            = enums.SpectroscopyCapabilities
     type SmartGcalType                       = enums.SmartGcalType
