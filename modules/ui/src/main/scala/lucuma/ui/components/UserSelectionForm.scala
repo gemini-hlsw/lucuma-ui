@@ -85,7 +85,7 @@ object UserSelectionForm:
           showHeader = false,
           clazz = LucumaPrimeStyles.Dialog.Small
         )(
-          browserInfoPot.renderPot(browserInfo =>
+          browserInfoPot.value.renderPot(browserInfo =>
             React.Fragment(
               <.div(
                 LoginStyles.LoginBoxLayout,
