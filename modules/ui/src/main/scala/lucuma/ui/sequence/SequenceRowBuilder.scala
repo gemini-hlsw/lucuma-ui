@@ -24,6 +24,7 @@ import lucuma.react.table.RowId
 import lucuma.schemas.model.AtomRecord
 import lucuma.schemas.model.Dataset
 import lucuma.schemas.model.Visit
+import lucuma.schemas.model.enums.StepExecutionState
 import lucuma.ui.LucumaIcons
 import lucuma.ui.components.LinkIfValid
 import lucuma.ui.display.given
@@ -102,6 +103,7 @@ trait SequenceRowBuilder[D]:
 
   protected def renderVisitExtraRow(httpClient: Client[IO])(
     step:               SequenceRow.Executed.ExecutedStep[D],
+    showOngoingLabel:   Boolean,
     renderDatasetQa:    (Dataset, VdomNode) => VdomNode = (_, renderIcon) => renderIcon,
     datasetIdsInFlight: Set[Dataset.Id] = Set.empty
   )(using Logger[IO]) =
@@ -113,6 +115,7 @@ trait SequenceRowBuilder[D]:
       ),
       <.span(SequenceStyles.VisitStepExtraStatus)(
         step.executionState.renderVdom
+          .unless(!showOngoingLabel && step.executionState === StepExecutionState.Ongoing)
       ),
       <.span(SequenceStyles.VisitStepExtraDatasets)(
         step.datasets

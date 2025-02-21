@@ -116,16 +116,11 @@ table tr {
     width: 100%;
     display: flex;
     justify-content: space-between;
+    gap: 1dvw;
     align-items: center;
     padding-left: 5%;
 
-    .lucuma-sequence-visit-extraRow-datetime {
-      width: 10%;
-    }
-
     .lucuma-sequence-visit-extraRow-status {
-      width: 10%;
-
       .p-tag {
         padding-top: 0;
         padding-bottom: 0;

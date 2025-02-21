@@ -56,18 +56,19 @@ given Render[Option[DatasetQaState]] = Render.by: qaState =>
       case None                        => LucumaStyles.IndicatorUnknown
 
 given Render[StepExecutionState] = Render.by:
-  case StepExecutionState.NotStarted | StepExecutionState.Ongoing | StepExecutionState.Completed =>
+  case StepExecutionState.NotStarted | StepExecutionState.Completed =>
     EmptyVdom
-  case other @ (StepExecutionState.Aborted | StepExecutionState.Stopped |
-      StepExecutionState.Abandoned) =>
+  case other @ (StepExecutionState.Ongoing | StepExecutionState.Aborted |
+      StepExecutionState.Stopped | StepExecutionState.Abandoned) =>
     Tag(
       other match
+        case StepExecutionState.Ongoing   => "Ongoing"
         case StepExecutionState.Aborted   => "Aborted"
         case StepExecutionState.Stopped   => "Stopped Early"
         case StepExecutionState.Abandoned => "Abandoned",
       severity = other match
-        case StepExecutionState.Stopped => Tag.Severity.Info
-        case _                          => Tag.Severity.Danger
+        case StepExecutionState.Ongoing | StepExecutionState.Stopped => Tag.Severity.Info
+        case _                                                       => Tag.Severity.Danger
     )
 
 extension [D, R <: SequenceRow[D]](list: List[R])
