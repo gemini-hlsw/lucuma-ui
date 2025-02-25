@@ -30,7 +30,7 @@ object TimeSpanView:
 
     <.span(
       props.modifiers.toTagMod,
-      ^.title := s"${ts.toHoursPart} hours, ${ts.toMinutesPart} minutes, ${ts.toSecondsPart} seconds"
+      ^.title := s"${ts.toHours.longValue} hours, ${ts.toMinutesPart} minutes, ${ts.toSecondsPart} seconds"
     )(
       props.formatter.format(ts)
     )

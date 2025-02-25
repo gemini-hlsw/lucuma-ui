@@ -86,3 +86,23 @@ class TimeSpanFormatterSuite extends munit.FunSuite:
       ),
       "1.49 h"
     )
+
+  test("Shortcut 4850 - if seconds round up minutes to 0, hour should increase"):
+    assertEquals(
+      HoursMinutesAbbreviation.format(
+        TimeSpan.unsafeFromDuration(Duration.ofMinutes(59).plusSeconds(39))
+      ),
+      "1hrs"
+    )
+    assertEquals(
+      HoursMinutesAbbreviation.format(
+        TimeSpan.unsafeFromDuration(Duration.ofHours(2).plusMinutes(59).plusSeconds(30))
+      ),
+      "3hrs"
+    )
+    assertEquals(
+      HoursMinutesAbbreviation.format(
+        TimeSpan.unsafeFromDuration(Duration.ofHours(2).plusMinutes(59).plusSeconds(29))
+      ),
+      "2hrs 59mins"
+    )

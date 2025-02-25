@@ -14,12 +14,14 @@ enum TimeSpanFormatter(hoursUnits: String, minutesUnits: String):
   private def getHoursMinutes(timeSpan: TimeSpan): (Option[BigDecimal], Option[BigDecimal]) =
     this match
       case HoursMinutesLetter | HoursMinutesAbbreviation =>
-        val hours: Option[BigDecimal]   =
-          timeSpan.toHours.setScale(0, BigDecimal.RoundingMode.FLOOR).some.filterNot(_ === 0)
-        val minutes: Option[BigDecimal] =
-          (timeSpan.toMinutes.setScale(0, BigDecimal.RoundingMode.HALF_UP) % 60).some
-            .filterNot(_ === 0 && hours.nonEmpty)
-        (hours, minutes)
+        val hours: BigDecimal   = timeSpan.toHours.setScale(0, BigDecimal.RoundingMode.FLOOR)
+        val minutes: BigDecimal =
+          timeSpan.toMinutes.setScale(0, BigDecimal.RoundingMode.HALF_UP) % 60
+        // if we rounded the minutes up to 0, we need to bump the hours up by one
+        val hoursFinal = if (timeSpan.toMinutesPart === 59 && minutes === 0) hours + 1 else hours
+        val hoursOpt   = hoursFinal.some.filterNot(_ === 0)
+        val minutesOpt = minutes.some.filterNot(_ === 0 && hoursOpt.nonEmpty)
+        (hoursOpt, minutesOpt)
       case DecimalHours                                  =>
         (timeSpan.toHours.setScale(2, BigDecimal.RoundingMode.HALF_UP).some, none)
 
