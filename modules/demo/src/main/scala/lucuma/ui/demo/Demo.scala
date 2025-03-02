@@ -45,9 +45,6 @@ object Demo extends AppMain {
       ),
       <.div(
         ThemeDemo.component()
-      ),
-      <.div(
-        LinkIfValidDemo.component()
       )
     )
 }

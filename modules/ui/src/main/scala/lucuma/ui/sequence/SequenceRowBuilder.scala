@@ -32,7 +32,6 @@ import lucuma.ui.format.UtcFormatter
 import lucuma.ui.sequence.*
 import lucuma.ui.syntax.render.*
 import lucuma.ui.table.*
-import org.http4s.client.Client
 import org.typelevel.log4cats.Logger
 
 import java.time.Duration
@@ -100,7 +99,7 @@ trait SequenceRowBuilder[D]:
     <.span(qaState.renderVdom)
       .withTooltip(content = renderQALabel(qaState, comment), position = Tooltip.Position.Top)
 
-  protected def renderVisitExtraRow(httpClient: Client[IO])(
+  protected def renderVisitExtraRow(
     step:               SequenceRow.Executed.ExecutedStep[D],
     showOngoingLabel:   Boolean,
     renderDatasetQa:    (Dataset, VdomNode) => VdomNode = (_, renderIcon) => renderIcon,
@@ -122,9 +121,11 @@ trait SequenceRowBuilder[D]:
             val datasetName: String = dataset.filename.format
 
             <.span(^.key := dataset.id.toString)(SequenceStyles.VisitStepExtraDatasetItem)(
-              <.a(^.href := s"$ArchiveBaseUrl/$datasetName", ^.target.blank)(
-                datasetName
-              ),
+              if (dataset.isWritten)
+                <.a(^.href := s"$ArchiveBaseUrl/$datasetName", ^.target.blank)(
+                  datasetName
+                )
+              else datasetName,
               <.span(SequenceStyles.VisitStepExtraDatasetQAStatus)(
                 if datasetIdsInFlight.contains_(dataset.id)
                 then LucumaIcons.CircleNotch
