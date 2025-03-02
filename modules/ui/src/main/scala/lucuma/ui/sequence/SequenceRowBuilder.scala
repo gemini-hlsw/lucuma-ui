@@ -123,7 +123,7 @@ trait SequenceRowBuilder[D]:
             val datasetName: String = dataset.filename.format
 
             <.span(^.key := dataset.id.toString)(SequenceStyles.VisitStepExtraDatasetItem)(
-              LinkIfValid(httpClient)(s"$ArchiveBaseUrl/$datasetName", ^.target.blank)(
+              <.a(^.href := s"$ArchiveBaseUrl/$datasetName", ^.target.blank)(
                 datasetName
               ),
               <.span(SequenceStyles.VisitStepExtraDatasetQAStatus)(
