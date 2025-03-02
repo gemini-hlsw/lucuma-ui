@@ -56,6 +56,7 @@ object ExecutionVisitsSubquery
                       qaState
                       comment
                       interval $TimestampIntervalSubquery
+                      isWritten
                     }
                   }
                   generatedId

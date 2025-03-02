@@ -38,13 +38,14 @@ trait VisitDecoders:
 
   given Decoder[Dataset] = Decoder.instance: c =>
     for
-      id       <- c.downField("id").as[Dataset.Id]
-      index    <- c.downField("index").as[PosShort]
-      filename <- c.downField("filename").as[Dataset.Filename]
-      qaState  <- c.downField("qaState").as[Option[DatasetQaState]]
-      comment  <- c.downField("comment").as[Option[NonEmptyString]]
-      interval <- c.downField("interval").as[Option[TimestampInterval]]
-    yield Dataset(id, index, filename, qaState, comment, interval)
+      id        <- c.downField("id").as[Dataset.Id]
+      index     <- c.downField("index").as[PosShort]
+      filename  <- c.downField("filename").as[Dataset.Filename]
+      qaState   <- c.downField("qaState").as[Option[DatasetQaState]]
+      comment   <- c.downField("comment").as[Option[NonEmptyString]]
+      interval  <- c.downField("interval").as[Option[TimestampInterval]]
+      isWritten <- c.downField("isWritten").as[Boolean]
+    yield Dataset(id, index, filename, qaState, comment, interval, isWritten)
 
   given Decoder[StepRecord.GmosNorth] = Decoder.instance: c =>
     for
