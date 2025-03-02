@@ -26,7 +26,6 @@ import lucuma.schemas.model.Dataset
 import lucuma.schemas.model.Visit
 import lucuma.schemas.model.enums.StepExecutionState
 import lucuma.ui.LucumaIcons
-import lucuma.ui.components.LinkIfValid
 import lucuma.ui.display.given
 import lucuma.ui.format.DurationFormatter
 import lucuma.ui.format.UtcFormatter
