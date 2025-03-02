@@ -15,12 +15,13 @@ import monocle.Focus
 import monocle.Lens
 
 case class Dataset(
-  id:       Dataset.Id,
-  index:    PosShort,
-  filename: Dataset.Filename,
-  qaState:  Option[DatasetQaState],
-  comment:  Option[NonEmptyString],
-  interval: Option[TimestampInterval]
+  id:        Dataset.Id,
+  index:     PosShort,
+  filename:  Dataset.Filename,
+  qaState:   Option[DatasetQaState],
+  comment:   Option[NonEmptyString],
+  interval:  Option[TimestampInterval],
+  isWritten: Boolean
 ) derives Eq
 
 object Dataset:
@@ -45,3 +46,6 @@ object Dataset:
 
   val interval: Lens[Dataset, Option[TimestampInterval]] =
     Focus[Dataset](_.interval)
+
+  val isWritten: Lens[Dataset, Boolean] =
+    Focus[Dataset](_.isWritten)

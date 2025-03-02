@@ -91,6 +91,7 @@ query {
                         start
                         end
                       }
+                      isWritten
                     }
                   }
                 }
