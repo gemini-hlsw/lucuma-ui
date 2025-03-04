@@ -146,6 +146,8 @@ extension (u: UnnormalizedSED)
         UnnormalizedSedInput(fluxDensities = fluxDensities.toSortedMap.toList.map {
           case (wavelength, value) => FluxDensity(wavelength.toInput, value)
         }.assign)
+      case UnnormalizedSED.UserDefinedAttachment(attachmentId)      =>
+        UnnormalizedSedInput(fluxDensitiesAttachment = attachmentId.assign)
     }
 
 extension (bs: SortedMap[Band, BrightnessMeasure[Integrated]])
