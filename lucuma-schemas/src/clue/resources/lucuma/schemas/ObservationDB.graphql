@@ -856,6 +856,18 @@ input CreateProgramInput {
   SET: ProgramPropertiesInput
 }
 
+input CreateProgramNoteInput {
+  programId: ProgramId
+  proposalReference: ProposalReferenceLabel
+  programReference: ProgramReferenceLabel
+  SET: ProgramNotePropertiesInput!
+}
+
+type CreateProgramNoteResult {
+  """The newly create program note."""
+  programNote: ProgramNote!
+}
+
 """The result of creating a new program."""
 type CreateProgramResult {
   """The newly created program."""
@@ -2296,6 +2308,9 @@ type Mutation {
     input: CreateProgramInput!
   ): CreateProgramResult!
 
+  """Creates a new program note according to provided parameters"""
+  createProgramNote(input: CreateProgramNoteInput!): CreateProgramNoteResult!
+
   """Creates a new proposal according to the provided properties"""
   createProposal(
     """Proposal description"""
@@ -2818,6 +2833,24 @@ input ProgramPropertiesInput {
   nullable.  Limited to dates between 1900 and 2100 (exclusive).
   """
   activeEnd: Date
+}
+
+"""ProgramNote creation and edit properties."""
+input ProgramNotePropertiesInput {
+  """The note title.  Required on creation."""
+  title: NonEmptyString
+
+  """The note text, if any."""
+  text: NonEmptyString
+
+  """
+  Whether the note is only available to Gemini staff.  This property is
+  available only to Gemini staff and defaults to false.
+  """
+  isPrivate: Boolean
+
+  """Whether the program is considered deleted (defaults to PRESENT)."""
+  existence: Existence
 }
 
 """Editable properties that define a program / user connection."""
@@ -6663,7 +6696,7 @@ type ItcResult {
   targetId: TargetId!
   exposureTime: TimeSpan!
   exposureCount: NonNegInt!
-  signalToNoise: SignalToNoise!
+  signalToNoise: SignalToNoise
 }
 
 type LineFluxIntegrated {
@@ -7174,6 +7207,9 @@ type Program {
   """Program description / abstract."""
   description: NonEmptyString
 
+  """Notes associated with the program, if any."""
+  notes(includeDeleted: Boolean! = false): [ProgramNote!]!
+
   """Program type"""
   type: ProgramType!
 
@@ -7277,6 +7313,33 @@ type Program {
 scalar ProgramId
 
 """
+Program notes are arbitrary titled text messages associated with a particular
+program.  Notes may be private, in which case they are only visible to staff.
+"""
+type ProgramNote {
+  """This note's unique id."""
+  id: ProgramNoteId!
+
+  """The program with which this note is associated."""
+  program: Program!
+
+  """The note title."""
+  title: NonEmptyString!
+
+  """The note text, if any."""
+  text: NonEmptyString
+
+  """Whether the note is only available to Gemini staff."""
+  isPrivate: Boolean!
+
+  """DELETED or PRESENT"""
+  existence: Existence!
+}
+
+"""ProgramNoteId is formated as `n-[1-9a-f][0-9a-f]*`"""
+scalar ProgramNoteId
+
+"""
 Defines the category of program references, where specific implementations exist
 for calibration, engineering, etc.
 """
@@ -7349,6 +7412,14 @@ Program has format G-YYYY[AB]-NNNN+-[CDLFSV]. For example, G-2024B-1234-Q
 where 2024B refers to the associated semester.
 """
 scalar ProgramReferenceLabel
+
+type ProgramNoteSelectResult {
+  """Matching notes up to the return size limit of 1000."""
+  matches: [ProgramNote!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
+}
 
 """The matching program results, limited to a maximum of 1000 entries."""
 type ProgramSelectResult {
@@ -7717,6 +7788,29 @@ type Query {
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
   ): ProgramSelectResult!
+
+  """Selects the program note with the given id, if any."""
+  programNote(programNoteId: ProgramNoteId!): ProgramNote
+
+  """
+  Selects the first `LIMIT` matching program notes based on the provided `WHERE`
+  parameter, if any.
+  """
+  programNotes(
+    """Filters the select of program notes."""
+    WHERE: WhereProgramNote
+
+    """Starts the result set at (or after if no existent) the given note id."""
+    OFFSET: ProgramNoteId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+
+    """Set to true to include deleted values."""
+    includeDeleted: Boolean! = false
+  ): ProgramNoteSelectResult!
 
   """
   Selects the first `LIMIT` matching program users based on the provided `WHERE`
@@ -11090,6 +11184,42 @@ input WhereOrderProgramId {
 }
 
 """
+Filters on equality or order comparisons of the program note Id. All supplied
+criteria must match, but usually only one is selected.
+"""
+input WhereOrderProgramNoteId {
+  """Matches if the program note id is exactly the supplied value."""
+  EQ: ProgramNoteId
+
+  """Matches if the program note id is not the supplied value."""
+  NEQ: ProgramNoteId
+
+  """Matches if the program note id is any of the supplied options."""
+  IN: [ProgramNoteId!]
+
+  """Matches if the program note id is none of the supplied values."""
+  NIN: [ProgramNoteId!]
+
+  """
+  Matches if the program note id is ordered after (>) the supplied value.
+  """
+  GT: ProgramNoteId
+
+  """Matches if the program note is ordered before (<) the supplied value."""
+  LT: ProgramNoteId
+
+  """
+  Matches if the program note id is ordered after or equal (>=) the supplied value.
+  """
+  GTE: ProgramNoteId
+
+  """
+  Matches if the program note id is ordered before or equal (<=) the supplied value.
+  """
+  LTE: ProgramNoteId
+}
+
+"""
 Filters on equality or order comparisons of the program user id.  All supplied
 criteria must match, but usually only one is selected.
 """
@@ -11503,6 +11633,42 @@ input WhereProgramReference {
 
   """Matches the science subtype in the program reference, if any."""
   scienceSubtype: WhereEqScienceSubtype
+}
+
+"""Program note filter options.  All specified items must match."""
+input WhereProgramNote {
+  """
+  A list of nested program note filters that all must match in order for the
+  AND group as a whole to match.
+  """
+  AND: [WhereProgramNote!]
+
+  """
+  A list of nested program note filters where any one match causes the entire
+  OR group as a whole to match.
+  """
+  OR: [WhereProgramNote!]
+
+  """
+  A nested program note filter that must not match in order for the NOT itself
+  to match.
+  """
+  NOT: WhereProgramNote
+
+  """Matches the program note ID."""
+  id: WhereOrderProgramNoteId
+
+  """Matches the program."""
+  program: WhereProgram
+
+  """Matches the program note title."""
+  title: WhereString
+
+  """Mathces the program note text."""
+  text: WhereOptionString
+
+  """Matches the private status."""
+  isPrivate: WhereBoolean
 }
 
 """Program user options.  All specified items must match."""
