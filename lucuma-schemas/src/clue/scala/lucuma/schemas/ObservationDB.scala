@@ -36,6 +36,7 @@ trait ObservationDB {
     type TargetId                  = Target.Id
     type UserId                    = User.Id
     type VisitId                   = Visit.Id
+    type ProgramNoteId             = ProgramNote.Id
     // Basic types
     type BigDecimal                = scala.BigDecimal
     type Long                      = scala.Long
