@@ -21,8 +21,8 @@ import lucuma.react.syntax.*
 import lucuma.schemas.model.enums.StepExecutionState
 import lucuma.ui.LucumaIcons
 import lucuma.ui.LucumaStyles
-import lucuma.ui.utils.*
 import lucuma.ui.utils.Render
+import lucuma.ui.utils.zipWithMappedIndex
 
 object SequenceRowHeight:
   val Regular: SizePx   = 25.toPx
