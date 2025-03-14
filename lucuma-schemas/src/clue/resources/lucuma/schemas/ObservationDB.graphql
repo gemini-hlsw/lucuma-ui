@@ -5427,9 +5427,6 @@ enum Flamingos2Filter {
   """Flamingos2Filter Y (1.02 um)"""
   Y
 
-  """Flamingos2Filter F1056 (1.056 um)"""
-  F1056
-
   """Flamingos2Filter J (1.25 um)"""
   J
 
@@ -5451,17 +5448,8 @@ enum Flamingos2Filter {
   """Flamingos2Filter K-short (2.15 um)"""
   K_SHORT
 
-  """Flamingos2Filter F1063 (1.063 um)"""
-  F1063
-
   """Flamingos2Filter K-blue (2.06 um)"""
   K_BLUE
-
-  """Flamingos2Filter Open"""
-  OPEN
-
-  """Flamingos2Filter Dark"""
-  DARK
 }
 
 """Flamingos2 FPU"""
