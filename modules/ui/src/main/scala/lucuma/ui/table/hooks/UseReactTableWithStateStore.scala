@@ -13,9 +13,9 @@ import lucuma.core.util.NewType
 import lucuma.react.table.*
 import lucuma.ui.reusability.given
 
-case class TableOptionsWithStateStore[F[_], T, M](
-  tableOptions: TableOptions[T, M],
-  stateStore:   TableStateStore[F]
+case class TableOptionsWithStateStore[F[_], T, TM, CM, TF](
+  tableOptions: TableOptions[T, TM, CM, TF],
+  stateStore:   TableStateStore[F, TF]
 )
 
 private object UseReactTableWithStateStore:
@@ -23,9 +23,9 @@ private object UseReactTableWithStateStore:
 
   private object CanSave extends NewType[Boolean]
 
-  def useReactTableWithStateStore[T, M](
-    options: TableOptionsWithStateStore[DefaultA, T, M]
-  ): HookResult[Table[T, M]] =
+  def useReactTableWithStateStore[T, TM, CM, TF](
+    options: TableOptionsWithStateStore[DefaultA, T, TM, CM, TF]
+  ): HookResult[Table[T, TM, CM, TF]] =
     for
       table       <- useReactTable(options.tableOptions)
       prefsLoadad <- useState(PrefsLoaded(false))
@@ -33,7 +33,7 @@ private object UseReactTableWithStateStore:
       _           <- useEffectOnMount:
                        (options.stateStore.load() >>=
                          (mod =>
-                           val newState: TableState = mod(table.getState())
+                           val newState: TableState[TF] = mod(table.getState())
 
                            // We apply partial state changes in case there are partial state overrides.
                            table.setColumnVisibility(newState.columnVisibility).to[DefaultA] >>
@@ -59,33 +59,34 @@ private object UseReactTableWithStateStore:
                              .whenA(prefsLoadad.value.value && !canSave.value.value)
     yield table
 
-  private def hook[T, M]: CustomHook[TableOptionsWithStateStore[DefaultA, T, M], Table[T, M]] =
+  private def hook[T, TM, CM, TF]
+    : CustomHook[TableOptionsWithStateStore[DefaultA, T, TM, CM, TF], Table[T, TM, CM, TF]] =
     CustomHook.fromHookResult(useReactTableWithStateStore(_))
 
   object HooksApiExt:
     sealed class Primary[Ctx, Step <: HooksApi.AbstractStep](api: HooksApi.Primary[Ctx, Step]):
-      final def useReactTableWithStateStore[T, M](
-        options: TableOptionsWithStateStore[DefaultA, T, M]
+      final def useReactTableWithStateStore[T, TM, CM, TF](
+        options: TableOptionsWithStateStore[DefaultA, T, TM, CM, TF]
       )(using
         step:    Step
-      ): step.Next[Table[T, M]] =
+      ): step.Next[Table[T, TM, CM, TF]] =
         useReactTableWithStateStoreBy(_ => options)
 
-      final def useReactTableWithStateStoreBy[T, M](
-        options: Ctx => TableOptionsWithStateStore[DefaultA, T, M]
+      final def useReactTableWithStateStoreBy[T, TM, CM, TF](
+        options: Ctx => TableOptionsWithStateStore[DefaultA, T, TM, CM, TF]
       )(using
         step:    Step
-      ): step.Next[Table[T, M]] =
+      ): step.Next[Table[T, TM, CM, TF]] =
         api.customBy(ctx => hook(options(ctx)))
 
     final class Secondary[Ctx, CtxFn[_], Step <: HooksApi.SubsequentStep[Ctx, CtxFn]](
       api: HooksApi.Secondary[Ctx, CtxFn, Step]
     ) extends Primary[Ctx, Step](api):
-      def useReactTableWithStateStoreBy[T, M](
-        tableDefWithOptions: CtxFn[TableOptionsWithStateStore[DefaultA, T, M]]
+      def useReactTableWithStateStoreBy[T, TM, CM, TF](
+        tableDefWithOptions: CtxFn[TableOptionsWithStateStore[DefaultA, T, TM, CM, TF]]
       )(using
         step:                Step
-      ): step.Next[Table[T, M]] =
+      ): step.Next[Table[T, TM, CM, TF]] =
         super.useReactTableWithStateStoreBy(step.squash(tableDefWithOptions)(_))
 
   trait HooksApiExt:

@@ -9,25 +9,25 @@ import japgolly.scalajs.react.ReactMouseEvent
 import lucuma.react.table.*
 
 trait table:
-  extension [T, TM](table: Table[T, TM])
+  extension [T, TM, CM, TF](table: Table[T, TM, CM, TF])
     def getMultiRowSelectedHandler(rowId: RowId): ReactMouseEvent => Callback =
       (e: ReactMouseEvent) =>
         val isShiftPressed: Boolean   = e.shiftKey
         val isCmdCtrlPressed: Boolean = e.metaKey || e.ctrlKey
 
-        val selectedRows: List[Row[T, TM]] = table.getSelectedRowModel().rows
+        val selectedRows: List[Row[T, TM, CM, TF]] = table.getSelectedRowModel().rows
 
         // If cmd is pressed add to the selection
         table.toggleAllRowsSelected(false).unless(isCmdCtrlPressed) >> (
           if (isShiftPressed && selectedRows.nonEmpty) {
             // If shift is pressed extend
-            val allRows: List[(Row[T, TM], Int)] = table.getRowModel().rows.zipWithIndex
+            val allRows: List[(Row[T, TM, CM, TF], Int)] = table.getRowModel().rows.zipWithIndex
             // selectedRow is not empty, these won't fail
-            val firstId: RowId                   = selectedRows.head.id
-            val lastId: RowId                    = selectedRows.last.id
-            val indexOfCurrent: Int              = allRows.indexWhere(_._1.id == rowId)
-            val indexOfFirst: Int                = allRows.indexWhere(_._1.id == firstId)
-            val indexOfLast: Int                 = allRows.indexWhere(_._1.id == lastId)
+            val firstId: RowId                           = selectedRows.head.id
+            val lastId: RowId                            = selectedRows.last.id
+            val indexOfCurrent: Int                      = allRows.indexWhere(_._1.id == rowId)
+            val indexOfFirst: Int                        = allRows.indexWhere(_._1.id == firstId)
+            val indexOfLast: Int                         = allRows.indexWhere(_._1.id == lastId)
             if (indexOfCurrent =!= -1 && indexOfFirst =!= -1 && indexOfLast =!= -1)
               table.setRowSelection:
                 if (indexOfCurrent < indexOfFirst)

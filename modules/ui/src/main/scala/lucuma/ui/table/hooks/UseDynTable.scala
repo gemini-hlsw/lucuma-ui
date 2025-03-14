@@ -27,7 +27,9 @@ class UseDynTable(
   colState:                        DynTable.ColState,
   val onColumnSizingChangeHandler: Updater[ColumnSizing] => Callback
 ):
-  def setInitialColWidths[R, TM](cols: List[ColumnDef[R, ?, TM, ?]]): List[ColumnDef[R, ?, TM, ?]] =
+  def setInitialColWidths[R, TM, CM, TF](
+    cols: List[ColumnDef[R, ?, TM, CM, TF, ?, ?]]
+  ): List[ColumnDef[R, ?, TM, CM, TF, ?, ?]] =
     cols.map:
       case col @ ColumnDef.Single(_) => col.setColumnSize(initialColumnSizes(col.id))
       case col @ ColumnDef.Group(_)  => col.setColumnSize(initialColumnSizes(col.id))

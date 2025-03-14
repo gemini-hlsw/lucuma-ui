@@ -65,7 +65,7 @@ object SequenceColumns:
 
   def headerCell[T, R, TM](
     colId:  ColumnId,
-    colDef: ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM]
+    colDef: ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, Nothing, Nothing]
   ): ColumnDef.Single.WithTableMeta[Expandable[HeaderOrRow[T]], Option[VdomNode], TM] =
     colDef(
       colId,
@@ -94,7 +94,7 @@ object SequenceColumns:
   // `D` is the `DynamicConfig`.
   // `TM` is the type of the table meta.
   def gmosColumns[D, T, R <: SequenceRow[D], TM](
-    colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM],
+    colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, Nothing, Nothing],
     getStep:  T => Option[R],
     getIndex: T => Option[StepIndex]
   ): List[ColumnDef.Single.WithTableMeta[Expandable[HeaderOrRow[T]], ?, TM]] =
