@@ -8,7 +8,7 @@
     "loglevel": "1.9.2",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.2",
-    "react": "^18.3.1",
+    "react": "^19.0.0",
     "sass": "^1.85.0",
     "vite": "^4.5.9"
   },
