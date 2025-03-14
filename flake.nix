@@ -23,6 +23,7 @@
         devShell = pkgs.devshell.mkShell {
           imports = [ typelevel-nix.typelevelShell ];
           packages = [
+            pkgs.nodePackages.typescript-language-server
             pkgs.nodePackages.vscode-langservers-extracted
           ];
           typelevelShell = {
