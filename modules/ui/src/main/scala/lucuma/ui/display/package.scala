@@ -4,7 +4,6 @@
 package lucuma.ui.display
 
 import lucuma.core.enums.*
-import lucuma.core.enums.Site
 import lucuma.core.util.Display
 
 import java.util.concurrent.TimeUnit
