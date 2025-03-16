@@ -63,10 +63,10 @@ object SequenceColumns:
     FPUColumnId
   ).reverse
 
-  def headerCell[T, R, TM](
+  def headerCell[T, R, TM, CM, FM](
     colId:  ColumnId,
-    colDef: ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, Nothing, Nothing]
-  ): ColumnDef.Single.WithTableMeta[Expandable[HeaderOrRow[T]], Option[VdomNode], TM] =
+    colDef: ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, CM, FM]
+  ): colDef.TypeFor[Option[VdomNode]] =
     colDef(
       colId,
       _.value.left.toOption.map(_.content),
@@ -93,11 +93,13 @@ object SequenceColumns:
   // `T` is the actual type of the table row, from which we extract an `R` using `getStep`.
   // `D` is the `DynamicConfig`.
   // `TM` is the type of the table meta.
-  def gmosColumns[D, T, R <: SequenceRow[D], TM](
-    colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, Nothing, Nothing],
+  // `CM` is the type of the column meta.
+  // `TF` is the type of the global filter.
+  def gmosColumns[D, T, R <: SequenceRow[D], TM, CM, TF](
+    colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, CM, TF],
     getStep:  T => Option[R],
     getIndex: T => Option[StepIndex]
-  ): List[ColumnDef.Single.WithTableMeta[Expandable[HeaderOrRow[T]], ?, TM]] =
+  ): List[colDef.Type] =
     List(
       colDef(
         IndexAndTypeColumnId,
