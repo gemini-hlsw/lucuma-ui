@@ -5,6 +5,7 @@ package lucuma.ui.aladin
 
 import cats.syntax.all.*
 import japgolly.scalajs.react.*
+import japgolly.scalajs.react.hooks.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.*
 import lucuma.react.common.*
@@ -12,91 +13,72 @@ import lucuma.ui.aladin.facade.*
 import org.scalajs.dom.Element
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters.*
 import org.scalajs.dom.html
 
-extension (a: JsAladin)
+type Aladin = lucuma.ui.aladin.facade.JsAladin
+
+extension (a: Aladin)
   def size: Size = Size(a.getSize()(0), a.getSize()(1))
 
   def fov: Fov =
     Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
 
-  def onPositionChanged(cb: PositionChanged => Callback): Callback =
+  def onPositionChangedCB(cb: PositionChanged => Callback): Callback =
     Callback(
       a.on("positionChanged", (o: JsPositionChanged) => cb(PositionChanged.fromJs(o)).runNow())
     )
 
-  def onZoom(cb: Fov => Callback): Callback =
+  def onZoomCB(cb: Fov => Callback): Callback =
     Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
 
-  def onZoom(cb: => Callback): Callback =
+  def onZoomCB(cb: => Callback): Callback =
     Callback(a.on("zoomChanged", (_: Double) => cb.runNow()))
 
-  def onFullScreenToggle(cb: Boolean => Callback): Callback =
+  def onFullScreenToggleCB(cb: Boolean => Callback): Callback =
     Callback(a.on("fullScreenToggled", (t: Boolean) => cb(t).runNow()))
 
-  def onFullScreenToggle(cb: => Callback): Callback =
+  def onFullScreenToggleCB(cb: => Callback): Callback =
     Callback(a.on("fullScreenToggled", (_: Boolean) => cb.runNow()))
 
-  def onMouseMove(cb: MouseMoved => Callback): Callback =
+  def onMouseMoveCB(cb: MouseMoved => Callback): Callback =
     Callback(a.on("mouseMove", (t: JsMouseMoved) => cb(MouseMoved.fromJs(t)).runNow()))
 
   def pixelScale: PixelScale =
     PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
 
-case class Aladin(
-  mountNodeClass:           Css,
-  target:                   js.UndefOr[String] = js.undefined,
-  fov:                      js.UndefOr[Angle] = js.undefined,
-  survey:                   js.UndefOr[String] = js.undefined,
-  cooFrame:                 js.UndefOr[CooFrame] = js.undefined,
-  showReticle:              js.UndefOr[Boolean] = js.undefined,
-  showZoomControl:          js.UndefOr[Boolean] = js.undefined,
-  showFullscreenControl:    js.UndefOr[Boolean] = js.undefined,
-  showLayersControl:        js.UndefOr[Boolean] = js.undefined,
-  showGotoControl:          js.UndefOr[Boolean] = js.undefined,
-  showShareControl:         js.UndefOr[Boolean] = js.undefined,
-  showSimbadPointerControl: js.UndefOr[Boolean] = js.undefined,
-  showFrame:                js.UndefOr[Boolean] = js.undefined,
-  showCoordinates:          js.UndefOr[Boolean] = js.undefined,
-  showFov:                  js.UndefOr[Boolean] = js.undefined,
-  fullScreen:               js.UndefOr[Boolean] = js.undefined,
-  reticleColor:             js.UndefOr[String] = js.undefined,
-  reticleSize:              js.UndefOr[Double] = js.undefined,
-  imageSurvey:              js.UndefOr[String] = js.undefined,
-  baseImageLayer:           js.UndefOr[String] = js.undefined,
-  customize:                js.UndefOr[JsAladin => Callback] = js.undefined
-) extends ReactFnProps(Aladin.component):
-  def render = Aladin.component(this)
+  def increaseZoomCB: Callback =
+    Callback.log(a) *>
+      Callback(a.increaseZoom())
 
-object Aladin:
+  def decreaseZoomCB: Callback =
+    Callback(a.decreaseZoom())
 
-  type Props = Aladin
+  def fixLayoutDimensionsCB: Callback =
+    Callback.log("FIX") *>
+      Callback.log(a.view.fixLayoutDimensions())
 
-  case class State(a: Option[JsAladin])
+  def gotoRaDecCB(c: Coordinates): Callback =
+    Callback(a.gotoRaDec(c.ra.toAngle.toDoubleDegrees, c.dec.toAngle.toSignedDoubleDegrees))
 
-  // def runOnAladinOpt[A](f: JsAladin => A): CallbackOption[A] =
-  //   bs.state.map {
-  //     case State(Some(a)) => f(a).some
-  //     case _              => none
-  //   }.asCBO
-  //
-  // def runOnAladinCB[A](f: JsAladin => CallbackTo[A]): Callback =
-  //   bs.state.flatMap {
-  //     case State(Some(a)) => f(a).void
-  //     case _              => Callback.empty
-  //   }
-  //
-  // def runOnAladin[A](f: JsAladin => A): Callback =
-  //   bs.state.flatMap {
-  //     case State(Some(a)) => CallbackTo(f(a)).void
-  //     case _              => Callback.empty
-  //   }
+extension (a: AladinOptions)
+  def withCustomize(f: Aladin => Callback): AladinOptions =
+    a.customize = (j: Aladin) => f(j).runNow()
+    a
 
-  // def render(props: Props): VdomElement = <.div(props.mountNodeClass)
-  //
-  // def gotoRaDec(ra: Double, dec: Double): Callback = runOnAladin(_.gotoRaDec(ra, dec))
-  //
+case class ReactAladin(
+  mountNodeClass: Css,
+  options:        AladinOptions = AladinOptions.Default,
+  target:         js.UndefOr[String] = js.undefined,
+  customize:      js.UndefOr[Aladin => Callback] = js.undefined
+) extends ReactFnProps(ReactAladin.component):
+  def render = ReactAladin.component(this)
+
+object ReactAladin:
+
+  type Props = ReactAladin
+
+  case class State(a: Option[Aladin])
+
   // def box: Callback = runOnAladin(_.box())
   //
   // def getFovForObject(
@@ -160,17 +142,9 @@ object Aladin:
   // def recalculateView: Callback =
   //   runOnAladin(_.recalculateView())
   //
-  // def fixLayoutDimensions: Callback =
-  //   runOnAladin(_.fixLayoutDimensions())
-  //
   // def requestRedraw: Callback =
   //   runOnAladin(_.requestRedraw())
   //
-  // def increaseZoom: Callback =
-  //   runOnAladin(_.increaseZoom())
-  //
-  // def decreaseZoom: Callback =
-  //   runOnAladin(_.decreaseZoom())
   //
   // def setZoom(fovDegrees: Double): Callback =
   //   runOnAladin(_.setZoom(fovDegrees))
@@ -302,69 +276,20 @@ object Aladin:
   val component =
     ScalaFnComponent[Props]: props =>
       for {
-        state <- useState(none[JsAladin])
+        state <- useState(none[Aladin])
         ref   <- useRefToVdom[html.Div]
-        _     <- useEffectOnMount {
+        _     <- useEffectWithDeps(props.mountNodeClass) { _ =>
                    ref.get.flatMap {
                      case Some(e: Element) =>
                        CallbackTo {
-                         A.aladin(e, fromProps(props))
+                         A.aladin(e, props.options)
                        }.flatTap { a =>
-                         Callback(props.imageSurvey.toOption.map(a.setImageSurvey)) *>
-                           Callback(props.baseImageLayer.toOption.map(a.setBaseImageLayer)) *>
+                         Callback.log(s"Aladin created ${props.mountNodeClass}") *>
+                           Callback(props.options.imageSurvey.toOption.map(a.setImageSurvey)) *>
+                           Callback(props.options.baseImageLayer.toOption.map(a.setBaseImageLayer)) *>
                            Callback(props.customize.toOption.map(_(a).runNow()))
                        }.flatMap(a => state.setState(a.some))
                      case _                => Callback.empty
                    }
                  }
       } yield <.div(props.mountNodeClass, ^.untypedRef := ref)
-
-  def fromProps(q: AladinProps): Props =
-    Aladin(
-      Css(q.mountNodeClass),
-      q.target,
-      q.fov.map(f => Angle.fromDoubleDegrees(f)),
-      q.survey,
-      q.cooFrame.flatMap(CooFrame.fromString(_).orUndefined),
-      q.showReticle,
-      q.showZoomControl,
-      q.showFullscreenControl,
-      q.showLayersControl,
-      q.showGotoControl,
-      q.showShareControl,
-      q.showSimbadPointerControl,
-      q.showFrame,
-      q.showCoordinates,
-      q.showFov,
-      q.fullScreen,
-      q.reticleColor,
-      q.reticleSize,
-      q.imageSurvey,
-      q.baseImageLayer,
-      q.customize.map(f => (j: JsAladin) => Callback(f(j)))
-    )
-
-  def fromProps(q: Props): AladinProps = {
-    val p = new js.Object().asInstanceOf[AladinProps]
-    q.fov.foreach(v => p.fov = v.toDoubleDegrees)
-    q.target.foreach(v => p.target = v)
-    q.survey.foreach(v => p.survey = v)
-    // q.cooFrame.foreach(v => p.cooFrame = v.toJs)
-    q.reticleColor.foreach(v => p.reticleColor = v: String)
-    q.reticleSize.foreach(v => p.reticleSize = v)
-    q.imageSurvey.foreach(v => p.imageSurvey = v)
-    q.baseImageLayer.foreach(v => p.baseImageLayer = v)
-    q.customize.foreach(v => p.customize = (j: JsAladin) => v(j).runNow())
-    q.showReticle.foreach(v => p.showReticle = v)
-    q.showZoomControl.foreach(v => p.showZoomControl = v)
-    q.showFullscreenControl.foreach(v => p.showFullscreenControl = v)
-    q.showLayersControl.foreach(v => p.showLayersControl = v)
-    q.showGotoControl.foreach(v => p.showGotoControl = v)
-    q.showShareControl.foreach(v => p.showShareControl = v)
-    q.showSimbadPointerControl.foreach(v => p.showSimbadPointerControl = v)
-    q.showFrame.foreach(v => p.showFrame = v)
-    q.showCoordinates.foreach(v => p.showCoordinates = v)
-    q.showFov.foreach(v => p.showFov = v)
-    q.fullScreen.foreach(v => p.fullScreen = v)
-    p
-  }

@@ -19,32 +19,6 @@ trait SourceDraw extends js.Object:
 
 // This will be the props object used from JS-land
 @js.native
-trait AladinProps extends js.Object {
-  var mountNodeClass: String
-  var fov: js.UndefOr[Double]
-  var target: js.UndefOr[String]
-  var survey: js.UndefOr[String]
-  var cooFrame: js.UndefOr[String]
-  var showReticle: js.UndefOr[Boolean]
-  var showZoomControl: js.UndefOr[Boolean]
-  var showFullscreenControl: js.UndefOr[Boolean]
-  var showLayersControl: js.UndefOr[Boolean]
-  var showGotoControl: js.UndefOr[Boolean]
-  var showShareControl: js.UndefOr[Boolean]
-  var showSimbadPointerControl: js.UndefOr[Boolean]
-  var showFrame: js.UndefOr[Boolean]
-  var showCoordinates: js.UndefOr[Boolean]
-  var showFov: js.UndefOr[Boolean]
-  var fullScreen: js.UndefOr[Boolean]
-  var reticleColor: js.UndefOr[String]
-  var reticleSize: js.UndefOr[Double]
-  var imageSurvey: js.UndefOr[String]
-  var baseImageLayer: js.UndefOr[String]
-  var customize: js.UndefOr[JsAladin => Unit]
-}
-
-// This will be the props object used from JS-land
-@js.native
 trait OverlayOptions extends js.Object {
   var color: js.UndefOr[String]
   var name: js.UndefOr[String]
@@ -80,11 +54,47 @@ object PolylineOptions {
   }
 }
 
+// This will be the props object used from JS-land
+@js.native
+trait AladinOptions extends js.Object {
+  var mountNodeClass: String
+  var fov: js.UndefOr[Double]
+  var target: js.UndefOr[String]
+  var survey: js.UndefOr[String]
+  var cooFrame: js.UndefOr[String]
+  var showReticle: js.UndefOr[Boolean]
+  var showZoomControl: js.UndefOr[Boolean]
+  var showFullscreenControl: js.UndefOr[Boolean]
+  var showLayersControl: js.UndefOr[Boolean]
+  var showGotoControl: js.UndefOr[Boolean]
+  var showCooGridControl: js.UndefOr[Boolean]
+  var showSettingsControl: js.UndefOr[Boolean]
+  var showStatusBar: js.UndefOr[Boolean]
+  var showCooLocation: js.UndefOr[Boolean]
+  var showProjectionControl: js.UndefOr[Boolean]
+  var showShareControl: js.UndefOr[Boolean]
+  var showSimbadPointerControl: js.UndefOr[Boolean]
+  var showFrame: js.UndefOr[Boolean]
+  var showCoordinates: js.UndefOr[Boolean]
+  var showFov: js.UndefOr[Boolean]
+  var fullScreen: js.UndefOr[Boolean]
+  var reticleColor: js.UndefOr[String]
+  var reticleSize: js.UndefOr[Double]
+  var imageSurvey: js.UndefOr[String]
+  var baseImageLayer: js.UndefOr[String]
+  var customize: js.UndefOr[JsAladin => Unit]
+}
+
 @js.native
 trait AladinSource extends js.Object:
   val x: Double       = js.native
   val y: Double       = js.native
   val data: js.Object = js.native
+
+@js.native
+trait AladinView extends js.Object:
+  val aladin: js.Object                = js.native
+  def fixLayoutDimensions(): js.Object = js.native
 
 @js.native
 trait JsAladin extends js.Object {
@@ -113,7 +123,7 @@ trait JsAladin extends js.Object {
   def decreaseZoom(): Unit                                                            = js.native
   def requestRedraw(): Unit                                                           = js.native
   def toggleFullscreen(): Unit                                                        = js.native
-  def fixLayoutDimensions(): Unit                                                     = js.native
+  def view: AladinView                                                                = js.native
   def getParentDiv(): Element                                                         = js.native
   def getSize(): js.Array[Double]                                                     = js.native
   def getFov(): js.Array[Double]                                                      = js.native
@@ -128,8 +138,8 @@ trait JsAladin extends js.Object {
 @JSImport("aladin-lite", JSImport.Default)
 @nowarn
 object A extends js.Object {
-  def aladin(divSelector: String, options:  AladinProps): JsAladin     = js.native
-  def aladin(divSelector: Element, options: AladinProps): JsAladin     = js.native
+  def aladin(divSelector: String, options:  AladinOptions): JsAladin   = js.native
+  def aladin(divSelector: Element, options: AladinOptions): JsAladin   = js.native
   def catalog(c:          CatalogOptions): AladinCatalog               = js.native
   def graphicOverlay(c:   OverlayOptions): AladinOverlay               = js.native
   def polygon(raDecArray: js.Array[js.Array[Double]]): AladinFootprint = js.native

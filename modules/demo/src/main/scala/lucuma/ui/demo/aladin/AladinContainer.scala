@@ -13,10 +13,8 @@ import lucuma.core.math.*
 import lucuma.react.aladin.*
 import lucuma.react.common.*
 import lucuma.react.resizeDetector.hooks.*
-import lucuma.ui.reusability.given
 import lucuma.ui.aladin.*
 import monocle.macros.GenLens
-import lucuma.ui.aladin.facade.JsAladin
 
 final case class AladinContainer(
   fov:         ReuseView[Fov],
@@ -28,7 +26,7 @@ final case class AladinContainer(
 object AladinContainer {
   type Props = AladinContainer
 
-  val AladinComp = Aladin.component
+  val AladinComp = ReactAladin.component
 
   val coordinates = GenLens[AladinContainer](_.coordinates)
 
@@ -43,10 +41,11 @@ object AladinContainer {
       // View coordinates (in case the user pans)
       .useStateBy(_.coordinates)
       // Ref to the aladin component
-      // .useRefToScalaComponent(AladinComp)
+      .useState(none[Aladin])
       // resize detector
       .useResizeDetector()
-      .renderWithReuse { (props, currentPos, /*aladinRef,*/ resize) =>
+      .useState(true)
+      .render { (props, currentPos, aladinRef, resize, flip) =>
         /**
          * Called when the position changes, i.e. aladin pans. We want to offset the visualization
          * to keep the internal target correct
@@ -54,11 +53,13 @@ object AladinContainer {
         def onPositionChanged(u: PositionChanged): Callback =
           currentPos.setState(Coordinates(u.ra, u.dec))
 
-        def onZoom = (v: Fov) => Callback.log(s"onZoom $v") *> props.fov.set(v)
+        def onZoom = (v: Fov) => props.fov.set(v)
 
-        def customizeAladin(v: JsAladin): Callback =
-          v.onZoom(onZoom) *> // re render on zoom
-            v.onPositionChanged(onPositionChanged)
+        def customizeAladin(v: Aladin): Callback =
+          aladinRef.setState(Some(v)) *>
+            v.fixLayoutDimensionsCB *>
+            v.onZoomCB(onZoom) *> // re render on zoom
+            v.onPositionChangedCB(onPositionChanged)
 
         val gs =
           props.coordinates.offsetBy(Angle.Angle0, GmosGeometry.guideStarOffset)
@@ -95,19 +96,21 @@ object AladinContainer {
                     ).flatten
                   )
                 ),
-
-              // This is a bit tricky. Sometimes the height can be 0 or a very low number.
-              // AladinComp.withRef(aladinRef) {
-              Aladin(
-                Css("react-aladin"),
-                showReticle = false,
-                showLayersControl = false,
-                target = props.aladinCoordsStr,
-                fov = props.fov.get.x,
-                showGotoControl = false,
+              ReactAladin(
+                Css("react-aladin") |+| Css("test").when_(flip.value),
+                AladinOptions(showReticle = true,
+                              showLayersControl = true,
+                              target = props.aladinCoordsStr,
+                              fov = props.fov.get.x,
+                              showGotoControl = false,
+                              showCooLocation = true
+                ),
                 customize = customizeAladin(_)
+              ),
+              <.button(
+                ^.onClick --> aladinRef.value.get.increaseZoomCB, // flip.setState(!flip.value),
+                "Flip"
               )
-              // }
             )
           else EmptyVdom
         )
