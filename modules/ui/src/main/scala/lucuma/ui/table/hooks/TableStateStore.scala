@@ -6,6 +6,6 @@ package lucuma.ui.table.hooks
 import cats.Endo
 import lucuma.react.table.TableState
 
-trait TableStateStore[F[_]]:
-  def load(): F[Endo[TableState]]
-  def save(state: TableState): F[Unit]
+trait TableStateStore[F[_], TF]:
+  def load(): F[Endo[TableState[TF]]]
+  def save(state: TableState[TF]): F[Unit]

@@ -159,7 +159,7 @@ trait TableReusabilityInstances:
   @nowarn
   given Reusability[ColumnSort]                = Reusability.derive
   given Reusability[Sorting]                   = Reusability.by(_.value)
-  given Reusability[TableState]                =
+  given [TF]: Reusability[TableState[TF]]      =
     Reusability.by(state => (state.columnVisibility, state.sorting))
 
 trait SequenceReusabilityInstances:

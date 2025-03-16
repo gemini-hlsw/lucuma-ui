@@ -7,8 +7,6 @@ import cats.syntax.all.*
 import lucuma.react.SizePx
 import lucuma.react.table.ColumnDef
 
-import scalajs.js.JSConverters.*
-
 enum ColumnSize(
   val initial:      SizePx,
   val minSize:      Option[SizePx] = None,
@@ -27,18 +25,18 @@ object ColumnSize:
     def apply(initial: SizePx, min: SizePx): Resizable =
       Resizable(initial, min.some, none)
 
-  extension [T, V, TM, CM](col: ColumnDef.Single[T, V, TM, CM])
-    def setColumnSize(size: ColumnSize): ColumnDef.Single[T, V, TM, CM] =
+  extension [T, V, TM, CM, TF, CF, FM](col: ColumnDef.Single[T, V, TM, CM, TF, CF, FM])
+    def withColumnSize(size: ColumnSize): ColumnDef.Single[T, V, TM, CM, TF, CF, FM] =
       col
-        .setSize(size.initial)
-        .setMinSize(size.minSize.orUndefined)
-        .setMaxSize(size.maxSize.orUndefined)
-        .setEnableResizing(size.enableResize)
+        .withSize(size.initial)
+        .withEnableResizing(size.enableResize)
+        .setMinSize(size.minSize)
+        .setMaxSize(size.maxSize)
 
-  extension [T, TM, CM](col: ColumnDef.Group[T, TM, CM])
-    def setColumnSize(size: ColumnSize): ColumnDef.Group[T, TM, CM] =
+  extension [T, TM, CM, TF, CF, FM](col: ColumnDef.Group[T, TM, CM, TF, CF, FM])
+    def withColumnSize(size: ColumnSize): ColumnDef.Group[T, TM, CM, TF, CF, FM] =
       col
-        .setSize(size.initial)
-        .setMinSize(size.minSize.orUndefined)
-        .setMaxSize(size.maxSize.orUndefined)
-        .setEnableResizing(size.enableResize)
+        .withSize(size.initial)
+        .withEnableResizing(size.enableResize)
+        .setMinSize(size.minSize)
+        .setMaxSize(size.maxSize)
