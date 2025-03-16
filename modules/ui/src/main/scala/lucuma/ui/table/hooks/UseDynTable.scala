@@ -31,8 +31,8 @@ class UseDynTable(
     cols: List[ColumnDef[R, ?, TM, CM, TF, ?, ?]]
   ): List[ColumnDef[R, ?, TM, CM, TF, ?, ?]] =
     cols.map:
-      case col @ ColumnDef.Single(_) => col.setColumnSize(initialColumnSizes(col.id))
-      case col @ ColumnDef.Group(_)  => col.setColumnSize(initialColumnSizes(col.id))
+      case col @ ColumnDef.Single(_) => col.withColumnSize(initialColumnSizes(col.id))
+      case col @ ColumnDef.Group(_)  => col.withColumnSize(initialColumnSizes(col.id))
 
   export colState.{computedVisibility => columnVisibility, resized => columnSizing}
 
