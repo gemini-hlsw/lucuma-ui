@@ -99,7 +99,7 @@ object SequenceColumns:
     colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, CM, TF],
     getStep:  T => Option[R],
     getIndex: T => Option[StepIndex]
-  ): List[colDef.Type] =
+  ): List[colDef.TypeFor[?]] = // Forces "Single" column type (as opposed to Group)
     List(
       colDef(
         IndexAndTypeColumnId,
