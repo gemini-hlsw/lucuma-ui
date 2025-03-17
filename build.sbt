@@ -1,5 +1,5 @@
 val Versions = new { // sbt doesn't like object definitions in build.sbt
-  val circe           = "0.14.10"
+  val circe           = "0.14.12"
   val circeRefined    = "0.15.1"
   val disciplineMUnit = "2.0.0"
   val fs2             = "3.11.0"
