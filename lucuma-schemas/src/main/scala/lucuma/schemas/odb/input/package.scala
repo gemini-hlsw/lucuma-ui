@@ -64,6 +64,10 @@ extension (id: Program.Id)
   def toTargetEditInput: TargetEditInput           =
     TargetEditInput(programId = id.assign)
 
+extension (id: ProgramNote.Id)
+  def toWhereProgramNote: WhereProgramNote =
+    WhereProgramNote(id = WhereOrderProgramNoteId(EQ = id.assign).assign)
+
 extension (id: ProgramUser.Id)
   def toWhereProgramUser: WhereProgramUser  =
     WhereProgramUser(id = WhereOrderProgramUserId(EQ = id.assign).assign)
