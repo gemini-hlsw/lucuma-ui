@@ -2,7 +2,7 @@ import react from "@vitejs/plugin-react";
 import path from "path";
 import env from 'vite-plugin-env-compatible';
 
-const scalaVersion = '3.6.3';
+const scalaVersion = '3.6.4';
 
 // https://vitejs.dev/config/
 export default ({ command, mode }) => {

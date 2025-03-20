@@ -31,6 +31,7 @@ import lucuma.react.common.ReactFnProps
 import lucuma.refined.*
 import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.input.FilterMode
+import lucuma.ui.primereact.FormDebouncedInputText
 import lucuma.ui.primereact.FormInputTextView
 import lucuma.ui.primereact.FormTimeSpanInput
 import lucuma.ui.primereact.LucumaPrimeStyles
@@ -60,6 +61,7 @@ object FormComponent {
   final case class RootModel(
     field1:        UpperNES,
     field2:        String,
+    field3:        String,
     forcedUpper:   UpperNES,
     justAnInt:     Int,
     refinedInt:    Int Refined Interval.Closed[0, 2048],
@@ -79,6 +81,7 @@ object FormComponent {
       RootModel(
         refineV[UpperNEPred]("FIELD").getOrElse(sys.error("Shouldn't happen")),
         "",
+        "",
         refineV[UpperNEPred]("UPPER").getOrElse(sys.error("Shouldn't happen")),
         0,
         0.refined,
@@ -95,6 +98,7 @@ object FormComponent {
 
     val field1        = Focus[RootModel](_.field1)
     val field2        = Focus[RootModel](_.field2)
+    val field3        = Focus[RootModel](_.field3)
     val forcedUpper   = Focus[RootModel](_.forcedUpper)
     val justAnInt     = Focus[RootModel](_.justAnInt)
     val refinedInt    = Focus[RootModel](_.refinedInt)
@@ -140,6 +144,13 @@ object FormComponent {
                       s.toLowerCase.asRight,
                   identity[String]
                 )
+              ),
+              FormDebouncedInputText(
+                id = "debounced-field3".refined,
+                label = "debounced",
+                delayMillis = 1000,
+                value = root.zoom(RootModel.field3).get,
+                onChange = root.zoom(RootModel.field3).set
               ),
               FormInputTextView(
                 id = "forced-upper".refined,
