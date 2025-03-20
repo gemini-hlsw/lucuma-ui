@@ -3,17 +3,20 @@
 
 package lucuma.ui.table
 
-import lucuma.react.common.ReactFnProps
-import lucuma.react.common.ReactFnComponent
-import japgolly.scalajs.react.*
-import japgolly.scalajs.react.vdom.html_<^.*
-import lucuma.react.table.Column
-import lucuma.ui.primereact.DebouncedInputText
+import cats.Eq
 import cats.syntax.option.*
 import eu.timepit.refined.types.string.NonEmptyString
-import lucuma.react.primereact.DropdownOptional
-import lucuma.react.primereact.SelectItem
+import japgolly.scalajs.react.*
+import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.Css
+import lucuma.react.common.ReactFnComponent
+import lucuma.react.common.ReactFnProps
+import lucuma.react.primereact.DropdownOptional
+import lucuma.react.primereact.InputGroup
+import lucuma.react.primereact.SelectItem
+import lucuma.react.table.Column
+import lucuma.ui.primereact.DebouncedInputText
+import lucuma.ui.primereact.LucumaPrimeStyles
 
 object ColumnFilter:
   case class Text(
@@ -25,38 +28,56 @@ object ColumnFilter:
 
   object Text
       extends ReactFnComponent[Text](props =>
-        DebouncedInputText(
-          id = NonEmptyString.unsafeFrom(s"${props.col.id.value}-filter"),
-          delayMillis = props.delayMillis,
-          placeholder = props.placeholder,
-          value = props.col.getFilterValue().map(_.toString).getOrElse(""),
-          onChange = v => props.col.setFilterValue(v.some.filter(_.nonEmpty)),
-          // showClear = true, // !!!!!
-          clazz = props.clazz
-        ).withMods(^.width := "100%")
+        val filterValue: String = props.col.getFilterValue().map(_.toString).getOrElse("")
+        InputGroup(
+          DebouncedInputText(
+            id = NonEmptyString.unsafeFrom(s"${props.col.id.value}-filter"),
+            delayMillis = props.delayMillis,
+            placeholder = props.placeholder,
+            value = filterValue,
+            onChange = v => props.col.setFilterValue(v.some.filter(_.nonEmpty)),
+            clazz = props.clazz
+          ),
+          InputGroup
+            .Addon(^.onClick --> props.col.setFilterValue(none))(LucumaPrimeStyles.IconTimes)
+            .when(filterValue.nonEmpty)
+        )(^.width := "100%")
       )
 
   /** Requires table with facetedUniqueValues enabled */
   case class Select[A](
-    col:         Column[?, A, ?, ?, ?, String, ?],
+    col:         Column[?, A, ?, ?, ?, A, ?],
     display:     A => String = (a: A) => a.toString,
     placeholder: String = "Filter",
-    showCount:   Boolean = false,
+    showCount:   Boolean = true,
     clazz:       Css = Css.Empty
-  ) extends ReactFnProps(Select):
-    val options: List[(String, Int)] =
-      col.getFacetedUniqueValues().map((k, v) => (k.toString, v)).toList.sortBy(_._1)
+  )(using val eq: Eq[A])
+      extends ReactFnProps(Select.component):
+    protected[table] val options: List[(A, String)] =
+      col
+        .getFacetedUniqueValues()
+        .map: (a, count) =>
+          val name: String  = display(a)
+          val label: String = if showCount then s"$name (${count})" else name
+          (a, label)
+        .toList
+        .sortBy(_._2)
 
-  object Select
-      extends ReactFnComponent[Select[Any]](props =>
-        DropdownOptional[String](
-          id = s"${props.col.id.value}-filter",
-          value = props.col.getFilterValue(),
-          options = props.options.map: (a, count) =>
-            SelectItem(value = a, label = if props.showCount then s"$a (${count})" else a),
-          onChange = props.col.setFilterValue(_),
-          showClear = true,
-          placeholder = props.placeholder,
-          clazz = props.clazz
-        ).withMods(^.width := "100%")
-      )
+  trait SelectBuilder[A]:
+    type Props = Select[A]
+
+    val component = ScalaFnComponent[Props]: props =>
+      import props.given
+
+      DropdownOptional(
+        id = s"${props.col.id.value}-filter",
+        value = props.col.getFilterValue(),
+        options = props.options.map: (a, label) =>
+          SelectItem(value = a, label = label),
+        onChange = props.col.setFilterValue(_),
+        showClear = true,
+        placeholder = props.placeholder,
+        clazz = props.clazz
+      ).withMods(^.width := "100%")
+
+  object Select extends SelectBuilder[Any]
