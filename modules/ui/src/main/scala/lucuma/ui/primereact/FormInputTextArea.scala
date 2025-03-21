@@ -3,6 +3,7 @@
 
 package lucuma.ui.primereact
 
+import cats.syntax.all.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
@@ -21,6 +22,8 @@ case class FormInputTextArea(
   autoResize:       js.UndefOr[Boolean] = js.undefined,
   tooltip:          js.UndefOr[VdomNode] = js.undefined,
   tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
+  clazz:            js.UndefOr[Css] = js.undefined,
+  labelClass:       js.UndefOr[Css] = js.undefined,
   modifiers:        Seq[TagMod] = Seq.empty
 ) extends ReactFnProps(FormInputTextArea.component):
   inline def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
@@ -28,10 +31,10 @@ case class FormInputTextArea(
   inline def apply(mods:             TagMod*)     = addModifiers(mods)
 
 object FormInputTextArea:
-  private val component = ScalaFnComponent[FormInputTextArea] { props =>
+  private val component = ScalaFnComponent[FormInputTextArea]: props =>
 
     val group = <.div(
-      LucumaPrimeStyles.FormField,
+      LucumaPrimeStyles.FormField |+| props.clazz.getOrElse(Css.Empty),
       InputTextarea(autoResize = props.autoResize)(^.id := props.id.value, ^.value := props.value)(
         props.modifiers*
       )
@@ -40,7 +43,8 @@ object FormInputTextArea:
     val input = props.tooltip.fold(group)(tt => group.withTooltip(tt, props.tooltipPlacement))
 
     React.Fragment(
-      props.label.map(l => FormLabel(htmlFor = props.id, size = props.size)(l)),
+      props.label.map(l =>
+        FormLabel(htmlFor = props.id, size = props.size, clazz = props.labelClass)(l)
+      ),
       input
     )
-  }

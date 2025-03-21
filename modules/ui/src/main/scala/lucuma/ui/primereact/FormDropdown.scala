@@ -23,6 +23,7 @@ final case class FormDropdown[A](
   size:             js.UndefOr[PlSize] = js.undefined,
   clazz:            js.UndefOr[Css] = js.undefined,
   panelClass:       js.UndefOr[Css] = js.undefined,
+  labelClass:       js.UndefOr[Css] = js.undefined,
   filter:           js.UndefOr[Boolean] = js.undefined,
   showFilterClear:  js.UndefOr[Boolean] = js.undefined,
   placeholder:      js.UndefOr[String] = js.undefined,
@@ -41,12 +42,14 @@ final case class FormDropdown[A](
   inline def withMods(mods:          TagMod*)     = addModifiers(mods)
   inline def apply(mods:             TagMod*)     = addModifiers(mods)
 
-object FormDropdown {
-  private def buildComponent[A] = ScalaFnComponent[FormDropdown[A]] { props =>
+object FormDropdown:
+  private def buildComponent[A] = ScalaFnComponent[FormDropdown[A]]: props =>
     import props.given
 
     React.Fragment(
-      props.label.map(l => FormLabel(htmlFor = props.id, size = props.size)(l)),
+      props.label.map(l =>
+        FormLabel(htmlFor = props.id, size = props.size, clazz = props.labelClass)(l)
+      ),
       Dropdown(
         id = props.id.value,
         value = props.value,
@@ -65,7 +68,5 @@ object FormDropdown {
         modifiers = props.modifiers
       )
     )
-  }
 
   private val component = buildComponent[Any]
-}

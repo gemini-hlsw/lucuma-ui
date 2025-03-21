@@ -23,6 +23,7 @@ case class FormDropdownOptional[A](
   size:                 js.UndefOr[PlSize] = js.undefined,
   clazz:                js.UndefOr[Css] = js.undefined,
   panelClass:           js.UndefOr[Css] = js.undefined,
+  labelClass:           js.UndefOr[Css] = js.undefined,
   showClear:            Boolean = false,
   filter:               js.UndefOr[Boolean] = js.undefined,
   showFilterClear:      js.UndefOr[Boolean] = js.undefined,
@@ -45,12 +46,14 @@ case class FormDropdownOptional[A](
   inline def withMods(mods:          TagMod*)     = addModifiers(mods)
   inline def apply(mods:             TagMod*)     = addModifiers(mods)
 
-object FormDropdownOptional {
-  private def buildComponent[A] = ScalaFnComponent[FormDropdownOptional[A]] { props =>
+object FormDropdownOptional:
+  private def buildComponent[A] = ScalaFnComponent[FormDropdownOptional[A]]: props =>
     import props.given
 
     React.Fragment(
-      props.label.map(l => FormLabel(htmlFor = props.id, size = props.size)(l)),
+      props.label.map(l =>
+        FormLabel(htmlFor = props.id, size = props.size, clazz = props.labelClass)(l)
+      ),
       DropdownOptional(
         id = props.id.value,
         value = props.value,
@@ -72,7 +75,5 @@ object FormDropdownOptional {
         modifiers = props.modifiers
       )
     )
-  }
 
   private val component = buildComponent[Any]
-}
