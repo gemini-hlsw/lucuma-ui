@@ -36,9 +36,12 @@ object DebouncedInputText
       for
         inputValue    <- useDebounce(props.value.getOrElse(""), props.delayMillis)
         avoidCallback <- useRef(true)
-        _             <-
+        _             <- // Update the caller value, but don't do it until user starts typing
           useEffectWithDeps(inputValue.debouncedValue): v =>
             props.onChange.toOption.map(_(v)).getOrEmpty.when(!avoidCallback.value).void
+        _             <- // Update the internal value if the caller value changes
+          useEffectWithDeps(props.value.getOrElse("")): v =>
+            Callback.when(v != inputValue.debouncedValue)(inputValue.set(v))
       yield InputText(
         id = props.id.value,
         value = inputValue.value,
