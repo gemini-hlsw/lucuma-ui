@@ -11,6 +11,7 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.syntax.display.*
 import lucuma.core.util.Enumerated
 import lucuma.core.util.TimeSpan
+import lucuma.react.common.Css
 import lucuma.react.common.ReactFnProps
 import lucuma.react.primereact.*
 import lucuma.ui.display.given
@@ -27,7 +28,8 @@ case class FormTimeSpanInput[V[_]](
   label:    js.UndefOr[TagMod] = js.undefined,
   min:      js.UndefOr[TimeSpan] = js.undefined,
   max:      js.UndefOr[TimeSpan] = js.undefined,
-  disabled: Boolean = false
+  disabled: Boolean = false,
+  clazz:    js.UndefOr[Css] = js.undefined
 )(using val vl: ViewLike[V])
     extends ReactFnProps(FormTimeSpanInput.component)
 
@@ -35,18 +37,16 @@ object FormTimeSpanInput:
   private type AnyF[_]     = Any
   private type Props[V[_]] = FormTimeSpanInput[V]
 
-  private def componentBuilder[V[_]] = ScalaFnComponent
-    .withHooks[Props[V]]
-    .useMemoBy { props =>
+  private def componentBuilder[V[_]] = ScalaFnComponent[Props[V]]: props =>
+    useMemo {
       import props.given
       (props.units, props.value.get)
-    }(_ => (u, v) => makeTimeUnitsMap(u, v.orEmpty))
-    .render: (props, timeUnitValues) =>
+    }((u, v) => makeTimeUnitsMap(u, v.orEmpty)).map: timeUnitValues =>
       import props.given
 
       val input = <.div(
         ^.id := props.id.value,
-        LucumaPrimeStyles.TimeSpanInput,
+        LucumaPrimeStyles.TimeSpanInput |+| props.clazz.getOrElse(Css.Empty),
         timeUnitValues.value.toVdomArray: (unit, value) =>
           val unitName = unit.shortName
           InputGroup(

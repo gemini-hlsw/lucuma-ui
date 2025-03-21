@@ -17,7 +17,8 @@ case class FormInfo(
   label:           js.UndefOr[TagMod] = js.undefined,
   size:            js.UndefOr[PlSize] = js.undefined,
   tooltip:         js.UndefOr[VdomNode] = js.undefined,
-  tooltipPosiiton: js.UndefOr[Tooltip.Position] = js.undefined
+  tooltipPosiiton: js.UndefOr[Tooltip.Position] = js.undefined,
+  clazz:           js.UndefOr[Css] = js.undefined
 ) extends ReactFnProps(FormInfo.component)
 
 object FormInfo:
@@ -33,7 +34,10 @@ object FormInfo:
         React.Fragment(
           props.label
             .map: l =>
-              FormLabel(htmlFor = NonEmptyString.unsafeFrom(id), size = props.size)(l),
+              FormLabel(htmlFor = NonEmptyString.unsafeFrom(id),
+                        size = props.size,
+                        clazz = props.clazz
+              )(l),
           props.tooltip.fold(value): tt =>
             value.withTooltip(content = tt, position = props.tooltipPosiiton)
         )

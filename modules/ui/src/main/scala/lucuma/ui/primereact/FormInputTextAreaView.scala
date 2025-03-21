@@ -28,6 +28,8 @@ final case class FormInputTextAreaView[V[_]](
   tooltip:          js.UndefOr[VdomNode] = js.undefined,
   tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
   onTextChange:     String => Callback = _ => Callback.empty,
+  clazz:            js.UndefOr[Css] = js.undefined,
+  labelClass:       js.UndefOr[Css] = js.undefined,
   modifiers:        Seq[TagMod] = Seq.empty
 )(using val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextAreaView.component):
@@ -70,6 +72,8 @@ object FormInputTextAreaView:
         props.autoResize,
         props.tooltip,
         props.tooltipPlacement,
+        props.labelClass,
+        props.clazz,
         props.modifiers
       )(
         ^.onChange ==> onChange[V](valueView, props.onTextChange),

@@ -22,6 +22,7 @@ final case class FormEnumDropdownView[V[_], A](
   disabledItems:   Set[A] = Set.empty[A],
   clazz:           js.UndefOr[Css] = js.undefined,
   panelClass:      js.UndefOr[Css] = js.undefined,
+  labelClass:      js.UndefOr[Css] = js.undefined,
   filter:          js.UndefOr[Boolean] = js.undefined,
   showFilterClear: js.UndefOr[Boolean] = js.undefined,
   disabled:        js.UndefOr[Boolean] = js.undefined,
@@ -48,7 +49,9 @@ object FormEnumDropdownView {
     import props.given
 
     React.Fragment(
-      props.label.map(l => FormLabel(htmlFor = props.id, size = props.size)(l)),
+      props.label.map(l =>
+        FormLabel(htmlFor = props.id, size = props.size, clazz = props.labelClass)(l)
+      ),
       EnumDropdownView(
         id = props.id,
         value = props.value,

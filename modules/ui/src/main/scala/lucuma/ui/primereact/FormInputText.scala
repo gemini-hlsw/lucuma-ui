@@ -26,6 +26,7 @@ case class FormInputText(
   size:             js.UndefOr[PlSize] = js.undefined,
   groupClass:       js.UndefOr[Css] = js.undefined,
   inputClass:       js.UndefOr[Css] = js.undefined,
+  labelClass:       js.UndefOr[Css] = js.undefined,
   disabled:         js.UndefOr[Boolean] = js.undefined,
   placeholder:      js.UndefOr[String] = js.undefined,
   tooltip:          js.UndefOr[VdomNode] = js.undefined,
@@ -43,8 +44,8 @@ case class FormInputText(
     copy(postAddons = this.postAddons ++ addons)
   def withPostAddons(addons:  (TagMod | CButton.Builder)*)  = addPostAddons(addons.toList)
 
-object FormInputText {
-  private val component = ScalaFnComponent[FormInputText] { props =>
+object FormInputText:
+  private val component = ScalaFnComponent[FormInputText]: props =>
     val sizeCls = props.size.toOption.map(_.cls).orEmpty
 
     // units are always first
@@ -74,8 +75,8 @@ object FormInputText {
     val input = props.tooltip.fold(group)(tt => group.withTooltip(tt, props.tooltipPlacement))
 
     React.Fragment(
-      props.label.map(l => FormLabel(htmlFor = props.id, size = props.size)(l)),
+      props.label.map(l =>
+        FormLabel(htmlFor = props.id, size = props.size, clazz = props.labelClass)(l)
+      ),
       input
     )
-  }
-}
