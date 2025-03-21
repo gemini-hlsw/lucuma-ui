@@ -14,9 +14,10 @@ import scalajs.js
 object FormLabel {
   def apply(
     htmlFor: NonEmptyString,
-    size:    js.UndefOr[PlSize] = js.undefined
+    size:    js.UndefOr[PlSize] = js.undefined,
+    clazz:   js.UndefOr[Css] = js.undefined
   ) = <.label(
-    LucumaPrimeStyles.FormFieldLabel,
+    LucumaPrimeStyles.FormFieldLabel |+| clazz.getOrElse(Css.Empty),
     size.toOption.map(_.cls).orEmpty,
     ^.htmlFor := htmlFor.value
   )
