@@ -243,7 +243,6 @@ object SequenceQueriesGQL:
           observeClass
           timeEstimate {
             program { microseconds }
-            partner { microseconds }
             nonCharged { microseconds }
           }
           offsets { ...offsetFields }
