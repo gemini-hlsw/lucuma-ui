@@ -7,6 +7,7 @@ import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
+import lucuma.react.primereact.InputGroup
 import lucuma.react.primereact.InputText
 import lucuma.react.primereact.TooltipOptions
 import lucuma.react.primereact.hooks.useDebounce
@@ -26,6 +27,7 @@ case class DebouncedInputText(
   onBlur:         js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
   onChange:       js.UndefOr[String => Callback] = js.undefined,
   onKeyDown:      js.UndefOr[ReactKeyboardEventFromInput => Callback] = js.undefined,
+  showClear:      Boolean = true,
   modifiers:      Seq[TagMod] = Seq.empty
 ) extends ReactFnProps[DebouncedInputText](DebouncedInputText):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
@@ -42,16 +44,28 @@ object DebouncedInputText
         _             <- // Update the internal value if the caller value changes
           useEffectWithDeps(props.value.getOrElse("")): v =>
             Callback.when(v != inputValue.debouncedValue)(inputValue.set(v))
-      yield InputText(
-        id = props.id.value,
-        value = inputValue.value,
-        clazz = props.clazz,
-        disabled = props.disabled,
-        placeholder = props.placeholder,
-        onFocus = props.onFocus,
-        onBlur = props.onBlur,
-        onChange = e => inputValue.set(e.target.value),
-        onKeyDown = e => avoidCallback.set(false) >> props.onKeyDown.toOption.map(_(e)).getOrEmpty,
-        modifiers = props.modifiers
-      )
+      yield
+        val inputControl =
+          InputText(
+            id = props.id.value,
+            value = inputValue.value,
+            clazz = props.clazz,
+            disabled = props.disabled,
+            placeholder = props.placeholder,
+            onFocus = props.onFocus,
+            onBlur = props.onBlur,
+            onChange = e => inputValue.set(e.target.value),
+            onKeyDown =
+              e => avoidCallback.set(false) >> props.onKeyDown.toOption.map(_(e)).getOrEmpty,
+            modifiers = props.modifiers
+          )
+
+        if props.showClear then
+          InputGroup(
+            inputControl,
+            InputGroup
+              .Addon(^.onClick --> inputValue.set(""))(LucumaPrimeStyles.IconTimes)
+              .when(inputValue.value.nonEmpty)
+          )
+        else inputControl
     )

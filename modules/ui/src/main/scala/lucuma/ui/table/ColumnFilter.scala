@@ -12,43 +12,36 @@ import lucuma.react.common.Css
 import lucuma.react.common.ReactFnComponent
 import lucuma.react.common.ReactFnProps
 import lucuma.react.primereact.DropdownOptional
-import lucuma.react.primereact.InputGroup
 import lucuma.react.primereact.SelectItem
 import lucuma.react.table.Column
 import lucuma.ui.primereact.DebouncedInputText
-import lucuma.ui.primereact.LucumaPrimeStyles
 
 object ColumnFilter:
   case class Text(
     col:         Column[?, ?, ?, ?, ?, String, ?],
     delayMillis: Int = 250,
-    placeholder: String = "Filter",
+    placeholder: String = "<Filter>",
     clazz:       Css = Css.Empty
   ) extends ReactFnProps(Text)
 
   object Text
       extends ReactFnComponent[Text](props =>
         val filterValue: String = props.col.getFilterValue().map(_.toString).getOrElse("")
-        InputGroup(
-          DebouncedInputText(
-            id = NonEmptyString.unsafeFrom(s"${props.col.id.value}-filter"),
-            delayMillis = props.delayMillis,
-            placeholder = props.placeholder,
-            value = filterValue,
-            onChange = v => props.col.setFilterValue(v.some.filter(_.nonEmpty)),
-            clazz = props.clazz
-          ),
-          InputGroup
-            .Addon(^.onClick --> props.col.setFilterValue(none))(LucumaPrimeStyles.IconTimes)
-            .when(filterValue.nonEmpty)
-        )(^.width := "100%")
+        DebouncedInputText(
+          id = NonEmptyString.unsafeFrom(s"${props.col.id.value}-filter"),
+          delayMillis = props.delayMillis,
+          placeholder = props.placeholder,
+          value = filterValue,
+          onChange = v => props.col.setFilterValue(v.some.filter(_.nonEmpty)),
+          clazz = props.clazz
+        ).withMods(^.width := "100%")
       )
 
   /** Requires table with facetedUniqueValues enabled */
   case class Select[A](
     col:         Column[?, A, ?, ?, ?, A, ?],
     display:     A => String = (a: A) => a.toString,
-    placeholder: String = "Filter",
+    placeholder: String = "<Filter>",
     showCount:   Boolean = true,
     clazz:       Css = Css.Empty
   )(using val eq: Eq[A])

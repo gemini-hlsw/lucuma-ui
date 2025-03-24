@@ -10,6 +10,7 @@ import lucuma.react.common.Css
 import lucuma.react.table.BuiltInFilter
 import lucuma.react.table.Column
 import lucuma.react.table.ColumnDef
+import lucuma.react.table.ColumnId
 import lucuma.react.table.FilterFn
 import lucuma.ui.react.given
 
@@ -17,18 +18,23 @@ enum FilterMethod[A, F](compare: (A, F) => Boolean):
   case Text[A](
     convert:         A => String,
     val delayMillis: Int = 250,
-    val placeholder: String = "Filter",
+    val placeholder: String = "<Filter>",
     val clazz:       Css = Css.Empty
   )                      extends FilterMethod[A, String]((a, b) => convert(a).toLowerCase.contains(b.toLowerCase))
   case Select[A](
     val display:     A => String,
-    val placeholder: String = "Filter",
+    val placeholder: String = "<Filter>",
     val showCount:   Boolean = true,
     val clazz:       Css = Css.Empty
   )(using val eq: Eq[A]) extends FilterMethod[A, A](_ === _)
 
   protected[table] def filterFn[T, TM, TF]: FilterFn.Type[T, TM, WithFilterMethod, TF, F, Nothing] =
     (row, columnId, filterValue, _) => compare(row.getValue(columnId), filterValue)
+
+  def stringCompare(a: A, f: String): Boolean =
+    this match
+      case Text(_, _, _, _)         => compare(a, f)
+      case Select(display, _, _, _) => display(a).toLowerCase.contains(f.toLowerCase)
 
   protected[table] def render[T, TM, CM <: WithFilterMethod, TF](
     col: Column[T, Any, TM, CM, TF, Any, Any]
@@ -57,17 +63,27 @@ enum FilterMethod[A, F](compare: (A, F) => Boolean):
 object FilterMethod:
   def StringText(
     delayMillis: Int = 250,
-    placeholder: String = "Filter",
+    placeholder: String = "<Filter>",
     clazz:       Css = Css.Empty
   ): Text[String] =
     Text(identity(_), delayMillis, placeholder, clazz)
 
   def StringSelect(
-    placeholder: String = "Filter",
+    placeholder: String = "<Filter>",
     showCount:   Boolean = true,
     clazz:       Css = Css.Empty
   ): Select[String] =
     Select(identity(_), placeholder, showCount, clazz)
+
+  def globalFilterFn[T, TM, CM <: WithFilterMethod](
+    colDefs: List[ColumnDef[T, ?, TM, CM, String, ?, ?]]
+  ): FilterFn.Type[T, TM, CM, String, String, Nothing] =
+    (row, _, value, _) =>
+      val columnFilterFns: List[(ColumnId, (?, String) => Boolean)] =
+        colDefs
+          .map(c => c.meta.flatMap(_.filterMethod.map(fm => c.id -> fm.stringCompare)))
+          .flattenOption
+      columnFilterFns.exists((colId, fn) => fn(row.getValue(colId), value))
 
   def render[T, TM, CM <: WithFilterMethod, TF](
     col: Column[T, Any, TM, CM, TF, Any, Any]
