@@ -14,6 +14,7 @@ import lucuma.core.util.TimeSpan
 import lucuma.react.common.Css
 import lucuma.react.common.ReactFnProps
 import lucuma.react.primereact.*
+import lucuma.react.primereact.tooltip.*
 import lucuma.ui.display.given
 import lucuma.ui.reusability.given
 
@@ -29,7 +30,8 @@ case class FormTimeSpanInput[V[_]](
   min:      js.UndefOr[TimeSpan] = js.undefined,
   max:      js.UndefOr[TimeSpan] = js.undefined,
   disabled: Boolean = false,
-  clazz:    js.UndefOr[Css] = js.undefined
+  clazz:    js.UndefOr[Css] = js.undefined,
+  tooltip:  js.UndefOr[VdomNode] = js.undefined
 )(using val vl: ViewLike[V])
     extends ReactFnProps(FormTimeSpanInput.component)
 
@@ -83,7 +85,7 @@ object FormTimeSpanInput:
 
       React.Fragment(
         props.label.map(l => FormLabel(htmlFor = props.id)(l)),
-        input
+        props.tooltip.fold(input)(tt => input.withTooltip(content = tt))
       )
 
   protected val component = componentBuilder[AnyF]
