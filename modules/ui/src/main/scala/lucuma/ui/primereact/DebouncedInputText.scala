@@ -64,7 +64,13 @@ object DebouncedInputText
           InputGroup(
             inputControl,
             InputGroup
-              .Addon(^.onClick --> inputValue.set(""))(LucumaPrimeStyles.IconTimes)
+              .Addon(
+                ^.cursor.pointer,
+                ^.onClick ==> (e =>
+                  e.preventDefaultCB >> e.stopPropagationCB >>
+                    inputValue.set("") >> props.onChange.toOption.map(_("")).getOrEmpty
+                )
+              )(LucumaPrimeStyles.IconTimes)
               .when(inputValue.value.nonEmpty)
           )
         else inputControl
