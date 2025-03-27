@@ -2588,6 +2588,13 @@ input ObservationPropertiesInput {
 
   """Set the notes for  thhe observer"""
   observerNotes: NonEmptyString
+
+  """
+  Set to `true` to mark the observation as complete regardless of how many steps
+  may remain.  Set to `false` (the default) to allow all prescribed steps to
+  execute before considering the observation complete.
+  """
+  declaredComplete: Boolean
 }
 
 """Observation times properties"""
@@ -5914,9 +5921,6 @@ enum GmosRoi {
 
 """GMOS South FPU"""
 enum GmosSouthBuiltinFpu {
-  """GmosSouthBuiltinFpu Bhros"""
-  BHROS
-
   """GmosSouthBuiltinFpu Ns1"""
   NS1
 
@@ -6559,9 +6563,6 @@ enum Instrument {
   """Instrument AcqCam"""
   ACQ_CAM
 
-  """Instrument Bhros"""
-  BHROS
-
   """Instrument Flamingos2"""
   FLAMINGOS2
 
@@ -6583,23 +6584,8 @@ enum Instrument {
   """Instrument Gsaoi"""
   GSAOI
 
-  """Instrument Michelle"""
-  MICHELLE
-
-  """Instrument Nici"""
-  NICI
-
-  """Instrument Nifs"""
-  NIFS
-
   """Instrument Niri"""
   NIRI
-
-  """Instrument Phoenix"""
-  PHOENIX
-
-  """Instrument Trecs"""
-  TRECS
 
   """Instrument Visitor"""
   VISITOR
@@ -6937,6 +6923,12 @@ type Observation {
   """Program configuration requests applicable to this observation."""
   configurationRequests: [ConfigurationRequest!]!
   workflow: ObservationWorkflow!
+
+  """
+  When true, a user has taken action to explicitly mark the observation complete
+  regardless of how many steps have been executed and which steps may remain.
+  """
+  declaredComplete: Boolean!
 }
 
 enum ExecutionState {
@@ -6957,6 +6949,11 @@ enum ExecutionState {
 
   """No more data is expected."""
   COMPLETED
+
+  """
+  User marked the observation complete regardless of any remaining steps.
+  """
+  DECLARED_COMPLETE
 }
 
 type Configuration {
@@ -10281,8 +10278,8 @@ input WhereExecutionEvent {
   """Matches on the visit id"""
   visitId: WhereEqVisitId
 
-  """Matches on observation id"""
-  observationId: WhereOrderObservationId
+  """Matches on observation"""
+  observation: WhereObservation
 
   """Matches on event reception time"""
   received: WhereOrderTimestamp
@@ -10348,6 +10345,11 @@ input WhereObservation {
   Matches on the site associated with the observation's instrument, if any.
   """
   site: WhereOptionEqSite
+
+  """
+  Matches on whether the observation has been marked explicitly complete.
+  """
+  declaredComplete: WhereBoolean
 }
 
 """Configuration request filter options.  All specified items must match."""
