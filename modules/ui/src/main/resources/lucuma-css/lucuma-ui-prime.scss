@@ -323,6 +323,10 @@
 .p-time-span-input {
   display: flex;
   gap: 0.5em;
+
+  input {
+    min-width: 2em;
+  }
 }
 
 .pl-react-table.pl-very-compact .p-datatable-tbody > tr > td.p-datatable-emptymessage {

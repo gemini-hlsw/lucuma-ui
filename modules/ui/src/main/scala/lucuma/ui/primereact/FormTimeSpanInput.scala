@@ -5,18 +5,26 @@ package lucuma.ui.primereact
 
 import cats.data.NonEmptyList
 import cats.syntax.all.*
+import crystal.react.*
+import crystal.react.hooks.*
+import eu.timepit.refined.cats.given
+import eu.timepit.refined.numeric.NonNegative
+import eu.timepit.refined.types.numeric.NonNegLong
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.syntax.display.*
 import lucuma.core.util.Enumerated
 import lucuma.core.util.TimeSpan
+import lucuma.core.validation.*
 import lucuma.react.common.Css
 import lucuma.react.common.ReactFnProps
 import lucuma.react.primereact.*
 import lucuma.react.primereact.tooltip.*
 import lucuma.ui.display.given
+import lucuma.ui.input.ChangeAuditor
 import lucuma.ui.reusability.given
+import lucuma.ui.utils.*
 
 import java.util.concurrent.TimeUnit
 import scala.collection.immutable.SortedMap
@@ -40,47 +48,37 @@ object FormTimeSpanInput:
   private type Props[V[_]] = FormTimeSpanInput[V]
 
   private def componentBuilder[V[_]] = ScalaFnComponent[Props[V]]: props =>
-    useMemo {
-      import props.given
-      (props.units, props.value.get)
-    }((u, v) => makeTimeUnitsMap(u, v.orEmpty)).map: timeUnitValues =>
-      import props.given
+    import props.given
+
+    for {
+      timeUnitValues <- useStateView(makeTimeUnitsMap(props.units, props.value.get.orEmpty))
+      _              <- useEffectWithDeps((timeUnitValues.reuseByValue, props.value.get)):
+                          (timeUnitValues, value) =>
+                            val newValues = makeTimeUnitsMap(props.units, value.orEmpty)
+                            if (newValues != timeUnitValues.get) timeUnitValues.set(newValues)
+                            else Callback.empty
+    } yield
 
       val input = <.div(
         ^.id := props.id.value,
         LucumaPrimeStyles.TimeSpanInput |+| props.clazz.getOrElse(Css.Empty),
-        timeUnitValues.value.toVdomArray: (unit, value) =>
-          val unitName = unit.shortName
-          InputGroup(
-            LucumaPrimeStyles.TimeSpanInputItem,
-            InputNumber(
-              id = s"${props.id.value}-${unitName}-input",
-              maxFractionDigits = 0,
+        timeUnitValues
+          .withOnMod(vs =>
+            props.value.set(vs.toClampedTimeSpan(props.min.toOption, props.max.toOption))
+          )
+          .toListOfViews
+          .toVdomArray: (unit, valueView) =>
+            val unitName = unit.shortName
+            FormInputTextView(
+              id = NonEmptyString.unsafeFrom(s"${props.id.value}-${unitName}-input"),
               disabled = props.disabled,
-              value = value,
-              min = 0,
-              onValueChange = e =>
-                // Calculate the total timespan from the individual time units
-                val newValue = timeUnitValues.value
-                  .updated(unit, e.valueOption.orEmpty)
-                  .toList
-                  .foldMap { case (unit, value) =>
-                    TimeSpan.unsafeFromMicroseconds(
-                      TimeUnit.MICROSECONDS.convert(value.toLong, unit)
-                    )
-                  }
-
-                val newValueClamped =
-                  clampTimeSpan(newValue, props.min.toOption, props.max.toOption)
-
-                props.value
-                  .set(newValueClamped)
-                  .when_(
-                    newValueClamped =!= props.value.get.orEmpty || newValue =!= newValueClamped
-                  )
-            ).withMods(^.size := Math.max(value.toString.length, 2)),
-            InputGroup.Addon(unitName)
-          ).withKey(unitName).toUnmounted
+              value = valueView,
+              validFormat = InputValidSplitEpi.nonNegLong,
+              changeAuditor = ChangeAuditor.int,
+              units = unitName
+            ).withMods(^.size := Math.max(valueView.get.toString.length, 2))
+              .withKey(unitName)
+              .toUnmounted
       )
 
       React.Fragment(
@@ -98,15 +96,24 @@ object FormTimeSpanInput:
   private def makeTimeUnitsMap(
     units: NonEmptyList[TimeUnit],
     value: TimeSpan
-  ): SortedMap[TimeUnit, Double] =
+  ): SortedMap[TimeUnit, NonNegLong] =
     units.distinct.sorted
-      .foldLeft((SortedMap.empty[TimeUnit, Double], value.toMicroseconds)):
+      .foldLeft((SortedMap.empty[TimeUnit, NonNegLong], value.toMicroseconds)):
         case ((acc, rest), unit) =>
           val result = unit.convert(rest, TimeUnit.MICROSECONDS)
           val diff   = rest - TimeUnit.MICROSECONDS.convert(result, unit)
 
-          (acc + (unit -> result.toDouble), diff)
+          (acc + (unit -> NonNegLong.unsafeFrom(result)), diff)
       ._1
+
+  extension (values: SortedMap[TimeUnit, NonNegLong])
+    private def toTimeSpan: TimeSpan                                                      =
+      values.toList
+        .foldMap { case (unit, value) =>
+          TimeSpan.unsafeFromMicroseconds(TimeUnit.MICROSECONDS.convert(value.value, unit))
+        }
+    private def toClampedTimeSpan(min: Option[TimeSpan], max: Option[TimeSpan]): TimeSpan =
+      clampTimeSpan(toTimeSpan, min, max)
 
   // Custom ordering to go from biggest to smallest
   private given Ordering[TimeUnit]   = Ordering.by[TimeUnit, Int](_.ordinal).reverse
