@@ -2588,13 +2588,6 @@ input ObservationPropertiesInput {
 
   """Set the notes for  thhe observer"""
   observerNotes: NonEmptyString
-
-  """
-  Set to `true` to mark the observation as complete regardless of how many steps
-  may remain.  Set to `false` (the default) to allow all prescribed steps to
-  execute before considering the observation complete.
-  """
-  declaredComplete: Boolean
 }
 
 """Observation times properties"""
@@ -6676,12 +6669,24 @@ type ItcResultSet {
   index: NonNegInt!
 }
 
+"""Calculated signal to noise at a specific wavelength"""
+type SignalToNoiseAt {
+  """Single exposure signal to noise"""
+  single: SignalToNoise!
+
+  """Total exposure signal to noise"""
+  total: SignalToNoise!
+
+  """Wavelength sn was calculated at"""
+  wavelength: Wavelength!
+}
+
 """A single ITC call result."""
 type ItcResult {
   targetId: TargetId!
   exposureTime: TimeSpan!
   exposureCount: NonNegInt!
-  signalToNoise: SignalToNoise
+  signalToNoiseAt: SignalToNoiseAt
 }
 
 type LineFluxIntegrated {
@@ -6923,12 +6928,6 @@ type Observation {
   """Program configuration requests applicable to this observation."""
   configurationRequests: [ConfigurationRequest!]!
   workflow: ObservationWorkflow!
-
-  """
-  When true, a user has taken action to explicitly mark the observation complete
-  regardless of how many steps have been executed and which steps may remain.
-  """
-  declaredComplete: Boolean!
 }
 
 enum ExecutionState {
@@ -10345,11 +10344,6 @@ input WhereObservation {
   Matches on the site associated with the observation's instrument, if any.
   """
   site: WhereOptionEqSite
-
-  """
-  Matches on whether the observation has been marked explicitly complete.
-  """
-  declaredComplete: WhereBoolean
 }
 
 """Configuration request filter options.  All specified items must match."""
