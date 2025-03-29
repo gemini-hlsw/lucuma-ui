@@ -14,6 +14,9 @@ object SequenceQueriesGQL:
     val document = s"""
         query($$obsId: ObservationId!) {
           observation(observationId: $$obsId) {
+            itc {
+              ...itcFields
+            }
             execution {
               config(futureLimit: 100) {
                 instrument
@@ -183,7 +186,7 @@ object SequenceQueriesGQL:
             telescopeConfig {
               offset { ...offsetFields }
               guiding
-            }    
+            }
             estimate {
               ...stepEstimateFields
             }
@@ -205,6 +208,25 @@ object SequenceQueriesGQL:
         fragment offsetFields on Offset {
           p { microarcseconds }
           q { microarcseconds }
+        }
+
+        fragment itcFields on Itc {
+          acquisition {
+            selected {
+              signalToNoiseAt {
+                single
+                total
+              }
+            }
+          }
+          science {
+            selected {
+              signalToNoiseAt {
+                single
+                total
+              }
+            }
+          }
         }
       """
 
