@@ -87,7 +87,7 @@ trait ObservationDB {
     type CallForProposalsType                = enums.CallForProposalsType
     type CatalogName                         = enums.CatalogName
     type ChargeClass                         = enums.ChargeClass
-    type CloudExtinction                     = enums.CloudExtinction
+    type CloudExtinctionPreset               = CloudExtinction.Preset
     type ConfigurationRequestStatus          = enums.ConfigurationRequestStatus
     type CoolStarTemperature                 = enums.CoolStarTemperature
     type DatasetQaState                      = enums.DatasetQaState
@@ -128,7 +128,7 @@ trait ObservationDB {
     type GmosYBinning                        = enums.GmosYBinning
     type GuideState                          = enums.StepGuideState
     type HiiRegionSpectrum                   = enums.HIIRegionSpectrum
-    type ImageQuality                        = enums.ImageQuality
+    type ImageQualityPreset                  = ImageQuality.Preset
     type Instrument                          = enums.Instrument
     type LineFluxIntegratedUnits             = Units Of LineFlux[Integrated]
     type LineFluxSurfaceUnits                = Units Of LineFlux[Surface]

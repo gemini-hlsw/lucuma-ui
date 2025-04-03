@@ -4,20 +4,20 @@
 package lucuma.schemas.decoders
 
 import eu.timepit.refined.*
-import lucuma.core.enums.CloudExtinction
-import lucuma.core.enums.ImageQuality
 import lucuma.core.enums.SkyBackground
 import lucuma.core.enums.WaterVapor
+import lucuma.core.model.CloudExtinction
 import lucuma.core.model.ConstraintSet
 import lucuma.core.model.ElevationRange
+import lucuma.core.model.ImageQuality
 
 class ConstraintSetDecodersSuite extends InputStreamSuite {
 
   test("Constraint set decoder") {
     val expected =
       ConstraintSet(
-        ImageQuality.PointEight,
-        CloudExtinction.PointThree,
+        ImageQuality.Preset.PointEight,
+        CloudExtinction.Preset.PointThree,
         SkyBackground.Bright,
         WaterVapor.Wet,
         ElevationRange.AirMass.fromDecimalValues.get(
