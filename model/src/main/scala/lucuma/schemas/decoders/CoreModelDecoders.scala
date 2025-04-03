@@ -3,8 +3,6 @@
 
 package lucuma.schemas.decoders
 
-import coulomb.*
-import coulomb.syntax.*
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
 import io.circe.DecodingFailure
@@ -17,9 +15,6 @@ import lucuma.core.model.Semester
 import lucuma.core.util.*
 
 trait CoreModelDecoders:
-  given quantityDecoder[N: Decoder, U]: Decoder[Quantity[N, U]] =
-    Decoder.instance(_.as[N].map(_.withUnit[U]))
-
   given taggedMeasureDecoder[N: Decoder, T](using
     unitDecoder: Decoder[Units Of T]
   ): Decoder[Measure[N] Of T] =
