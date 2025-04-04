@@ -151,6 +151,7 @@ trait ObservationDB {
     type SequenceType                        = enums.SequenceType
     type Site                                = enums.Site
     type SkyBackground                       = enums.SkyBackground
+    type SlewStage                           = enums.SlewStage
     type SpectroscopyCapabilities            = enums.SpectroscopyCapabilities
     type SmartGcalType                       = enums.SmartGcalType
     type StellarLibrarySpectrum              = enums.StellarLibrarySpectrum
