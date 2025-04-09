@@ -142,8 +142,8 @@ trait ModelReusabiltyInstances
   given Reusability[Target.Sidereal]                         = Reusability.byEq
   given Reusability[Target.Nonsidereal]                      = Reusability.byEq
   given Reusability[Target]                                  = Reusability.byEq
-  given Reusability[ElevationRange.AirMass]                  = Reusability.byEq
-  given Reusability[ElevationRange.HourAngle]                = Reusability.byEq
+  given Reusability[ElevationRange.ByAirMass]                = Reusability.byEq
+  given Reusability[ElevationRange.ByHourAngle]              = Reusability.byEq
   given Reusability[ElevationRange]                          = Reusability.byEq
   given Reusability[ConstraintSet]                           = Reusability.byEq
   given Reusability[InstrumentExecutionConfig]               = Reusability.byEq
