@@ -3,9 +3,9 @@
 
 package lucuma.schemas.decoders
 
-import eu.timepit.refined.*
 import lucuma.core.enums.SkyBackground
 import lucuma.core.enums.WaterVapor
+import lucuma.core.model.AirMassBound
 import lucuma.core.model.CloudExtinction
 import lucuma.core.model.ConstraintSet
 import lucuma.core.model.ElevationRange
@@ -20,14 +20,8 @@ class ConstraintSetDecodersSuite extends InputStreamSuite {
         CloudExtinction.Preset.PointThree,
         SkyBackground.Bright,
         WaterVapor.Wet,
-        ElevationRange.AirMass.fromDecimalValues.get(
-          (
-            refineV[ElevationRange.AirMass.Value](BigDecimal(1.0))
-              .getOrElse(sys.error("Invalid refined value")),
-            refineV[ElevationRange.AirMass.Value](BigDecimal(2.0))
-              .getOrElse(sys.error("Invalid refined value"))
-          )
-        )
+        ElevationRange.ByAirMass.FromBounds.get:
+          (AirMassBound.unsafeFromBigDecimal(1.0), AirMassBound.unsafeFromBigDecimal(2.0))
       )
 
     assertParsedStreamEquals("/cs1.json", expected)
