@@ -58,7 +58,8 @@ lazy val demo =
       )),
       libraryDependencies ++= Seq(
         "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact,
-        "com.rpiaggio"                      %%% "log4cats-loglevel"        % Versions.log4catsLogLevel
+        "com.rpiaggio"                      %%% "log4cats-loglevel"        % Versions.log4catsLogLevel,
+        "edu.gemini"                        %%% "lucuma-react-grid-layout" % Versions.lucumaReact
       ),
       Keys.test := {}
     )
