@@ -7,16 +7,20 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.TimeSpan
 import lucuma.react.common.ReactFnProps
+import lucuma.react.primereact.tooltip.*
 import lucuma.ui.format.TimeSpanFormatter
 
 /**
- * A view of a TimeSpan that shows hours and minutes.
+ * A view of a TimeSpan that formats the value with the given formatter, with hours and minutes as
+ * the default.
  *
- * Hovering over the view will show the full (unrounded) TimeSpan in hours, minutes, and seconds.
+ * Hovering over the view will show the full (unrounded) TimeSpan in hours, minutes, and seconds,
+ * unless a different tooltip is supplied.
  */
 case class TimeSpanView(
   timespan:  TimeSpan,
   formatter: TimeSpanFormatter = TimeSpanFormatter.HoursMinutesAbbreviation,
+  tooltip:   Option[VdomNode] = None,
   modifiers: Seq[TagMod] = Seq.empty
 ) extends ReactFnProps(TimeSpanView.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
@@ -26,11 +30,13 @@ object TimeSpanView:
   private type Props = TimeSpanView
 
   private val component = ScalaFnComponent[Props]: props =>
-    val ts = props.timespan
+    val ts                = props.timespan
+    val tooltip: VdomNode = props.tooltip.getOrElse(
+      s"${ts.toHours.longValue} hours, ${ts.toMinutesPart} minutes, ${ts.toSecondsPart} seconds"
+    )
 
     <.span(
-      props.modifiers.toTagMod,
-      ^.title := s"${ts.toHours.longValue} hours, ${ts.toMinutesPart} minutes, ${ts.toSecondsPart} seconds"
+      props.modifiers.toTagMod
     )(
       props.formatter.format(ts)
-    )
+    ).withTooltip(content = tooltip)
