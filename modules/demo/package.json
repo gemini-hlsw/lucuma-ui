@@ -14,7 +14,7 @@
     "@cquiroz/aladin-lite": "^0.7.7",
     "@react-hook/resize-observer": "^2.0.2",
     "react-grid-layout": "^1.5.1",
-    "ua-parser-js": "^2.0.0",
+    "ua-parser-js": "^2.0.3",
     "vite-plugin-env-compatible": "^2.0.1"
   }
 }
