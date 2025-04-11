@@ -10,9 +10,6 @@ export default ({ command, mode }) => {
     mode == "production"
       ? path.resolve(__dirname, `target/scala-${scalaVersion}/demo-opt/`)
       : path.resolve(__dirname, `target/scala-${scalaVersion}/demo-fastopt/`);
-  const webapp = path.resolve(__dirname, "src/main/webapp/");
-  const themeConfig = path.resolve(webapp, "theme/theme.config");
-  const themeSite = path.resolve(webapp, "theme/site");
   return {
     root: "src/main/webapp",
     resolve: {
