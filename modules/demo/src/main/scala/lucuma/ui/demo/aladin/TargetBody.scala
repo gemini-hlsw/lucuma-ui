@@ -45,7 +45,6 @@ object AladinTile {
 
   protected given Reusability[Props] = Reusability.never
 
-  val AladinComp = ReactAladin.component
   val targetH    = 16
   val targetW    = 12
 

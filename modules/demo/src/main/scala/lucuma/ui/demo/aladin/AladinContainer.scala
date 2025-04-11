@@ -26,8 +26,6 @@ final case class AladinContainer(
 object AladinContainer {
   type Props = AladinContainer
 
-  val AladinComp = ReactAladin.component
-
   val coordinates = GenLens[AladinContainer](_.coordinates)
 
   implicit val propsReuse: Reusability[Props] =

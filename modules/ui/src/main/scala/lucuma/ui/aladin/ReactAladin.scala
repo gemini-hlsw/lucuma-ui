@@ -7,7 +7,6 @@ import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.hooks.*
 import japgolly.scalajs.react.hooks.Hooks.UseState
-import japgolly.scalajs.react.vdom.TopNode
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.*
 import lucuma.react.common.*
@@ -71,39 +70,39 @@ case class ReactAladin(
   target:    js.UndefOr[String] = js.undefined,
   customize: js.UndefOr[Aladin => Callback] = js.undefined,
   modifiers: Seq[TagMod] = Seq.empty
-) extends ReactFnProps(ReactAladin.component):
+) extends ReactFnProps(ReactAladin):
   inline def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   inline def withMods(mods:          TagMod*)     = addModifiers(mods)
   inline def apply(mods:             TagMod*)     = addModifiers(mods)
 
-object ReactAladin:
+object ReactAladin
+    extends ReactFnComponent[ReactAladin](props =>
 
-  private type Props = ReactAladin
+      type Props = ReactAladin
 
-  def resetAladin(
-    r:     Ref.Full[TopNode, TopNode, html.Div],
-    state: UseState[Option[Aladin]],
-    props: Props,
-    force: Boolean
-  ): Callback =
-    r.get.flatMap {
-      case Some(e) if force || state.value.isEmpty =>
-        CallbackTo(new JsAladin(e, props.options)).flatMap { a =>
-          state.setState(Some(a)) *>
-            props.customize.fold(Callback.empty)(f => f(a))
+      def resetAladin(
+        r:     CallbackTo[Option[html.Div]],
+        state: UseState[Boolean],
+        props: Props,
+        force: Boolean
+      ): Callback =
+        r.flatMap {
+          case Some(e) if force || !state.value =>
+            CallbackTo(new JsAladin(e, props.options)).flatMap { a =>
+              state.setState(true) *>
+                props.customize.fold(Callback.empty)(f => f(a))
+            }
+          case _                                => Callback.empty
         }
-      case _                                       => Callback.empty
-    }
 
-  val component =
-    ScalaFnComponent[Props]: props =>
       for {
-        state <- useState(none[Aladin])
-        r     <- useRefToVdom[html.Div]
-        _     <- useLayoutEffectWithDeps(props.clazz) { _ =>
-                   state.setState(none) *> resetAladin(r, state, props, true)
-                 }
-        _     <- useLayoutEffectWithDeps(r) { r =>
-                   resetAladin(r, state, props, false)
-                 }
+        init <- useState(false)
+        r    <- useRefToVdom[html.Div]
+        _    <- useLayoutEffectWithDeps(props.clazz) { _ =>
+                  init.setState(true) *> resetAladin(r.get, init, props, true)
+                }
+        _    <- useLayoutEffectOnMount {
+                  resetAladin(r.get, init, props, false)
+                }
       } yield <.div(props.clazz, ^.untypedRef := r)
+    )
