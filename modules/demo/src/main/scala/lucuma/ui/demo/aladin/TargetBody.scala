@@ -45,8 +45,8 @@ object AladinTile {
 
   protected given Reusability[Props] = Reusability.never
 
-  val targetH    = 16
-  val targetW    = 12
+  val targetH = 16
+  val targetW = 12
 
   private val layoutLg: Layout = Layout(
     List(
