@@ -78,6 +78,7 @@ lazy val ui =
         "com.github.japgolly.scalajs-react" %%% "core-bundle-cb_io"            % Versions.scalaJsReact,
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % Versions.scalaJsReact,
         "edu.gemini"                        %%% "lucuma-core"                  % Versions.lucumaCore,
+        "edu.gemini"                        %%% "lucuma-ags"                   % Versions.lucumaCore,
         "edu.gemini"                        %%% "lucuma-react-common"          % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-font-awesome"    % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-resize-detector" % Versions.lucumaReact,

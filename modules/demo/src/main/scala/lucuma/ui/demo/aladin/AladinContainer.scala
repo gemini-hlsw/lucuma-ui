@@ -14,6 +14,7 @@ import lucuma.react.aladin.*
 import lucuma.react.common.*
 import lucuma.react.resizeDetector.hooks.*
 import lucuma.ui.aladin.*
+import lucuma.ui.visualization.*
 import monocle.macros.GenLens
 
 final case class AladinContainer(
