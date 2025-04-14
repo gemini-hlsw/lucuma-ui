@@ -13,6 +13,7 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.validation.*
 import lucuma.react.common.*
 import lucuma.react.primereact.PrimeStyles
+import lucuma.react.primereact.TooltipOptions
 import lucuma.typed.primereact.components.Button as CButton
 import lucuma.ui.input.AuditResult
 import lucuma.ui.input.ChangeAuditor
@@ -30,26 +31,27 @@ import scalajs.js.JSConverters.*
  * FormInput component that uses a crystal View to share the content of the field
  */
 final case class FormInputTextView[V[_], A](
-  id:            NonEmptyString,
-  label:         js.UndefOr[TagMod] = js.undefined,
-  units:         js.UndefOr[String] = js.undefined,
-  preAddons:     List[TagMod | CButton.Builder] = List.empty,
-  postAddons:    List[TagMod | CButton.Builder] = List.empty,
-  size:          js.UndefOr[PlSize] = js.undefined,
-  groupClass:    js.UndefOr[Css] = js.undefined,
-  inputClass:    js.UndefOr[Css] = js.undefined,
-  disabled:      js.UndefOr[Boolean] = js.undefined,
-  error:         js.UndefOr[NonEmptyString] = js.undefined,
-  placeholder:   js.UndefOr[String] = js.undefined,
-  value:         V[A],
-  validFormat:   InputValidFormat[A] = InputValidSplitEpi.id,
-  changeAuditor: ChangeAuditor = ChangeAuditor.accept,
-  onTextChange:  String => Callback = _ => Callback.empty,
-  onValidChange: FormInputTextView.ChangeCallback[Boolean] = _ => Callback.empty,
-  onFocus:       js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
-  onBlur:        FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) =>
+  id:             NonEmptyString,
+  label:          js.UndefOr[TagMod] = js.undefined,
+  units:          js.UndefOr[String] = js.undefined,
+  preAddons:      List[TagMod | CButton.Builder] = List.empty,
+  postAddons:     List[TagMod | CButton.Builder] = List.empty,
+  size:           js.UndefOr[PlSize] = js.undefined,
+  groupClass:     js.UndefOr[Css] = js.undefined,
+  inputClass:     js.UndefOr[Css] = js.undefined,
+  disabled:       js.UndefOr[Boolean] = js.undefined,
+  error:          js.UndefOr[NonEmptyString] = js.undefined,
+  placeholder:    js.UndefOr[String] = js.undefined,
+  tooltipOptions: js.UndefOr[TooltipOptions] = js.undefined,
+  value:          V[A],
+  validFormat:    InputValidFormat[A] = InputValidSplitEpi.id,
+  changeAuditor:  ChangeAuditor = ChangeAuditor.accept,
+  onTextChange:   String => Callback = _ => Callback.empty,
+  onValidChange:  FormInputTextView.ChangeCallback[Boolean] = _ => Callback.empty,
+  onFocus:        js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
+  onBlur:         FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) =>
     Callback.empty,
-  modifiers:     Seq[TagMod] = Seq.empty
+  modifiers:      Seq[TagMod] = Seq.empty
 )(using val eq: Eq[A], val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextView.component):
   def stringValue: String                                   = value.get.foldMap(validFormat.reverseGet)
@@ -227,7 +229,8 @@ object FormInputTextView {
           groupClass = props.groupClass,
           inputClass =
             error.map(_ => PrimeStyles.Invalid).orEmpty |+| props.inputClass.toOption.orEmpty,
-          tooltip = error.map(s => s: VdomNode).orUndefined,
+          tooltip = error.orUndefined,
+          tooltipOptions = props.tooltipOptions,
           disabled = props.disabled,
           preAddons = props.preAddons,
           postAddons = props.postAddons,

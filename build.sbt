@@ -83,7 +83,6 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-react-font-awesome"    % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-resize-detector" % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-tanstack-table"  % Versions.lucumaReact,
-        "edu.gemini"                        %%% "lucuma-react-floatingui"      % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-prime-react"     % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-prime-styles"          % Versions.lucumaPrimeStyles,
         "edu.gemini"                        %%% "lucuma-schemas"               % Versions.lucumaSchemas,
