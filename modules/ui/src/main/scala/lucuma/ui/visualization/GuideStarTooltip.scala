@@ -3,14 +3,14 @@
 
 package lucuma.ui.visualization
 
-import lucuma.ui.LucumaIcons
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.ags.AgsAnalysis
 import lucuma.core.enums.Band
 import lucuma.core.enums.GuideSpeed
-import lucuma.react.common.ReactFnProps
 import lucuma.react.common.ReactFnComponent
+import lucuma.react.common.ReactFnProps
+import lucuma.ui.LucumaIcons
 import lucuma.ui.syntax.all.given
 
 case class GuideStarTooltip(analysis: AgsAnalysis.Usable)

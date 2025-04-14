@@ -8,8 +8,8 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.svg_<^.*
 import lucuma.ags.AgsAnalysis
 import lucuma.react.common.Css
-import lucuma.react.common.ReactFnProps
 import lucuma.react.common.ReactFnComponent
+import lucuma.react.common.ReactFnProps
 import lucuma.ui.syntax.all.given
 
 case class GuideStarTarget(

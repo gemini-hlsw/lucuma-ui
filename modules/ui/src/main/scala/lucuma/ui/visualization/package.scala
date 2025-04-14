@@ -4,13 +4,13 @@
 package lucuma.ui.visualization
 
 import cats.Semigroup
+import japgolly.scalajs.react.vdom.html_<^.VdomAttr
 import lucuma.ags.GuideStarCandidate
 import lucuma.core.math.Offset
 import lucuma.core.util.NewBoolean
 import lucuma.react.common.Css
 import lucuma.ui.aladin.Fov
 import org.locationtech.jts.geom.Geometry
-import japgolly.scalajs.react.vdom.html_<^.VdomAttr
 
 import scala.math.*
 

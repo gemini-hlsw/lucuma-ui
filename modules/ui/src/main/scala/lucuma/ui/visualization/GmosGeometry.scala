@@ -37,17 +37,13 @@ object GmosGeometry:
         SortedMap(
           (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
           (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asLeft.some)),
-          (GmosPatrolField,
-           gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
-          )
+          (GmosPatrolField, gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port))
         )
       case Some(m: BasicConfiguration.GmosSouthLongSlit) =>
         SortedMap(
           (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
           (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asRight.some)),
-          (GmosPatrolField,
-           gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
-          )
+          (GmosPatrolField, gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port))
         )
       case _                                             =>
         SortedMap(
@@ -85,9 +81,7 @@ object GmosGeometry:
   // Shape to display always
   def commonShapes(posAngle: Angle, extraCss: Css): SortedMap[Css, ShapeExpression] =
     SortedMap(
-      (GmosCandidatesArea |+| extraCss,
-       gmos.probeArm.candidatesAreaAt(posAngle, Offset.Zero)
-      )
+      (GmosCandidatesArea |+| extraCss, gmos.probeArm.candidatesAreaAt(posAngle, Offset.Zero))
     )
 
   // Shape to display always
@@ -138,7 +132,7 @@ object GmosGeometry:
             GmosGeometry.commonShapes(posAngle, candidatesVisibilityCss)
 
         // Don't show the probe if there is no usable GS
-        baseShapes ++ gs
+        val probe = gs
           .map { gs =>
             val gsOffset   =
               referenceCoordinates.diff(gs.target.tracking.baseCoordinates).offset
@@ -158,5 +152,5 @@ object GmosGeometry:
 
             patrolFieldIntersection.fold(probeShape)(probeShape + _)
           }
-          .getOrElse(SortedMap.empty[Css, ShapeExpression])
+        baseShapes ++ probe.getOrElse(SortedMap.empty[Css, ShapeExpression])
       }

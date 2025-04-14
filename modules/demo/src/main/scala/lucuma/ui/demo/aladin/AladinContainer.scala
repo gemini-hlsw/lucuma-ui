@@ -3,25 +3,26 @@
 
 package demo
 
-import cats.implicits.*
 import cats.data.NonEmptyMap
+import cats.implicits.*
 import crystal.react.ReuseView
 import crystal.react.reuse.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.feature.ReactFragment
+import japgolly.scalajs.react.hooks.Hooks.UseState
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.enums.GmosNorthFilter
+import lucuma.core.enums.GmosNorthFpu
+import lucuma.core.enums.GmosNorthGrating
+import lucuma.core.enums.PortDisposition
 import lucuma.core.math.*
 import lucuma.react.common.*
 import lucuma.react.resizeDetector.hooks.*
+import lucuma.schemas.model.BasicConfiguration
+import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
-import lucuma.core.enums.PortDisposition
-import lucuma.schemas.model.BasicConfiguration
-import lucuma.core.enums.GmosNorthGrating
-import lucuma.core.enums.GmosNorthFilter
-import lucuma.core.enums.GmosNorthFpu
-import lucuma.schemas.model.CentralWavelength
 
 final case class AladinContainer(
   fov:         ReuseView[Fov],
@@ -49,6 +50,11 @@ object AladinContainer {
       // resize detector
       resize     <- useResizeDetector
       flip       <- useState(true)
+      // Toggle state for SVGVisualizationOverlay CSS
+      fpuVisible <- useState(true)
+      ccdVisible <- useState(true)
+      candidatesVisible <- useState(true)
+      patrolFieldVisible <- useState(true)
     } yield
       /**
        * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
@@ -86,6 +92,21 @@ object AladinContainer {
         VisualizationStyles.GuideStarCandidateVisible
       )
 
+      def toggler(id: String, item: String, state: UseState[Boolean], clazz: Css = Css("toggle-container")) =
+            <.div(
+              clazz,
+              <.input(
+                ^.`type` := "checkbox",
+                ^.id := s"overlay-toggle-$id",
+                ^.checked := state.value,
+                ^.onChange --> state.setState(!state.value)
+              ),
+              <.label(
+                ^.htmlFor := s"overlay-toggle-$id",
+                s"Show/Hide $item"
+              )
+            )
+
       <.div(
         Css("react-aladin-container"),
         // This happens during a second render. If we let the height to be zero, aladin
@@ -100,7 +121,11 @@ object AladinContainer {
                   h,
                   props.fov.get,
                   currentPos.value.diff(props.coordinates).offset,
-                  s
+                  s,
+                  clazz = VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
+                  VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
+                  VisualizationStyles.GmosCandidatesAreaVisible.when_(candidatesVisible.value) |+|
+                  VisualizationStyles.GmosPatrolFieldVisible.when_(patrolFieldVisible.value)
                 )
               ),
             (resize.width, resize.height)
@@ -130,10 +155,10 @@ object AladinContainer {
               ),
               customize = customizeAladin(_)
             ),
-            <.button(
-              ^.onClick --> flip.setState(!flip.value),
-              "Flip"
-            )
+            toggler("fpu", "FPU", fpuVisible),
+            toggler("ccd", "Science CCD", ccdVisible),
+            toggler("candidates", "Candidates Field", candidatesVisible),
+            toggler("patrol-field", "Patrol Field", patrolFieldVisible)
           )
         else EmptyVdom
       )

@@ -10,8 +10,8 @@ import japgolly.scalajs.react.vdom.svg_<^.*
 import lucuma.core.enums.SequenceType
 import lucuma.core.math.Offset
 import lucuma.react.common.Css
-import lucuma.react.common.ReactFnProps
 import lucuma.react.common.ReactFnComponent
+import lucuma.react.common.ReactFnProps
 import lucuma.react.primereact.tooltip.*
 import lucuma.ui.syntax.all.given
 import org.scalajs.dom.SVGGElement
