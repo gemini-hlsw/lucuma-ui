@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.138"
+ThisBuild / tlBaseVersion       := "0.139"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
@@ -83,7 +83,6 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-react-font-awesome"    % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-resize-detector" % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-tanstack-table"  % Versions.lucumaReact,
-        "edu.gemini"                        %%% "lucuma-react-floatingui"      % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-prime-react"     % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-prime-styles"          % Versions.lucumaPrimeStyles,
         "edu.gemini"                        %%% "lucuma-schemas"               % Versions.lucumaSchemas,

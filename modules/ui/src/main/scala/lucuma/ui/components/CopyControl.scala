@@ -7,7 +7,7 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.NewType
 import lucuma.react.common.ReactFnProps
-import lucuma.react.floatingui.syntax.*
+import lucuma.react.primereact.tooltip.*
 import lucuma.ui.syntax.all.given
 
 import scala.concurrent.duration.*
@@ -44,10 +44,10 @@ object CopyControl:
             )(
               <.div(
                 <.span(LoginIcons.Clipboard)
-                  .withTooltip("Copy to clipboard")
+                  .withTooltip(content = "Copy to clipboard")
                   .unless(copied.value.value),
                 <.span(LoginIcons.ClipboardCheck)
-                  .withTooltip("Copied!", open = copied.value.value)
+                  .withTooltip(content = "Copied!", hideDelay = 5000)
                   .when(copied.value.value)
               )
             )

@@ -8,34 +8,33 @@ import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
-import lucuma.react.floatingui
-import lucuma.react.floatingui.syntax.*
 import lucuma.react.primereact.InputText
 import lucuma.react.primereact.PrimeStyles
+import lucuma.react.primereact.TooltipOptions
 import lucuma.typed.primereact.components.Button as CButton
 
 import scalajs.js
 
 case class FormInputText(
-  id:               NonEmptyString,
-  value:            js.UndefOr[String] = js.undefined,
-  label:            js.UndefOr[TagMod] = js.undefined,
-  units:            js.UndefOr[String] = js.undefined,
-  preAddons:        List[TagMod | CButton.Builder] = List.empty,
-  postAddons:       List[TagMod | CButton.Builder] = List.empty,
-  size:             js.UndefOr[PlSize] = js.undefined,
-  groupClass:       js.UndefOr[Css] = js.undefined,
-  inputClass:       js.UndefOr[Css] = js.undefined,
-  labelClass:       js.UndefOr[Css] = js.undefined,
-  disabled:         js.UndefOr[Boolean] = js.undefined,
-  placeholder:      js.UndefOr[String] = js.undefined,
-  tooltip:          js.UndefOr[VdomNode] = js.undefined,
-  tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
-  onFocus:          js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
-  onBlur:           js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
-  onChange:         js.UndefOr[ReactEventFromInput => Callback] = js.undefined,
-  onKeyDown:        js.UndefOr[ReactKeyboardEventFromInput => Callback] = js.undefined,
-  modifiers:        Seq[TagMod] = Seq.empty
+  id:             NonEmptyString,
+  value:          js.UndefOr[String] = js.undefined,
+  label:          js.UndefOr[TagMod] = js.undefined,
+  units:          js.UndefOr[String] = js.undefined,
+  preAddons:      List[TagMod | CButton.Builder] = List.empty,
+  postAddons:     List[TagMod | CButton.Builder] = List.empty,
+  size:           js.UndefOr[PlSize] = js.undefined,
+  groupClass:     js.UndefOr[Css] = js.undefined,
+  inputClass:     js.UndefOr[Css] = js.undefined,
+  labelClass:     js.UndefOr[Css] = js.undefined,
+  disabled:       js.UndefOr[Boolean] = js.undefined,
+  placeholder:    js.UndefOr[String] = js.undefined,
+  tooltip:        js.UndefOr[String] = js.undefined,
+  tooltipOptions: js.UndefOr[TooltipOptions] = js.undefined,
+  onFocus:        js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
+  onBlur:         js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
+  onChange:       js.UndefOr[ReactEventFromInput => Callback] = js.undefined,
+  onKeyDown:      js.UndefOr[ReactKeyboardEventFromInput => Callback] = js.undefined,
+  modifiers:      Seq[TagMod] = Seq.empty
 ) extends ReactFnProps(FormInputText.component):
   def addModifiers(modifiers: Seq[TagMod])                  = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)                      = addModifiers(mods)
@@ -54,7 +53,7 @@ object FormInputText:
         .build(props.size)
     }
 
-    val group = <.div(
+    val input = <.div(
       PrimeStyles.InputGroup |+| LucumaPrimeStyles.FormField |+| props.groupClass.toOption.orEmpty,
       props.preAddons.build(props.size),
       InputText(
@@ -67,12 +66,12 @@ object FormInputText:
         onBlur = props.onBlur,
         onChange = props.onChange,
         onKeyDown = props.onKeyDown,
+        tooltip = props.tooltip,
+        tooltipOptions = props.tooltipOptions,
         modifiers = props.modifiers
       ),
       postAddons
     )
-
-    val input = props.tooltip.fold(group)(tt => group.withTooltip(tt, props.tooltipPlacement))
 
     React.Fragment(
       props.label.map(l =>

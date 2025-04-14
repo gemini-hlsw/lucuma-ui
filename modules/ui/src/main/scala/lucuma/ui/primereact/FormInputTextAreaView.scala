@@ -11,7 +11,7 @@ import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
-import lucuma.react.floatingui
+import lucuma.react.primereact.TooltipOptions
 
 import scala.scalajs.js
 
@@ -19,18 +19,18 @@ import scala.scalajs.js
  * FormInput component that uses a crystal View to share the content of the field
  */
 final case class FormInputTextAreaView[V[_]](
-  id:               NonEmptyString,
-  value:            V[String],
-  label:            js.UndefOr[TagMod] = js.undefined,
-  size:             js.UndefOr[PlSize] = js.undefined,
-  error:            js.UndefOr[NonEmptyString] = js.undefined,
-  autoResize:       js.UndefOr[Boolean] = js.undefined,
-  tooltip:          js.UndefOr[VdomNode] = js.undefined,
-  tooltipPlacement: floatingui.Placement = floatingui.Placement.Top,
-  onTextChange:     String => Callback = _ => Callback.empty,
-  clazz:            js.UndefOr[Css] = js.undefined,
-  labelClass:       js.UndefOr[Css] = js.undefined,
-  modifiers:        Seq[TagMod] = Seq.empty
+  id:             NonEmptyString,
+  value:          V[String],
+  label:          js.UndefOr[TagMod] = js.undefined,
+  size:           js.UndefOr[PlSize] = js.undefined,
+  error:          js.UndefOr[NonEmptyString] = js.undefined,
+  autoResize:     js.UndefOr[Boolean] = js.undefined,
+  tooltip:        js.UndefOr[String] = js.undefined,
+  tooltipOptions: js.UndefOr[TooltipOptions] = js.undefined,
+  onTextChange:   String => Callback = _ => Callback.empty,
+  clazz:          js.UndefOr[Css] = js.undefined,
+  labelClass:     js.UndefOr[Css] = js.undefined,
+  modifiers:      Seq[TagMod] = Seq.empty
 )(using val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextAreaView.component):
   inline def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
@@ -71,7 +71,7 @@ object FormInputTextAreaView:
         props.size,
         props.autoResize,
         props.tooltip,
-        props.tooltipPlacement,
+        props.tooltipOptions,
         props.labelClass,
         props.clazz,
         props.modifiers

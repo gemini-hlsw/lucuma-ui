@@ -9,9 +9,9 @@ import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.*
-import lucuma.react.floatingui
 import lucuma.react.primereact.DropdownOptional
 import lucuma.react.primereact.SelectItem
+import lucuma.react.primereact.TooltipOptions
 
 import scalajs.js
 
@@ -30,8 +30,8 @@ case class FormDropdownOptional[A](
   placeholder:          js.UndefOr[String] = js.undefined,
   disabled:             js.UndefOr[Boolean] = js.undefined,
   dropdownIcon:         js.UndefOr[String] = js.undefined,
-  tooltip:              js.UndefOr[VdomNode] = js.undefined,
-  tooltipPlacement:     floatingui.Placement = floatingui.Placement.Top,
+  tooltip:              js.UndefOr[String] = js.undefined,
+  tooltipOptions:       js.UndefOr[TooltipOptions] = js.undefined,
   emptyMessage:         js.UndefOr[VdomNode] = js.undefined,
   itemTemplate:         js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
   valueTemplate:        js.UndefOr[SelectItem[A] => VdomNode] = js.undefined,
@@ -64,6 +64,8 @@ object FormDropdownOptional:
         filter = props.filter,
         showFilterClear = props.showFilterClear,
         placeholder = props.placeholder,
+        tooltip = props.tooltip,
+        tooltipOptions = props.tooltipOptions,
         disabled = props.disabled,
         dropdownIcon = props.dropdownIcon,
         emptyMessage = props.emptyMessage,
