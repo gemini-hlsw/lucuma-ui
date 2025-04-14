@@ -83,9 +83,10 @@
   cursor: se-resize;
 }
 
-#root, .react-aladin, .react-aladin-container {
+body, #root, .react-aladin, .react-aladin-container {
   height: 100%;
   width: 100%;
+  margin: 0;
 }
 
 .instrument-geom {

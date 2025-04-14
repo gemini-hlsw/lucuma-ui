@@ -16,6 +16,7 @@ import lucuma.core.math.Coordinates
 import lucuma.core.math.Offset
 import lucuma.react.common.style.Css
 import lucuma.schemas.model.BasicConfiguration
+import lucuma.ui.visualization.VisualizationStyles.*
 
 import scala.collection.immutable.SortedMap
 
@@ -34,23 +35,23 @@ object GmosGeometry:
     configuration match {
       case Some(m: BasicConfiguration.GmosNorthLongSlit) =>
         SortedMap(
-          (Css("gmos-science-ccd"), gmos.scienceArea.imaging ⟲ posAngle),
-          (Css("gmos-fpu"), gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asLeft.some)),
-          (Css("gmos-patrol-field"),
+          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
+          (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asLeft.some)),
+          (GmosPatrolField,
            gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
           )
         )
       case Some(m: BasicConfiguration.GmosSouthLongSlit) =>
         SortedMap(
-          (Css("gmos-science-ccd"), gmos.scienceArea.imaging ⟲ posAngle),
-          (Css("gmos-fpu"), gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asRight.some)),
-          (Css("gmos-patrol-field"),
+          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
+          (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asRight.some)),
+          (GmosPatrolField,
            gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
           )
         )
       case _                                             =>
         SortedMap(
-          (Css("gmos-science-ccd"), gmos.scienceArea.imaging ⟲ posAngle)
+          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle)
         )
     }
 
@@ -62,7 +63,7 @@ object GmosGeometry:
     port:          PortDisposition,
     extraCss:      Css = Css.Empty
   ): (Css, ShapeExpression) =
-    (Css("patrol-field-intersection") |+| extraCss) ->
+    (PatrolFieldIntersection |+| extraCss) ->
       offsets
         .map(patrolField(posAngle, _, configuration, port))
         .reduce(_ ∩ _)
@@ -84,7 +85,7 @@ object GmosGeometry:
   // Shape to display always
   def commonShapes(posAngle: Angle, extraCss: Css): SortedMap[Css, ShapeExpression] =
     SortedMap(
-      (Css("gmos-candidates-area") |+| extraCss,
+      (GmosCandidatesArea |+| extraCss,
        gmos.probeArm.candidatesAreaAt(posAngle, Offset.Zero)
       )
     )
@@ -101,19 +102,19 @@ object GmosGeometry:
     mode match
       case Some(m: BasicConfiguration.GmosNorthLongSlit) =>
         SortedMap(
-          (Css("gmos-probe-arm") |+| extraCss,
+          (GmosProbeArm |+| extraCss,
            gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, m.fpu.asLeft.some, port)
           )
         )
       case Some(m: BasicConfiguration.GmosSouthLongSlit) =>
         SortedMap(
-          (Css("gmos-probe-arm") |+| extraCss,
+          (GmosProbeArm |+| extraCss,
            gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, m.fpu.asRight.some, port)
           )
         )
       case _                                             =>
         SortedMap(
-          (Css("gmos-science-ccd"), gmos.scienceArea.imaging ⟲ posAngle)
+          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle)
         )
 
   // Full geometry for GMOS
