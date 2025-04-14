@@ -154,7 +154,7 @@ object TargetsOverlay {
       }
 
       val svg: VdomNode = <.svg(
-        VisualizationStyles.JtsSvg,
+        VisualizationStyles.TargetsSvg,
         ^.viewBox    := s"$viewBoxX $viewBoxY $viewBoxW $viewBoxH",
         canvasWidth  := s"${p.width}px",
         canvasHeight := s"${p.height}px",

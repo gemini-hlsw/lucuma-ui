@@ -1,3 +1,5 @@
+@use './lucuma-ui-common.scss' as lucumaUICommon;
+
 .visualization-tooltip {
   animation: fadeIn 250ms;
 }
