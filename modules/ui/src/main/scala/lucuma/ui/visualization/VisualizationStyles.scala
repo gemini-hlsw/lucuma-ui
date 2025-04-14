@@ -40,3 +40,4 @@ object VisualizationStyles:
   val GmosCcdVisible                 = Css("gmos-ccd-visible")
   val GmosCandidatesAreaVisible: Css = Css("gmos-candidates-area-visible")
   val GmosPatrolFieldVisible: Css    = Css("gmos-patrol-field-visible")
+  val GmosProbeVisible: Css          = Css("gmos-probe-visible")

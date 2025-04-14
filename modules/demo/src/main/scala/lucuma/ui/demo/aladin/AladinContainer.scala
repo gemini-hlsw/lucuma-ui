@@ -7,27 +7,30 @@ import cats.data.NonEmptyMap
 import cats.implicits.*
 import crystal.react.ReuseView
 import crystal.react.reuse.*
-import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.feature.ReactFragment
 import japgolly.scalajs.react.hooks.Hooks.UseState
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.ags.AgsAnalysis
+import lucuma.ags.AgsGuideQuality
+import lucuma.ags.GuideStarCandidate
 import lucuma.core.enums.GmosSouthFilter
 import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.GmosSouthGrating
+import lucuma.core.enums.GuideProbe
+import lucuma.core.enums.GuideSpeed
 import lucuma.core.enums.PortDisposition
+import lucuma.core.geom.Area
 import lucuma.core.math.*
+import lucuma.core.model.SiderealTracking
+import lucuma.core.util.Enumerated
 import lucuma.react.common.*
 import lucuma.react.resizeDetector.hooks.*
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
-import lucuma.ui.primereact.EnumDropdown
 import lucuma.ui.visualization.*
-import lucuma.ui.display.given
 import monocle.macros.GenLens
-import lucuma.core.util.Enumerated
-import lucuma.core.enums.GmosSouthFpu
 
 final case class AladinContainer(
   fov:         ReuseView[Fov],
@@ -46,9 +49,6 @@ object AladinContainer {
 
   implicit val reuseDouble: Reusability[Double] = Reusability.double(0.00001)
 
-  val allFpu = Enumerated[GmosSouthFpu]
-  // println(allFpu)
-
   val component = ScalaFnComponent[Props]: props =>
     for {
       // View coordinates (in case the user pans)
@@ -63,6 +63,7 @@ object AladinContainer {
       ccdVisible         <- useState(true)
       candidatesVisible  <- useState(true)
       patrolFieldVisible <- useState(true)
+      probeVisible       <- useState(true)
       conf               <- useState(
                               BasicConfiguration.GmosSouthLongSlit(
                                 grating = GmosSouthGrating.R400_G5325,
@@ -98,7 +99,16 @@ object AladinContainer {
         Angle.Angle0.some,
         conf.value.some,
         PortDisposition.Side,
-        None,
+        AgsAnalysis
+          .Usable(
+            GuideProbe.GmosOIWFS,
+            GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
+            GuideSpeed.Fast,
+            AgsGuideQuality.DeliversRequestedIq,
+            Angle.Angle0,
+            Area.MinArea
+          )
+          .some,
         VisualizationStyles.GuideStarCandidateVisible
       )
 
@@ -140,7 +150,8 @@ object AladinContainer {
                   clazz = VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
                     VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
                     VisualizationStyles.GmosCandidatesAreaVisible.when_(candidatesVisible.value) |+|
-                    VisualizationStyles.GmosPatrolFieldVisible.when_(patrolFieldVisible.value)
+                    VisualizationStyles.GmosPatrolFieldVisible.when_(patrolFieldVisible.value) |+|
+                    VisualizationStyles.GmosProbeVisible.when_(probeVisible.value)
                 )
               ),
             (resize.width, resize.height)
@@ -170,37 +181,44 @@ object AladinContainer {
               ),
               customize = customizeAladin(_)
             ),
-            toggler("fpu", "FPU", fpuVisible),
-            toggler("ccd", "Science CCD", ccdVisible),
-            toggler("candidates", "Candidates Field", candidatesVisible),
-            toggler("patrol-field", "Patrol Field", patrolFieldVisible),
             <.div(
-              Css("config-controls"),
-              <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
-              <.select(
-                ^.id    := "fpu-selector",
-                ^.value := conf.value.fpu.tag,
-                ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                  Enumerated[GmosSouthFpu]
-                    .fromTag(r.target.value)
+              Css("aladin-controls"),
+              <.div(
+                Css("config-togglers"),
+                toggler("fpu", "FPU", fpuVisible),
+                toggler("ccd", "Science CCD", ccdVisible),
+                toggler("candidates", "Candidates Field", candidatesVisible),
+                toggler("patrol-field", "Patrol Field", patrolFieldVisible),
+                toggler("probe", "Probe", probeVisible)
+              ),
+              <.div(
+                Css("config-controls"),
+                <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
+                <.select(
+                  ^.id    := "fpu-selector",
+                  ^.value := conf.value.fpu.tag,
+                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
+                    Enumerated[GmosSouthFpu]
+                      .fromTag(r.target.value)
+                      .map(fpu =>
+                        conf.setState(
+                          conf.value.copy(fpu = fpu)
+                        )
+                      )
+                      .getOrElse(Callback.empty)
+                  )
+                )(
+                  Enumerated[GmosSouthFpu].all
+                    .filter(_.tag.startsWith("LongSlit"))
                     .map(fpu =>
-                      conf.setState(
-                        conf.value.copy(fpu = fpu)
+                      <.option(
+                        ^.key   := fpu.tag,
+                        ^.value := fpu.tag,
+                        fpu.longName
                       )
                     )
-                    .getOrElse(Callback.empty)
+                    .toTagMod
                 )
-              )(
-                Enumerated[GmosSouthFpu].all
-                  .filter(_.tag.startsWith("LongSlit"))
-                  .map(fpu =>
-                    <.option(
-                      ^.key   := fpu.tag,
-                      ^.value := fpu.tag,
-                      fpu.longName
-                    )
-                  )
-                  .toTagMod
               )
             )
           )

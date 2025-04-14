@@ -56,7 +56,12 @@
     vector-effect: non-scaling-stroke;
   }
 
+  &.gmos-probe-visible .gmos-probe-arm {
+    display: inline;
+  }
+
   .gmos-probe-arm {
+    display: none;
     stroke: hsl(0deg 67.9% 41.6%);
   }
 
