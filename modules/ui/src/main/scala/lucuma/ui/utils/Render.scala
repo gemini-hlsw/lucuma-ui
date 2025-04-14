@@ -4,7 +4,7 @@
 package lucuma.ui.utils
 
 import japgolly.scalajs.react.vdom.html_<^.*
-import lucuma.core.syntax.display.given
+import lucuma.core.syntax.display.*
 import lucuma.core.util.Display
 
 trait Render[A]:

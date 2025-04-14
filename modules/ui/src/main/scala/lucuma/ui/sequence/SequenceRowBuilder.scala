@@ -14,7 +14,7 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.SequenceType
 import lucuma.core.model.sequence.Step
-import lucuma.core.syntax.all.given
+import lucuma.core.syntax.all.*
 import lucuma.core.util.Timestamp
 import lucuma.react.primereact.Tooltip
 import lucuma.react.primereact.tooltip.*

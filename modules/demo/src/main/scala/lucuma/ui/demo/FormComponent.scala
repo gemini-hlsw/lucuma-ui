@@ -25,6 +25,7 @@ import lucuma.core.math.Declination
 import lucuma.core.math.Epoch
 import lucuma.core.math.RightAscension
 import lucuma.core.math.validation.MathValidators
+import lucuma.core.syntax.validation.*
 import lucuma.core.util.TimeSpan
 import lucuma.core.validation.*
 import lucuma.react.common.ReactFnProps
