@@ -1,4 +1,5 @@
 import "./aladin.css";
+import '../../../../ui/src/main/resources/lucuma-css/visualization.scss';
 import './rgl.scss';
 
 if (import.meta.env.DEV) {

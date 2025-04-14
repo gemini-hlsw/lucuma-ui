@@ -64,6 +64,7 @@ object SSOManager:
                 _        <- props.setVault(vaultOpt)
                 _        <- props.setMessage("Your session has expired".refined).whenA(vaultOpt.isEmpty)
               yield ())
-                .onError: t =>
-                  Logger[DefaultA].error(t)("Error refreshing user token") >> props.setVault(none)
+                .onError:
+                  case t =>
+                    Logger[DefaultA].error(t)("Error refreshing user token") >> props.setVault(none)
       .render(_ => EmptyVdom) // This is a "phantom" component. Doesn't render anything.
