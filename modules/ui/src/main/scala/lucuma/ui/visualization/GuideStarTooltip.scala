@@ -13,8 +13,7 @@ import lucuma.react.common.ReactFnProps
 import lucuma.ui.LucumaIcons
 import lucuma.ui.syntax.all.given
 
-case class GuideStarTooltip(analysis: AgsAnalysis.Usable)
-    extends ReactFnProps(GuideStarTooltip)
+case class GuideStarTooltip(analysis: AgsAnalysis.Usable) extends ReactFnProps(GuideStarTooltip)
 
 object GuideStarTooltip
     extends ReactFnComponent[GuideStarTooltip](p =>
