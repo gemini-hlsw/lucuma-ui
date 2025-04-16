@@ -60,8 +60,8 @@ trait SequenceRow[+D]:
   lazy val hasBreakpoint: Boolean = breakpoint === Breakpoint.Enabled
 
   lazy val wavelength: Option[Wavelength] = instrumentConfig.flatMap:
-    case DynamicConfig.GmosNorth(_, _, _, _, grating, _, _) => grating.map(_.wavelength)
-    case DynamicConfig.GmosSouth(_, _, _, _, grating, _, _) => grating.map(_.wavelength)
+    case gn @ DynamicConfig.GmosNorth(_, _, _, _, _, _, _) => gn.centralWavelength
+    case gs @ DynamicConfig.GmosSouth(_, _, _, _, _, _, _) => gs.centralWavelength
 
   lazy val exposureTime: Option[TimeSpan] = instrumentConfig.flatMap:
     case DynamicConfig.GmosNorth(exposure, _, _, _, _, _, _) => exposure.some
