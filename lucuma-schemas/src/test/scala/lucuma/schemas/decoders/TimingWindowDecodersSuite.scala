@@ -3,7 +3,6 @@
 
 package lucuma.schemas.decoders
 
-import eu.timepit.refined.*
 import eu.timepit.refined.types.numeric.PosInt
 import io.circe.Decoder
 import lucuma.core.enums.TimingWindowInclusion

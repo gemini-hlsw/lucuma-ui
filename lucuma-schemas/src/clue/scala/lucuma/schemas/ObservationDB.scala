@@ -6,7 +6,6 @@ package lucuma.schemas
 import clue.annotation.GraphQLSchema
 import lucuma.core.enums
 import lucuma.core.math.dimensional.*
-import lucuma.core.model
 import lucuma.core.model.*
 import lucuma.core.model.sequence.*
 import lucuma.core.util.*
@@ -106,6 +105,13 @@ trait ObservationDB {
     type GcalFilter                          = enums.GcalFilter
     type GcalShutter                         = enums.GcalShutter
     type Gender                              = enums.Gender
+    type Flamingos2Disperser                 = enums.F2Disperser
+    type Flamingos2Filter                    = enums.F2Filter
+    type Flamingos2Fpu                       = enums.F2Fpu
+    type Flamingos2ReadMode                  = enums.F2ReadMode
+    type Flamingos2Reads                     = enums.F2Reads
+    type Flamingos2Decker                    = enums.F2Decker
+    type Flamingos2ReadoutMode               = enums.F2ReadoutMode
     type GmosAmpCount                        = enums.GmosAmpCount
     type GmosAmpGain                         = enums.GmosAmpGain
     type GmosAmpReadMode                     = enums.GmosAmpReadMode

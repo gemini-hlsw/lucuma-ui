@@ -59,5 +59,21 @@ object ObservingModeSubquery
             defaultSpatialOffsets $AngleSubquery
             explicitSpatialOffsets $AngleSubquery
           }
+          flamingos2LongSlit {
+            initialDisperser
+            initialFilter
+            initialFpu
+            disperser
+            filter
+            fpu
+            defaultReadMode
+            explicitReadMode
+            defaultReads
+            explicitReads
+            defaultDecker
+            explicitDecker
+            defaultReadoutMode
+            explicitReadoutMode
+          }
         }
       """

@@ -239,11 +239,86 @@ trait ArbObservingMode {
         )
       )
 
+  given Arbitrary[ObservingMode.F2LongSlit] =
+    Arbitrary[ObservingMode.F2LongSlit](
+      for {
+        initialDisperser   <- arbitrary[F2Disperser]
+        disperser          <- arbitrary[F2Disperser]
+        initialFilter      <- arbitrary[F2Filter]
+        filter             <- arbitrary[F2Filter]
+        initialFpu         <- arbitrary[F2Fpu]
+        fpu                <- arbitrary[F2Fpu]
+        defaultReadMode    <- arbitrary[F2ReadMode]
+        explicitReadMode   <- arbitrary[Option[F2ReadMode]]
+        defaultReads       <- arbitrary[F2Reads]
+        explicitReads      <- arbitrary[Option[F2Reads]]
+        defaultDecker      <- arbitrary[F2Decker]
+        explicitDecker     <- arbitrary[Option[F2Decker]]
+        defaultReadoutMode <- arbitrary[F2ReadoutMode]
+        expicitReadoutMode <- arbitrary[Option[F2ReadoutMode]]
+      } yield ObservingMode.F2LongSlit(
+        initialDisperser,
+        disperser,
+        initialFilter,
+        filter,
+        initialFpu,
+        fpu,
+        defaultReadMode,
+        explicitReadMode,
+        defaultReads,
+        explicitReads,
+        defaultDecker,
+        explicitDecker,
+        defaultReadoutMode,
+        expicitReadoutMode
+      )
+    )
+
+  given Cogen[ObservingMode.F2LongSlit] =
+    Cogen[
+      (F2Disperser,
+       F2Disperser,
+       F2Filter,
+       F2Filter,
+       F2Fpu,
+       F2Fpu,
+       F2ReadMode,
+       Option[F2ReadMode],
+       F2Reads,
+       Option[F2Reads],
+       F2Decker,
+       Option[F2Decker],
+       F2ReadoutMode,
+       Option[F2ReadoutMode]
+      )
+    ]
+      .contramap(o =>
+        (
+          o.initialDisperser,
+          o.disperser,
+          o.initialFilter,
+          o.filter,
+          o.initialFpu,
+          o.fpu,
+          o.defaultReadMode,
+          o.explicitReadMode,
+          o.defaultReads,
+          o.explicitReads,
+          o.defaultDecker,
+          o.explicitDecker,
+          o.defaultReadoutMode,
+          o.explicitReadoutMode
+        )
+      )
+
   given Cogen[ObservingMode] =
-    Cogen[Either[ObservingMode.GmosNorthLongSlit, ObservingMode.GmosSouthLongSlit]]
+    Cogen[Either[ObservingMode.F2LongSlit, Either[ObservingMode.GmosNorthLongSlit,
+                                                  ObservingMode.GmosSouthLongSlit
+    ]]]
       .contramap {
-        case n: ObservingMode.GmosNorthLongSlit => n.asLeft
-        case s: ObservingMode.GmosSouthLongSlit => s.asRight
+        case n: ObservingMode.GmosNorthLongSlit => n.asLeft.asRight
+        case s: ObservingMode.GmosSouthLongSlit => s.asRight.asRight
+        case f: ObservingMode.F2LongSlit        => f.asLeft
       }
 
 }

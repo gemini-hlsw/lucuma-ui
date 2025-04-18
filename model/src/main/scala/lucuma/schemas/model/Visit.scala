@@ -13,7 +13,7 @@ import lucuma.core.util.TimestampInterval
 import monocle.Focus
 import monocle.Lens
 
-enum Visit[+D] derives Eq:
+enum Visit[+D]:
   def id: Visit.Id
   def created: Timestamp
   def interval: Option[TimestampInterval]
@@ -42,6 +42,8 @@ enum Visit[+D] derives Eq:
 object Visit:
   type Id = lucuma.core.model.Visit.Id
   val Id = lucuma.core.model.Visit.Id
+
+  given [A](using Eq[A]): Eq[Visit[A]] = Eq.derived
 
   object GmosNorth:
     given Eq[GmosNorth] = Eq.derived

@@ -3,7 +3,6 @@
 
 package lucuma.schemas.decoders
 
-import eu.timepit.refined.*
 import lucuma.core.math.SignalToNoise
 import lucuma.core.math.Wavelength
 import lucuma.core.model.ExposureTimeMode

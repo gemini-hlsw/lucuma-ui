@@ -14,6 +14,7 @@ import lucuma.core.math.Offset
 import lucuma.core.math.Wavelength
 import lucuma.core.math.WavelengthDither
 import lucuma.odb.json.offset.decoder.given
+import lucuma.odb.json.wavelength
 import lucuma.odb.json.wavelength.decoder.given
 import monocle.Focus
 import monocle.Lens
@@ -27,162 +28,25 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
   def obsModeType: ObservingModeType = this match
     case _: ObservingMode.GmosNorthLongSlit => ObservingModeType.GmosNorthLongSlit
     case _: ObservingMode.GmosSouthLongSlit => ObservingModeType.GmosSouthLongSlit
+    case _: ObservingMode.F2LongSlit        => ObservingModeType.Flamingos2LongSlit
 
-  def fpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
-    case ObservingMode.GmosNorthLongSlit(
-          _,
-          _,
-          _,
-          _,
-          _,
-          fpu,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _
-        ) =>
-      fpu.asLeft.some
-    case ObservingMode.GmosSouthLongSlit(
-          _,
-          _,
-          _,
-          _,
-          _,
-          fpu,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _
-        ) =>
-      fpu.asRight.some
+  def gmosFpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
+    case o: ObservingMode.GmosNorthLongSlit => o.fpu.asLeft.some
+    case o: ObservingMode.GmosSouthLongSlit => o.fpu.asRight.some
+    case _                                  => none
 
   def siteFor: Site = this match
-    case ObservingMode.GmosNorthLongSlit(
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _
-        ) =>
-      Site.GN
-    case ObservingMode.GmosSouthLongSlit(
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _
-        ) =>
-      Site.GS
+    case _: ObservingMode.GmosNorthLongSlit => Site.GN
+    case _: ObservingMode.GmosSouthLongSlit => Site.GS
+    case _: ObservingMode.F2LongSlit        => Site.GS
 
   def toBasicConfiguration: BasicConfiguration = this match
-    case ObservingMode.GmosNorthLongSlit(
-          _,
-          grating,
-          _,
-          filter,
-          _,
-          fpu,
-          _,
-          centralWavelength,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _
-        ) =>
-      BasicConfiguration.GmosNorthLongSlit(grating, filter, fpu, centralWavelength)
-    case ObservingMode.GmosSouthLongSlit(
-          _,
-          grating,
-          _,
-          filter,
-          _,
-          fpu,
-          _,
-          centralWavelength,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _,
-          _
-        ) =>
-      BasicConfiguration.GmosSouthLongSlit(grating, filter, fpu, centralWavelength)
+    case n: ObservingMode.GmosNorthLongSlit =>
+      BasicConfiguration.GmosNorthLongSlit(n.grating, n.filter, n.fpu, n.centralWavelength)
+    case s: ObservingMode.GmosSouthLongSlit =>
+      BasicConfiguration.GmosSouthLongSlit(s.grating, s.filter, s.fpu, s.centralWavelength)
+    case f: ObservingMode.F2LongSlit        =>
+      BasicConfiguration.F2LongSlit(f.disperser, f.filter, f.fpu)
 }
 
 object ObservingMode:
@@ -197,6 +61,8 @@ object ObservingMode:
           .as[GmosNorthLongSlit]
           .orElse:
             c.downField("gmosSouthLongSlit").as[GmosSouthLongSlit]
+          .orElse:
+            c.downField("flamingos2LongSlit").as[F2LongSlit]
 
   case class GmosNorthLongSlit(
     initialGrating:            GmosNorthGrating,
@@ -428,8 +294,88 @@ object ObservingMode:
     val explicitSpatialOffsets: Lens[GmosSouthLongSlit, Option[NonEmptyList[Offset.Q]]]            =
       Focus[GmosSouthLongSlit](_.explicitSpatialOffsets)
 
+  case class F2LongSlit(
+    initialDisperser:    F2Disperser,
+    disperser:           F2Disperser,
+    initialFilter:       F2Filter,
+    filter:              F2Filter,
+    initialFpu:          F2Fpu,
+    fpu:                 F2Fpu,
+    defaultReadMode:     F2ReadMode,
+    explicitReadMode:    Option[F2ReadMode],
+    defaultReads:        F2Reads,
+    explicitReads:       Option[F2Reads],
+    defaultDecker:       F2Decker,
+    explicitDecker:      Option[F2Decker],
+    defaultReadoutMode:  F2ReadoutMode,
+    explicitReadoutMode: Option[F2ReadoutMode]
+  ) extends ObservingMode(Instrument.GmosSouth) derives Eq:
+    val readMode: F2ReadMode       =
+      explicitReadMode.getOrElse(defaultReadMode)
+    val reads: F2Reads             =
+      explicitReads.getOrElse(defaultReads)
+    val decker: F2Decker           =
+      explicitDecker.getOrElse(defaultDecker)
+    val readoutMode: F2ReadoutMode =
+      explicitReadoutMode.getOrElse(defaultReadoutMode)
+
+    def isCustomized: Boolean =
+      initialDisperser =!= disperser ||
+        initialFilter =!= filter ||
+        initialFpu =!= fpu ||
+        explicitReadMode.exists(_ =!= defaultReadMode) ||
+        explicitReads.exists(_ =!= defaultReads) ||
+        explicitDecker.exists(_ =!= defaultDecker) ||
+        explicitReadoutMode.exists(_ =!= defaultReadoutMode)
+
+    def revertCustomizations: F2LongSlit =
+      this.copy(
+        disperser = this.initialDisperser,
+        filter = this.initialFilter,
+        fpu = this.initialFpu,
+        explicitReadMode = None,
+        explicitReads = None,
+        explicitDecker = None,
+        explicitReadoutMode = None
+      )
+
+  object F2LongSlit:
+    given Decoder[F2LongSlit] = deriveDecoder
+
+    val initialDisperser: Lens[F2LongSlit, F2Disperser]              =
+      Focus[F2LongSlit](_.initialDisperser)
+    val disperser: Lens[F2LongSlit, F2Disperser]                     =
+      Focus[F2LongSlit](_.disperser)
+    val initialFilter: Lens[F2LongSlit, F2Filter]                    =
+      Focus[F2LongSlit](_.initialFilter)
+    val filter: Lens[F2LongSlit, F2Filter]                           =
+      Focus[F2LongSlit](_.filter)
+    val initialFpu: Lens[F2LongSlit, F2Fpu]                          =
+      Focus[F2LongSlit](_.initialFpu)
+    val fpu: Lens[F2LongSlit, F2Fpu]                                 =
+      Focus[F2LongSlit](_.fpu)
+    val defaultReadMode: Lens[F2LongSlit, F2ReadMode]                =
+      Focus[F2LongSlit](_.defaultReadMode)
+    val explicitReadMode: Lens[F2LongSlit, Option[F2ReadMode]]       =
+      Focus[F2LongSlit](_.explicitReadMode)
+    val defaultReads: Lens[F2LongSlit, F2Reads]                      =
+      Focus[F2LongSlit](_.defaultReads)
+    val explicitReads: Lens[F2LongSlit, Option[F2Reads]]             =
+      Focus[F2LongSlit](_.explicitReads)
+    val defaultDecker: Lens[F2LongSlit, F2Decker]                    =
+      Focus[F2LongSlit](_.defaultDecker)
+    val explicitDecker: Lens[F2LongSlit, Option[F2Decker]]           =
+      Focus[F2LongSlit](_.explicitDecker)
+    val defaultReadoutMode: Lens[F2LongSlit, F2ReadoutMode]          =
+      Focus[F2LongSlit](_.defaultReadoutMode)
+    val explicitReadoutMode: Lens[F2LongSlit, Option[F2ReadoutMode]] =
+      Focus[F2LongSlit](_.explicitReadoutMode)
+
   val gmosNorthLongSlit: Prism[ObservingMode, GmosNorthLongSlit] =
     GenPrism[ObservingMode, GmosNorthLongSlit]
 
   val gmosSouthLongSlit: Prism[ObservingMode, GmosSouthLongSlit] =
     GenPrism[ObservingMode, GmosSouthLongSlit]
+
+  val f2LongSlit: Prism[ObservingMode, F2LongSlit] =
+    GenPrism[ObservingMode, F2LongSlit]

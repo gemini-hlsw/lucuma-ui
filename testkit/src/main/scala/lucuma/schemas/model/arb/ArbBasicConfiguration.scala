@@ -48,10 +48,20 @@ trait ArbBasicConfiguration {
       )
     )
 
+  given Arbitrary[BasicConfiguration.F2LongSlit] =
+    Arbitrary[BasicConfiguration.F2LongSlit](
+      for {
+        disperser <- arbitrary[F2Disperser]
+        filter    <- arbitrary[F2Filter]
+        fpu       <- arbitrary[F2Fpu]
+      } yield BasicConfiguration.F2LongSlit(disperser, filter, fpu)
+    )
+
   given Arbitrary[BasicConfiguration] = Arbitrary[BasicConfiguration](
     Gen.oneOf(
       arbitrary[BasicConfiguration.GmosNorthLongSlit],
-      arbitrary[BasicConfiguration.GmosSouthLongSlit]
+      arbitrary[BasicConfiguration.GmosSouthLongSlit],
+      arbitrary[BasicConfiguration.F2LongSlit]
     )
   )
 
@@ -79,11 +89,26 @@ trait ArbBasicConfiguration {
         )
       )
 
+  given Cogen[BasicConfiguration.F2LongSlit] =
+    Cogen[
+      (F2Disperser, F2Filter, F2Fpu)
+    ]
+      .contramap(o =>
+        (
+          o.disperser,
+          o.filter,
+          o.fpu
+        )
+      )
+
   given Cogen[BasicConfiguration] =
-    Cogen[Either[BasicConfiguration.GmosNorthLongSlit, BasicConfiguration.GmosSouthLongSlit]]
+    Cogen[Either[BasicConfiguration.F2LongSlit, Either[BasicConfiguration.GmosNorthLongSlit,
+                                                       BasicConfiguration.GmosSouthLongSlit
+    ]]]
       .contramap {
-        case n: BasicConfiguration.GmosNorthLongSlit => n.asLeft
-        case s: BasicConfiguration.GmosSouthLongSlit => s.asRight
+        case n: BasicConfiguration.GmosNorthLongSlit => n.asLeft.asRight
+        case s: BasicConfiguration.GmosSouthLongSlit => s.asRight.asRight
+        case f: BasicConfiguration.F2LongSlit        => f.asLeft
       }
 
 }

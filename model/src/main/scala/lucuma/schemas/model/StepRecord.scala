@@ -17,7 +17,7 @@ import lucuma.schemas.model.enums.StepExecutionState
 import monocle.Focus
 import monocle.Lens
 
-enum StepRecord[+D] derives Eq:
+enum StepRecord[+D]:
   def id: Step.Id
   def created: Timestamp
   def executionState: StepExecutionState
@@ -59,6 +59,8 @@ enum StepRecord[+D] derives Eq:
   ) extends StepRecord[DynamicConfig.GmosSouth]
 
 object StepRecord:
+  given [A](using Eq[A]): Eq[StepRecord[A]] = Eq.derived
+
   object GmosNorth:
     given Eq[GmosNorth] = Eq.derived
 
