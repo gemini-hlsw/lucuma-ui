@@ -32,7 +32,7 @@ import lucuma.ui.aladin.*
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
 
-final case class AladinContainer(
+case class AladinContainer(
   fov:         ReuseView[Fov],
   coordinates: Coordinates
 ) extends ReactFnProps[AladinContainer](AladinContainer.component) {
@@ -93,7 +93,7 @@ object AladinContainer {
         props.coordinates // .offsetBy(Angle.Angle0, GmosGeometry.guideStarOffset)
 
       val shapes = GmosGeometry.gmosGeometry(
-        currentPos.value,
+        props.coordinates,
         None,
         None,
         Angle.Angle0.some,
@@ -134,6 +134,7 @@ object AladinContainer {
 
       <.div(
         Css("react-aladin-container"),
+        aladinRef.value.map(AladinZoomControl(_)),
         // This happens during a second render. If we let the height to be zero, aladin
         // will take it as 1. This height ends up being a denominator, which, if low,
         // will make aladin request a large amount of tiles and end up freezing the demo.
@@ -145,7 +146,7 @@ object AladinContainer {
                   w,
                   h,
                   props.fov.get,
-                  currentPos.value.diff(props.coordinates).offset,
+                  screenOffset,
                   s,
                   clazz = VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
                     VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
@@ -177,12 +178,20 @@ object AladinContainer {
                 fov = props.fov.get.x,
                 showGotoControl = false,
                 showCooLocation = true,
-                showFullscreenControl = false
+                showFullscreenControl = false,
+                showZoomControl = false
               ),
               customize = customizeAladin(_)
             ),
             <.div(
               Css("aladin-controls"),
+              <.div(
+                Css("config-togglers"),
+                <.label("FOV: ", props.fov.get.toStringAngle),
+                <.label("Coord: ", props.aladinCoordsStr),
+                <.label("Pos: ", currentPos.value.toString),
+                <.label("Offset: ", currentPos.value.diff(props.coordinates).offset.toString)
+              ),
               <.div(
                 Css("config-togglers"),
                 toggler("fpu", "FPU", fpuVisible),

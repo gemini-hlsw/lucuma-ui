@@ -29,12 +29,22 @@ object LucumaIcons:
   @JSImport("@fortawesome/pro-solid-svg-icons", "faCircleSmall")
   val faCircleSmall: FAIcon = js.native
 
+  @js.native
+  @JSImport("@fortawesome/pro-light-svg-icons", "faPlus")
+  val faThinPlus: FAIcon = js.native
+
+  @js.native
+  @JSImport("@fortawesome/pro-light-svg-icons", "faHyphen")
+  val faThinMinus: FAIcon = js.native
+
   FontAwesome.library.add(
     faCircle,
     faCircleNotch,
     faCircleInfo,
     faGears,
-    faCircleSmall
+    faCircleSmall,
+    faThinPlus,
+    faThinMinus
   )
 
   inline def Circle      = FontAwesomeIcon(faCircle)
@@ -42,3 +52,5 @@ object LucumaIcons:
   inline def CircleInfo  = FontAwesomeIcon(faCircleInfo)
   inline def Gears       = FontAwesomeIcon(faGears)
   inline def CircleSmall = FontAwesomeIcon(faCircleSmall)
+  inline def ThinPlus    = FontAwesomeIcon(faThinPlus)
+  inline def ThinMinus   = FontAwesomeIcon(faThinMinus)

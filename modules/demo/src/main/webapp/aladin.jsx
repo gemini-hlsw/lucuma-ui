@@ -1,3 +1,4 @@
+import './theme.scss';
 import "./aladin.css";
 import '../../../../ui/src/main/resources/lucuma-css/visualization.scss';
 import './rgl.scss';

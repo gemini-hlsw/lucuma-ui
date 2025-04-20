@@ -1,0 +1,42 @@
+@use '../../../../ui/src/main/resources/lucuma-css/lucuma-ui-common.scss';
+
+/* stylelint-disable no-invalid-position-at-import-rule */
+.light-theme {
+  @import '../../../../ui/src/main/resources/lucuma-css/light-theme.css';
+}
+
+.dark-theme {
+  @import '../../../../ui/src/main/resources/lucuma-css/dark-theme.css';
+}
+
+@import '../../../../ui/src/main/resources/lucuma-css/lucuma-ui-prime';
+
+#root,
+body,
+html {
+  height: 100%;
+  width: 100%;
+}
+body {
+  padding: 0;
+  margin: 0;
+  font-family: Roboto, Open Sans, sans-serif;
+  font-size: 12px;
+  box-sizing: border-box;
+
+  &.dark-theme {
+    color: #F7F7F7;
+    background-color: black;
+  }
+
+  &.light-theme {
+    color: #272727;
+    background-color: white;
+  }
+
+  .aladin-demo {
+    height: 500px;
+    width: 100%;
+  }
+
+}
