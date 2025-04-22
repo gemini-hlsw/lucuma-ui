@@ -24,6 +24,10 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
     derives Eq {
   def isCustomized: Boolean
 
+  def obsModeType: ObservingModeType = this match
+    case _: ObservingMode.GmosNorthLongSlit => ObservingModeType.GmosNorthLongSlit
+    case _: ObservingMode.GmosSouthLongSlit => ObservingModeType.GmosSouthLongSlit
+
   def fpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
     case ObservingMode.GmosNorthLongSlit(
           _,
@@ -218,6 +222,21 @@ object ObservingMode:
     defaultSpatialOffsets:     NonEmptyList[Offset.Q],
     explicitSpatialOffsets:    Option[NonEmptyList[Offset.Q]]
   ) extends ObservingMode(Instrument.GmosNorth) derives Eq:
+    val xBin: GmosXBinning                                =
+      explicitXBin.getOrElse(defaultXBin)
+    val yBin: GmosYBinning                                =
+      explicitYBin.getOrElse(defaultYBin)
+    val ampReadMode: GmosAmpReadMode                      =
+      explicitAmpReadMode.getOrElse(defaultAmpReadMode)
+    val ampGain: GmosAmpGain                              =
+      explicitAmpGain.getOrElse(defaultAmpGain)
+    val roi: GmosRoi                                      =
+      explicitRoi.getOrElse(defaultRoi)
+    val wavelengthDithers: NonEmptyList[WavelengthDither] =
+      explicitWavelengthDithers.getOrElse(defaultWavelengthDithers)
+    val spatialOffsets: NonEmptyList[Offset.Q]            =
+      explicitSpatialOffsets.getOrElse(defaultSpatialOffsets)
+
     def isCustomized: Boolean =
       initialGrating =!= grating ||
         initialFilter =!= filter ||
@@ -318,6 +337,21 @@ object ObservingMode:
     defaultSpatialOffsets:     NonEmptyList[Offset.Q],
     explicitSpatialOffsets:    Option[NonEmptyList[Offset.Q]]
   ) extends ObservingMode(Instrument.GmosSouth) derives Eq:
+    val xBin: GmosXBinning                                =
+      explicitXBin.getOrElse(defaultXBin)
+    val yBin: GmosYBinning                                =
+      explicitYBin.getOrElse(defaultYBin)
+    val ampReadMode: GmosAmpReadMode                      =
+      explicitAmpReadMode.getOrElse(defaultAmpReadMode)
+    val ampGain: GmosAmpGain                              =
+      explicitAmpGain.getOrElse(defaultAmpGain)
+    val roi: GmosRoi                                      =
+      explicitRoi.getOrElse(defaultRoi)
+    val wavelengthDithers: NonEmptyList[WavelengthDither] =
+      explicitWavelengthDithers.getOrElse(defaultWavelengthDithers)
+    val spatialOffsets: NonEmptyList[Offset.Q]            =
+      explicitSpatialOffsets.getOrElse(defaultSpatialOffsets)
+
     def isCustomized: Boolean =
       initialGrating =!= grating ||
         initialFilter =!= filter ||
@@ -345,6 +379,7 @@ object ObservingMode:
         explicitWavelengthDithers = None,
         explicitSpatialOffsets = None
       )
+
   object GmosSouthLongSlit:
     given Decoder[GmosSouthLongSlit] = deriveDecoder
 

@@ -25,6 +25,10 @@ sealed abstract class BasicConfiguration(val instrument: Instrument)
     case n: BasicConfiguration.GmosNorthLongSlit => Site.GN
     case s: BasicConfiguration.GmosSouthLongSlit => Site.GS
 
+  def obsModeType: ObservingModeType = this match
+    case n: BasicConfiguration.GmosNorthLongSlit => ObservingModeType.GmosNorthLongSlit
+    case s: BasicConfiguration.GmosSouthLongSlit => ObservingModeType.GmosSouthLongSlit
+
 object BasicConfiguration:
   given Decoder[BasicConfiguration] =
     Decoder

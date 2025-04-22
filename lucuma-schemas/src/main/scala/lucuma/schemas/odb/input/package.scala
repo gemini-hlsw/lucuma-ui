@@ -387,6 +387,7 @@ extension (o: ObservingMode.GmosNorthLongSlit)
     explicitWavelengthDithers = o.explicitWavelengthDithers.map(_.toList.map(_.toInput)).orUnassign,
     explicitSpatialOffsets = o.explicitSpatialOffsets.map(_.toList.map(_.toInput)).orUnassign
   )
+
 extension (o: ObservingMode.GmosSouthLongSlit)
   def toInput: GmosSouthLongSlitInput = GmosSouthLongSlitInput(
     grating = o.grating.assign,
