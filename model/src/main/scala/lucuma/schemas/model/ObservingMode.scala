@@ -24,6 +24,10 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
     derives Eq {
   def isCustomized: Boolean
 
+  def obsModeType: ObservingModeType = this match
+    case _: ObservingMode.GmosNorthLongSlit => ObservingModeType.GmosNorthLongSlit
+    case _: ObservingMode.GmosSouthLongSlit => ObservingModeType.GmosSouthLongSlit
+
   def fpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
     case ObservingMode.GmosNorthLongSlit(
           _,
