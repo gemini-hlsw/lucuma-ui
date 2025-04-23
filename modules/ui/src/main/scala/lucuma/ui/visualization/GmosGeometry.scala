@@ -134,8 +134,8 @@ object GmosGeometry:
 
         // Shapes at base position
         val baseShapes: SortedMap[Css, ShapeExpression] =
-          GmosGeometry.shapesForMode(posAngle, Offset.Zero, conf, port) ++
-            GmosGeometry.commonShapes(posAngle, candidatesVisibilityCss)
+          shapesForMode(posAngle, Offset.Zero, conf, port) ++
+            commonShapes(posAngle, candidatesVisibilityCss)
 
         // Don't show the probe if there is no usable GS
         val probe = gs

@@ -76,7 +76,7 @@ object AladinContainer {
       patrolFieldVisible <- useState(true)
       probeVisible       <- useState(true)
       fullScreen         <- useStateView(AladinFullScreen.Normal)
-      instrument         <- useState[InstrumentType](InstrumentType.GMOS)
+      instrument         <- useState[InstrumentType](InstrumentType.F2)
       gmosConf           <- useState(
                               BasicConfiguration.GmosSouthLongSlit(
                                 grating = GmosSouthGrating.R400_G5325,
@@ -160,7 +160,8 @@ object AladinContainer {
                 Angle.Angle0,
                 Area.MinArea
               )
-              .some
+              .some,
+            VisualizationStyles.GuideStarCandidateVisible
           )
       }
 

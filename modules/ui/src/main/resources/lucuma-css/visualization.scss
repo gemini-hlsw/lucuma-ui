@@ -111,10 +111,12 @@
     fill-opacity: 0.1;
   }
 
+  &.gmos-candidates-area-visible .f2-candidates-area,
   &.gmos-candidates-area-visible .gmos-candidates-area {
     display: inline;
   }
 
+  .f2-candidates-area,
   .gmos-candidates-area {
     display: none;
     fill-opacity: 0;
