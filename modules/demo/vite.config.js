@@ -25,6 +25,8 @@ export default ({ command, mode }) => {
       ],
     },
     server: {
+      host: '0.0.0.0',
+      allowedHosts: ['local.lucuma.xyz'],
       watch: {
         ignored: [
           function ignoreThisPath(_path) {

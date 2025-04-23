@@ -274,7 +274,7 @@
   display: none;
 }
 
-.p-menu.p-component.explore-aladin-settings-menu {
+.p-menu.p-component.gpp-aladin-settings-menu {
   background: var(--button-background-color-semi);
   border-color: var(--site-border-color);
   /* stylelint-disable-next-line csstools/value-no-unknown-custom-properties */
@@ -299,8 +299,8 @@
   }
 }
 
-.p-button.p-button-icon-only.explore-aladin-button,
-.p-button.explore-aladin-button {
+.p-button.p-button-icon-only.gpp-aladin-button,
+.p-button.gpp-aladin-button {
   background: var(--button-background-color-semi);
   border-color: var(--gray-500);
   padding: 0.3em;
@@ -331,7 +331,7 @@
   top: 40px;
 }
 
-.explore-aladin-zoom-control {
+.gpp-aladin-zoom-control {
   @include aladin-button-mixin;
 
   right: 10px;
@@ -340,11 +340,11 @@
   flex-direction: column;
 }
 
-.explore-aladin-search-zoom-control {
+.gpp-aladin-search-zoom-control {
   top: 40%;
 }
 
-.p-button.explore-aladin-fullscreen-button {
+.p-button.gpp-aladin-fullscreen-button {
   margin: 0;
 
   /* stylelint-disable-next-line selector-class-pattern */
@@ -353,21 +353,21 @@
   }
 }
 
-.explore-aladin-fullscreen-button {
+.gpp-aladin-fullscreen-button {
   @include aladin-button-mixin;
 
   right: 5px;
   top: 10px;
 }
 
-.explore-aladin-toolbox-button {
+.gpp-aladin-toolbox-button {
   @include aladin-button-mixin;
 
   top: 10px;
   left: 10px;
 
-  .p-button.p-button-icon-only.explore-aladin-button,
-  .p-button.explore-aladin-button {
+  .p-button.p-button-icon-only.gpp-aladin-button,
+  .p-button.gpp-aladin-button {
     position: absolute;
   }
 }

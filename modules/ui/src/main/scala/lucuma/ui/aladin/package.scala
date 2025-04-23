@@ -18,7 +18,10 @@ import scala.scalajs.js.JSConverters.*
  * @param y
  *   Vertical (Dec) field of view
  */
-case class Fov(x: Angle, y: Angle)
+case class Fov(x: Angle, y: Angle) {
+  def toStringAngle: String =
+    f"(x/RA: ${x.toDoubleDegrees}%2.3f, y/Dec: ${y.toDoubleDegrees}%1.3f)"
+}
 
 object Fov:
   def square(a: Angle): Fov = Fov(a, a)

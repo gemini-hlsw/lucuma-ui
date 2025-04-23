@@ -15,6 +15,7 @@ import lucuma.core.enums.SequenceType
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Offset
 import lucuma.react.common.Css
+import lucuma.react.common.ReactFnComponent
 import lucuma.react.common.ReactFnProps
 import lucuma.react.primereact.Tooltip
 import lucuma.ui.aladin.Fov
@@ -94,13 +95,10 @@ case class TargetsOverlay(
   screenOffset:    Offset,
   baseCoordinates: Coordinates,
   targets:         List[SVGTarget]
-) extends ReactFnProps(TargetsOverlay.component)
+) extends ReactFnProps(TargetsOverlay)
 
-object TargetsOverlay {
-  type Props = TargetsOverlay
-
-  val component =
-    ScalaFnComponent[Props] { p =>
+object TargetsOverlay
+    extends ReactFnComponent[TargetsOverlay](p =>
       val pixx = p.fov.x.toMicroarcseconds / p.width
       val pixy = p.fov.y.toMicroarcseconds / p.height
       val maxP = max(pixx, pixy)
@@ -246,5 +244,4 @@ object TargetsOverlay {
         React.Fragment.withKey(p.targets.length)((textTooltip +: guideStarTooltips)*)
 
       React.Fragment(svg, tooltips)
-    }
-}
+    )

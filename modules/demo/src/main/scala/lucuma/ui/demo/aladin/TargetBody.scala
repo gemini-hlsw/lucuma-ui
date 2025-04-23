@@ -12,6 +12,7 @@ import lucuma.react.common.*
 import lucuma.react.gridlayout.*
 import lucuma.react.resizeDetector.hooks.*
 import lucuma.ui.aladin.*
+import lucuma.ui.hooks.*
 import lucuma.ui.reusability.given
 
 import scala.annotation.nowarn
@@ -73,32 +74,32 @@ object AladinTile {
   given Reusability[Fov] = Reusability.derive
 
   val component =
-    ScalaFnComponent
-      .withHooks[Props]
-      .useResizeDetector()
-      .useStateViewWithReuse(Fov(Angle.fromDMS(0, 15, 0, 0, 0), Angle.fromDMS(0, 15, 0, 0, 0)))
-      .renderWithReuse { (props, s, fov) =>
-        <.div(
-          ^.height := "100%",
-          ^.width  := "100%",
-          ResponsiveReactGridLayout(
-            width = s.width.foldMap(_.toInt),
-            containerPadding = (1, 1),
-            rowHeight = 30,
-            draggableHandle = ".tileTitle",
-            useCSSTransforms = false, // Not ideal, but fixes flicker on first update (0.18.3).
-            layouts = layouts
-          )(
-            <.div(
-              ^.height := "100%",
-              ^.width  := "100%",
-              ^.key    := "target",
-              ^.cls    := "tile",
-              AladinContainer(fov, props.c)
-            )
+    ScalaFnComponent[Props]: props =>
+      for {
+        s   <- useResizeDetector
+        fov <- useStateViewWithReuse(
+                 Fov(Angle.fromDMS(0, 15, 0, 0, 0), Angle.fromDMS(0, 15, 0, 0, 0))
+               )
+      } yield <.div(
+        ^.height := "100%",
+        ^.width  := "100%",
+        ResponsiveReactGridLayout(
+          width = s.width.foldMap(_.toInt),
+          containerPadding = (1, 1),
+          rowHeight = 30,
+          draggableHandle = ".tileTitle",
+          useCSSTransforms = false, // Not ideal, but fixes flicker on first update (0.18.3).
+          layouts = layouts
+        )(
+          <.div(
+            ^.height := "100%",
+            ^.width  := "100%",
+            ^.key    := "target",
+            ^.cls    := "tile",
+            AladinContainer(fov, props.c)
           )
         )
-      }
+      )
 
 }
 
@@ -116,8 +117,10 @@ object TargetBody:
 
   val component =
     ScalaFnComponent[Props]: props =>
-      useResizeDetector.map: s =>
-        AladinTile(
-          Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
-          coords
-        )
+      for {
+        _ <- useTheme()
+        s <- useResizeDetector
+      } yield AladinTile(
+        Size(s.height.foldMap(_.toDouble), s.width.foldMap(_.toDouble)),
+        coords
+      )
