@@ -403,12 +403,25 @@ extension (o: ObservingMode.GmosSouthLongSlit)
     explicitSpatialOffsets = o.explicitSpatialOffsets.map(_.toList.map(_.toInput)).orUnassign
   )
 
+extension (o: ObservingMode.F2LongSlit)
+  def toInput: Flamingos2LongSlitInput = Flamingos2LongSlitInput(
+    disperser = o.disperser.assign,
+    filter = o.filter.assign,
+    fpu = o.fpu.assign,
+    explicitReadMode = o.explicitReadMode.orUnassign,
+    explicitReads = o.explicitReads.orUnassign,
+    explicitDecker = o.explicitDecker.orUnassign,
+    explicitReadoutMode = o.explicitReadoutMode.orUnassign
+  )
+
 extension (b: ObservingMode)
   def toInput: ObservingModeInput = b match
     case o: ObservingMode.GmosNorthLongSlit =>
       ObservingModeInput(gmosNorthLongSlit = o.toInput.assign)
     case o: ObservingMode.GmosSouthLongSlit =>
       ObservingModeInput(gmosSouthLongSlit = o.toInput.assign)
+    case o: ObservingMode.F2LongSlit        =>
+      ObservingModeInput(flamingos2LongSlit = o.toInput.assign)
 
 extension (i: BasicConfiguration)
   def toInput: ObservingModeInput = i match
@@ -428,6 +441,15 @@ extension (i: BasicConfiguration)
           filter = o.filter.orUnassign,
           fpu = o.fpu.assign,
           centralWavelength = o.centralWavelength.value.toInput.assign
+        ).assign
+      )
+
+    case o: BasicConfiguration.F2LongSlit =>
+      ObservingModeInput(
+        flamingos2LongSlit = Flamingos2LongSlitInput(
+          disperser = o.disperser.assign,
+          filter = o.filter.assign,
+          fpu = o.fpu.assign
         ).assign
       )
 

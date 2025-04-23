@@ -1129,7 +1129,7 @@ input ExposureTimeModeInput {
 
 """Time And Count exposure time mode parameters"""
 input TimeAndCountExposureTimeModeInput {
-  """Exposure time."""
+  """Exposure time, which must be greater than zero."""
   time: TimeSpanInput!
 
   """Exposure count."""
@@ -3462,6 +3462,11 @@ input ObservingModeInput {
   The gmosSouthLongSlit field must be either specified or skipped altogether.  It cannot be unset with a null value.
   """
   gmosSouthLongSlit: GmosSouthLongSlitInput
+
+  """
+  The flamingos2LongSlit field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  """
+  flamingos2LongSlit: Flamingos2LongSlitInput
 }
 
 """Edit science requirements"""
@@ -4900,6 +4905,9 @@ enum ObservingModeType {
 
   """ObservingModeType GmosSouthLongSlit"""
   GMOS_SOUTH_LONG_SLIT
+
+  """ObservingModeType Flamingos2LongSlit"""
+  FLAMINGOS_2LONG_SLIT
 }
 
 type ConstraintSet {
@@ -5413,10 +5421,10 @@ type ExposureTimeMode {
 """Flamingos2 Disperser"""
 enum Flamingos2Disperser {
   """Flamingos2Disperser R=1200 (J + H) grism"""
-  R1200JH
+  R1200_JH
 
   """Flamingos2Disperser R=1200 (H + K) grism"""
-  R1200HK
+  R1200_HK
 
   """Flamingos2Disperser R=3000 (J or H or K) grism"""
   R3000
@@ -5477,6 +5485,233 @@ enum Flamingos2Fpu {
 
   """Flamingos2Fpu 8-Pixel Long Slit"""
   LONG_SLIT_8
+}
+
+"""Flamingos2 Read Mode"""
+enum Flamingos2ReadMode {
+  """Flamingos2ReadMode Bright"""
+  BRIGHT
+
+  """Flamingos2ReadMode Medium"""
+  MEDIUM
+
+  """Flamingos2ReadMode Faint"""
+  FAINT
+}
+
+"""Flamingos2 Decker"""
+enum Flamingos2Decker {
+  """Flamingos2Decker Imaging"""
+  IMAGING
+
+  """Flamingos2Decker LongSlit"""
+  LONG_SLIT
+
+  """Flamingos2Decker MOS"""
+  MOS
+}
+
+"""Flamingos2 Readout Mode"""
+enum Flamingos2ReadoutMode {
+  """Flamingos2ReadoutMode Science"""
+  SCIENCE
+
+  """Flamingos2ReadoutMode Engineering"""
+  ENGINEERING
+}
+
+"""Flamingos2 Reads"""
+enum Flamingos2Reads {
+  """Flamingos2Reads Reads 1"""
+  READS_1
+
+  """Flamingos2Reads Reads 3"""
+  READS_3
+
+  """Flamingos2Reads Reads 4"""
+  READS_4
+
+  """Flamingos2Reads Reads 5"""
+  READS_5
+
+  """Flamingos2Reads Reads 6"""
+  READS_6
+
+  """Flamingos2Reads Reads 7"""
+  READS_7
+
+  """Flamingos2Reads Reads 8"""
+  READS_8
+
+  """Flamingos2Reads Reads 9"""
+  READS_9
+
+  """Flamingos2Reads Reads 10"""
+  READS_10
+
+  """Flamingos2Reads Reads 11"""
+  READS_11
+
+  """Flamingos2Reads Reads 12"""
+  READS_12
+
+  """Flamingos2Reads Reads 13"""
+  READS_13
+
+  """Flamingos2Reads Reads 14"""
+  READS_14
+
+  """Flamingos2Reads Reads 15"""
+  READS_15
+
+  """Flamingos2Reads Reads 16"""
+  READS_16
+}
+
+"""Flamingos2 Window Cover"""
+enum Flamingos2WindowCover {
+  """Flamingos2WindowCover Open"""
+  OPEN
+
+  """Flamingos2WindowCover CLOSE"""
+  CLOSE
+}
+
+"""Flamingos2 South Long Slit mode"""
+type Flamingos2LongSlit {
+  """
+  The disperser field must be specified.  It cannot be unset with a null value.
+  """
+  disperser: Flamingos2Disperser!
+
+  """
+  The filter field must be specified.  It cannot be unset with a null value.
+  """
+  filter: Flamingos2Filter!
+
+  """
+  The fpu field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  """
+  fpu: Flamingos2Fpu!
+
+  """
+  The read mode is either explicitly specified in explicitReadMode or else taken
+  from defaultReadMode
+  """
+  readMode: Flamingos2ReadMode!
+
+  """Default read mode, calculated based on the exposure time"""
+  defaultReadMode: Flamingos2ReadMode!
+
+  """
+  Optional explicitly specified F2 ReadMode. If set it overrides the
+  default.
+  """
+  explicitReadMode: Flamingos2ReadMode
+
+  """
+  F2 reads, either explicitly specified in explicitReads or else taken
+  from the defaultXReads
+  """
+  reads: Flamingos2Reads!
+
+  """
+  Default reads, calculated from the selected read mode which in
+  turn is based on the exposure time
+  """
+  defaultReads: Flamingos2Reads!
+
+  """
+  Optional explicitly specified F2 Reads. If set it overrides the
+  default.
+  """
+  explicitReads: Flamingos2Reads
+
+  """
+  The decker field is either explicitly specified in explicitDecker or else taken
+  from defaultDecker
+  """
+  decker: Flamingos2Decker!
+
+  """Default decker, calculated based on the exposure time"""
+  defaultDecker: Flamingos2Decker!
+
+  """
+  Optional explicitly specified F2 Decker. If set it overrides the
+  default.
+  """
+  explicitDecker: Flamingos2Decker
+
+  """
+  The readoutMode field is either explicitly specified in explicitReadoutMode or else taken
+  from defaultReadoutMode
+  """
+  readoutMode: Flamingos2ReadoutMode!
+
+  """Default readout mode, science"""
+  defaultReadoutMode: Flamingos2ReadoutMode!
+
+  """
+  Optional explicitly specified F2 Readout mode. If set it overrides the
+  default.
+  """
+  explicitReadoutMode: Flamingos2ReadoutMode
+
+  """
+  The disperser as it was initially selected.  See the `disperser` field for the
+  disperser that will be used in the observation.
+  """
+  initialDisperser: Flamingos2Disperser!
+
+  """
+  The filter as it was initially selected (if any).  See the `filter` field
+  for the filter that will be used in the observation.
+  """
+  initialFilter: Flamingos2Filter!
+
+  """
+  The FPU as it was initially selected.  See the `fpu` field for the FPU that
+  will be used in the observation.
+  """
+  initialFpu: Flamingos2Fpu!
+}
+
+"""Edit or create Flamingos2 Long Slit advanced configuration"""
+input Flamingos2LongSlitInput {
+  """
+  The disperser field must be specified.  It cannot be unset with a null value.
+  """
+  disperser: Flamingos2Disperser
+
+  """
+  The filter field may be unset by assigning a null value, or ignored by skipping it altogether
+  """
+  filter: Flamingos2Filter
+
+  """
+  The fpu field must be specified.  It cannot be unset with a null value.
+  """
+  fpu: Flamingos2Fpu
+
+  """
+  The read mode field may be unset by assigning a null value, or ignored by skipping it altogether
+  """
+  explicitReadMode: Flamingos2ReadMode
+
+  """
+  The reads field may be unset by assigning a null value, or ignored by skipping it altogether
+  """
+  explicitReads: Flamingos2Reads
+
+  """
+  The decker field may be unset by assigning a null value, or ignored by skipping it altogether
+  """
+  explicitDecker: Flamingos2Decker
+
+  """
+  The readoutMode field may be unset by assigning a null value, or ignored by skipping it altogether
+  """
+  explicitReadoutMode: Flamingos2ReadoutMode
 }
 
 """Metadata for `enum FilterType`"""
@@ -7942,6 +8177,9 @@ type ObservingMode {
 
   """GMOS South Long Slit mode"""
   gmosSouthLongSlit: GmosSouthLongSlit
+
+  """Flamingos 2 Long Slit mode"""
+  flamingos2LongSlit: Flamingos2LongSlit
 }
 
 type ObservingModeGroup {
@@ -9384,7 +9622,10 @@ interface TimeChargeDiscount {
   interval: TimestampInterval!
 
   """Time amount to discount from the program."""
-  program: TimeSpan!
+  program: TimeSpan! @deprecated(reason: "renamed to 'amount'")
+
+  """Time amount to discount from the program."""
+  amount: TimeSpan!
 
   """Additional detail."""
   comment: String!
@@ -9400,7 +9641,10 @@ type TimeChargeDaylightDiscount implements TimeChargeDiscount {
   interval: TimestampInterval!
 
   """Time amount to discount from the program."""
-  program: TimeSpan!
+  program: TimeSpan! @deprecated(reason: "renamed to 'amount'")
+
+  """Time amount to discount from the program."""
+  amount: TimeSpan!
 
   """Additional detail."""
   comment: String!
@@ -9418,10 +9662,35 @@ type TimeChargeNoDataDiscount implements TimeChargeDiscount {
   interval: TimestampInterval!
 
   """Time amount to discount from the program."""
-  program: TimeSpan!
+  program: TimeSpan! @deprecated(reason: "renamed to 'amount'")
+
+  """Time amount to discount from the program."""
+  amount: TimeSpan!
 
   """Additional detail."""
   comment: String!
+}
+
+"""
+A time charge discount that is applied when part of the observation is executed
+after an overlapping chargeable observation is started.  For example, when
+writing out datasets while slewing to a new target.
+"""
+type TimeChargeOverlapDiscount implements TimeChargeDiscount {
+  """The interval during which this discount applies."""
+  interval: TimestampInterval!
+
+  """Time amount to discount from the program."""
+  program: TimeSpan! @deprecated(reason: "renamed to 'amount'")
+
+  """Time amount to discount from the program."""
+  amount: TimeSpan!
+
+  """Additional detail."""
+  comment: String!
+
+  """The overlapping observation."""
+  observation: Observation!
 }
 
 type TimeChargeQaDiscount implements TimeChargeDiscount {
@@ -9429,7 +9698,10 @@ type TimeChargeQaDiscount implements TimeChargeDiscount {
   interval: TimestampInterval!
 
   """Time amount to discount from the program."""
-  program: TimeSpan!
+  program: TimeSpan! @deprecated(reason: "renamed to 'amount'")
+
+  """Time amount to discount from the program."""
+  amount: TimeSpan!
 
   """Additional detail."""
   comment: String!

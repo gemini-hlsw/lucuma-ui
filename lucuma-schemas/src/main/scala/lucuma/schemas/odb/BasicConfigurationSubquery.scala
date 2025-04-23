@@ -23,5 +23,10 @@ object BasicConfigurationSubquery
             fpu
             centralWavelength $WavelengthSubquery
           }
+          flamingos2LongSlit {
+            disperser
+            filter
+            fpu
+          }
         }
       """

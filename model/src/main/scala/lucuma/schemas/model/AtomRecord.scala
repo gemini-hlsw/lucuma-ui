@@ -14,7 +14,7 @@ import lucuma.schemas.model.enums.AtomExecutionState
 import monocle.Focus
 import monocle.Lens
 
-enum AtomRecord[+D] derives Eq:
+enum AtomRecord[+D]:
   def id: Atom.Id
   def created: Timestamp
   def executionState: AtomExecutionState
@@ -44,6 +44,8 @@ enum AtomRecord[+D] derives Eq:
   ) extends AtomRecord[DynamicConfig.GmosSouth]
 
 object AtomRecord:
+  given [A](using Eq[A]): Eq[AtomRecord[A]] = Eq.derived
+
   object GmosNorth:
     given Eq[GmosNorth] = Eq.derived
 
