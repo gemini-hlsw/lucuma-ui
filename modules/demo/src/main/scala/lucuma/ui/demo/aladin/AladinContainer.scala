@@ -32,6 +32,9 @@ import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
+import lucuma.core.enums.F2Fpu
+import lucuma.core.enums.F2Disperser
+import lucuma.core.enums.F2Filter
 
 case class AladinContainer(
   fov:         ReuseView[Fov],
@@ -43,6 +46,10 @@ case class AladinContainer(
 extension (o: Offset)
   def toStringOffset: String =
     f"(p: ${o.p.toAngle.toMicroarcseconds / 1e6}%2.3f, q: ${o.q.toAngle.toMicroarcseconds / 1e6}%2.3f)"
+
+enum InstrumentType:
+  case GMOS, F2
+
 object AladinContainer {
   type Props = AladinContainer
 
@@ -69,12 +76,20 @@ object AladinContainer {
       patrolFieldVisible <- useState(true)
       probeVisible       <- useState(true)
       fullScreen         <- useStateView(AladinFullScreen.Normal)
-      conf               <- useState(
+      instrument         <- useState[InstrumentType](InstrumentType.GMOS)
+      gmosConf           <- useState(
                               BasicConfiguration.GmosSouthLongSlit(
                                 grating = GmosSouthGrating.R400_G5325,
                                 filter = GmosSouthFilter.HeII.some,
                                 fpu = GmosSouthFpu.LongSlit_2_00,
                                 centralWavelength = CentralWavelength(Wavelength.fromIntNanometers(500).get)
+                              )
+                            )
+      f2Conf             <- useState(
+                              BasicConfiguration.F2LongSlit(
+                                disperser = F2Disperser.R1200HK,
+                                filter = F2Filter.H,
+                                fpu = F2Fpu.LongSlit2
                               )
                             )
 
@@ -99,27 +114,55 @@ object AladinContainer {
           v.onZoomCB(onZoom(v)) *> // re render on zoom
           v.onPositionChangedCB(onPositionChanged)
 
-      val gs = props.coordinates
+      val gs          = props.coordinates
+      //
+      // Get the appropriate configuration based on selected instrument
+      val currentConf = instrument.value match {
+        case InstrumentType.GMOS => gmosConf.value.some
+        case InstrumentType.F2   =>
+          f2Conf.value.some
+      }
 
-      val shapes = GmosGeometry.gmosGeometry(
-        props.coordinates,
-        None,
-        None,
-        Angle.Angle0.some,
-        conf.value.some,
-        PortDisposition.Side,
-        AgsAnalysis
-          .Usable(
-            GuideProbe.GmosOIWFS,
-            GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
-            GuideSpeed.Fast,
-            AgsGuideQuality.DeliversRequestedIq,
-            Angle.Angle0,
-            Area.MinArea
+      val shapes = instrument.value match {
+        case InstrumentType.GMOS =>
+          GmosGeometry.gmosGeometry(
+            props.coordinates,
+            None,
+            None,
+            Angle.Angle0.some,
+            currentConf,
+            PortDisposition.Side,
+            AgsAnalysis
+              .Usable(
+                GuideProbe.GmosOIWFS,
+                GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
+                GuideSpeed.Fast,
+                AgsGuideQuality.DeliversRequestedIq,
+                Angle.Angle0,
+                Area.MinArea
+              )
+              .some,
+            VisualizationStyles.GuideStarCandidateVisible
           )
-          .some,
-        VisualizationStyles.GuideStarCandidateVisible
-      )
+        case InstrumentType.F2   =>
+          Flamingos2Geometry.f2Geometry(
+            props.coordinates,
+            None,
+            None,
+            Angle.Angle0.some,
+            currentConf,
+            AgsAnalysis
+              .Usable(
+                GuideProbe.GmosOIWFS,
+                GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
+                GuideSpeed.Fast,
+                AgsGuideQuality.DeliversRequestedIq,
+                Angle.Angle0,
+                Area.MinArea
+              )
+              .some
+          )
+      }
 
       def toggler(
         id:    String,
@@ -160,8 +203,12 @@ object AladinContainer {
                   s,
                   clazz = VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
                     VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
-                    VisualizationStyles.GmosCandidatesAreaVisible.when_(candidatesVisible.value) |+|
-                    VisualizationStyles.GmosPatrolFieldVisible.when_(patrolFieldVisible.value) |+|
+                    VisualizationStyles.GmosCandidatesAreaVisible.when_(
+                      candidatesVisible.value
+                    ) |+|
+                    VisualizationStyles.GmosPatrolFieldVisible.when_(
+                      patrolFieldVisible.value
+                    ) |+|
                     VisualizationStyles.GmosProbeVisible.when_(probeVisible.value)
                 )
               ),
@@ -174,7 +221,9 @@ object AladinContainer {
                   currentPos.value.diff(props.coordinates).offset,
                   props.coordinates,
                   List(
-                    SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
+                    SVGTarget
+                      .CrosshairTarget(props.coordinates, Css("science-target"), 10)
+                      .some,
                     gs.some.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
                   ).flatten
                 )
@@ -213,33 +262,95 @@ object AladinContainer {
               ),
               <.div(
                 Css("config-controls"),
-                <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
+                <.label(^.htmlFor := "instrument-selector", "Select Instrument:"),
                 <.select(
-                  ^.id    := "fpu-selector",
-                  ^.value := conf.value.fpu.tag,
+                  ^.id    := "instrument-selector",
+                  ^.value := (instrument.value match {
+                    case InstrumentType.GMOS => "gmos"
+                    case InstrumentType.F2   => "f2"
+                  }),
                   ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                    Enumerated[GmosSouthFpu]
-                      .fromTag(r.target.value)
-                      .map(fpu =>
-                        conf.setState(
-                          conf.value.copy(fpu = fpu)
-                        )
-                      )
-                      .getOrElse(Callback.empty)
+                    r.target.value match {
+                      case "gmos" => instrument.setState(InstrumentType.GMOS)
+                      case "f2"   => instrument.setState(InstrumentType.F2)
+                      case _      => Callback.empty
+                    }
                   )
                 )(
-                  Enumerated[GmosSouthFpu].all
-                    .filter(_.tag.startsWith("LongSlit"))
-                    .map(fpu =>
-                      <.option(
-                        ^.key   := fpu.tag,
-                        ^.value := fpu.tag,
-                        fpu.longName
-                      )
-                    )
-                    .toTagMod
+                  <.option(
+                    ^.key   := "gmos",
+                    ^.value := "gmos",
+                    "GMOS"
+                  ),
+                  <.option(
+                    ^.key   := "f2",
+                    ^.value := "f2",
+                    "Flamingos2"
+                  )
                 )
-              )
+              ),
+              instrument.value match {
+                case InstrumentType.GMOS =>
+                  <.div(
+                    Css("config-controls"),
+                    <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
+                    <.select(
+                      ^.id    := "fpu-selector",
+                      ^.value := gmosConf.value.fpu.tag,
+                      ^.onChange ==> ((r: ReactUIEventFromInput) =>
+                        Enumerated[GmosSouthFpu]
+                          .fromTag(r.target.value)
+                          .map(fpu =>
+                            gmosConf.setState(
+                              gmosConf.value.copy(fpu = fpu)
+                            )
+                          )
+                          .getOrElse(Callback.empty)
+                      )
+                    )(
+                      Enumerated[GmosSouthFpu].all
+                        .filter(_.tag.startsWith("LongSlit"))
+                        .map(fpu =>
+                          <.option(
+                            ^.key   := fpu.tag,
+                            ^.value := fpu.tag,
+                            fpu.longName
+                          )
+                        )
+                        .toTagMod
+                    )
+                  )
+                case InstrumentType.F2   =>
+                  <.div(
+                    Css("config-controls"),
+                    <.label(^.htmlFor := "f2-fpu-selector", "Select F2 FPU:"),
+                    <.select(
+                      ^.id    := "f2-fpu-selector",
+                      ^.value := f2Conf.value.fpu.tag,
+                      ^.onChange ==> ((r: ReactUIEventFromInput) =>
+                        Enumerated[F2Fpu]
+                          .fromTag(r.target.value)
+                          .map(fpu =>
+                            f2Conf.setState(
+                              f2Conf.value.copy(fpu = fpu)
+                            )
+                          )
+                          .getOrElse(Callback.empty)
+                      )
+                    )(
+                      Enumerated[F2Fpu].all
+                        .filter(_.tag.startsWith("LongSlit"))
+                        .map(fpu =>
+                          <.option(
+                            ^.key   := fpu.tag,
+                            ^.value := fpu.tag,
+                            fpu.longName
+                          )
+                        )
+                        .toTagMod
+                    )
+                  )
+              }
             )
           )
         else EmptyVdom

@@ -41,3 +41,9 @@ object VisualizationStyles:
   val GmosCandidatesAreaVisible: Css = Css("gmos-candidates-area-visible")
   val GmosPatrolFieldVisible: Css    = Css("gmos-patrol-field-visible")
   val GmosProbeVisible: Css          = Css("gmos-probe-visible")
+  
+  // Flamingos2-specific styles
+  val F2ScienceArea: Css             = Css("f2-science-area")
+  val F2Fpu: Css                     = Css("f2-fpu")
+  val F2FpuVisible: Css              = Css("f2-fpu-visible")
+  val F2ScienceAreaVisible: Css      = Css("f2-science-area-visible")
