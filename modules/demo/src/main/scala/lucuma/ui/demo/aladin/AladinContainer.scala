@@ -185,6 +185,29 @@ object AladinContainer {
           )
         )
 
+      def visibilityClasses = instrument.value match {
+        case InstrumentType.GMOS =>
+          VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
+            VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
+            VisualizationStyles.GmosCandidatesAreaVisible.when_(
+              candidatesVisible.value
+            ) |+|
+            VisualizationStyles.GmosPatrolFieldVisible.when_(
+              patrolFieldVisible.value
+            ) |+|
+            VisualizationStyles.GmosProbeVisible.when_(probeVisible.value)
+        case InstrumentType.F2   =>
+          VisualizationStyles.F2FpuVisible.when_(fpuVisible.value) |+|
+            VisualizationStyles.F2ScienceAreaVisible.when_(ccdVisible.value) |+|
+            VisualizationStyles.F2CandidatesAreaVisible.when_(
+              candidatesVisible.value
+            ) |+|
+            VisualizationStyles.F2PatrolFieldVisible.when_(
+              patrolFieldVisible.value
+            ) |+|
+            VisualizationStyles.F2ProbeArmVisible.when_(probeVisible.value)
+      }
+
       <.div(
         Css("react-aladin-container"),
         aladinRef.value.map(AladinZoomControl(_)),
@@ -202,15 +225,7 @@ object AladinContainer {
                   props.fov.get,
                   screenOffset,
                   s,
-                  clazz = VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
-                    VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
-                    VisualizationStyles.GmosCandidatesAreaVisible.when_(
-                      candidatesVisible.value
-                    ) |+|
-                    VisualizationStyles.GmosPatrolFieldVisible.when_(
-                      patrolFieldVisible.value
-                    ) |+|
-                    VisualizationStyles.GmosProbeVisible.when_(probeVisible.value)
+                  clazz = visibilityClasses
                 )
               ),
             (resize.width, resize.height)

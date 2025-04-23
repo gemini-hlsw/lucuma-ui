@@ -43,8 +43,13 @@ object VisualizationStyles:
   val GmosProbeVisible: Css          = Css("gmos-probe-visible")
 
   // Flamingos2-specific styles
-  val F2ScienceArea: Css        = Css("f2-science-area")
-  val F2Fpu: Css                = Css("f2-fpu")
-  val F2FpuVisible: Css         = Css("f2-fpu-visible")
-  val F2ScienceAreaVisible: Css = Css("f2-science-area-visible")
-  val F2CandidatesArea: Css     = Css("f2-candidates-area")
+  val F2ScienceArea: Css           = Css("f2-science-ccd")
+  val F2ScienceAreaVisible: Css    = Css("f2-science-ccd-visible")
+  val F2Fpu: Css                   = Css("f2-fpu")
+  val F2FpuVisible: Css            = Css("f2-fpu-visible")
+  val F2CandidatesArea: Css        = Css("f2-candidates-area")
+  val F2CandidatesAreaVisible: Css = Css("f2-candidates-area-visible")
+  val F2ProbeArm: Css              = Css("f2-probe-arm")
+  val F2ProbeArmVisible: Css       = Css("f2-probe-arm-visible")
+  val F2PatrolField: Css           = Css("f2-patrol-field")
+  val F2PatrolFieldVisible: Css    = Css("f2-patrol-field-visible")
