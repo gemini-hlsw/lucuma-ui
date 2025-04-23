@@ -76,6 +76,8 @@ object GmosGeometry:
         gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
       case m: BasicConfiguration.GmosSouthLongSlit =>
         gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
+      case m: BasicConfiguration.F2LongSlit        =>
+        ShapeExpression.Empty
     }
 
   // Shape to display always
