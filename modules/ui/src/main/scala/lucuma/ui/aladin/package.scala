@@ -6,11 +6,9 @@ package lucuma.ui.aladin
 import lucuma.core.math.*
 import lucuma.react.common.*
 import lucuma.ui.aladin.facade.*
-import lucuma.ui.reusability.given
 
 import scala.scalajs.js
 import scala.scalajs.js.JSConverters.*
-import japgolly.scalajs.react.Reusability
 
 /**
  * ALadin field of view angles horizontally and vertically
@@ -27,8 +25,6 @@ case class Fov(x: Angle, y: Angle) {
 
 object Fov:
   def square(a: Angle): Fov = Fov(a, a)
-
-  given Reusability[Fov] = Reusability.derive
 
 case class PositionChanged(ra: RightAscension, dec: Declination, dragging: Boolean)
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2016-2023 Association of Universities for Research in Astronomy, Inc. (AURA)
+// Copyright (c) 2016-2025 Association of Universities for Research in Astronomy, Inc. (AURA)
 // For license information see LICENSE or https://opensource.org/licenses/BSD-3-Clause
 
 package lucuma.ui.aladin
@@ -31,12 +31,12 @@ object AladinZoomControl {
         Button(
           clazz = AladinStyles.ButtonOnAladin,
           icon = LucumaIcons.ThinPlus,
-          onClick = p.aladinRef.increaseZoomCB(factor)
+          onClick = p.aladinRef.increaseZoomCB
         ).small,
         Button(
           clazz = AladinStyles.ButtonOnAladin,
           icon = LucumaIcons.ThinMinus,
-          onClick = p.aladinRef.decreaseZoomCB(factor)
+          onClick = p.aladinRef.decreaseZoomCB
         ).small
       )
     )

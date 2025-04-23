@@ -39,6 +39,9 @@ case class AladinContainer(
   val aladinCoordsStr: String = Coordinates.fromHmsDms.reverseGet(coordinates)
 }
 
+extension (o: Offset)
+  def toStringOffset: String =
+    f"(p: ${o.p.toAngle.toMicroarcseconds / 1e6}%2.3f, q: ${o.q.toAngle.toMicroarcseconds / 1e6}%2.3f)"
 object AladinContainer {
   type Props = AladinContainer
 
@@ -78,19 +81,23 @@ object AladinContainer {
        * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
        * keep the internal target correct
        */
-      def onPositionChanged(u: PositionChanged): Callback =
-        currentPos.setState(Coordinates(u.ra, u.dec))
 
-      def onZoom = (v: Fov) => props.fov.set(v)
+      def onPositionChanged(u: PositionChanged): Callback = {
+        val viewCoords = Coordinates(u.ra, u.dec)
+        currentPos.setState(viewCoords)
+      }
+
+      val screenOffset =
+        currentPos.value.diff(props.coordinates).offset
+
+      def onZoom(aladin: Aladin) = (v: Fov) => props.fov.set(v)
 
       def customizeAladin(v: Aladin): Callback =
         aladinRef.setState(Some(v)) *>
-          v.fixLayoutDimensionsCB *>
-          v.onZoomCB(onZoom) *> // re render on zoom
+          v.onZoomCB(onZoom(v)) *> // re render on zoom
           v.onPositionChangedCB(onPositionChanged)
 
-      val gs =
-        props.coordinates // .offsetBy(Angle.Angle0, GmosGeometry.guideStarOffset)
+      val gs = props.coordinates
 
       val shapes = GmosGeometry.gmosGeometry(
         props.coordinates,
@@ -173,13 +180,14 @@ object AladinContainer {
               Css("react-aladin") |+| Css("test").when_(flip.value),
               AladinOptions(
                 showReticle = true,
-                showLayersControl = true,
+                showLayersControl = false,
                 target = props.aladinCoordsStr,
                 fov = props.fov.get.x,
                 showGotoControl = false,
+                showZoomControl = false,
                 showCooLocation = true,
                 showFullscreenControl = false,
-                showZoomControl = false
+                showProjectionControl = false
               ),
               customize = customizeAladin(_)
             ),
@@ -190,7 +198,7 @@ object AladinContainer {
                 <.label("FOV: ", props.fov.get.toStringAngle),
                 <.label("Coord: ", props.aladinCoordsStr),
                 <.label("Pos: ", currentPos.value.toString),
-                <.label("Offset: ", currentPos.value.diff(props.coordinates).offset.toString)
+                <.label("Offset: ", currentPos.value.diff(props.coordinates).offset.toStringOffset)
               ),
               <.div(
                 Css("config-togglers"),
