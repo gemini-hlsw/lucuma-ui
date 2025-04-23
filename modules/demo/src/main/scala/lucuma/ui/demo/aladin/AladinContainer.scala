@@ -6,6 +6,7 @@ package demo
 import cats.data.NonEmptyMap
 import cats.implicits.*
 import crystal.react.ReuseView
+import crystal.react.hooks.*
 import crystal.react.reuse.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.feature.ReactFragment
@@ -67,6 +68,7 @@ object AladinContainer {
       candidatesVisible  <- useState(true)
       patrolFieldVisible <- useState(true)
       probeVisible       <- useState(true)
+      fullScreen         <- useStateView(AladinFullScreen.Normal)
       conf               <- useState(
                               BasicConfiguration.GmosSouthLongSlit(
                                 grating = GmosSouthGrating.R400_G5325,
@@ -142,6 +144,7 @@ object AladinContainer {
       <.div(
         Css("react-aladin-container"),
         aladinRef.value.map(AladinZoomControl(_)),
+        AladinFullScreenControl(fullScreen),
         // This happens during a second render. If we let the height to be zero, aladin
         // will take it as 1. This height ends up being a denominator, which, if low,
         // will make aladin request a large amount of tiles and end up freezing the demo.

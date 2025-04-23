@@ -6,5 +6,7 @@ package lucuma.ui.aladin
 import lucuma.react.common.Css
 
 object AladinStyles:
-  val AladinZoomControl = Css("explore-aladin-zoom-control")
-  val ButtonOnAladin    = Css("explore-aladin-button")
+  val AladinZoomControl = Css("gpp-aladin-zoom-control")
+  val ButtonOnAladin    = Css("gpp-aladin-button")
+
+  val AladinFullScreenButton = Css("gpp-aladin-fullscreen-button")

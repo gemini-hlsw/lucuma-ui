@@ -41,22 +41,3 @@ object AladinZoomControl {
       )
     )
 }
-
-// case class AladinFullScreenControl(
-//   fullScreen: View[AladinFullScreen]
-// ) extends ReactFnProps(AladinFullScreenControl.component)
-//
-// object AladinFullScreenControl {
-//   private type Props = AladinFullScreenControl
-//
-//   private val component =
-//     ScalaFnComponent[Props](p =>
-//       Button(onClick = p.fullScreen.mod(_.flip))
-//         .withMods(
-//           AladinStyles.ButtonOnAladin |+| AladinStyles.AladinFullScreenButton,
-//           LucumaIcons.ExpandDiagonal.unless(p.fullScreen.get.value),
-//           LucumaIcons.ContractDiagonal.when(p.fullScreen.get.value)
-//         )
-//         .small
-//     )
-// }
