@@ -92,6 +92,7 @@ object AladinContainer {
                                 fpu = F2Fpu.LongSlit2
                               )
                             )
+      portDisposition    <- useState(PortDisposition.Side)
 
     } yield
       /**
@@ -131,7 +132,7 @@ object AladinContainer {
             None,
             Angle.Angle0.some,
             currentConf,
-            PortDisposition.Side,
+            portDisposition.value,
             AgsAnalysis
               .Usable(
                 GuideProbe.GmosOIWFS,
@@ -151,7 +152,7 @@ object AladinContainer {
             None,
             Angle.Angle0.some,
             currentConf,
-            PortDisposition.Side,
+            portDisposition.value,
             AgsAnalysis
               .Usable(
                 GuideProbe.GmosOIWFS,
@@ -304,6 +305,25 @@ object AladinContainer {
                     ^.value := "f2",
                     "Flamingos2"
                   )
+                ),
+                <.label(^.htmlFor := "port-selector", "Select Port Disposition:"),
+                <.select(
+                  ^.id    := "port-selector",
+                  ^.value := portDisposition.value.tag,
+                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
+                    Enumerated[PortDisposition]
+                      .fromTag(r.target.value)
+                      .map(port => portDisposition.setState(port))
+                      .getOrElse(Callback.empty)
+                  )
+                )(
+                  Enumerated[PortDisposition].all.map(port =>
+                    <.option(
+                      ^.key   := port.tag,
+                      ^.value := port.tag,
+                      port.tag.capitalize
+                    )
+                  ).toTagMod
                 )
               ),
               instrument.value match {
