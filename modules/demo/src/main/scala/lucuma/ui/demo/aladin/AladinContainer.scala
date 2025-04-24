@@ -93,6 +93,7 @@ object AladinContainer {
                               )
                             )
       portDisposition    <- useState(PortDisposition.Side)
+      posAngle           <- useState(Angle.Angle0)
 
     } yield
       /**
@@ -130,7 +131,7 @@ object AladinContainer {
             props.coordinates,
             None,
             None,
-            Angle.Angle0.some,
+            posAngle.value.some,
             currentConf,
             portDisposition.value,
             AgsAnalysis
@@ -139,7 +140,7 @@ object AladinContainer {
                 GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
                 GuideSpeed.Fast,
                 AgsGuideQuality.DeliversRequestedIq,
-                Angle.Angle0,
+                posAngle.value,
                 Area.MinArea
               )
               .some,
@@ -150,7 +151,7 @@ object AladinContainer {
             props.coordinates,
             None,
             None,
-            Angle.Angle0.some,
+            posAngle.value.some,
             currentConf,
             portDisposition.value,
             AgsAnalysis
@@ -159,7 +160,7 @@ object AladinContainer {
                 GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
                 GuideSpeed.Fast,
                 AgsGuideQuality.DeliversRequestedIq,
-                Angle.Angle0,
+                posAngle.value,
                 Area.MinArea
               )
               .some,
@@ -268,7 +269,8 @@ object AladinContainer {
                 <.label("FOV: ", props.fov.get.toStringAngle),
                 <.label("Coord: ", props.aladinCoordsStr),
                 <.label("Pos: ", currentPos.value.toString),
-                <.label("Offset: ", currentPos.value.diff(props.coordinates).offset.toStringOffset)
+                <.label("Offset: ", currentPos.value.diff(props.coordinates).offset.toStringOffset),
+                <.label("PA: ", s"${posAngle.value.toDoubleDegrees}°")
               ),
               <.div(
                 Css("config-togglers"),
@@ -280,7 +282,7 @@ object AladinContainer {
               ),
               <.div(
                 Css("config-controls"),
-                <.label(^.htmlFor := "instrument-selector", "Select Instrument:"),
+                <.label(^.htmlFor     := "instrument-selector", "Select Instrument:"),
                 <.select(
                   ^.id    := "instrument-selector",
                   ^.value := (instrument.value match {
@@ -306,7 +308,7 @@ object AladinContainer {
                     "Flamingos2"
                   )
                 ),
-                <.label(^.htmlFor := "port-selector", "Select Port Disposition:"),
+                <.label(^.htmlFor     := "port-selector", "Select Port Disposition:"),
                 <.select(
                   ^.id    := "port-selector",
                   ^.value := portDisposition.value.tag,
@@ -317,13 +319,30 @@ object AladinContainer {
                       .getOrElse(Callback.empty)
                   )
                 )(
-                  Enumerated[PortDisposition].all.map(port =>
-                    <.option(
-                      ^.key   := port.tag,
-                      ^.value := port.tag,
-                      port.tag.capitalize
+                  Enumerated[PortDisposition].all
+                    .map(port =>
+                      <.option(
+                        ^.key   := port.tag,
+                        ^.value := port.tag,
+                        port.tag.capitalize
+                      )
                     )
-                  ).toTagMod
+                    .toTagMod
+                ),
+                <.label(^.htmlFor     := "pa-input", "Position Angle (°):"),
+                <.input(
+                  ^.`type` := "number",
+                  ^.id     := "pa-input",
+                  ^.min    := "0",
+                  ^.max    := "360",
+                  ^.step   := "5",
+                  ^.value  := posAngle.value.toDoubleDegrees.toString,
+                  ^.onChange ==> ((e: ReactEventFromInput) =>
+                    e.target.value.toDoubleOption
+                      .map(Angle.fromDoubleDegrees)
+                      .map(posAngle.setState)
+                      .getOrEmpty
+                  )
                 )
               ),
               instrument.value match {
