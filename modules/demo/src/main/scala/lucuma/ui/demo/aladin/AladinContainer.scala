@@ -151,6 +151,7 @@ object AladinContainer {
             None,
             Angle.Angle0.some,
             currentConf,
+            PortDisposition.Side,
             AgsAnalysis
               .Usable(
                 GuideProbe.GmosOIWFS,

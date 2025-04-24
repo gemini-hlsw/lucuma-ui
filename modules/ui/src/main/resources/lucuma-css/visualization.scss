@@ -56,19 +56,24 @@
     vector-effect: non-scaling-stroke;
   }
 
+  &.f2-probe-arm-visible .f2-probe-arm,
   &.gmos-probe-visible .gmos-probe-arm {
     display: inline;
   }
 
+  .f2-probe-arm,
   .gmos-probe-arm {
     display: none;
     stroke: hsl(0deg 67.9% 41.6%);
   }
 
+
+  &.f2-patrol-field-visible .f2-patrol-field,
   &.gmos-patrol-field-visible .gmos-patrol-field {
     display: inline;
   }
 
+  .f2-patrol-field,
   .gmos-patrol-field {
     stroke: hsl(120deg 100% 50%);
     display: none;
