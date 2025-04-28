@@ -37,13 +37,17 @@ object GmosGeometry:
         SortedMap(
           (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
           (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asLeft.some)),
-          (GmosPatrolField, gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port))
+          (GmosPatrolField,
+           gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
+          )
         )
       case Some(m: BasicConfiguration.GmosSouthLongSlit) =>
         SortedMap(
           (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
           (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asRight.some)),
-          (GmosPatrolField, gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port))
+          (GmosPatrolField,
+           gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
+          )
         )
       case _                                             =>
         SortedMap(
@@ -73,9 +77,9 @@ object GmosGeometry:
   ): ShapeExpression =
     configuration match {
       case m: BasicConfiguration.GmosNorthLongSlit =>
-        gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
+        gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
       case m: BasicConfiguration.GmosSouthLongSlit =>
-        gmos.probeArm.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
+        gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
       case m: BasicConfiguration.F2LongSlit        =>
         ShapeExpression.Empty
     }
@@ -83,7 +87,7 @@ object GmosGeometry:
   // Shape to display always
   def commonShapes(posAngle: Angle, extraCss: Css): SortedMap[Css, ShapeExpression] =
     SortedMap(
-      (GmosCandidatesArea |+| extraCss, gmos.probeArm.candidatesAreaAt(posAngle, Offset.Zero))
+      (GmosCandidatesArea |+| extraCss, gmos.candidatesArea.candidatesAreaAt(posAngle, Offset.Zero))
     )
 
   // Shape to display always
