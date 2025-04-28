@@ -5458,6 +5458,9 @@ enum Flamingos2Filter {
 
   """Flamingos2Filter K-blue (2.06 um)"""
   K_BLUE
+
+  """Flamingos2Filter K-red (2.31 um)"""
+  K_RED
 }
 
 """Flamingos2 FPU"""
@@ -5579,19 +5582,13 @@ enum Flamingos2WindowCover {
 
 """Flamingos2 South Long Slit mode"""
 type Flamingos2LongSlit {
-  """
-  The disperser field must be specified.  It cannot be unset with a null value.
-  """
+  """Flamingos2 Disperser"""
   disperser: Flamingos2Disperser!
 
-  """
-  The filter field must be specified.  It cannot be unset with a null value.
-  """
+  """Flamingos2 Filter"""
   filter: Flamingos2Filter!
 
-  """
-  The fpu field must be either specified or skipped altogether.  It cannot be unset with a null value.
-  """
+  """Flamingos2 FPU"""
   fpu: Flamingos2Fpu!
 
   """
