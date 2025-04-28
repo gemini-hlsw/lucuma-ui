@@ -3,6 +3,7 @@
 
 package demo
 
+import cats.data.NonEmptyList
 import cats.data.NonEmptyMap
 import cats.implicits.*
 import crystal.react.ReuseView
@@ -15,6 +16,9 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.ags.AgsAnalysis
 import lucuma.ags.AgsGuideQuality
 import lucuma.ags.GuideStarCandidate
+import lucuma.core.enums.F2Disperser
+import lucuma.core.enums.F2Filter
+import lucuma.core.enums.F2Fpu
 import lucuma.core.enums.GmosSouthFilter
 import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.GmosSouthGrating
@@ -32,9 +36,6 @@ import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
-import lucuma.core.enums.F2Fpu
-import lucuma.core.enums.F2Disperser
-import lucuma.core.enums.F2Filter
 
 case class AladinContainer(
   fov:         ReuseView[Fov],
@@ -94,6 +95,9 @@ object AladinContainer {
                             )
       portDisposition    <- useState(PortDisposition.Side)
       posAngle           <- useState(Angle.Angle0)
+      // State for science and acquisition offsets
+      scienceOffset      <- useState(Offset.Zero)
+      acquisitionOffset  <- useState(Offset.Zero)
 
     } yield
       /**
@@ -119,18 +123,24 @@ object AladinContainer {
       val gs          = props.coordinates
       //
       // Get the appropriate configuration based on selected instrument
-      val currentConf = instrument.value match {
+      val currentConf = instrument.value match
         case InstrumentType.GMOS => gmosConf.value.some
-        case InstrumentType.F2   =>
-          f2Conf.value.some
-      }
+        case InstrumentType.F2   => f2Conf.value.some
+
+      // Convert individual offsets to NonEmptyList format needed by the geometries
+      val scienceOffsetList     =
+        NonEmptyList.one(scienceOffset.value).some.filter(_ => scienceOffset.value != Offset.Zero)
+      val acquisitionOffsetList = NonEmptyList
+        .one(acquisitionOffset.value)
+        .some
+        .filter(_ => acquisitionOffset.value != Offset.Zero)
 
       val shapes = instrument.value match {
         case InstrumentType.GMOS =>
           GmosGeometry.gmosGeometry(
             props.coordinates,
-            None,
-            None,
+            scienceOffsetList,
+            acquisitionOffsetList,
             posAngle.value.some,
             currentConf,
             portDisposition.value,
@@ -149,8 +159,8 @@ object AladinContainer {
         case InstrumentType.F2   =>
           Flamingos2Geometry.f2Geometry(
             props.coordinates,
-            None,
-            None,
+            scienceOffsetList,
+            acquisitionOffsetList,
             posAngle.value.some,
             currentConf,
             portDisposition.value,
@@ -265,12 +275,21 @@ object AladinContainer {
             <.div(
               Css("aladin-controls"),
               <.div(
-                Css("config-togglers"),
-                <.label("FOV: ", props.fov.get.toStringAngle),
-                <.label("Coord: ", props.aladinCoordsStr),
-                <.label("Pos: ", currentPos.value.toString),
-                <.label("Offset: ", currentPos.value.diff(props.coordinates).offset.toStringOffset),
-                <.label("PA: ", s"${posAngle.value.toDoubleDegrees}°")
+                Css("descriptionconfig-togglers"),
+                <.label("FOV: "),
+                props.fov.get.toStringAngle,
+                <.label("Coord: "),
+                props.aladinCoordsStr,
+                <.label("Pos: "),
+                currentPos.value.toString,
+                <.label("Offset: "),
+                currentPos.value.diff(props.coordinates).offset.toStringOffset,
+                <.label("PA: "),
+                s"${posAngle.value.toDoubleDegrees}°",
+                <.label("Science Offset: "),
+                scienceOffset.value.toStringOffset,
+                <.label("Acquisition Offset: "),
+                acquisitionOffset.value.toStringOffset
               ),
               <.div(
                 Css("config-togglers"),
@@ -406,7 +425,92 @@ object AladinContainer {
                         .toTagMod
                     )
                   )
-              }
+              },
+              // Offset controls in a separate row
+              <.div(
+                Css("config-controls"),
+                <.h5("Offset Controls"),
+                <.div(
+                  Css("offset-control"),
+                  <.label("Science Offset (arcsec):"),
+                  <.div(
+                    <.label("p: "),
+                    <.input(
+                      ^.`type` := "number",
+                      ^.step   := "5",
+                      ^.value  := {
+                        val (p, _) = Offset.signedDecimalArcseconds.get(scienceOffset.value)
+                        p.toString
+                      },
+                      ^.onChange ==> ((e: ReactEventFromInput) => {
+                        val pValue = e.target.value.toDoubleOption
+                          .map(Angle.fromDoubleArcseconds)
+                          .getOrElse(Angle.Angle0)
+                        scienceOffset.modState(_.copy(p = pValue.p))
+                      })
+                    ),
+                    <.label("q: "),
+                    <.input(
+                      ^.`type` := "number",
+                      ^.step   := "5",
+                      ^.value  := {
+                        val (_, q) = Offset.signedDecimalArcseconds.get(scienceOffset.value)
+                        q.toString
+                      },
+                      ^.onChange ==> ((e: ReactEventFromInput) => {
+                        val qValue = e.target.value.toDoubleOption
+                          .map(Angle.fromDoubleArcseconds)
+                          .getOrElse(Angle.Angle0)
+                        scienceOffset.modState(_.copy(q = qValue.q))
+                      })
+                    ),
+                    <.button(
+                      ^.onClick --> scienceOffset.setState(Offset.Zero),
+                      "Reset"
+                    )
+                  )
+                ),
+                <.div(
+                  Css("offset-control"),
+                  <.label("Acquisition Offset (arcsec):"),
+                  <.div(
+                    <.label("p: "),
+                    <.input(
+                      ^.`type` := "number",
+                      ^.step   := "5",
+                      ^.value  := {
+                        val (p, _) = Offset.signedDecimalArcseconds.get(acquisitionOffset.value)
+                        p.toString
+                      },
+                      ^.onChange ==> ((e: ReactEventFromInput) => {
+                        val pValue = e.target.value.toDoubleOption
+                          .map(Angle.fromDoubleArcseconds)
+                          .getOrElse(Angle.Angle0)
+                        acquisitionOffset.modState(_.copy(p = pValue.p))
+                      })
+                    ),
+                    <.label("q: "),
+                    <.input(
+                      ^.`type` := "number",
+                      ^.step   := "5",
+                      ^.value  := {
+                        val (_, q) = Offset.signedDecimalArcseconds.get(acquisitionOffset.value)
+                        q.toString
+                      },
+                      ^.onChange ==> ((e: ReactEventFromInput) => {
+                        val qValue = e.target.value.toDoubleOption
+                          .map(Angle.fromDoubleArcseconds)
+                          .getOrElse(Angle.Angle0)
+                        acquisitionOffset.modState(_.copy(q = qValue.q))
+                      })
+                    ),
+                    <.button(
+                      ^.onClick --> acquisitionOffset.setState(Offset.Zero),
+                      "Reset"
+                    )
+                  )
+                )
+              )
             )
           )
         else EmptyVdom

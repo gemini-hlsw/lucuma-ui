@@ -7,6 +7,7 @@ import cats.data.NonEmptyList
 import cats.implicits.catsKernelOrderingForOrder
 import cats.syntax.all.*
 import lucuma.ags.AgsAnalysis
+import lucuma.core.enums.F2LyotWheel
 import lucuma.core.enums.PortDisposition
 import lucuma.core.geom.ShapeExpression
 import lucuma.core.geom.f2
@@ -16,14 +17,12 @@ import lucuma.core.geom.syntax.shapeexpression.*
 import lucuma.core.math.Angle
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Offset
+import lucuma.core.model.sequence.f2.F2FpuMask
 import lucuma.react.common.style.Css
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.ui.visualization.VisualizationStyles.*
-import lucuma.react.common.Css
 
 import scala.collection.immutable.SortedMap
-import lucuma.core.enums.F2LyotWheel
-import lucuma.core.model.sequence.f2.F2FpuMask
 
 /**
  * Object to produce f2 geometry for visualization
