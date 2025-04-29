@@ -7,13 +7,17 @@ import cats.data.NonEmptyList
 import cats.implicits.catsKernelOrderingForOrder
 import cats.syntax.all.*
 import lucuma.ags.AgsAnalysis
+import lucuma.core.enums.F2LyotWheel
 import lucuma.core.enums.PortDisposition
 import lucuma.core.geom.ShapeExpression
-import lucuma.core.geom.gmos
+import lucuma.core.geom.f2
+import lucuma.core.geom.f2.*
+import lucuma.core.geom.f2.all.*
 import lucuma.core.geom.syntax.shapeexpression.*
 import lucuma.core.math.Angle
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Offset
+import lucuma.core.model.sequence.f2.F2FpuMask
 import lucuma.react.common.style.Css
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.ui.visualization.VisualizationStyles.*
@@ -21,39 +25,40 @@ import lucuma.ui.visualization.VisualizationStyles.*
 import scala.collection.immutable.SortedMap
 
 /**
- * Test object to produce a gmos geometry. it is for demo purposes only
+ * Object to produce f2 geometry for visualization
  */
-object GmosGeometry:
+object Flamingos2Geometry:
 
   // Shape to display for a specific mode
   def shapesForMode(
     posAngle:      Angle,
     offset:        Offset,
-    configuration: Option[BasicConfiguration],
-    port:          PortDisposition
+    configuration: Option[BasicConfiguration]
   ): SortedMap[Css, ShapeExpression] =
     configuration match {
-      case Some(m: BasicConfiguration.GmosNorthLongSlit) =>
+      case Some(m: BasicConfiguration.F2LongSlit) =>
         SortedMap(
-          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
-          (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asLeft.some)),
-          (GmosPatrolField,
-           gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
+          (F2ScienceArea,
+           scienceArea.shapeAt(posAngle,
+                               offset,
+                               F2LyotWheel.F16,
+                               F2FpuMask.Builtin(m.fpu)
+           ) ⟲ posAngle
           )
         )
-      case Some(m: BasicConfiguration.GmosSouthLongSlit) =>
-        SortedMap(
-          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
-          (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asRight.some)),
-          (GmosPatrolField,
-           gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
-          )
-        )
-      case _                                             =>
-        SortedMap(
-          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle)
-        )
+      case _                                      =>
+        SortedMap.empty
     }
+  //
+  // Shape to display always
+  def commonShapes(
+    l:        F2LyotWheel,
+    posAngle: Angle,
+    extraCss: Css
+  ): SortedMap[Css, ShapeExpression] =
+    SortedMap(
+      (F2CandidatesArea |+| extraCss, candidatesAreaAt(l, posAngle, Offset.Zero))
+    )
 
   // Shape for the intersection of patrol fields at each offset
   def patrolFieldIntersection(
@@ -61,11 +66,12 @@ object GmosGeometry:
     offsets:       NonEmptyList[Offset],
     configuration: BasicConfiguration,
     port:          PortDisposition,
+    lyotWheel:     F2LyotWheel,
     extraCss:      Css = Css.Empty
   ): (Css, ShapeExpression) =
     (PatrolFieldIntersection |+| extraCss) ->
       offsets
-        .map(patrolField(posAngle, _, configuration, port))
+        .map(patrolField(posAngle, _, configuration, lyotWheel, port))
         .reduce(_ ∩ _)
 
   // Shape for the patrol field at a single position
@@ -73,22 +79,15 @@ object GmosGeometry:
     posAngle:      Angle,
     offset:        Offset,
     configuration: BasicConfiguration,
+    lyotWheel:     F2LyotWheel,
     port:          PortDisposition
   ): ShapeExpression =
     configuration match {
-      case m: BasicConfiguration.GmosNorthLongSlit =>
-        gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
-      case m: BasicConfiguration.GmosSouthLongSlit =>
-        gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
-      case m: BasicConfiguration.F2LongSlit        =>
+      case m: BasicConfiguration.F2LongSlit =>
+        f2.patrolField.patrolFieldAt(posAngle, offset, lyotWheel, port)
+      case _                                =>
         ShapeExpression.Empty
     }
-
-  // Shape to display always
-  def commonShapes(posAngle: Angle, extraCss: Css): SortedMap[Css, ShapeExpression] =
-    SortedMap(
-      (GmosCandidatesArea |+| extraCss, gmos.candidatesArea.candidatesAreaAt(posAngle, Offset.Zero))
-    )
 
   // Shape to display always
   def probeShapes(
@@ -97,28 +96,21 @@ object GmosGeometry:
     offsetPos:       Offset,
     mode:            Option[BasicConfiguration],
     port:            PortDisposition,
+    lyotWheel:       F2LyotWheel, // in practice this is always F16
     extraCss:        Css
   ): SortedMap[Css, ShapeExpression] =
     mode match
-      case Some(m: BasicConfiguration.GmosNorthLongSlit) =>
+      case Some(m: BasicConfiguration.F2LongSlit) =>
         SortedMap(
-          (GmosProbeArm |+| extraCss,
-           gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, m.fpu.asLeft.some, port)
+          (F2ProbeArm |+| extraCss,
+           probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, lyotWheel, port)
           )
         )
-      case Some(m: BasicConfiguration.GmosSouthLongSlit) =>
-        SortedMap(
-          (GmosProbeArm |+| extraCss,
-           gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, m.fpu.asRight.some, port)
-          )
-        )
-      case _                                             =>
-        SortedMap(
-          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle)
-        )
+      case _                                      =>
+        SortedMap.empty
 
-  // Full geometry for GMOS
-  def gmosGeometry(
+  // Full geometry for f2
+  def f2Geometry(
     referenceCoordinates:    Coordinates,
     scienceOffsets:          Option[NonEmptyList[Offset]],
     acquisitionOffsets:      Option[NonEmptyList[Offset]],
@@ -126,16 +118,16 @@ object GmosGeometry:
     conf:                    Option[BasicConfiguration],
     port:                    PortDisposition,
     gs:                      Option[AgsAnalysis.Usable],
-    candidatesVisibilityCss: Css
+    candidatesVisibilityCss: Css,
+    lyotWheel:               F2LyotWheel = F2LyotWheel.F16 // in practice this is always F16
   ): Option[SortedMap[Css, ShapeExpression]] =
     gs.map(_.posAngle)
       .orElse(fallbackPosAngle)
       .map { posAngle =>
-
         // Shapes at base position
         val baseShapes: SortedMap[Css, ShapeExpression] =
-          shapesForMode(posAngle, Offset.Zero, conf, port) ++
-            commonShapes(posAngle, candidatesVisibilityCss)
+          shapesForMode(posAngle, Offset.Zero, conf) ++
+            commonShapes(lyotWheel, posAngle, candidatesVisibilityCss)
 
         // Don't show the probe if there is no usable GS
         val probe = gs
@@ -143,7 +135,7 @@ object GmosGeometry:
             val gsOffset   =
               referenceCoordinates.diff(gs.target.tracking.baseCoordinates).offset
             val probeShape =
-              GmosGeometry.probeShapes(posAngle, gsOffset, Offset.Zero, conf, port, Css.Empty)
+              probeShapes(posAngle, gsOffset, Offset.Zero, conf, port, lyotWheel, Css.Empty)
 
             val offsets =
               (scienceOffsets |+| acquisitionOffsets)
@@ -153,10 +145,15 @@ object GmosGeometry:
               for {
                 conf <- conf
                 o    <- offsets
-              } yield GmosGeometry
-                .patrolFieldIntersection(posAngle, o.distinct, conf, port)
+              } yield Flamingos2Geometry.patrolFieldIntersection(posAngle,
+                                                                 o.distinct,
+                                                                 conf,
+                                                                 port,
+                                                                 lyotWheel
+              )
 
             patrolFieldIntersection.fold(probeShape)(probeShape + _)
           }
+
         baseShapes ++ probe.getOrElse(SortedMap.empty[Css, ShapeExpression])
       }

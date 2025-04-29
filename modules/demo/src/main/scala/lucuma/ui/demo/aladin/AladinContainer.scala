@@ -3,6 +3,7 @@
 
 package demo
 
+import cats.data.NonEmptyList
 import cats.data.NonEmptyMap
 import cats.implicits.*
 import crystal.react.ReuseView
@@ -15,6 +16,9 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.ags.AgsAnalysis
 import lucuma.ags.AgsGuideQuality
 import lucuma.ags.GuideStarCandidate
+import lucuma.core.enums.F2Disperser
+import lucuma.core.enums.F2Filter
+import lucuma.core.enums.F2Fpu
 import lucuma.core.enums.GmosSouthFilter
 import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.GmosSouthGrating
@@ -43,6 +47,10 @@ case class AladinContainer(
 extension (o: Offset)
   def toStringOffset: String =
     f"(p: ${o.p.toAngle.toMicroarcseconds / 1e6}%2.3f, q: ${o.q.toAngle.toMicroarcseconds / 1e6}%2.3f)"
+
+enum InstrumentType:
+  case GMOS, F2
+
 object AladinContainer {
   type Props = AladinContainer
 
@@ -69,7 +77,8 @@ object AladinContainer {
       patrolFieldVisible <- useState(true)
       probeVisible       <- useState(true)
       fullScreen         <- useStateView(AladinFullScreen.Normal)
-      conf               <- useState(
+      instrument         <- useState[InstrumentType](InstrumentType.F2)
+      gmosConf           <- useState(
                               BasicConfiguration.GmosSouthLongSlit(
                                 grating = GmosSouthGrating.R400_G5325,
                                 filter = GmosSouthFilter.HeII.some,
@@ -77,6 +86,18 @@ object AladinContainer {
                                 centralWavelength = CentralWavelength(Wavelength.fromIntNanometers(500).get)
                               )
                             )
+      f2Conf             <- useState(
+                              BasicConfiguration.F2LongSlit(
+                                disperser = F2Disperser.R1200HK,
+                                filter = F2Filter.H,
+                                fpu = F2Fpu.LongSlit2
+                              )
+                            )
+      portDisposition    <- useState(PortDisposition.Side)
+      posAngle           <- useState(Angle.Angle0)
+      // State for science and acquisition offsets
+      scienceOffset      <- useState(Offset.Zero)
+      acquisitionOffset  <- useState(Offset.Zero)
 
     } yield
       /**
@@ -99,27 +120,63 @@ object AladinContainer {
           v.onZoomCB(onZoom(v)) *> // re render on zoom
           v.onPositionChangedCB(onPositionChanged)
 
-      val gs = props.coordinates
+      val gs          = props.coordinates
+      //
+      // Get the appropriate configuration based on selected instrument
+      val currentConf = instrument.value match
+        case InstrumentType.GMOS => gmosConf.value.some
+        case InstrumentType.F2   => f2Conf.value.some
 
-      val shapes = GmosGeometry.gmosGeometry(
-        props.coordinates,
-        None,
-        None,
-        Angle.Angle0.some,
-        conf.value.some,
-        PortDisposition.Side,
-        AgsAnalysis
-          .Usable(
-            GuideProbe.GmosOIWFS,
-            GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
-            GuideSpeed.Fast,
-            AgsGuideQuality.DeliversRequestedIq,
-            Angle.Angle0,
-            Area.MinArea
+      // Convert individual offsets to NonEmptyList format needed by the geometries
+      val scienceOffsetList     =
+        NonEmptyList.one(scienceOffset.value).some.filter(_ => scienceOffset.value != Offset.Zero)
+      val acquisitionOffsetList = NonEmptyList
+        .one(acquisitionOffset.value)
+        .some
+        .filter(_ => acquisitionOffset.value != Offset.Zero)
+
+      val shapes = instrument.value match {
+        case InstrumentType.GMOS =>
+          GmosGeometry.gmosGeometry(
+            props.coordinates,
+            scienceOffsetList,
+            acquisitionOffsetList,
+            posAngle.value.some,
+            currentConf,
+            portDisposition.value,
+            AgsAnalysis
+              .Usable(
+                GuideProbe.GmosOIWFS,
+                GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
+                GuideSpeed.Fast,
+                AgsGuideQuality.DeliversRequestedIq,
+                posAngle.value,
+                Area.MinArea
+              )
+              .some,
+            VisualizationStyles.GuideStarCandidateVisible
           )
-          .some,
-        VisualizationStyles.GuideStarCandidateVisible
-      )
+        case InstrumentType.F2   =>
+          Flamingos2Geometry.f2Geometry(
+            props.coordinates,
+            scienceOffsetList,
+            acquisitionOffsetList,
+            posAngle.value.some,
+            currentConf,
+            portDisposition.value,
+            AgsAnalysis
+              .Usable(
+                GuideProbe.GmosOIWFS,
+                GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
+                GuideSpeed.Fast,
+                AgsGuideQuality.DeliversRequestedIq,
+                posAngle.value,
+                Area.MinArea
+              )
+              .some,
+            VisualizationStyles.GuideStarCandidateVisible
+          )
+      }
 
       def toggler(
         id:    String,
@@ -141,6 +198,29 @@ object AladinContainer {
           )
         )
 
+      def visibilityClasses = instrument.value match {
+        case InstrumentType.GMOS =>
+          VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
+            VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
+            VisualizationStyles.GmosCandidatesAreaVisible.when_(
+              candidatesVisible.value
+            ) |+|
+            VisualizationStyles.GmosPatrolFieldVisible.when_(
+              patrolFieldVisible.value
+            ) |+|
+            VisualizationStyles.GmosProbeVisible.when_(probeVisible.value)
+        case InstrumentType.F2   =>
+          VisualizationStyles.F2FpuVisible.when_(fpuVisible.value) |+|
+            VisualizationStyles.F2ScienceAreaVisible.when_(ccdVisible.value) |+|
+            VisualizationStyles.F2CandidatesAreaVisible.when_(
+              candidatesVisible.value
+            ) |+|
+            VisualizationStyles.F2PatrolFieldVisible.when_(
+              patrolFieldVisible.value
+            ) |+|
+            VisualizationStyles.F2ProbeArmVisible.when_(probeVisible.value)
+      }
+
       <.div(
         Css("react-aladin-container"),
         aladinRef.value.map(AladinZoomControl(_)),
@@ -158,11 +238,7 @@ object AladinContainer {
                   props.fov.get,
                   screenOffset,
                   s,
-                  clazz = VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
-                    VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
-                    VisualizationStyles.GmosCandidatesAreaVisible.when_(candidatesVisible.value) |+|
-                    VisualizationStyles.GmosPatrolFieldVisible.when_(patrolFieldVisible.value) |+|
-                    VisualizationStyles.GmosProbeVisible.when_(probeVisible.value)
+                  clazz = visibilityClasses
                 )
               ),
             (resize.width, resize.height)
@@ -174,7 +250,9 @@ object AladinContainer {
                   currentPos.value.diff(props.coordinates).offset,
                   props.coordinates,
                   List(
-                    SVGTarget.CrosshairTarget(props.coordinates, Css("science-target"), 10).some,
+                    SVGTarget
+                      .CrosshairTarget(props.coordinates, Css("science-target"), 10)
+                      .some,
                     gs.some.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
                   ).flatten
                 )
@@ -197,11 +275,21 @@ object AladinContainer {
             <.div(
               Css("aladin-controls"),
               <.div(
-                Css("config-togglers"),
-                <.label("FOV: ", props.fov.get.toStringAngle),
-                <.label("Coord: ", props.aladinCoordsStr),
-                <.label("Pos: ", currentPos.value.toString),
-                <.label("Offset: ", currentPos.value.diff(props.coordinates).offset.toStringOffset)
+                Css("descriptionconfig-togglers"),
+                <.label("FOV: "),
+                props.fov.get.toStringAngle,
+                <.label("Coord: "),
+                props.aladinCoordsStr,
+                <.label("Pos: "),
+                currentPos.value.toString,
+                <.label("Offset: "),
+                currentPos.value.diff(props.coordinates).offset.toStringOffset,
+                <.label("PA: "),
+                s"${posAngle.value.toDoubleDegrees}°",
+                <.label("Science Offset: "),
+                scienceOffset.value.toStringOffset,
+                <.label("Acquisition Offset: "),
+                acquisitionOffset.value.toStringOffset
               ),
               <.div(
                 Css("config-togglers"),
@@ -213,31 +301,214 @@ object AladinContainer {
               ),
               <.div(
                 Css("config-controls"),
-                <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
+                <.label(^.htmlFor     := "instrument-selector", "Select Instrument:"),
                 <.select(
-                  ^.id    := "fpu-selector",
-                  ^.value := conf.value.fpu.tag,
+                  ^.id    := "instrument-selector",
+                  ^.value := (instrument.value match {
+                    case InstrumentType.GMOS => "gmos"
+                    case InstrumentType.F2   => "f2"
+                  }),
                   ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                    Enumerated[GmosSouthFpu]
+                    r.target.value match {
+                      case "gmos" => instrument.setState(InstrumentType.GMOS)
+                      case "f2"   => instrument.setState(InstrumentType.F2)
+                      case _      => Callback.empty
+                    }
+                  )
+                )(
+                  <.option(
+                    ^.key   := "gmos",
+                    ^.value := "gmos",
+                    "GMOS"
+                  ),
+                  <.option(
+                    ^.key   := "f2",
+                    ^.value := "f2",
+                    "Flamingos2"
+                  )
+                ),
+                <.label(^.htmlFor     := "port-selector", "Select Port Disposition:"),
+                <.select(
+                  ^.id    := "port-selector",
+                  ^.value := portDisposition.value.tag,
+                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
+                    Enumerated[PortDisposition]
                       .fromTag(r.target.value)
-                      .map(fpu =>
-                        conf.setState(
-                          conf.value.copy(fpu = fpu)
-                        )
-                      )
+                      .map(port => portDisposition.setState(port))
                       .getOrElse(Callback.empty)
                   )
                 )(
-                  Enumerated[GmosSouthFpu].all
-                    .filter(_.tag.startsWith("LongSlit"))
-                    .map(fpu =>
+                  Enumerated[PortDisposition].all
+                    .map(port =>
                       <.option(
-                        ^.key   := fpu.tag,
-                        ^.value := fpu.tag,
-                        fpu.longName
+                        ^.key   := port.tag,
+                        ^.value := port.tag,
+                        port.tag.capitalize
                       )
                     )
                     .toTagMod
+                ),
+                <.label(^.htmlFor     := "pa-input", "Position Angle (°):"),
+                <.input(
+                  ^.`type` := "number",
+                  ^.id     := "pa-input",
+                  ^.min    := "0",
+                  ^.max    := "360",
+                  ^.step   := "5",
+                  ^.value  := posAngle.value.toDoubleDegrees.toString,
+                  ^.onChange ==> ((e: ReactEventFromInput) =>
+                    e.target.value.toDoubleOption
+                      .map(Angle.fromDoubleDegrees)
+                      .map(posAngle.setState)
+                      .getOrEmpty
+                  )
+                )
+              ),
+              instrument.value match {
+                case InstrumentType.GMOS =>
+                  <.div(
+                    Css("config-controls"),
+                    <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
+                    <.select(
+                      ^.id    := "fpu-selector",
+                      ^.value := gmosConf.value.fpu.tag,
+                      ^.onChange ==> ((r: ReactUIEventFromInput) =>
+                        Enumerated[GmosSouthFpu]
+                          .fromTag(r.target.value)
+                          .map(fpu =>
+                            gmosConf.setState(
+                              gmosConf.value.copy(fpu = fpu)
+                            )
+                          )
+                          .getOrElse(Callback.empty)
+                      )
+                    )(
+                      Enumerated[GmosSouthFpu].all
+                        .filter(_.tag.startsWith("LongSlit"))
+                        .map(fpu =>
+                          <.option(
+                            ^.key   := fpu.tag,
+                            ^.value := fpu.tag,
+                            fpu.longName
+                          )
+                        )
+                        .toTagMod
+                    )
+                  )
+                case InstrumentType.F2   =>
+                  <.div(
+                    Css("config-controls"),
+                    <.label(^.htmlFor := "f2-fpu-selector", "Select F2 FPU:"),
+                    <.select(
+                      ^.id    := "f2-fpu-selector",
+                      ^.value := f2Conf.value.fpu.tag,
+                      ^.onChange ==> ((r: ReactUIEventFromInput) =>
+                        Enumerated[F2Fpu]
+                          .fromTag(r.target.value)
+                          .map(fpu =>
+                            f2Conf.setState(
+                              f2Conf.value.copy(fpu = fpu)
+                            )
+                          )
+                          .getOrElse(Callback.empty)
+                      )
+                    )(
+                      Enumerated[F2Fpu].all
+                        .filter(_.tag.startsWith("LongSlit"))
+                        .map(fpu =>
+                          <.option(
+                            ^.key   := fpu.tag,
+                            ^.value := fpu.tag,
+                            fpu.longName
+                          )
+                        )
+                        .toTagMod
+                    )
+                  )
+              },
+              // Offset controls in a separate row
+              <.div(
+                Css("config-controls"),
+                <.h5("Offset Controls"),
+                <.div(
+                  Css("offset-control"),
+                  <.label("Science Offset (arcsec):"),
+                  <.div(
+                    <.label("p: "),
+                    <.input(
+                      ^.`type` := "number",
+                      ^.step   := "5",
+                      ^.value  := {
+                        val (p, _) = Offset.signedDecimalArcseconds.get(scienceOffset.value)
+                        p.toString
+                      },
+                      ^.onChange ==> ((e: ReactEventFromInput) => {
+                        val pValue = e.target.value.toDoubleOption
+                          .map(Angle.fromDoubleArcseconds)
+                          .getOrElse(Angle.Angle0)
+                        scienceOffset.modState(_.copy(p = pValue.p))
+                      })
+                    ),
+                    <.label("q: "),
+                    <.input(
+                      ^.`type` := "number",
+                      ^.step   := "5",
+                      ^.value  := {
+                        val (_, q) = Offset.signedDecimalArcseconds.get(scienceOffset.value)
+                        q.toString
+                      },
+                      ^.onChange ==> ((e: ReactEventFromInput) => {
+                        val qValue = e.target.value.toDoubleOption
+                          .map(Angle.fromDoubleArcseconds)
+                          .getOrElse(Angle.Angle0)
+                        scienceOffset.modState(_.copy(q = qValue.q))
+                      })
+                    ),
+                    <.button(
+                      ^.onClick --> scienceOffset.setState(Offset.Zero),
+                      "Reset"
+                    )
+                  )
+                ),
+                <.div(
+                  Css("offset-control"),
+                  <.label("Acquisition Offset (arcsec):"),
+                  <.div(
+                    <.label("p: "),
+                    <.input(
+                      ^.`type` := "number",
+                      ^.step   := "5",
+                      ^.value  := {
+                        val (p, _) = Offset.signedDecimalArcseconds.get(acquisitionOffset.value)
+                        p.toString
+                      },
+                      ^.onChange ==> ((e: ReactEventFromInput) => {
+                        val pValue = e.target.value.toDoubleOption
+                          .map(Angle.fromDoubleArcseconds)
+                          .getOrElse(Angle.Angle0)
+                        acquisitionOffset.modState(_.copy(p = pValue.p))
+                      })
+                    ),
+                    <.label("q: "),
+                    <.input(
+                      ^.`type` := "number",
+                      ^.step   := "5",
+                      ^.value  := {
+                        val (_, q) = Offset.signedDecimalArcseconds.get(acquisitionOffset.value)
+                        q.toString
+                      },
+                      ^.onChange ==> ((e: ReactEventFromInput) => {
+                        val qValue = e.target.value.toDoubleOption
+                          .map(Angle.fromDoubleArcseconds)
+                          .getOrElse(Angle.Angle0)
+                        acquisitionOffset.modState(_.copy(q = qValue.q))
+                      })
+                    ),
+                    <.button(
+                      ^.onClick --> acquisitionOffset.setState(Offset.Zero),
+                      "Reset"
+                    )
+                  )
                 )
               )
             )

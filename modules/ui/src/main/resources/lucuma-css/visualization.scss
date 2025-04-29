@@ -56,19 +56,24 @@
     vector-effect: non-scaling-stroke;
   }
 
+  &.f2-probe-arm-visible .f2-probe-arm,
   &.gmos-probe-visible .gmos-probe-arm {
     display: inline;
   }
 
+  .f2-probe-arm,
   .gmos-probe-arm {
     display: none;
     stroke: hsl(0deg 67.9% 41.6%);
   }
 
+
+  &.f2-patrol-field-visible .f2-patrol-field,
   &.gmos-patrol-field-visible .gmos-patrol-field {
     display: inline;
   }
 
+  .f2-patrol-field,
   .gmos-patrol-field {
     stroke: hsl(120deg 100% 50%);
     display: none;
@@ -82,10 +87,12 @@
     stroke-dasharray: 3;
   }
 
+  &.f2-fpu-visible .f2-fpu > polygon,
   &.gmos-fpu-visible .gmos-fpu > polygon {
     display: inline;
   }
 
+  .f2-fpu > polygon,
   .gmos-fpu > polygon {
     display: none;
     stroke: blue;
@@ -94,27 +101,33 @@
     fill-opacity: 0.1;
   }
 
+  &.f2-science-ccd-visible polygon.f2-science-ccd-offset,
+  &.f2-science-ccd-visible .f2-science-ccd,
   &.gmos-ccd-visible .gmos-science-ccd-offset > polygon,
   &.gmos-ccd-visible .gmos-science-ccd > polygon {
     display: inline;
   }
 
+  .f2-science-ccd-offset polygon,
   .gmos-science-ccd-offset polygon {
     display: none;
     stroke: yellow;
     fill-opacity: 0.1;
   }
 
-  .gmos-science-ccd polygon {
+  polygon.f2-science-ccd,
+  .gmos-science-ccd {
     display: none;
     stroke: cyan;
     fill-opacity: 0.1;
   }
 
+  &.f2-candidates-area-visible .f2-candidates-area,
   &.gmos-candidates-area-visible .gmos-candidates-area {
     display: inline;
   }
 
+  .f2-candidates-area,
   .gmos-candidates-area {
     display: none;
     fill-opacity: 0;
