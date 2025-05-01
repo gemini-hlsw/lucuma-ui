@@ -39,11 +39,7 @@ object Flamingos2Geometry:
       case Some(m: BasicConfiguration.F2LongSlit) =>
         SortedMap(
           (F2ScienceArea,
-           scienceArea.shapeAt(posAngle,
-                               offset,
-                               F2LyotWheel.F16,
-                               F2FpuMask.Builtin(m.fpu)
-           ) ⟲ posAngle
+           scienceArea.shapeAt(posAngle, offset, F2LyotWheel.F16, F2FpuMask.Builtin(m.fpu))
           )
         )
       case _                                      =>
