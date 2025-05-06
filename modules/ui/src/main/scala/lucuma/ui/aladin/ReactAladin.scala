@@ -11,6 +11,7 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.*
 import lucuma.react.common.*
 import lucuma.ui.aladin.facade.*
+import lucuma.ui.reusability.given
 import org.scalajs.dom.html
 
 import scala.scalajs.js
@@ -98,7 +99,7 @@ object ReactAladin
       for {
         init <- useState(false)
         r    <- useRefToVdom[html.Div]
-        _    <- useLayoutEffectWithDeps(props.clazz) { _ =>
+        _    <- useLayoutEffectWithDeps((props.clazz, props.options)) { _ =>
                   init.setState(true) *> resetAladin(r.get, init, props, true)
                 }
         _    <- useLayoutEffectOnMount {
