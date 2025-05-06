@@ -432,16 +432,12 @@ object AladinContainer {
                   ^.id    := "survey-selector",
                   ^.value := survey.value.tag,
                   ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                    Callback.log(
-                      Enumerated[ImageSurvey]
-                        .fromTag(r.target.value)
-                    ) *>
-                      Enumerated[ImageSurvey]
-                        .fromTag(r.target.value)
-                        .map { s =>
-                          println(s); survey.setState(s)
-                        }
-                        .getOrElse(Callback.empty)
+                    Enumerated[ImageSurvey]
+                      .fromTag(r.target.value)
+                      .map { s =>
+                        survey.setState(s)
+                      }
+                      .getOrElse(Callback.empty)
                   )
                 )(
                   Enumerated[ImageSurvey].all
