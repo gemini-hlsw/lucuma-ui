@@ -31,6 +31,7 @@ import lucuma.react.SizePx
 import lucuma.react.common.Size
 import lucuma.react.table.*
 import lucuma.schemas.model.Visit
+import lucuma.ui.aladin.facade.AladinOptions
 import lucuma.ui.sequence.SequenceRow
 import lucuma.ui.sso.UserVault
 import org.typelevel.cats.time.given
@@ -41,6 +42,7 @@ import scala.annotation.nowarn
 import scala.collection.immutable.HashSet
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.SortedSet
+import scala.scalajs.js
 
 /**
  * Instances of reusability for some utility types
@@ -165,6 +167,42 @@ trait TableReusabilityInstances:
 trait SequenceReusabilityInstances:
   given [D]: Reusability[SequenceRow[D]] = Reusability.byEq
 
+trait AladinReusabilityInstances extends UtilReusabilityInstances:
+
+  private given Reusability[Double] = Reusability.double(0.00001)
+
+  // check every field except customizee
+  // I'm running over the 22 field limit. I'll just split it
+  given Reusability[AladinOptions] = Reusability.by: o =>
+    ((o.fov.toOption,
+      o.target.toOption,
+      o.survey.toOption,
+      o.cooFrame.toOption,
+      o.showReticle.toOption,
+      o.showZoomControl.toOption,
+      o.showFullscreenControl.toOption,
+      o.showLayersControl.toOption,
+      o.showGotoControl.toOption,
+      o.showCooGridControl.toOption,
+      o.showSettingsControl.toOption,
+      o.showStatusBar.toOption,
+      o.showCooLocation.toOption,
+      o.showProjectionControl.toOption,
+      o.showShareControl.toOption,
+      o.showSimbadPointerControl.toOption,
+      o.showFrame.toOption,
+      o.showCoordinates.toOption,
+      o.showFov.toOption
+     ),
+     (o.fullScreen.toOption,
+      o.reticleColor.toOption,
+      o.reticleSize.toOption,
+      o.imageSurvey.toOption,
+      o.baseImageLayer.toOption,
+      o.log.toOption
+     )
+    )
+
 package object reusability
     extends UtilReusabilityInstances
     with MathReusabilityInstances
@@ -172,3 +210,4 @@ package object reusability
     with TimeReusabilityInstances
     with TableReusabilityInstances
     with SequenceReusabilityInstances
+    with AladinReusabilityInstances

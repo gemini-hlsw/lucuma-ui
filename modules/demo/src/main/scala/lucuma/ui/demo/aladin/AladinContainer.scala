@@ -56,11 +56,6 @@ object AladinContainer {
 
   val coordinates = GenLens[AladinContainer](_.coordinates)
 
-  implicit val propsReuse: Reusability[Props] =
-    Reusability.by_==
-
-  implicit val reuseDouble: Reusability[Double] = Reusability.double(0.00001)
-
   val component = ScalaFnComponent[Props]: props =>
     for {
       // View coordinates (in case the user pans)
@@ -95,6 +90,10 @@ object AladinContainer {
                             )
       portDisposition    <- useState(PortDisposition.Side)
       posAngle           <- useState(Angle.Angle0)
+      survey             <- useState(instrument.value match {
+                              case InstrumentType.GMOS => ImageSurvey.DSS
+                              case InstrumentType.F2   => ImageSurvey.TWOMASS
+                            })
       // State for science and acquisition offsets
       scienceOffset      <- useState(Offset.Zero)
       acquisitionOffset  <- useState(Offset.Zero)
@@ -104,7 +103,6 @@ object AladinContainer {
        * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
        * keep the internal target correct
        */
-
       def onPositionChanged(u: PositionChanged): Callback = {
         val viewCoords = Coordinates(u.ra, u.dec)
         currentPos.setState(viewCoords)
@@ -268,7 +266,8 @@ object AladinContainer {
                 showZoomControl = false,
                 showCooLocation = true,
                 showFullscreenControl = false,
-                showProjectionControl = false
+                showProjectionControl = false,
+                survey = survey.value
               ),
               customize = customizeAladin(_)
             ),
@@ -426,6 +425,32 @@ object AladinContainer {
                     )
                   )
               },
+              <.div(
+                Css("config-controls"),
+                <.label(^.htmlFor := "survey-selector", "Select Survey:"),
+                <.select(
+                  ^.id    := "survey-selector",
+                  ^.value := survey.value.tag,
+                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
+                    Enumerated[ImageSurvey]
+                      .fromTag(r.target.value)
+                      .map { s =>
+                        survey.setState(s)
+                      }
+                      .getOrElse(Callback.empty)
+                  )
+                )(
+                  Enumerated[ImageSurvey].all
+                    .map(s =>
+                      <.option(
+                        ^.key   := s.tag,
+                        ^.value := s.tag,
+                        s.name
+                      )
+                    )
+                    .toTagMod
+                )
+              ),
               // Offset controls in a separate row
               <.div(
                 Css("config-controls"),

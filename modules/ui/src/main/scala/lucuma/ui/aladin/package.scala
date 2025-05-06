@@ -3,12 +3,13 @@
 
 package lucuma.ui.aladin
 
+import cats.syntax.all.*
 import lucuma.core.math.*
+import lucuma.core.util.Enumerated
 import lucuma.react.common.*
 import lucuma.ui.aladin.facade.*
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters.*
 
 /**
  * ALadin field of view angles horizontally and vertically
@@ -60,13 +61,19 @@ object CooFrame:
       case "j2000d"   => Some(J2000d)
       case "galactic" => Some(Galactic)
 
+enum ImageSurvey(val tag: String, val name: String, val id: String) derives Enumerated:
+  // See
+  // https://github.com/cds-astro/aladin-lite/blob/master/src/js/DefaultHiPSList.js
+  case DSS     extends ImageSurvey("dss_color", "DSS", "P/DSS2/color")
+  case TWOMASS extends ImageSurvey("twomass_color", "2MASS", "P/2MASS/color")
+
 object AladinOptions:
   val Default: AladinOptions = apply()
 
   def apply(
     fov:                      js.UndefOr[Angle] = js.undefined,
     target:                   js.UndefOr[String] = js.undefined,
-    survey:                   js.UndefOr[String] = js.undefined,
+    survey:                   js.UndefOr[ImageSurvey] = js.undefined,
     cooFrame:                 js.UndefOr[String] = js.undefined,
     showReticle:              js.UndefOr[Boolean] = js.undefined,
     showZoomControl:          js.UndefOr[Boolean] = js.undefined,
@@ -88,19 +95,17 @@ object AladinOptions:
     reticleSize:              js.UndefOr[Double] = js.undefined,
     imageSurvey:              js.UndefOr[String] = js.undefined,
     baseImageLayer:           js.UndefOr[String] = js.undefined,
-    customize:                js.UndefOr[JsAladin => Unit] = js.undefined,
     log:                      js.UndefOr[Boolean] = false
   ): AladinOptions = {
     val p = new js.Object().asInstanceOf[AladinOptions]
     fov.foreach(v => p.fov = v.toDoubleDegrees)
     target.foreach(v => p.target = v)
-    survey.foreach(v => p.survey = v)
+    survey.foreach(v => p.survey = v.id)
     // cooFrame.foreach(v => p.cooFrame = v.toJs)
     reticleColor.foreach(v => p.reticleColor = v: String)
     reticleSize.foreach(v => p.reticleSize = v)
     imageSurvey.foreach(v => p.imageSurvey = v)
     baseImageLayer.foreach(v => p.baseImageLayer = v)
-    customize.foreach(v => p.customize = (j: JsAladin) => v(j))
     showReticle.foreach(v => p.showReticle = v)
     showZoomControl.foreach(v => p.showZoomControl = v)
     showFullscreenControl.foreach(v => p.showFullscreenControl = v)
