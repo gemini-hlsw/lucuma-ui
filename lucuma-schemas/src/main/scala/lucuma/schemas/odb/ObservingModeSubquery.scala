@@ -66,9 +66,7 @@ object ObservingModeSubquery
             disperser
             filter
             fpu
-            defaultReadMode
             explicitReadMode
-            defaultReads
             explicitReads
             defaultDecker
             explicitDecker
