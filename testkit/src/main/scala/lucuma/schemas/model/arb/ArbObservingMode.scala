@@ -248,9 +248,7 @@ trait ArbObservingMode {
         filter             <- arbitrary[F2Filter]
         initialFpu         <- arbitrary[F2Fpu]
         fpu                <- arbitrary[F2Fpu]
-        defaultReadMode    <- arbitrary[F2ReadMode]
         explicitReadMode   <- arbitrary[Option[F2ReadMode]]
-        defaultReads       <- arbitrary[F2Reads]
         explicitReads      <- arbitrary[Option[F2Reads]]
         defaultDecker      <- arbitrary[F2Decker]
         explicitDecker     <- arbitrary[Option[F2Decker]]
@@ -263,9 +261,7 @@ trait ArbObservingMode {
         filter,
         initialFpu,
         fpu,
-        defaultReadMode,
         explicitReadMode,
-        defaultReads,
         explicitReads,
         defaultDecker,
         explicitDecker,
@@ -282,9 +278,7 @@ trait ArbObservingMode {
        F2Filter,
        F2Fpu,
        F2Fpu,
-       F2ReadMode,
        Option[F2ReadMode],
-       F2Reads,
        Option[F2Reads],
        F2Decker,
        Option[F2Decker],
@@ -300,9 +294,7 @@ trait ArbObservingMode {
           o.filter,
           o.initialFpu,
           o.fpu,
-          o.defaultReadMode,
           o.explicitReadMode,
-          o.defaultReads,
           o.explicitReads,
           o.defaultDecker,
           o.explicitDecker,

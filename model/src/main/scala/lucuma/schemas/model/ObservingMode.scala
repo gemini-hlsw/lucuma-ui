@@ -301,19 +301,13 @@ object ObservingMode:
     filter:              F2Filter,
     initialFpu:          F2Fpu,
     fpu:                 F2Fpu,
-    defaultReadMode:     F2ReadMode,
     explicitReadMode:    Option[F2ReadMode],
-    defaultReads:        F2Reads,
     explicitReads:       Option[F2Reads],
     defaultDecker:       F2Decker,
     explicitDecker:      Option[F2Decker],
     defaultReadoutMode:  F2ReadoutMode,
     explicitReadoutMode: Option[F2ReadoutMode]
   ) extends ObservingMode(Instrument.GmosSouth) derives Eq:
-    val readMode: F2ReadMode       =
-      explicitReadMode.getOrElse(defaultReadMode)
-    val reads: F2Reads             =
-      explicitReads.getOrElse(defaultReads)
     val decker: F2Decker           =
       explicitDecker.getOrElse(defaultDecker)
     val readoutMode: F2ReadoutMode =
@@ -323,8 +317,8 @@ object ObservingMode:
       initialDisperser =!= disperser ||
         initialFilter =!= filter ||
         initialFpu =!= fpu ||
-        explicitReadMode.exists(_ =!= defaultReadMode) ||
-        explicitReads.exists(_ =!= defaultReads) ||
+        explicitReadMode.isDefined ||
+        explicitReads.isDefined ||
         explicitDecker.exists(_ =!= defaultDecker) ||
         explicitReadoutMode.exists(_ =!= defaultReadoutMode)
 
@@ -354,12 +348,8 @@ object ObservingMode:
       Focus[F2LongSlit](_.initialFpu)
     val fpu: Lens[F2LongSlit, F2Fpu]                                 =
       Focus[F2LongSlit](_.fpu)
-    val defaultReadMode: Lens[F2LongSlit, F2ReadMode]                =
-      Focus[F2LongSlit](_.defaultReadMode)
     val explicitReadMode: Lens[F2LongSlit, Option[F2ReadMode]]       =
       Focus[F2LongSlit](_.explicitReadMode)
-    val defaultReads: Lens[F2LongSlit, F2Reads]                      =
-      Focus[F2LongSlit](_.defaultReads)
     val explicitReads: Lens[F2LongSlit, Option[F2Reads]]             =
       Focus[F2LongSlit](_.explicitReads)
     val defaultDecker: Lens[F2LongSlit, F2Decker]                    =
