@@ -45,3 +45,10 @@ trait CoreModelDecoders:
       start <- c.downField("start").as[Timestamp]
       end   <- c.downField("end").as[Timestamp]
     yield TimestampInterval.between(start, end)
+
+  given calculatedValueDecoder[A: Decoder]: Decoder[CalculatedValue[A]] =
+    Decoder.instance: c =>
+      for
+        s <- c.downField("state").as[CalculationState]
+        v <- c.downField("value").as[A]
+      yield CalculatedValue(s, v)
