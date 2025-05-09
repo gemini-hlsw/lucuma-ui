@@ -21,6 +21,7 @@ import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.math.dimensional.*
 import lucuma.core.model.*
 import lucuma.core.model.sequence.*
+import lucuma.core.util.CalculatedValue
 import lucuma.core.util.Enumerated
 import lucuma.core.util.NewType
 import lucuma.core.util.TimeSpan
@@ -73,6 +74,9 @@ trait UtilReusabilityInstances:
     reusability.asInstanceOf[Reusability[T]]
 
   given Reusability[UserVault] = Reusability.byEq
+
+  given calculatedValueReuse[A: Reusability]: Reusability[CalculatedValue[A]] =
+    Reusability.by(c => (c.state, c.value))
 
 /**
  * Instances of reusability for some common math types
