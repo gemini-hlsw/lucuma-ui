@@ -82,6 +82,7 @@ trait ObservationDB {
     type Breakpoint                          = enums.Breakpoint
     type BrightnessIntegratedUnits           = Units Of Brightness[Integrated]
     type BrightnessSurfaceUnits              = Units Of Brightness[Surface]
+    type CalculationState                    = lucuma.core.util.CalculationState
     type CalibrationRole                     = enums.CalibrationRole
     type CallForProposalsType                = enums.CallForProposalsType
     type CatalogName                         = enums.CatalogName

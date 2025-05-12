@@ -4,13 +4,13 @@ val Versions = new { // sbt doesn't like object definitions in build.sbt
   val disciplineMUnit = "2.0.0"
   val fs2             = "3.12.0"
   val kittens         = "3.5.0"
-  val lucumaCore      = "0.125.0"
-  val lucumaODBSchema = "0.19.5"
+  val lucumaCore      = "0.127.0"
+  val lucumaODBSchema = "0.20.0"
   val munit           = "1.1.1"
   val munitCatsEffect = "2.1.0"
 }
 
-ThisBuild / tlBaseVersion       := "0.132"
+ThisBuild / tlBaseVersion       := "0.133"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.6.4")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
