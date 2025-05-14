@@ -16,9 +16,9 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.ags.AgsAnalysis
 import lucuma.ags.AgsGuideQuality
 import lucuma.ags.GuideStarCandidate
-import lucuma.core.enums.F2Disperser
-import lucuma.core.enums.F2Filter
-import lucuma.core.enums.F2Fpu
+import lucuma.core.enums.Flamingos2Disperser
+import lucuma.core.enums.Flamingos2Filter
+import lucuma.core.enums.Flamingos2Fpu
 import lucuma.core.enums.GmosSouthFilter
 import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.GmosSouthGrating
@@ -49,7 +49,7 @@ extension (o: Offset)
     f"(p: ${o.p.toAngle.toMicroarcseconds / 1e6}%2.3f, q: ${o.q.toAngle.toMicroarcseconds / 1e6}%2.3f)"
 
 enum InstrumentType:
-  case GMOS, F2
+  case GMOS, Flamingos2
 
 object AladinContainer {
   type Props = AladinContainer
@@ -72,7 +72,7 @@ object AladinContainer {
       patrolFieldVisible <- useState(true)
       probeVisible       <- useState(true)
       fullScreen         <- useStateView(AladinFullScreen.Normal)
-      instrument         <- useState[InstrumentType](InstrumentType.F2)
+      instrument         <- useState[InstrumentType](InstrumentType.Flamingos2)
       gmosConf           <- useState(
                               BasicConfiguration.GmosSouthLongSlit(
                                 grating = GmosSouthGrating.R400_G5325,
@@ -82,17 +82,17 @@ object AladinContainer {
                               )
                             )
       f2Conf             <- useState(
-                              BasicConfiguration.F2LongSlit(
-                                disperser = F2Disperser.R1200HK,
-                                filter = F2Filter.H,
-                                fpu = F2Fpu.LongSlit2
+                              BasicConfiguration.Flamingos2LongSlit(
+                                disperser = Flamingos2Disperser.R1200HK,
+                                filter = Flamingos2Filter.H,
+                                fpu = Flamingos2Fpu.LongSlit2
                               )
                             )
       portDisposition    <- useState(PortDisposition.Side)
       posAngle           <- useState(Angle.Angle0)
       survey             <- useState(instrument.value match {
-                              case InstrumentType.GMOS => ImageSurvey.DSS
-                              case InstrumentType.F2   => ImageSurvey.TWOMASS
+                              case InstrumentType.GMOS       => ImageSurvey.DSS
+                              case InstrumentType.Flamingos2 => ImageSurvey.TWOMASS
                             })
       // State for science and acquisition offsets
       scienceOffset      <- useState(Offset.Zero)
@@ -122,8 +122,8 @@ object AladinContainer {
       //
       // Get the appropriate configuration based on selected instrument
       val currentConf = instrument.value match
-        case InstrumentType.GMOS => gmosConf.value.some
-        case InstrumentType.F2   => f2Conf.value.some
+        case InstrumentType.GMOS       => gmosConf.value.some
+        case InstrumentType.Flamingos2 => f2Conf.value.some
 
       // Convert individual offsets to NonEmptyList format needed by the geometries
       val scienceOffsetList     =
@@ -134,7 +134,7 @@ object AladinContainer {
         .filter(_ => acquisitionOffset.value != Offset.Zero)
 
       val shapes = instrument.value match {
-        case InstrumentType.GMOS =>
+        case InstrumentType.GMOS       =>
           GmosGeometry.gmosGeometry(
             props.coordinates,
             scienceOffsetList,
@@ -154,7 +154,7 @@ object AladinContainer {
               .some,
             VisualizationStyles.GuideStarCandidateVisible
           )
-        case InstrumentType.F2   =>
+        case InstrumentType.Flamingos2 =>
           Flamingos2Geometry.f2Geometry(
             props.coordinates,
             scienceOffsetList,
@@ -197,7 +197,7 @@ object AladinContainer {
         )
 
       def visibilityClasses = instrument.value match {
-        case InstrumentType.GMOS =>
+        case InstrumentType.GMOS       =>
           VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
             VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
             VisualizationStyles.GmosCandidatesAreaVisible.when_(
@@ -207,16 +207,16 @@ object AladinContainer {
               patrolFieldVisible.value
             ) |+|
             VisualizationStyles.GmosProbeVisible.when_(probeVisible.value)
-        case InstrumentType.F2   =>
-          VisualizationStyles.F2FpuVisible.when_(fpuVisible.value) |+|
-            VisualizationStyles.F2ScienceAreaVisible.when_(ccdVisible.value) |+|
-            VisualizationStyles.F2CandidatesAreaVisible.when_(
+        case InstrumentType.Flamingos2 =>
+          VisualizationStyles.Flamingos2FpuVisible.when_(fpuVisible.value) |+|
+            VisualizationStyles.Flamingos2ScienceAreaVisible.when_(ccdVisible.value) |+|
+            VisualizationStyles.Flamingos2CandidatesAreaVisible.when_(
               candidatesVisible.value
             ) |+|
-            VisualizationStyles.F2PatrolFieldVisible.when_(
+            VisualizationStyles.Flamingos2PatrolFieldVisible.when_(
               patrolFieldVisible.value
             ) |+|
-            VisualizationStyles.F2ProbeArmVisible.when_(probeVisible.value)
+            VisualizationStyles.Flamingos2ProbeArmVisible.when_(probeVisible.value)
       }
 
       <.div(
@@ -304,13 +304,13 @@ object AladinContainer {
                 <.select(
                   ^.id    := "instrument-selector",
                   ^.value := (instrument.value match {
-                    case InstrumentType.GMOS => "gmos"
-                    case InstrumentType.F2   => "f2"
+                    case InstrumentType.GMOS       => "gmos"
+                    case InstrumentType.Flamingos2 => "f2"
                   }),
                   ^.onChange ==> ((r: ReactUIEventFromInput) =>
                     r.target.value match {
                       case "gmos" => instrument.setState(InstrumentType.GMOS)
-                      case "f2"   => instrument.setState(InstrumentType.F2)
+                      case "f2"   => instrument.setState(InstrumentType.Flamingos2)
                       case _      => Callback.empty
                     }
                   )
@@ -364,7 +364,7 @@ object AladinContainer {
                 )
               ),
               instrument.value match {
-                case InstrumentType.GMOS =>
+                case InstrumentType.GMOS       =>
                   <.div(
                     Css("config-controls"),
                     <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
@@ -394,15 +394,15 @@ object AladinContainer {
                         .toTagMod
                     )
                   )
-                case InstrumentType.F2   =>
+                case InstrumentType.Flamingos2 =>
                   <.div(
                     Css("config-controls"),
-                    <.label(^.htmlFor := "f2-fpu-selector", "Select F2 FPU:"),
+                    <.label(^.htmlFor := "f2-fpu-selector", "Select Flamingos2 FPU:"),
                     <.select(
                       ^.id    := "f2-fpu-selector",
                       ^.value := f2Conf.value.fpu.tag,
                       ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                        Enumerated[F2Fpu]
+                        Enumerated[Flamingos2Fpu]
                           .fromTag(r.target.value)
                           .map(fpu =>
                             f2Conf.setState(
@@ -412,7 +412,7 @@ object AladinContainer {
                           .getOrElse(Callback.empty)
                       )
                     )(
-                      Enumerated[F2Fpu].all
+                      Enumerated[Flamingos2Fpu].all
                         .filter(_.tag.startsWith("LongSlit"))
                         .map(fpu =>
                           <.option(

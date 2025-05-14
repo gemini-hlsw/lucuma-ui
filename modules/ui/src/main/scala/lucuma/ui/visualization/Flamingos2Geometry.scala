@@ -7,17 +7,17 @@ import cats.data.NonEmptyList
 import cats.implicits.catsKernelOrderingForOrder
 import cats.syntax.all.*
 import lucuma.ags.AgsAnalysis
-import lucuma.core.enums.F2LyotWheel
+import lucuma.core.enums.Flamingos2LyotWheel
 import lucuma.core.enums.PortDisposition
 import lucuma.core.geom.ShapeExpression
-import lucuma.core.geom.f2
-import lucuma.core.geom.f2.*
-import lucuma.core.geom.f2.all.*
+import lucuma.core.geom.flamingos2
+import lucuma.core.geom.flamingos2.*
+import lucuma.core.geom.flamingos2.all.*
 import lucuma.core.geom.syntax.shapeexpression.*
 import lucuma.core.math.Angle
 import lucuma.core.math.Coordinates
 import lucuma.core.math.Offset
-import lucuma.core.model.sequence.f2.F2FpuMask
+import lucuma.core.model.sequence.flamingos2.Flamingos2FpuMask
 import lucuma.react.common.style.Css
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.ui.visualization.VisualizationStyles.*
@@ -25,7 +25,7 @@ import lucuma.ui.visualization.VisualizationStyles.*
 import scala.collection.immutable.SortedMap
 
 /**
- * Object to produce f2 geometry for visualization
+ * Object to produce flamingos2 geometry for visualization
  */
 object Flamingos2Geometry:
 
@@ -36,24 +36,28 @@ object Flamingos2Geometry:
     configuration: Option[BasicConfiguration]
   ): SortedMap[Css, ShapeExpression] =
     configuration match {
-      case Some(m: BasicConfiguration.F2LongSlit) =>
+      case Some(m: BasicConfiguration.Flamingos2LongSlit) =>
         SortedMap(
-          (F2ScienceArea,
-           scienceArea.shapeAt(posAngle, offset, F2LyotWheel.F16, F2FpuMask.Builtin(m.fpu))
+          (Flamingos2ScienceArea,
+           scienceArea.shapeAt(posAngle,
+                               offset,
+                               Flamingos2LyotWheel.F16,
+                               Flamingos2FpuMask.Builtin(m.fpu)
+           )
           )
         )
-      case _                                      =>
+      case _                                              =>
         SortedMap.empty
     }
   //
   // Shape to display always
   def commonShapes(
-    l:        F2LyotWheel,
+    l:        Flamingos2LyotWheel,
     posAngle: Angle,
     extraCss: Css
   ): SortedMap[Css, ShapeExpression] =
     SortedMap(
-      (F2CandidatesArea |+| extraCss, candidatesAreaAt(l, posAngle, Offset.Zero))
+      (Flamingos2CandidatesArea |+| extraCss, candidatesAreaAt(l, posAngle, Offset.Zero))
     )
 
   // Shape for the intersection of patrol fields at each offset
@@ -62,7 +66,7 @@ object Flamingos2Geometry:
     offsets:       NonEmptyList[Offset],
     configuration: BasicConfiguration,
     port:          PortDisposition,
-    lyotWheel:     F2LyotWheel,
+    lyotWheel:     Flamingos2LyotWheel,
     extraCss:      Css = Css.Empty
   ): (Css, ShapeExpression) =
     (PatrolFieldIntersection |+| extraCss) ->
@@ -75,13 +79,13 @@ object Flamingos2Geometry:
     posAngle:      Angle,
     offset:        Offset,
     configuration: BasicConfiguration,
-    lyotWheel:     F2LyotWheel,
+    lyotWheel:     Flamingos2LyotWheel,
     port:          PortDisposition
   ): ShapeExpression =
     configuration match {
-      case m: BasicConfiguration.F2LongSlit =>
-        f2.patrolField.patrolFieldAt(posAngle, offset, lyotWheel, port)
-      case _                                =>
+      case m: BasicConfiguration.Flamingos2LongSlit =>
+        flamingos2.patrolField.patrolFieldAt(posAngle, offset, lyotWheel, port)
+      case _                                        =>
         ShapeExpression.Empty
     }
 
@@ -92,20 +96,20 @@ object Flamingos2Geometry:
     offsetPos:       Offset,
     mode:            Option[BasicConfiguration],
     port:            PortDisposition,
-    lyotWheel:       F2LyotWheel, // in practice this is always F16
+    lyotWheel:       Flamingos2LyotWheel, // in practice this is always F16
     extraCss:        Css
   ): SortedMap[Css, ShapeExpression] =
     mode match
-      case Some(m: BasicConfiguration.F2LongSlit) =>
+      case Some(m: BasicConfiguration.Flamingos2LongSlit) =>
         SortedMap(
-          (F2ProbeArm |+| extraCss,
+          (Flamingos2ProbeArm |+| extraCss,
            probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, lyotWheel, port)
           )
         )
-      case _                                      =>
+      case _                                              =>
         SortedMap.empty
 
-  // Full geometry for f2
+  // Full geometry for flamingos2
   def f2Geometry(
     referenceCoordinates:    Coordinates,
     scienceOffsets:          Option[NonEmptyList[Offset]],
@@ -115,7 +119,7 @@ object Flamingos2Geometry:
     port:                    PortDisposition,
     gs:                      Option[AgsAnalysis.Usable],
     candidatesVisibilityCss: Css,
-    lyotWheel:               F2LyotWheel = F2LyotWheel.F16 // in practice this is always F16
+    lyotWheel:               Flamingos2LyotWheel = Flamingos2LyotWheel.F16 // in practice this is always F16
   ): Option[SortedMap[Css, ShapeExpression]] =
     gs.map(_.posAngle)
       .orElse(fallbackPosAngle)

@@ -76,11 +76,11 @@ object GmosGeometry:
     port:          PortDisposition
   ): ShapeExpression =
     configuration match {
-      case m: BasicConfiguration.GmosNorthLongSlit =>
+      case m: BasicConfiguration.GmosNorthLongSlit  =>
         gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
-      case m: BasicConfiguration.GmosSouthLongSlit =>
+      case m: BasicConfiguration.GmosSouthLongSlit  =>
         gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
-      case m: BasicConfiguration.F2LongSlit        =>
+      case m: BasicConfiguration.Flamingos2LongSlit =>
         ShapeExpression.Empty
     }
 
