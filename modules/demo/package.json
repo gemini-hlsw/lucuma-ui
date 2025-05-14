@@ -7,7 +7,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "loglevel": "1.9.2",
     "primeicons": "^7.0.0",
-    "primereact": "^10.9.2",
+    "primereact": "^10.9.5",
     "react": "^18.3.1",
     "react-grid-layout": "^1.5.1",
     "sass": "^1.88.0",
