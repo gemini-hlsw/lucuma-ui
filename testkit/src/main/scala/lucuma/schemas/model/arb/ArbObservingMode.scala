@@ -239,22 +239,22 @@ trait ArbObservingMode {
         )
       )
 
-  given Arbitrary[ObservingMode.F2LongSlit] =
-    Arbitrary[ObservingMode.F2LongSlit](
+  given Arbitrary[ObservingMode.Flamingos2LongSlit] =
+    Arbitrary[ObservingMode.Flamingos2LongSlit](
       for {
-        initialDisperser   <- arbitrary[F2Disperser]
-        disperser          <- arbitrary[F2Disperser]
-        initialFilter      <- arbitrary[F2Filter]
-        filter             <- arbitrary[F2Filter]
-        initialFpu         <- arbitrary[F2Fpu]
-        fpu                <- arbitrary[F2Fpu]
-        explicitReadMode   <- arbitrary[Option[F2ReadMode]]
-        explicitReads      <- arbitrary[Option[F2Reads]]
-        defaultDecker      <- arbitrary[F2Decker]
-        explicitDecker     <- arbitrary[Option[F2Decker]]
-        defaultReadoutMode <- arbitrary[F2ReadoutMode]
-        expicitReadoutMode <- arbitrary[Option[F2ReadoutMode]]
-      } yield ObservingMode.F2LongSlit(
+        initialDisperser   <- arbitrary[Flamingos2Disperser]
+        disperser          <- arbitrary[Flamingos2Disperser]
+        initialFilter      <- arbitrary[Flamingos2Filter]
+        filter             <- arbitrary[Flamingos2Filter]
+        initialFpu         <- arbitrary[Flamingos2Fpu]
+        fpu                <- arbitrary[Flamingos2Fpu]
+        explicitReadMode   <- arbitrary[Option[Flamingos2ReadMode]]
+        explicitReads      <- arbitrary[Option[Flamingos2Reads]]
+        defaultDecker      <- arbitrary[Flamingos2Decker]
+        explicitDecker     <- arbitrary[Option[Flamingos2Decker]]
+        defaultReadoutMode <- arbitrary[Flamingos2ReadoutMode]
+        expicitReadoutMode <- arbitrary[Option[Flamingos2ReadoutMode]]
+      } yield ObservingMode.Flamingos2LongSlit(
         initialDisperser,
         disperser,
         initialFilter,
@@ -270,20 +270,20 @@ trait ArbObservingMode {
       )
     )
 
-  given Cogen[ObservingMode.F2LongSlit] =
+  given Cogen[ObservingMode.Flamingos2LongSlit] =
     Cogen[
-      (F2Disperser,
-       F2Disperser,
-       F2Filter,
-       F2Filter,
-       F2Fpu,
-       F2Fpu,
-       Option[F2ReadMode],
-       Option[F2Reads],
-       F2Decker,
-       Option[F2Decker],
-       F2ReadoutMode,
-       Option[F2ReadoutMode]
+      (Flamingos2Disperser,
+       Flamingos2Disperser,
+       Flamingos2Filter,
+       Flamingos2Filter,
+       Flamingos2Fpu,
+       Flamingos2Fpu,
+       Option[Flamingos2ReadMode],
+       Option[Flamingos2Reads],
+       Flamingos2Decker,
+       Option[Flamingos2Decker],
+       Flamingos2ReadoutMode,
+       Option[Flamingos2ReadoutMode]
       )
     ]
       .contramap(o =>
@@ -304,13 +304,13 @@ trait ArbObservingMode {
       )
 
   given Cogen[ObservingMode] =
-    Cogen[Either[ObservingMode.F2LongSlit, Either[ObservingMode.GmosNorthLongSlit,
-                                                  ObservingMode.GmosSouthLongSlit
+    Cogen[Either[ObservingMode.Flamingos2LongSlit, Either[ObservingMode.GmosNorthLongSlit,
+                                                          ObservingMode.GmosSouthLongSlit
     ]]]
       .contramap {
-        case n: ObservingMode.GmosNorthLongSlit => n.asLeft.asRight
-        case s: ObservingMode.GmosSouthLongSlit => s.asRight.asRight
-        case f: ObservingMode.F2LongSlit        => f.asLeft
+        case n: ObservingMode.GmosNorthLongSlit  => n.asLeft.asRight
+        case s: ObservingMode.GmosSouthLongSlit  => s.asRight.asRight
+        case f: ObservingMode.Flamingos2LongSlit => f.asLeft
       }
 
 }

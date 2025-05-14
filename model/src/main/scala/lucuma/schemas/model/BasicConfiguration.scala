@@ -20,17 +20,17 @@ sealed abstract class BasicConfiguration(val instrument: Instrument)
   def gmosFpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
     case BasicConfiguration.GmosNorthLongSlit(_, _, fpu, _) => fpu.asLeft.some
     case BasicConfiguration.GmosSouthLongSlit(_, _, fpu, _) => fpu.asRight.some
-    case BasicConfiguration.F2LongSlit(_, _, _)             => none
+    case BasicConfiguration.Flamingos2LongSlit(_, _, _)     => none
 
   def siteFor: Site = this match
-    case _: BasicConfiguration.GmosNorthLongSlit => Site.GN
-    case _: BasicConfiguration.GmosSouthLongSlit => Site.GS
-    case _: BasicConfiguration.F2LongSlit        => Site.GS
+    case _: BasicConfiguration.GmosNorthLongSlit  => Site.GN
+    case _: BasicConfiguration.GmosSouthLongSlit  => Site.GS
+    case _: BasicConfiguration.Flamingos2LongSlit => Site.GS
 
   def obsModeType: ObservingModeType = this match
-    case n: BasicConfiguration.GmosNorthLongSlit => ObservingModeType.GmosNorthLongSlit
-    case s: BasicConfiguration.GmosSouthLongSlit => ObservingModeType.GmosSouthLongSlit
-    case s: BasicConfiguration.F2LongSlit        => ObservingModeType.Flamingos2LongSlit
+    case n: BasicConfiguration.GmosNorthLongSlit  => ObservingModeType.GmosNorthLongSlit
+    case s: BasicConfiguration.GmosSouthLongSlit  => ObservingModeType.GmosSouthLongSlit
+    case s: BasicConfiguration.Flamingos2LongSlit => ObservingModeType.Flamingos2LongSlit
 
 object BasicConfiguration:
   given Decoder[BasicConfiguration] =
@@ -42,7 +42,7 @@ object BasicConfiguration:
             c.downField("gmosSouthLongSlit")
               .as[GmosSouthLongSlit]
               .orElse:
-                c.downField("flamingos2LongSlit").as[F2LongSlit]
+                c.downField("flamingos2LongSlit").as[Flamingos2LongSlit]
 
   case class GmosNorthLongSlit(
     grating:           GmosNorthGrating,
@@ -64,11 +64,11 @@ object BasicConfiguration:
   object GmosSouthLongSlit:
     given Decoder[GmosSouthLongSlit] = deriveDecoder
 
-  case class F2LongSlit(
-    disperser: F2Disperser,
-    filter:    F2Filter,
-    fpu:       F2Fpu
+  case class Flamingos2LongSlit(
+    disperser: Flamingos2Disperser,
+    filter:    Flamingos2Filter,
+    fpu:       Flamingos2Fpu
   ) extends BasicConfiguration(Instrument.Flamingos2) derives Eq
 
-  object F2LongSlit:
-    given Decoder[F2LongSlit] = deriveDecoder
+  object Flamingos2LongSlit:
+    given Decoder[Flamingos2LongSlit] = deriveDecoder

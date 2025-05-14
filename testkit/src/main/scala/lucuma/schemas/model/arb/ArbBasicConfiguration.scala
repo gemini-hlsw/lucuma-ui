@@ -48,20 +48,20 @@ trait ArbBasicConfiguration {
       )
     )
 
-  given Arbitrary[BasicConfiguration.F2LongSlit] =
-    Arbitrary[BasicConfiguration.F2LongSlit](
+  given Arbitrary[BasicConfiguration.Flamingos2LongSlit] =
+    Arbitrary[BasicConfiguration.Flamingos2LongSlit](
       for {
-        disperser <- arbitrary[F2Disperser]
-        filter    <- arbitrary[F2Filter]
-        fpu       <- arbitrary[F2Fpu]
-      } yield BasicConfiguration.F2LongSlit(disperser, filter, fpu)
+        disperser <- arbitrary[Flamingos2Disperser]
+        filter    <- arbitrary[Flamingos2Filter]
+        fpu       <- arbitrary[Flamingos2Fpu]
+      } yield BasicConfiguration.Flamingos2LongSlit(disperser, filter, fpu)
     )
 
   given Arbitrary[BasicConfiguration] = Arbitrary[BasicConfiguration](
     Gen.oneOf(
       arbitrary[BasicConfiguration.GmosNorthLongSlit],
       arbitrary[BasicConfiguration.GmosSouthLongSlit],
-      arbitrary[BasicConfiguration.F2LongSlit]
+      arbitrary[BasicConfiguration.Flamingos2LongSlit]
     )
   )
 
@@ -89,9 +89,9 @@ trait ArbBasicConfiguration {
         )
       )
 
-  given Cogen[BasicConfiguration.F2LongSlit] =
+  given Cogen[BasicConfiguration.Flamingos2LongSlit] =
     Cogen[
-      (F2Disperser, F2Filter, F2Fpu)
+      (Flamingos2Disperser, Flamingos2Filter, Flamingos2Fpu)
     ]
       .contramap(o =>
         (
@@ -102,13 +102,13 @@ trait ArbBasicConfiguration {
       )
 
   given Cogen[BasicConfiguration] =
-    Cogen[Either[BasicConfiguration.F2LongSlit, Either[BasicConfiguration.GmosNorthLongSlit,
-                                                       BasicConfiguration.GmosSouthLongSlit
+    Cogen[Either[BasicConfiguration.Flamingos2LongSlit, Either[BasicConfiguration.GmosNorthLongSlit,
+                                                               BasicConfiguration.GmosSouthLongSlit
     ]]]
       .contramap {
-        case n: BasicConfiguration.GmosNorthLongSlit => n.asLeft.asRight
-        case s: BasicConfiguration.GmosSouthLongSlit => s.asRight.asRight
-        case f: BasicConfiguration.F2LongSlit        => f.asLeft
+        case n: BasicConfiguration.GmosNorthLongSlit  => n.asLeft.asRight
+        case s: BasicConfiguration.GmosSouthLongSlit  => s.asRight.asRight
+        case f: BasicConfiguration.Flamingos2LongSlit => f.asLeft
       }
 
 }
