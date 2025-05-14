@@ -2349,6 +2349,12 @@ type Mutation {
     input: RecordDatasetInput!
   ): RecordDatasetResult!
 
+  """Record a new Flamingos 2 step."""
+  recordFlamingos2Step(
+    """Flamingos 2 step configuration parameters"""
+    input: RecordFlamingos2StepInput!
+  ): RecordFlamingos2StepResult!
+
   """Record a new Flamingos 2 visit"""
   recordFlamingos2Visit(
     """Visit creation parameters"""
@@ -5575,6 +5581,22 @@ input Flamingos2StaticInput {
   useElectronicOffsetting: Boolean
 }
 
+"""Input parameters for creating a new Flamingos 2 StepRecord"""
+input RecordFlamingos2StepInput {
+  atomId: AtomId!
+  flamingos2: Flamingos2DynamicInput!
+  stepConfig: StepConfigInput!
+  telescopeConfig: TelescopeConfigInput
+  observeClass: ObserveClass!
+  generatedId: StepId
+}
+
+"""The result of recording a Flamingos 2 step."""
+type RecordFlamingos2StepResult {
+  """The newly added step record itself."""
+  stepRecord: StepRecord!
+}
+
 """Input parameters for creating a new Flamingos 2 Visit"""
 input RecordFlamingos2VisitInput {
   observationId: ObservationId!
@@ -5646,7 +5668,7 @@ type Flamingos2Dynamic {
   readMode: Flamingos2ReadMode!
 
   """Flamingos 2 Lyot Wheel."""
-  lyot: Flamingos2LyotWheel!
+  lyotWheel: Flamingos2LyotWheel!
 
   """Flamingos 2 mask, if any."""
   mask: Flamingos2Mask
@@ -5664,7 +5686,7 @@ input Flamingos2DynamicInput {
   disperser: Flamingos2Disperser
   filter: Flamingos2Filter!
   readMode: Flamingos2ReadMode!
-  lyot: Flamingos2LyotWheel!
+  lyotWheel: Flamingos2LyotWheel!
   mask: Flamingos2MaskInput
   readoutMode: Flamingos2ReadoutMode
   reads: Flamingos2Reads
@@ -7106,6 +7128,9 @@ enum Instrument {
   """Instrument Gsaoi"""
   GSAOI
 
+  """Instrument Igrins2"""
+  IGRINS2
+
   """Instrument Niri"""
   NIRI
 
@@ -7178,6 +7203,35 @@ type SpectroscopyConfigOptionFlamingos2 {
   fpu: Flamingos2Fpu!
   disperser: Flamingos2Disperser!
   filter: Flamingos2Filter!
+}
+
+"""Describes an instrument configuration option for imaging."""
+type ImagingConfigOption {
+  instrument: Instrument!
+  filterLabel: NonEmptyString!
+  adaptiveOptics: Boolean!
+  site: Site!
+  fov: Angle!
+
+  """
+  For GMOS North options, the GMOS North configuration.  Null for other
+  instruments.
+  """
+  gmosNorth: ImagingConfigOptionGmosNorth
+
+  """
+  For GMOS South options, the GMOS South configuration.  Null for other
+  instruments.
+  """
+  gmosSouth: ImagingConfigOptionGmosSouth
+}
+
+type ImagingConfigOptionGmosNorth {
+  filter: GmosNorthFilter!
+}
+
+type ImagingConfigOptionGmosSouth {
+  filter: GmosSouthFilter!
 }
 
 """An 'Int` in the range 0 to 100"""
@@ -8358,6 +8412,9 @@ type Query {
 
   """Spectroscopy configuration options matching the WHERE parameter."""
   spectroscopyConfigOptions(WHERE: WhereSpectroscopyConfigOption): [SpectroscopyConfigOption!]!
+
+  """Imaging configuration options matching the WHERE parameter."""
+  imagingConfigOptions(WHERE: WhereImagingConfigOption): [ImagingConfigOption!]!
 
   """Retrieves the target with the given id, if it exists"""
   target(
@@ -9563,6 +9620,12 @@ type StepRecord {
 
   """Step ID of the generated step, if any, that produced this step record."""
   generatedId: StepId
+
+  """
+  Flamingos 2 instrument configuration for this step, if any.  This will be null
+  unless the `instrument` discriminator is "FLAMINGOS2".
+  """
+  flamingos2: Flamingos2Dynamic
 
   """
   GMOS North instrument configuration for this step, if any.  This will be null
@@ -12372,6 +12435,21 @@ input WhereSpectroscopyConfigOption {
   rangeIncludes: WavelengthInput
   wavelengthOptimal: WhereWavelength
   wavelengthCoverage: WhereWavelength
+}
+
+"""
+Imaging instrument configuration option matcher.  Configure with the
+properties of interest and pass it to the 'imagingConfigOptions' query
+to find the corresponding configuration options.
+"""
+input WhereImagingConfigOption {
+  AND: [WhereImagingConfigOption!]
+  OR: [WhereImagingConfigOption!]
+  NOT: WhereImagingConfigOption
+  adaptiveOptics: WhereBoolean
+  instrument: WhereEqInstrument
+  fov: WhereAngle
+  site: WhereEqSite
 }
 
 """String matching options."""

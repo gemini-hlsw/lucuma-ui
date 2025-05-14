@@ -26,9 +26,9 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
   def isCustomized: Boolean
 
   def obsModeType: ObservingModeType = this match
-    case _: ObservingMode.GmosNorthLongSlit => ObservingModeType.GmosNorthLongSlit
-    case _: ObservingMode.GmosSouthLongSlit => ObservingModeType.GmosSouthLongSlit
-    case _: ObservingMode.F2LongSlit        => ObservingModeType.Flamingos2LongSlit
+    case _: ObservingMode.GmosNorthLongSlit  => ObservingModeType.GmosNorthLongSlit
+    case _: ObservingMode.GmosSouthLongSlit  => ObservingModeType.GmosSouthLongSlit
+    case _: ObservingMode.Flamingos2LongSlit => ObservingModeType.Flamingos2LongSlit
 
   def gmosFpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
     case o: ObservingMode.GmosNorthLongSlit => o.fpu.asLeft.some
@@ -36,17 +36,17 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
     case _                                  => none
 
   def siteFor: Site = this match
-    case _: ObservingMode.GmosNorthLongSlit => Site.GN
-    case _: ObservingMode.GmosSouthLongSlit => Site.GS
-    case _: ObservingMode.F2LongSlit        => Site.GS
+    case _: ObservingMode.GmosNorthLongSlit  => Site.GN
+    case _: ObservingMode.GmosSouthLongSlit  => Site.GS
+    case _: ObservingMode.Flamingos2LongSlit => Site.GS
 
   def toBasicConfiguration: BasicConfiguration = this match
-    case n: ObservingMode.GmosNorthLongSlit =>
+    case n: ObservingMode.GmosNorthLongSlit  =>
       BasicConfiguration.GmosNorthLongSlit(n.grating, n.filter, n.fpu, n.centralWavelength)
-    case s: ObservingMode.GmosSouthLongSlit =>
+    case s: ObservingMode.GmosSouthLongSlit  =>
       BasicConfiguration.GmosSouthLongSlit(s.grating, s.filter, s.fpu, s.centralWavelength)
-    case f: ObservingMode.F2LongSlit        =>
-      BasicConfiguration.F2LongSlit(f.disperser, f.filter, f.fpu)
+    case f: ObservingMode.Flamingos2LongSlit =>
+      BasicConfiguration.Flamingos2LongSlit(f.disperser, f.filter, f.fpu)
 }
 
 object ObservingMode:
@@ -62,7 +62,7 @@ object ObservingMode:
           .orElse:
             c.downField("gmosSouthLongSlit").as[GmosSouthLongSlit]
           .orElse:
-            c.downField("flamingos2LongSlit").as[F2LongSlit]
+            c.downField("flamingos2LongSlit").as[Flamingos2LongSlit]
 
   case class GmosNorthLongSlit(
     initialGrating:            GmosNorthGrating,
@@ -294,23 +294,23 @@ object ObservingMode:
     val explicitSpatialOffsets: Lens[GmosSouthLongSlit, Option[NonEmptyList[Offset.Q]]]            =
       Focus[GmosSouthLongSlit](_.explicitSpatialOffsets)
 
-  case class F2LongSlit(
-    initialDisperser:    F2Disperser,
-    disperser:           F2Disperser,
-    initialFilter:       F2Filter,
-    filter:              F2Filter,
-    initialFpu:          F2Fpu,
-    fpu:                 F2Fpu,
-    explicitReadMode:    Option[F2ReadMode],
-    explicitReads:       Option[F2Reads],
-    defaultDecker:       F2Decker,
-    explicitDecker:      Option[F2Decker],
-    defaultReadoutMode:  F2ReadoutMode,
-    explicitReadoutMode: Option[F2ReadoutMode]
+  case class Flamingos2LongSlit(
+    initialDisperser:    Flamingos2Disperser,
+    disperser:           Flamingos2Disperser,
+    initialFilter:       Flamingos2Filter,
+    filter:              Flamingos2Filter,
+    initialFpu:          Flamingos2Fpu,
+    fpu:                 Flamingos2Fpu,
+    explicitReadMode:    Option[Flamingos2ReadMode],
+    explicitReads:       Option[Flamingos2Reads],
+    defaultDecker:       Flamingos2Decker,
+    explicitDecker:      Option[Flamingos2Decker],
+    defaultReadoutMode:  Flamingos2ReadoutMode,
+    explicitReadoutMode: Option[Flamingos2ReadoutMode]
   ) extends ObservingMode(Instrument.GmosSouth) derives Eq:
-    val decker: F2Decker           =
+    val decker: Flamingos2Decker           =
       explicitDecker.getOrElse(defaultDecker)
-    val readoutMode: F2ReadoutMode =
+    val readoutMode: Flamingos2ReadoutMode =
       explicitReadoutMode.getOrElse(defaultReadoutMode)
 
     def isCustomized: Boolean =
@@ -322,7 +322,7 @@ object ObservingMode:
         explicitDecker.exists(_ =!= defaultDecker) ||
         explicitReadoutMode.exists(_ =!= defaultReadoutMode)
 
-    def revertCustomizations: F2LongSlit =
+    def revertCustomizations: Flamingos2LongSlit =
       this.copy(
         disperser = this.initialDisperser,
         filter = this.initialFilter,
@@ -333,33 +333,33 @@ object ObservingMode:
         explicitReadoutMode = None
       )
 
-  object F2LongSlit:
-    given Decoder[F2LongSlit] = deriveDecoder
+  object Flamingos2LongSlit:
+    given Decoder[Flamingos2LongSlit] = deriveDecoder
 
-    val initialDisperser: Lens[F2LongSlit, F2Disperser]              =
-      Focus[F2LongSlit](_.initialDisperser)
-    val disperser: Lens[F2LongSlit, F2Disperser]                     =
-      Focus[F2LongSlit](_.disperser)
-    val initialFilter: Lens[F2LongSlit, F2Filter]                    =
-      Focus[F2LongSlit](_.initialFilter)
-    val filter: Lens[F2LongSlit, F2Filter]                           =
-      Focus[F2LongSlit](_.filter)
-    val initialFpu: Lens[F2LongSlit, F2Fpu]                          =
-      Focus[F2LongSlit](_.initialFpu)
-    val fpu: Lens[F2LongSlit, F2Fpu]                                 =
-      Focus[F2LongSlit](_.fpu)
-    val explicitReadMode: Lens[F2LongSlit, Option[F2ReadMode]]       =
-      Focus[F2LongSlit](_.explicitReadMode)
-    val explicitReads: Lens[F2LongSlit, Option[F2Reads]]             =
-      Focus[F2LongSlit](_.explicitReads)
-    val defaultDecker: Lens[F2LongSlit, F2Decker]                    =
-      Focus[F2LongSlit](_.defaultDecker)
-    val explicitDecker: Lens[F2LongSlit, Option[F2Decker]]           =
-      Focus[F2LongSlit](_.explicitDecker)
-    val defaultReadoutMode: Lens[F2LongSlit, F2ReadoutMode]          =
-      Focus[F2LongSlit](_.defaultReadoutMode)
-    val explicitReadoutMode: Lens[F2LongSlit, Option[F2ReadoutMode]] =
-      Focus[F2LongSlit](_.explicitReadoutMode)
+    val initialDisperser: Lens[Flamingos2LongSlit, Flamingos2Disperser]              =
+      Focus[Flamingos2LongSlit](_.initialDisperser)
+    val disperser: Lens[Flamingos2LongSlit, Flamingos2Disperser]                     =
+      Focus[Flamingos2LongSlit](_.disperser)
+    val initialFilter: Lens[Flamingos2LongSlit, Flamingos2Filter]                    =
+      Focus[Flamingos2LongSlit](_.initialFilter)
+    val filter: Lens[Flamingos2LongSlit, Flamingos2Filter]                           =
+      Focus[Flamingos2LongSlit](_.filter)
+    val initialFpu: Lens[Flamingos2LongSlit, Flamingos2Fpu]                          =
+      Focus[Flamingos2LongSlit](_.initialFpu)
+    val fpu: Lens[Flamingos2LongSlit, Flamingos2Fpu]                                 =
+      Focus[Flamingos2LongSlit](_.fpu)
+    val explicitReadMode: Lens[Flamingos2LongSlit, Option[Flamingos2ReadMode]]       =
+      Focus[Flamingos2LongSlit](_.explicitReadMode)
+    val explicitReads: Lens[Flamingos2LongSlit, Option[Flamingos2Reads]]             =
+      Focus[Flamingos2LongSlit](_.explicitReads)
+    val defaultDecker: Lens[Flamingos2LongSlit, Flamingos2Decker]                    =
+      Focus[Flamingos2LongSlit](_.defaultDecker)
+    val explicitDecker: Lens[Flamingos2LongSlit, Option[Flamingos2Decker]]           =
+      Focus[Flamingos2LongSlit](_.explicitDecker)
+    val defaultReadoutMode: Lens[Flamingos2LongSlit, Flamingos2ReadoutMode]          =
+      Focus[Flamingos2LongSlit](_.defaultReadoutMode)
+    val explicitReadoutMode: Lens[Flamingos2LongSlit, Option[Flamingos2ReadoutMode]] =
+      Focus[Flamingos2LongSlit](_.explicitReadoutMode)
 
   val gmosNorthLongSlit: Prism[ObservingMode, GmosNorthLongSlit] =
     GenPrism[ObservingMode, GmosNorthLongSlit]
@@ -367,5 +367,5 @@ object ObservingMode:
   val gmosSouthLongSlit: Prism[ObservingMode, GmosSouthLongSlit] =
     GenPrism[ObservingMode, GmosSouthLongSlit]
 
-  val f2LongSlit: Prism[ObservingMode, F2LongSlit] =
-    GenPrism[ObservingMode, F2LongSlit]
+  val f2LongSlit: Prism[ObservingMode, Flamingos2LongSlit] =
+    GenPrism[ObservingMode, Flamingos2LongSlit]
