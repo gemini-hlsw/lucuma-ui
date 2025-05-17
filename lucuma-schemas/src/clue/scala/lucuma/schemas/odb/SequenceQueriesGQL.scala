@@ -52,6 +52,18 @@ object SequenceQueriesGQL:
                     ...gmosSouthSequenceFields
                   }
                 }
+                flamingos2 {
+                  static {
+                    mosPreImaging
+                    useElectronicOffsetting
+                  }
+                  acquisition {
+                    ...flamingos2SequenceFields
+                  }
+                  science {
+                    ...flamingos2SequenceFields
+                  }
+                }
               }
             }
           }
@@ -205,6 +217,49 @@ object SequenceQueriesGQL:
           hasMore
         }
 
+        fragment flamingos2AtomFields on Flamingos2Atom {
+          id
+          description
+          steps {
+            id
+            instrumentConfig {
+              exposure { microseconds }
+              disperser 
+              filter
+              readMode
+              lyotWheel
+              fpu {
+                builtin
+              }
+              decker
+              readoutMode
+              reads
+            }
+            stepConfig {
+              ...stepConfigFields
+            }
+            telescopeConfig {
+              offset { ...offsetFields }
+              guiding
+            }
+            estimate {
+              ...stepEstimateFields
+            }
+            observeClass
+            breakpoint
+          }
+        }
+
+        fragment flamingos2SequenceFields on Flamingos2ExecutionSequence {
+          nextAtom {
+            ...flamingos2AtomFields
+          }
+          possibleFuture {
+            ...flamingos2AtomFields
+          }
+          hasMore
+        }
+
         fragment offsetFields on Offset {
           p { microarcseconds }
           q { microarcseconds }
@@ -234,50 +289,3 @@ object SequenceQueriesGQL:
       object Observation:
         object Execution:
           type Config = InstrumentExecutionConfig
-
-  @clue.annotation.GraphQL
-  trait DigestQuery extends GraphQLOperation[ObservationDB]:
-    val document = s"""
-        query($$obsId: ObservationId!) {
-          observation(observationId: $$obsId) {
-            execution {
-              digest {
-                setup {
-                  ...setupTimeFields
-                }
-                acquisition {
-                  ...sequenceDigestFields
-                }
-                science {
-                  ...sequenceDigestFields
-                }
-              }
-            }
-          }
-        }
-
-        fragment setupTimeFields on SetupTime {
-          full { microseconds }
-          reacquisition { microseconds }
-        }
-
-        fragment sequenceDigestFields on SequenceDigest {
-          observeClass
-          timeEstimate {
-            program { microseconds }
-            nonCharged { microseconds }
-          }
-          offsets { ...offsetFields }
-          atomCount
-        }
-
-        fragment offsetFields on Offset {
-          p { microarcseconds }
-          q { microarcseconds }
-        }
-      """
-
-    object Data:
-      object Observation:
-        object Execution:
-          type Digest = ExecutionDigest
