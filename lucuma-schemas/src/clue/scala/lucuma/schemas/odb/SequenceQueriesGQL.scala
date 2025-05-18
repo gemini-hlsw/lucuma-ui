@@ -4,19 +4,18 @@
 package lucuma.schemas.odb
 
 import clue.GraphQLOperation
+import clue.annotation.GraphQL
 import lucuma.core.model.sequence.*
 import lucuma.schemas.ObservationDB
 // gql: import lucuma.odb.json.sequence.given
 
 object SequenceQueriesGQL:
-  @clue.annotation.GraphQL
+  @GraphQL
   trait SequenceQuery extends GraphQLOperation[ObservationDB]:
     val document = s"""
         query($$obsId: ObservationId!) {
           observation(observationId: $$obsId) {
-            itc {
-              ...itcFields
-            }
+            itc { ...itcFields }
             execution {
               config(futureLimit: 100) {
                 instrument
@@ -25,44 +24,28 @@ object SequenceQueriesGQL:
                     stageMode
                     detector
                     mosPreImaging
-                    nodAndShuffle {
-                      ...nodAndShuffleFields
-                    }
+                    nodAndShuffle { ...nodAndShuffleFields }
                   }
-                  acquisition {
-                    ...gmosNorthSequenceFields
-                  }
-                  science {
-                    ...gmosNorthSequenceFields
-                  }
+                  acquisition { ...gmosNorthSequenceFields }
+                  science { ...gmosNorthSequenceFields }
                 }
                 gmosSouth {
                   static {
                     stageMode
                     detector
                     mosPreImaging
-                    nodAndShuffle {
-                      ...nodAndShuffleFields
-                    }
+                    nodAndShuffle { ...nodAndShuffleFields }
                   }
-                  acquisition {
-                    ...gmosSouthSequenceFields
-                  }
-                  science {
-                    ...gmosSouthSequenceFields
-                  }
+                  acquisition { ...gmosSouthSequenceFields }
+                  science { ...gmosSouthSequenceFields }
                 }
                 flamingos2 {
                   static {
                     mosPreImaging
                     useElectronicOffsetting
                   }
-                  acquisition {
-                    ...flamingos2SequenceFields
-                  }
-                  science {
-                    ...flamingos2SequenceFields
-                  }
+                  acquisition { ...flamingos2SequenceFields }
+                  science { ...flamingos2SequenceFields }
                 }
               }
             }
@@ -120,49 +103,21 @@ object SequenceQueriesGQL:
           description
           steps {
             id
-            instrumentConfig {
-              exposure { microseconds }
-              readout {
-                xBin
-                yBin
-                ampCount
-                ampGain
-                ampReadMode
-              }
-              dtax
-              roi
-              gratingConfig {
-                grating
-                order
-                wavelength { picometers }
-              }
-              filter
-              fpu {
-                builtin
-              }
-            }
-            stepConfig {
-              ...stepConfigFields
-            }
+            instrumentConfig $GmosNorthDynamicConfigSubquery
+            stepConfig { ...stepConfigFields }
             telescopeConfig {
               offset { ...offsetFields }
               guiding
             }
-            estimate {
-              ...stepEstimateFields
-            }
+            estimate { ...stepEstimateFields }
             observeClass
             breakpoint
           }
         }
 
         fragment gmosNorthSequenceFields on GmosNorthExecutionSequence {
-          nextAtom {
-            ...gmosNorthAtomFields
-          }
-          possibleFuture {
-            ...gmosNorthAtomFields
-          }
+          nextAtom { ...gmosNorthAtomFields }
+          possibleFuture { ...gmosNorthAtomFields }
           hasMore
         }
 
@@ -171,49 +126,21 @@ object SequenceQueriesGQL:
           description
           steps {
             id
-            instrumentConfig {
-              exposure { microseconds }
-              readout {
-                xBin
-                yBin
-                ampCount
-                ampGain
-                ampReadMode
-              }
-              dtax
-              roi
-              gratingConfig {
-                grating
-                order
-                wavelength { picometers }
-              }
-              filter
-              fpu {
-                builtin
-              }
-            }
-            stepConfig {
-              ...stepConfigFields
-            }
+            instrumentConfig $GmosSouthDynamicConfigSubquery
+            stepConfig { ...stepConfigFields }
             telescopeConfig {
               offset { ...offsetFields }
               guiding
             }
-            estimate {
-              ...stepEstimateFields
-            }
+            estimate { ...stepEstimateFields }
             observeClass
             breakpoint
           }
         }
 
         fragment gmosSouthSequenceFields on GmosSouthExecutionSequence {
-          nextAtom {
-            ...gmosSouthAtomFields
-          }
-          possibleFuture {
-            ...gmosSouthAtomFields
-          }
+          nextAtom { ...gmosSouthAtomFields }
+          possibleFuture { ...gmosSouthAtomFields }
           hasMore
         }
 
@@ -222,41 +149,21 @@ object SequenceQueriesGQL:
           description
           steps {
             id
-            instrumentConfig {
-              exposure { microseconds }
-              disperser 
-              filter
-              readMode
-              lyotWheel
-              fpu {
-                builtin
-              }
-              decker
-              readoutMode
-              reads
-            }
-            stepConfig {
-              ...stepConfigFields
-            }
+            instrumentConfig $Flamingos2DynamicConfigSubquery
+            stepConfig { ...stepConfigFields }
             telescopeConfig {
               offset { ...offsetFields }
               guiding
             }
-            estimate {
-              ...stepEstimateFields
-            }
+            estimate { ...stepEstimateFields }
             observeClass
             breakpoint
           }
         }
 
         fragment flamingos2SequenceFields on Flamingos2ExecutionSequence {
-          nextAtom {
-            ...flamingos2AtomFields
-          }
-          possibleFuture {
-            ...flamingos2AtomFields
-          }
+          nextAtom { ...flamingos2AtomFields }
+          possibleFuture { ...flamingos2AtomFields }
           hasMore
         }
 

@@ -102,9 +102,13 @@ trait ArbBasicConfiguration {
       )
 
   given Cogen[BasicConfiguration] =
-    Cogen[Either[BasicConfiguration.Flamingos2LongSlit, Either[BasicConfiguration.GmosNorthLongSlit,
-                                                               BasicConfiguration.GmosSouthLongSlit
-    ]]]
+    Cogen[Either[
+      BasicConfiguration.Flamingos2LongSlit,
+      Either[
+        BasicConfiguration.GmosNorthLongSlit,
+        BasicConfiguration.GmosSouthLongSlit
+      ]
+    ]]
       .contramap {
         case n: BasicConfiguration.GmosNorthLongSlit  => n.asLeft.asRight
         case s: BasicConfiguration.GmosSouthLongSlit  => s.asRight.asRight

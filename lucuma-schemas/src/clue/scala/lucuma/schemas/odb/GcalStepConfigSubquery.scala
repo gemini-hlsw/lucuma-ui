@@ -4,9 +4,10 @@
 package lucuma.schemas.odb
 
 import clue.GraphQLSubquery
+import clue.annotation.GraphQL
 import lucuma.schemas.ObservationDB
 
-@clue.annotation.GraphQL
+@GraphQL
 abstract class GcalStepConfigSubquery extends GraphQLSubquery[ObservationDB]("Gcal"):
   override val subquery: String = """
         {

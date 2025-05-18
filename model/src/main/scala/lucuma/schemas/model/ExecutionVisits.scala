@@ -27,11 +27,13 @@ enum ExecutionVisits(val instrument: Instrument) derives Eq:
 
   def extendWith(other: ExecutionVisits): ExecutionVisits =
     (this, other) match
-      case (GmosNorth(leftVisits), GmosNorth(rightVisits)) =>
+      case (GmosNorth(leftVisits), GmosNorth(rightVisits))   =>
         GmosNorth(removeDuplicateVisitOverlap(leftVisits, rightVisits))
-      case (GmosSouth(leftVisits), GmosSouth(rightVisits)) =>
+      case (GmosSouth(leftVisits), GmosSouth(rightVisits))   =>
         GmosSouth(removeDuplicateVisitOverlap(leftVisits, rightVisits))
-      case (left, right)                                   =>
+      case (Flamingos2(leftVisits), Flamingos2(rightVisits)) =>
+        Flamingos2(removeDuplicateVisitOverlap(leftVisits, rightVisits))
+      case (left, right)                                     =>
         throw new Exception:
           s"Attempted to join ExecutionVisits for different instruments: ${left.instrument} and ${right.instrument}"
 
@@ -41,12 +43,18 @@ enum ExecutionVisits(val instrument: Instrument) derives Eq:
   case GmosSouth(visits: NonEmptyList[Visit.GmosSouth])
       extends ExecutionVisits(Instrument.GmosSouth)
 
+  case Flamingos2(visits: NonEmptyList[Visit.Flamingos2])
+      extends ExecutionVisits(Instrument.Flamingos2)
+
 object ExecutionVisits:
   val gmosNorth: Prism[ExecutionVisits, ExecutionVisits.GmosNorth] =
     GenPrism[ExecutionVisits, ExecutionVisits.GmosNorth]
 
   val gmosSouth: Prism[ExecutionVisits, ExecutionVisits.GmosSouth] =
     GenPrism[ExecutionVisits, ExecutionVisits.GmosSouth]
+
+  val flamingos2: Prism[ExecutionVisits, ExecutionVisits.Flamingos2] =
+    GenPrism[ExecutionVisits, ExecutionVisits.Flamingos2]
 
   object GmosNorth:
     val visits: Lens[GmosNorth, NonEmptyList[Visit.GmosNorth]] =
@@ -55,3 +63,7 @@ object ExecutionVisits:
   object GmosSouth:
     val visits: Lens[GmosSouth, NonEmptyList[Visit.GmosSouth]] =
       Focus[GmosSouth](_.visits)
+
+  object Flamingos2:
+    val visits: Lens[Flamingos2, NonEmptyList[Visit.Flamingos2]] =
+      Focus[Flamingos2](_.visits)

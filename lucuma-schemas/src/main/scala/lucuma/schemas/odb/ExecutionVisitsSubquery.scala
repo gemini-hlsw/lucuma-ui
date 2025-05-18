@@ -60,56 +60,9 @@ object ExecutionVisitsSubquery
                     }
                   }
                   generatedId
-                  gmosNorth {
-                    exposure $TimeSpanSubquery
-                    readout {
-                      xBin
-                      yBin
-                      ampCount
-                      ampGain
-                      ampReadMode
-                    }
-                    dtax
-                    roi
-                    gratingConfig {
-                      grating
-                      order
-                      wavelength $WavelengthSubquery
-                    }
-                    filter
-                    fpu {
-                      customMask {
-                        filename
-                        slitWidth
-                      }
-                      builtin
-                    }
-                  }
-                  gmosSouth {
-                    exposure $TimeSpanSubquery
-                    readout {
-                      xBin
-                      yBin
-                      ampCount
-                      ampGain
-                      ampReadMode
-                    }
-                    dtax
-                    roi
-                    gratingConfig {
-                      grating
-                      order
-                      wavelength $WavelengthSubquery
-                    }
-                    filter
-                    fpu {
-                      customMask {
-                        filename
-                        slitWidth
-                      }
-                      builtin
-                    }
-                  }
+                  gmosNorth $GmosNorthDynamicConfigSubquery
+                  gmosSouth $GmosSouthDynamicConfigSubquery
+                  flamingos2 $Flamingos2DynamicConfigSubquery           
                 }
               }
             }

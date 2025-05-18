@@ -20,12 +20,13 @@ import lucuma.core.model.*
 import lucuma.core.model.ExposureTimeMode.*
 import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.TelescopeConfig
-import lucuma.core.model.sequence.gmos.DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2FpuMask
+import lucuma.core.model.sequence.gmos
 import lucuma.core.model.sequence.gmos.GmosCcdMode
 import lucuma.core.model.sequence.gmos.GmosFpuMask
 import lucuma.core.model.sequence.gmos.GmosGratingConfig
 import lucuma.core.model.sequence.gmos.GmosNodAndShuffle
-import lucuma.core.model.sequence.gmos.StaticConfig
 import lucuma.core.util.*
 import lucuma.schemas.ObservationDB.Enums.PartnerLinkType
 import lucuma.schemas.ObservationDB.Enums.PosAngleConstraintMode
@@ -525,21 +526,33 @@ extension (ccd: GmosCcdMode)
 
 extension (g: GmosGratingConfig.South)
   def toInput: GmosSouthGratingConfigInput =
-    GmosSouthGratingConfigInput(grating = g.grating,
-                                order = g.order,
-                                wavelength = g.wavelength.toInput
+    GmosSouthGratingConfigInput(
+      grating = g.grating,
+      order = g.order,
+      wavelength = g.wavelength.toInput
     )
 
 extension (g: GmosGratingConfig.North)
   def toInput: GmosNorthGratingConfigInput =
-    GmosNorthGratingConfigInput(grating = g.grating,
-                                order = g.order,
-                                wavelength = g.wavelength.toInput
+    GmosNorthGratingConfigInput(
+      grating = g.grating,
+      order = g.order,
+      wavelength = g.wavelength.toInput
     )
 
 extension (g: GmosFpuMask.Custom)
   def toInput: GmosCustomMaskInput =
-    GmosCustomMaskInput(filename = g.filename.value, slitWidth = g.slitWidth)
+    GmosCustomMaskInput(
+      filename = g.filename.value,
+      slitWidth = g.slitWidth
+    )
+
+extension (customMask: Flamingos2FpuMask.Custom)
+  def toInput: Flamingos2CustomMaskInput =
+    Flamingos2CustomMaskInput(
+      filename = customMask.filename.value,
+      slitWidth = customMask.slitWidth
+    )
 
 extension (g: GmosFpuMask[GmosSouthFpu])
   def toInput: GmosSouthFpuInput =
@@ -548,12 +561,20 @@ extension (g: GmosFpuMask[GmosSouthFpu])
       builtin = g.builtinFpu.orUnassign
     )
 
-extension (g:  GmosFpuMask[GmosNorthFpu])
-  def toInput: GmosNorthFpuInput      =
+extension (g: GmosFpuMask[GmosNorthFpu])
+  def toInput: GmosNorthFpuInput =
     GmosNorthFpuInput(
       customMask = g.custom.map(_.toInput).orUnassign,
       builtin = g.builtinFpu.orUnassign
     )
+
+extension (mask: Flamingos2FpuMask)
+  def toInput: Flamingos2FpuMaskInput = Flamingos2FpuMaskInput(
+    // TODO Flamingos2FpuMask has a 3rd `Imaging` option that doesn't seem to be in the schema yet.
+    customMask = mask.custom.map(_.toInput).orUnassign,
+    builtin = mask.builtinFpu.orUnassign
+  )
+
 extension (ns: GmosNodAndShuffle)
   def toInput: GmosNodAndShuffleInput = GmosNodAndShuffleInput(
     ns.posA.toInput,
@@ -563,7 +584,7 @@ extension (ns: GmosNodAndShuffle)
     ns.shuffleCycles
   )
 
-extension (gmosNStatic: StaticConfig.GmosNorth)
+extension (gmosNStatic: gmos.StaticConfig.GmosNorth)
   def toInput: GmosNorthStaticInput = GmosNorthStaticInput(
     gmosNStatic.stageMode.assign,
     gmosNStatic.detector.assign,
@@ -571,7 +592,7 @@ extension (gmosNStatic: StaticConfig.GmosNorth)
     gmosNStatic.nodAndShuffle.map(_.toInput).orUnassign
   )
 
-extension (gmosSStatic: StaticConfig.GmosSouth)
+extension (gmosSStatic: gmos.StaticConfig.GmosSouth)
   def toInput: GmosSouthStaticInput = GmosSouthStaticInput(
     gmosSStatic.stageMode.assign,
     gmosSStatic.detector.assign,
@@ -579,7 +600,7 @@ extension (gmosSStatic: StaticConfig.GmosSouth)
     gmosSStatic.nodAndShuffle.map(_.toInput).orUnassign
   )
 
-extension (gmosSDynamic: DynamicConfig.GmosSouth)
+extension (gmosSDynamic: gmos.DynamicConfig.GmosSouth)
   def toInput: GmosSouthDynamicInput = GmosSouthDynamicInput(
     gmosSDynamic.exposure.toInput,
     gmosSDynamic.readout.toInput,
@@ -590,7 +611,7 @@ extension (gmosSDynamic: DynamicConfig.GmosSouth)
     gmosSDynamic.fpu.map(_.toInput).orUnassign
   )
 
-extension (gmosNDynamic: DynamicConfig.GmosNorth)
+extension (gmosNDynamic: gmos.DynamicConfig.GmosNorth)
   def toInput: GmosNorthDynamicInput = GmosNorthDynamicInput(
     gmosNDynamic.exposure.toInput,
     gmosNDynamic.readout.toInput,
@@ -599,6 +620,19 @@ extension (gmosNDynamic: DynamicConfig.GmosNorth)
     gmosNDynamic.gratingConfig.map(_.toInput).orUnassign,
     gmosNDynamic.filter.orUnassign,
     gmosNDynamic.fpu.map(_.toInput).orUnassign
+  )
+
+extension (f2Dynamic: Flamingos2DynamicConfig)
+  def toInput: Flamingos2DynamicInput = Flamingos2DynamicInput(
+    f2Dynamic.exposure.toInput,
+    f2Dynamic.disperser.orUnassign,
+    f2Dynamic.filter,
+    f2Dynamic.readMode,
+    f2Dynamic.lyotWheel,
+    f2Dynamic.fpu.toInput.assign,
+    f2Dynamic.decker,
+    f2Dynamic.readoutMode,
+    f2Dynamic.reads
   )
 
 extension (sc: StepConfig)

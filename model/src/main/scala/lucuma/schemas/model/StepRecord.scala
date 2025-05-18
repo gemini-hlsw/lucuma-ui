@@ -10,7 +10,8 @@ import lucuma.core.enums.ObserveClass
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.TelescopeConfig
-import lucuma.core.model.sequence.gmos.DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2DynamicConfig
+import lucuma.core.model.sequence.gmos
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
 import lucuma.schemas.model.enums.StepExecutionState
@@ -35,28 +36,42 @@ enum StepRecord[+D]:
     created:          Timestamp,
     executionState:   StepExecutionState,
     interval:         Option[TimestampInterval],
-    instrumentConfig: DynamicConfig.GmosNorth,
+    instrumentConfig: gmos.DynamicConfig.GmosNorth,
     stepConfig:       StepConfig,
     telescopeConfig:  TelescopeConfig,
     observeClass:     ObserveClass,
     qaState:          Option[DatasetQaState],
     datasets:         List[Dataset],
     generatedId:      Option[Step.Id]
-  ) extends StepRecord[DynamicConfig.GmosNorth]
+  ) extends StepRecord[gmos.DynamicConfig.GmosNorth]
 
   case GmosSouth(
     id:               Step.Id,
     created:          Timestamp,
     executionState:   StepExecutionState,
     interval:         Option[TimestampInterval],
-    instrumentConfig: DynamicConfig.GmosSouth,
+    instrumentConfig: gmos.DynamicConfig.GmosSouth,
     stepConfig:       StepConfig,
     telescopeConfig:  TelescopeConfig,
     observeClass:     ObserveClass,
     qaState:          Option[DatasetQaState],
     datasets:         List[Dataset],
     generatedId:      Option[Step.Id]
-  ) extends StepRecord[DynamicConfig.GmosSouth]
+  ) extends StepRecord[gmos.DynamicConfig.GmosSouth]
+
+  case Flamingos2(
+    id:               Step.Id,
+    created:          Timestamp,
+    executionState:   StepExecutionState,
+    interval:         Option[TimestampInterval],
+    instrumentConfig: Flamingos2DynamicConfig,
+    stepConfig:       StepConfig,
+    telescopeConfig:  TelescopeConfig,
+    observeClass:     ObserveClass,
+    qaState:          Option[DatasetQaState],
+    datasets:         List[Dataset],
+    generatedId:      Option[Step.Id]
+  ) extends StepRecord[Flamingos2DynamicConfig]
 
 object StepRecord:
   given [A](using Eq[A]): Eq[StepRecord[A]] = Eq.derived
@@ -76,7 +91,7 @@ object StepRecord:
     val interval: Lens[GmosNorth, Option[TimestampInterval]] =
       Focus[GmosNorth](_.interval)
 
-    val instrumentConfig: Lens[GmosNorth, DynamicConfig.GmosNorth] =
+    val instrumentConfig: Lens[GmosNorth, gmos.DynamicConfig.GmosNorth] =
       Focus[GmosNorth](_.instrumentConfig)
 
     val stepConfig: Lens[GmosNorth, StepConfig] =
@@ -109,7 +124,7 @@ object StepRecord:
     val interval: Lens[GmosSouth, Option[TimestampInterval]] =
       Focus[GmosSouth](_.interval)
 
-    val instrumentConfig: Lens[GmosSouth, DynamicConfig.GmosSouth] =
+    val instrumentConfig: Lens[GmosSouth, gmos.DynamicConfig.GmosSouth] =
       Focus[GmosSouth](_.instrumentConfig)
 
     val stepConfig: Lens[GmosSouth, StepConfig] =
@@ -126,3 +141,36 @@ object StepRecord:
 
     val datasets: Lens[GmosSouth, List[Dataset]] =
       Focus[GmosSouth](_.datasets)
+
+  object Flamingos2:
+    given Eq[Flamingos2] = Eq.derived
+
+    val id: Lens[Flamingos2, Step.Id] =
+      Focus[Flamingos2](_.id)
+
+    val created: Lens[Flamingos2, Timestamp] =
+      Focus[Flamingos2](_.created)
+
+    val executionState: Lens[Flamingos2, StepExecutionState] =
+      Focus[Flamingos2](_.executionState)
+
+    val interval: Lens[Flamingos2, Option[TimestampInterval]] =
+      Focus[Flamingos2](_.interval)
+
+    val instrumentConfig: Lens[Flamingos2, Flamingos2DynamicConfig] =
+      Focus[Flamingos2](_.instrumentConfig)
+
+    val stepConfig: Lens[Flamingos2, StepConfig] =
+      Focus[Flamingos2](_.stepConfig)
+
+    val telescopeConfig: Lens[Flamingos2, TelescopeConfig] =
+      Focus[Flamingos2](_.telescopeConfig)
+
+    val observeClass: Lens[Flamingos2, ObserveClass] =
+      Focus[Flamingos2](_.observeClass)
+
+    val qaState: Lens[Flamingos2, Option[DatasetQaState]] =
+      Focus[Flamingos2](_.qaState)
+
+    val datasets: Lens[Flamingos2, List[Dataset]] =
+      Focus[Flamingos2](_.datasets)

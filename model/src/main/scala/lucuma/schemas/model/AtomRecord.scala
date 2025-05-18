@@ -7,7 +7,8 @@ import cats.Eq
 import cats.derived.*
 import lucuma.core.enums.SequenceType
 import lucuma.core.model.sequence.Atom
-import lucuma.core.model.sequence.gmos.DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2DynamicConfig
+import lucuma.core.model.sequence.gmos
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
 import lucuma.schemas.model.enums.AtomExecutionState
@@ -31,7 +32,7 @@ enum AtomRecord[+D]:
     sequenceType:   SequenceType,
     steps:          List[StepRecord.GmosNorth],
     generatedId:    Option[Atom.Id]
-  ) extends AtomRecord[DynamicConfig.GmosNorth]
+  ) extends AtomRecord[gmos.DynamicConfig.GmosNorth]
 
   case GmosSouth protected[schemas] (
     id:             Atom.Id,
@@ -41,7 +42,17 @@ enum AtomRecord[+D]:
     sequenceType:   SequenceType,
     steps:          List[StepRecord.GmosSouth],
     generatedId:    Option[Atom.Id]
-  ) extends AtomRecord[DynamicConfig.GmosSouth]
+  ) extends AtomRecord[gmos.DynamicConfig.GmosSouth]
+
+  case Flamingos2 protected[schemas] (
+    id:             Atom.Id,
+    created:        Timestamp,
+    executionState: AtomExecutionState,
+    interval:       Option[TimestampInterval],
+    sequenceType:   SequenceType,
+    steps:          List[StepRecord.Flamingos2],
+    generatedId:    Option[Atom.Id]
+  ) extends AtomRecord[Flamingos2DynamicConfig]
 
 object AtomRecord:
   given [A](using Eq[A]): Eq[AtomRecord[A]] = Eq.derived
@@ -84,3 +95,24 @@ object AtomRecord:
 
     val steps: Lens[GmosSouth, List[StepRecord.GmosSouth]] =
       Focus[GmosSouth](_.steps)
+
+  object Flamingos2:
+    given Eq[Flamingos2] = Eq.derived
+
+    val id: Lens[Flamingos2, Atom.Id] =
+      Focus[Flamingos2](_.id)
+
+    val created: Lens[Flamingos2, Timestamp] =
+      Focus[Flamingos2](_.created)
+
+    val executionState: Lens[Flamingos2, AtomExecutionState] =
+      Focus[Flamingos2](_.executionState)
+
+    val interval: Lens[Flamingos2, Option[TimestampInterval]] =
+      Focus[Flamingos2](_.interval)
+
+    val sequenceType: Lens[Flamingos2, SequenceType] =
+      Focus[Flamingos2](_.sequenceType)
+
+    val steps: Lens[Flamingos2, List[StepRecord.Flamingos2]] =
+      Focus[Flamingos2](_.steps)
