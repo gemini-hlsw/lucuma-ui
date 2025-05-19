@@ -569,11 +569,13 @@ extension (g: GmosFpuMask[GmosNorthFpu])
     )
 
 extension (mask: Flamingos2FpuMask)
-  def toInput: Flamingos2FpuMaskInput = Flamingos2FpuMaskInput(
-    // TODO Flamingos2FpuMask has a 3rd `Imaging` option that doesn't seem to be in the schema yet.
-    customMask = mask.custom.map(_.toInput).orUnassign,
-    builtin = mask.builtinFpu.orUnassign
-  )
+  def toInput: Input[Flamingos2FpuMaskInput] =
+    if mask.isImaging then Input.unassign
+    else
+      Flamingos2FpuMaskInput(
+        customMask = mask.custom.map(_.toInput).orUnassign,
+        builtin = mask.builtinFpu.orUnassign
+      ).assign
 
 extension (ns: GmosNodAndShuffle)
   def toInput: GmosNodAndShuffleInput = GmosNodAndShuffleInput(
@@ -629,7 +631,7 @@ extension (f2Dynamic: Flamingos2DynamicConfig)
     f2Dynamic.filter,
     f2Dynamic.readMode,
     f2Dynamic.lyotWheel,
-    f2Dynamic.fpu.toInput.assign,
+    f2Dynamic.fpu.toInput,
     f2Dynamic.decker,
     f2Dynamic.readoutMode,
     f2Dynamic.reads
