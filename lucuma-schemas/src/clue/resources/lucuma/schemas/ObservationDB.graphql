@@ -6907,8 +6907,7 @@ type Group {
   are required and which are not fully defined, the remaining time estimate
   cannot be calculated.
   """
-  timeEstimateRange: CategorizedTimeRange
-  timeEstimateRange2: CalculatedCategorizedTimeRange
+  timeEstimateRange: CalculatedCategorizedTimeRange
 
   """
   Prepared time by band ignoring `minimumRequired`, for observations that can be
@@ -6916,8 +6915,7 @@ type Group {
   fully defined such that a sequence can be generated for it.  All defined
   observations in every band present in the group are included.
   """
-  timeEstimateBanded: [BandedTime!]!
-  timeEstimateBanded2: [CalculatedBandedTime!]!
+  timeEstimateBanded: [CalculatedBandedTime!]!
   existence: Existence!
   system: Boolean!
 }
@@ -7863,8 +7861,7 @@ type Program {
   are required and which are not fully defined, the remaining time estimate
   cannot be calculated.
   """
-  timeEstimateRange: CategorizedTimeRange
-  timeEstimateRange2: CalculatedCategorizedTimeRange
+  timeEstimateRange: CalculatedCategorizedTimeRange
 
   """
   Prepared time by band ignoring `minimumRequired` in groups, for observations
@@ -7872,8 +7869,7 @@ type Program {
   must be fully defined such that a sequence can be generated for it.  All
   defined observations in every band present in the program are included.
   """
-  timeEstimateBanded: [BandedTime!]!
-  timeEstimateBanded2: [CalculatedBandedTime!]!
+  timeEstimateBanded: [CalculatedBandedTime!]!
 
   """
   Program-wide time charge, summing all corrected observation time charges.
