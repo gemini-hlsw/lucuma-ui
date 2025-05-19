@@ -106,9 +106,11 @@ trait ObservationDB {
     type GcalFilter                          = enums.GcalFilter
     type GcalShutter                         = enums.GcalShutter
     type Gender                              = enums.Gender
+    type Flamingos2CustomSlitWidth           = enums.Flamingos2CustomSlitWidth
     type Flamingos2Disperser                 = enums.Flamingos2Disperser
     type Flamingos2Filter                    = enums.Flamingos2Filter
     type Flamingos2Fpu                       = enums.Flamingos2Fpu
+    type Flamingos2LyotWheel                 = enums.Flamingos2LyotWheel
     type Flamingos2ReadMode                  = enums.Flamingos2ReadMode
     type Flamingos2Reads                     = enums.Flamingos2Reads
     type Flamingos2Decker                    = enums.Flamingos2Decker

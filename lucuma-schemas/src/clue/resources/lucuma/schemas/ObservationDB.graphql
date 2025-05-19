@@ -5460,6 +5460,12 @@ type ExecutionConfig {
   instrument: Instrument!
 
   """
+  Flamingos 2 execution config.  This will be null unless the `instrument` is
+  `FLAMINGOS2`.
+  """
+  flamingos2: Flamingos2ExecutionConfig
+
+  """
   GMOS North execution config.  This will be null unless the `instrument` is
   `GMOS_NORTH`.
   """
@@ -5670,30 +5676,34 @@ type Flamingos2Dynamic {
   """Flamingos 2 Lyot Wheel."""
   lyotWheel: Flamingos2LyotWheel!
 
-  """Flamingos 2 mask, if any."""
-  mask: Flamingos2Mask
+  """Flamingos 2 FPU, if any."""
+  fpu: Flamingos2FpuMask
 
-  """Readout mode, if specified."""
-  readoutMode: Flamingos2ReadoutMode
+  """Flamingos 2 decker."""
+  decker: Flamingos2Decker!
 
-  """Reads, if specified."""
-  reads: Flamingos2Reads
+  """Flamingos 2 readout mode."""
+  readoutMode: Flamingos2ReadoutMode!
+
+  """Flamingos 2 reads."""
+  reads: Flamingos2Reads!
 }
 
-"""Flamingos 2 instrument configuration input"""
+"""Flamingos 2 instrument configuration input."""
 input Flamingos2DynamicInput {
   exposure: TimeSpanInput!
   disperser: Flamingos2Disperser
   filter: Flamingos2Filter!
   readMode: Flamingos2ReadMode!
   lyotWheel: Flamingos2LyotWheel!
-  mask: Flamingos2MaskInput
-  readoutMode: Flamingos2ReadoutMode
-  reads: Flamingos2Reads
+  fpu: Flamingos2FpuMaskInput
+  decker: Flamingos2Decker!
+  readoutMode: Flamingos2ReadoutMode!
+  reads: Flamingos2Reads!
 }
 
 """Flamingos 2 mask option, either builtin or custom mask"""
-type Flamingos2Mask {
+type Flamingos2FpuMask {
   """The custom mask, if in use"""
   customMask: Flamingos2CustomMask
 
@@ -5702,7 +5712,7 @@ type Flamingos2Mask {
 }
 
 """Flamingos 2 mask input parameters (choose custom or builtin)."""
-input Flamingos2MaskInput {
+input Flamingos2FpuMaskInput {
   """Custom mask FPU option"""
   customMask: Flamingos2CustomMaskInput
 

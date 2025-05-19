@@ -7,7 +7,8 @@ import cats.Eq
 import cats.derived.*
 import cats.syntax.all.given
 import lucuma.core.enums.SequenceType
-import lucuma.core.model.sequence.gmos.DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2DynamicConfig
+import lucuma.core.model.sequence.gmos
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
 import monocle.Focus
@@ -30,14 +31,21 @@ enum Visit[+D]:
     created:  Timestamp,
     interval: Option[TimestampInterval],
     atoms:    List[AtomRecord.GmosNorth]
-  ) extends Visit[DynamicConfig.GmosNorth]
+  ) extends Visit[gmos.DynamicConfig.GmosNorth]
 
   case GmosSouth(
     id:       Visit.Id,
     created:  Timestamp,
     interval: Option[TimestampInterval],
     atoms:    List[AtomRecord.GmosSouth]
-  ) extends Visit[DynamicConfig.GmosSouth]
+  ) extends Visit[gmos.DynamicConfig.GmosSouth]
+
+  case Flamingos2(
+    id:       Visit.Id,
+    created:  Timestamp,
+    interval: Option[TimestampInterval],
+    atoms:    List[AtomRecord.Flamingos2]
+  ) extends Visit[Flamingos2DynamicConfig]
 
 object Visit:
   type Id = lucuma.core.model.Visit.Id
@@ -74,3 +82,18 @@ object Visit:
 
     val atoms: Lens[GmosSouth, List[AtomRecord.GmosSouth]] =
       Focus[GmosSouth](_.atoms)
+
+  object Flamingos2:
+    given Eq[Flamingos2] = Eq.derived
+
+    val id: Lens[Flamingos2, Visit.Id] =
+      Focus[Flamingos2](_.id)
+
+    val created: Lens[Flamingos2, Timestamp] =
+      Focus[Flamingos2](_.created)
+
+    val interval: Lens[Flamingos2, Option[TimestampInterval]] =
+      Focus[Flamingos2](_.interval)
+
+    val atoms: Lens[Flamingos2, List[AtomRecord.Flamingos2]] =
+      Focus[Flamingos2](_.atoms)
