@@ -4,13 +4,17 @@
 package lucuma.ui.sequence
 
 import cats.syntax.eq.*
+import cats.syntax.option.*
 import eu.timepit.refined.types.numeric.PosInt
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.ObserveClass
+import lucuma.core.enums.SequenceType
 import lucuma.core.math.SignalToNoise
 import lucuma.core.model.sequence.Step
-import lucuma.core.model.sequence.gmos.DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2FpuMask
+import lucuma.core.model.sequence.gmos
 import lucuma.core.util.NewType
 import lucuma.react.SizePx
 import lucuma.react.common.*
@@ -80,18 +84,18 @@ extension [D, R <: SequenceRow[D]](list: List[R])
      initial.modifyValue(i => PosInt.unsafeFrom(i.value + list.size))
     )
 
-extension (sn: Option[SignalToNoise])
-  def showForFutureStep[D](r: Step[D]): Option[SignalToNoise] =
-    sn.filter: _ =>
-      r.instrumentConfig match
-        case DynamicConfig.GmosNorth(_, _, _, _, _, _, fpu) =>
-          val showScience = r.observeClass === ObserveClass.Science
-          val showAcq     = r.observeClass === ObserveClass.Acquisition && fpu.isEmpty
-          showScience || showAcq
-
-        case DynamicConfig.GmosSouth(_, _, _, _, _, _, fpu) =>
-          val showScience = r.observeClass === ObserveClass.Science
-          val showAcq     = r.observeClass === ObserveClass.Acquisition && fpu.isEmpty
-          showScience || showAcq
-
-        case _ => false
+extension [D](step: Step[D])
+  def signalToNoise(
+    getSignalToNoise: SequenceType => Option[SignalToNoise]
+  ): Option[SignalToNoise] =
+    step.observeClass match
+      case a @ ObserveClass.Acquisition =>
+        val acquisitionSN: Option[SignalToNoise] = getSignalToNoise(SequenceType.Acquisition)
+        step.instrumentConfig match
+          case gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, None)                       => acquisitionSN
+          case gmos.DynamicConfig.GmosSouth(_, _, _, _, _, _, None)                       => acquisitionSN
+          case Flamingos2DynamicConfig(_, _, _, _, _, Flamingos2FpuMask.Imaging, _, _, _) =>
+            acquisitionSN
+          case _                                                                          => none
+      case ObserveClass.Science         => getSignalToNoise(SequenceType.Science)
+      case _                            => none
