@@ -7,7 +7,6 @@ import cats.Eq
 import cats.syntax.all.*
 import lucuma.core.enums.Breakpoint
 import lucuma.core.enums.Instrument
-import lucuma.core.enums.SequenceType
 import lucuma.core.enums.StepGuideState
 import lucuma.core.math.Offset
 import lucuma.core.math.SignalToNoise
@@ -78,7 +77,7 @@ trait SequenceRow[+D]:
     case gmos.DynamicConfig.GmosNorth(_, _, _, _, grating, _, _)    => grating.map(_.grating.shortName)
     case gmos.DynamicConfig.GmosSouth(_, _, _, _, grating, _, _)    => grating.map(_.grating.shortName)
     case Flamingos2DynamicConfig(_, disperser, _, _, _, _, _, _, _) =>
-      disperser.map(_.shortName) // TODO Is this right?
+      disperser.map(_.shortName)
 
   // There's no unified FPU type, so we return a string.
   lazy val fpuName: Option[String] = instrumentConfig.flatMap:
@@ -114,6 +113,9 @@ trait SequenceRow[+D]:
     case gmos.DynamicConfig.GmosNorth(_, readout, _, _, _, _, _) => readout.yBin.shortName
     case gmos.DynamicConfig.GmosSouth(_, readout, _, _, _, _, _) => readout.yBin.shortName
 
+  lazy val readMode: Option[String] = instrumentConfig.collect:
+    case Flamingos2DynamicConfig(_, _, _, readMode, _, _, _, _, _) => readMode.shortName
+
   lazy val roi: Option[String] = instrumentConfig.collect:
     case gmos.DynamicConfig.GmosNorth(_, _, _, roi, _, _, _) => roi.shortName
     case gmos.DynamicConfig.GmosSouth(_, _, _, roi, _, _, _) => roi.shortName
@@ -136,30 +138,30 @@ object SequenceRow:
 
   object FutureStep:
     def fromAtom[D](
-      atom:             Atom[D],
-      getSignalToNoise: SequenceType => Option[SignalToNoise]
+      atom:              Atom[D],
+      atomSignalToNoise: Option[SignalToNoise]
     ): List[FutureStep[D]] =
       FutureStep(
         atom.steps.head,
         atom.id,
         atom.steps.length.some.filter(_ > 1),
-        atom.steps.head.signalToNoise(getSignalToNoise)
+        atom.steps.head.getSignalToNoise(atomSignalToNoise)
       ) +: atom.steps.tail.map(step =>
-        SequenceRow.FutureStep(step, atom.id, none, step.signalToNoise(getSignalToNoise))
+        SequenceRow.FutureStep(step, atom.id, none, step.getSignalToNoise(atomSignalToNoise))
       )
 
     def fromAtoms[D](
-      atoms:         List[Atom[D]],
-      signalToNoise: Step[D] => Option[SignalToNoise]
+      atoms:                List[Atom[D]],
+      seqTypeSignalToNoise: Option[SignalToNoise]
     ): List[FutureStep[D]] =
       atoms.flatMap(atom =>
         FutureStep(
           atom.steps.head,
           atom.id,
           atom.steps.length.some.filter(_ > 1),
-          signalToNoise(atom.steps.head)
+          atom.steps.head.getSignalToNoise(seqTypeSignalToNoise)
         ) +: atom.steps.tail.map(step =>
-          SequenceRow.FutureStep(step, atom.id, none, signalToNoise(step))
+          SequenceRow.FutureStep(step, atom.id, none, step.getSignalToNoise(seqTypeSignalToNoise))
         )
       )
 

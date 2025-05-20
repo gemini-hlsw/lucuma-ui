@@ -9,7 +9,6 @@ import eu.timepit.refined.types.numeric.PosInt
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.enums.DatasetQaState
 import lucuma.core.enums.ObserveClass
-import lucuma.core.enums.SequenceType
 import lucuma.core.math.SignalToNoise
 import lucuma.core.model.sequence.Step
 import lucuma.core.model.sequence.flamingos2.Flamingos2DynamicConfig
@@ -85,17 +84,16 @@ extension [D, R <: SequenceRow[D]](list: List[R])
     )
 
 extension [D](step: Step[D])
-  def signalToNoise(
-    getSignalToNoise: SequenceType => Option[SignalToNoise]
+  def getSignalToNoise(
+    signalToNoise: Option[SignalToNoise]
   ): Option[SignalToNoise] =
     step.observeClass match
       case a @ ObserveClass.Acquisition =>
-        val acquisitionSN: Option[SignalToNoise] = getSignalToNoise(SequenceType.Acquisition)
         step.instrumentConfig match
-          case gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, None)                       => acquisitionSN
-          case gmos.DynamicConfig.GmosSouth(_, _, _, _, _, _, None)                       => acquisitionSN
+          case gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, None)                       => signalToNoise
+          case gmos.DynamicConfig.GmosSouth(_, _, _, _, _, _, None)                       => signalToNoise
           case Flamingos2DynamicConfig(_, _, _, _, _, Flamingos2FpuMask.Imaging, _, _, _) =>
-            acquisitionSN
+            signalToNoise
           case _                                                                          => none
-      case ObserveClass.Science         => getSignalToNoise(SequenceType.Science)
+      case ObserveClass.Science         => signalToNoise
       case _                            => none

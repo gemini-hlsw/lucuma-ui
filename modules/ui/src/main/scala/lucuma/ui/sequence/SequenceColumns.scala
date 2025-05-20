@@ -6,6 +6,10 @@ package lucuma.ui.sequence
 import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.math.Offset
+import lucuma.core.math.SignalToNoise
+import lucuma.core.math.Wavelength
+import lucuma.core.util.TimeSpan
 import lucuma.react.common.*
 import lucuma.react.syntax.*
 import lucuma.react.table.*
@@ -15,6 +19,182 @@ import lucuma.ui.table.ColumnSize.*
 import lucuma.ui.utils.formatSN
 
 import SequenceRowFormatters.*
+
+// `T` is the actual type of the table row, from which we extract an `R` using `getStep`.
+// `D` is the `DynamicConfig`.
+// `TM` is the type of the table meta.
+// `CM` is the type of the column meta.
+// `TF` is the type of the global filter.
+class SequenceColumns[D, T, R <: SequenceRow[D], TM, CM, TF](
+  colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, CM, TF],
+  getStep:  T => Option[R],
+  getIndex: T => Option[StepIndex]
+):
+  private lazy val indexAndTypeCol: colDef.TypeFor[(Option[StepIndex], Option[StepTypeDisplay])] =
+    colDef(
+      SequenceColumns.IndexAndTypeColumnId,
+      _.value.toOption
+        .map(row => (getIndex(row), getStep(row).flatMap(_.stepTypeDisplay)))
+        .getOrElse((none, none)),
+      header = "Step",
+      cell = c =>
+        React.Fragment(
+          c.value._1.map(_.value.value),
+          c.value._2.map(_.renderVdom)
+        )
+    )
+
+  private lazy val exposureCol: colDef.TypeFor[Option[TimeSpan]] =
+    colDef(
+      SequenceColumns.ExposureColumnId,
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.exposureTime)),
+      header = _ => "Exp (sec)",
+      cell = c =>
+        (c.value, c.row.original.value.toOption.flatMap(getStep).flatMap(_.instrument)).mapN:
+          (e, i) => FormatExposureTime(i)(e).value
+    )
+
+  private lazy val guideStateCol: colDef.TypeFor[Option[Boolean]] =
+    colDef(
+      SequenceColumns.GuideColumnId,
+      _.value.toOption.flatMap(row => getStep(row).map(_.hasGuiding)),
+      header = "",
+      cell = _.value
+        .filter(identity) // Only render on Some(true)
+        .map(_ => SequenceIcons.Crosshairs.withClass(SequenceStyles.StepGuided))
+    )
+
+  private lazy val pOffsetCol: colDef.TypeFor[Option[Offset.P]] =
+    colDef(
+      SequenceColumns.PColumnId,
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.offset.map(_.p))),
+      header = _ => "p",
+      cell = _.value.map(FormatOffsetP(_).value).orEmpty
+    )
+
+  private lazy val qOffsetCol: colDef.TypeFor[Option[Offset.Q]] =
+    colDef(
+      SequenceColumns.QColumnId,
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.offset.map(_.q))),
+      header = _ => "q",
+      cell = _.value.map(FormatOffsetQ(_).value).orEmpty
+    )
+
+  private lazy val wavelengthCol: colDef.TypeFor[Option[Wavelength]] =
+    colDef(
+      SequenceColumns.WavelengthColumnId,
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.wavelength)),
+      header = _ => "λ (nm)",
+      cell = _.value.map(FormatWavelength(_).value).getOrElse("-")
+    )
+
+  private lazy val fpuCol: colDef.TypeFor[Option[String]] =
+    colDef(
+      SequenceColumns.FPUColumnId,
+      _.value.toOption.map(row => getStep(row).flatMap(_.fpuName).getOrElse("None")),
+      header = _ => "FPU",
+      cell = _.value.orEmpty
+    )
+
+  private lazy val gratingCol: colDef.TypeFor[Option[String]] =
+    colDef(
+      SequenceColumns.GratingColumnId,
+      _.value.toOption.map(row => getStep(row).flatMap(_.gratingName).getOrElse("None")),
+      header = "Grating",
+      cell = _.value.orEmpty
+    )
+
+  private lazy val filterCol: colDef.TypeFor[Option[String]] =
+    colDef(
+      SequenceColumns.FilterColumnId,
+      _.value.toOption.map(row => getStep(row).flatMap(_.filterName).getOrElse("None")),
+      header = "Filter",
+      cell = _.value.orEmpty
+    )
+
+  private lazy val xBinCol: colDef.TypeFor[Option[String]] =
+    colDef(
+      SequenceColumns.XBinColumnId,
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.readoutXBin)),
+      header = _ => "Xbin",
+      cell = _.value.orEmpty
+    )
+
+  private lazy val yBinCol: colDef.TypeFor[Option[String]] =
+    colDef(
+      SequenceColumns.YBinColumnId,
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.readoutYBin)),
+      header = _ => "Ybin",
+      cell = _.value.orEmpty
+    )
+  colDef(
+    SequenceColumns.YBinColumnId,
+    _.value.toOption.flatMap(row => getStep(row).flatMap(_.readoutYBin)),
+    header = _ => "Ybin",
+    cell = _.value.orEmpty
+  )
+
+  private lazy val roiCol: colDef.TypeFor[Option[String]] =
+    colDef(
+      SequenceColumns.ROIColumnId,
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.roi)),
+      header = "ROI",
+      cell = _.value.orEmpty
+    )
+  colDef(
+    SequenceColumns.ROIColumnId,
+    _.value.toOption.flatMap(row => getStep(row).flatMap(_.roi)),
+    header = "ROI",
+    cell = _.value.orEmpty
+  )
+
+  private lazy val snCol: colDef.TypeFor[Option[SignalToNoise]] =
+    colDef(
+      SequenceColumns.SNColumnId,
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.signalToNoise)),
+      header = "S/N",
+      cell = _.value.map(formatSN).orEmpty
+    )
+
+  private lazy val readModeCol: colDef.TypeFor[Option[String]] =
+    colDef(
+      ColumnId("readMode"),
+      _.value.toOption.flatMap(row => getStep(row).flatMap(_.readMode)),
+      header = "Read Mode",
+      cell = _.value.orEmpty
+    )
+
+  lazy val forGmos: List[colDef.TypeFor[?]] =
+    List(
+      indexAndTypeCol,
+      exposureCol,
+      guideStateCol,
+      pOffsetCol,
+      qOffsetCol,
+      wavelengthCol,
+      fpuCol,
+      gratingCol,
+      filterCol,
+      xBinCol,
+      yBinCol,
+      roiCol,
+      snCol
+    )
+
+  lazy val forFlamingos2: List[colDef.TypeFor[?]] =
+    List(
+      indexAndTypeCol,
+      exposureCol,
+      guideStateCol,
+      pOffsetCol,
+      qOffsetCol,
+      wavelengthCol,
+      fpuCol,
+      gratingCol,
+      filterCol,
+      readModeCol,
+      snCol
+    )
 
 object SequenceColumns:
   val IndexAndTypeColumnId: ColumnId = ColumnId("stepType")
@@ -29,6 +209,7 @@ object SequenceColumns:
   val XBinColumnId: ColumnId         = ColumnId("xbin")
   val YBinColumnId: ColumnId         = ColumnId("Ybin")
   val ROIColumnId: ColumnId          = ColumnId("roi")
+  val ReadModeColumnId: ColumnId     = ColumnId("readMode")
   val SNColumnId: ColumnId           = ColumnId("sn")
 
   val BaseColumnSizes: Map[ColumnId, ColumnSize] = Map(
@@ -44,6 +225,7 @@ object SequenceColumns:
     XBinColumnId         -> FixedSize(60.toPx),
     YBinColumnId         -> FixedSize(60.toPx),
     ROIColumnId          -> Resizable(75.toPx, min = 75.toPx),
+    ReadModeColumnId     -> Resizable(75.toPx, min = 75.toPx),
     SNColumnId           -> Resizable(75.toPx, min = 75.toPx, max = 130.toPx)
   )
 
@@ -88,105 +270,4 @@ object SequenceColumns:
               <.span(SequenceStyles.TableHeaderContent)(header)
             ),
       enableResizing = false
-    )
-
-  // `T` is the actual type of the table row, from which we extract an `R` using `getStep`.
-  // `D` is the `DynamicConfig`.
-  // `TM` is the type of the table meta.
-  // `CM` is the type of the column meta.
-  // `TF` is the type of the global filter.
-  def gmosColumns[D, T, R <: SequenceRow[D], TM, CM, TF](
-    colDef:   ColumnDef.Applied[Expandable[HeaderOrRow[T]], TM, CM, TF],
-    getStep:  T => Option[R],
-    getIndex: T => Option[StepIndex]
-  ): List[colDef.TypeFor[?]] = // Forces "Single" column type (as opposed to Group)
-    List(
-      colDef(
-        IndexAndTypeColumnId,
-        _.value.toOption
-          .map(row => (getIndex(row), getStep(row).flatMap(_.stepTypeDisplay)))
-          .getOrElse((none, none)),
-        header = "Step",
-        cell = c =>
-          React.Fragment(
-            c.value._1.map(_.value.value),
-            c.value._2.map(_.renderVdom)
-          )
-      ),
-      colDef(
-        ExposureColumnId,
-        _.value.toOption.flatMap(row => getStep(row).flatMap(_.exposureTime)),
-        header = _ => "Exp (sec)",
-        cell = c =>
-          (c.value, c.row.original.value.toOption.flatMap(getStep).flatMap(_.instrument)).mapN:
-            (e, i) => FormatExposureTime(i)(e).value
-      ),
-      colDef(
-        GuideColumnId,
-        _.value.toOption.flatMap(row => getStep(row).map(_.hasGuiding)),
-        header = "",
-        cell = _.value
-          .filter(identity) // Only render on Some(true)
-          .map(_ => SequenceIcons.Crosshairs.withClass(SequenceStyles.StepGuided))
-      ),
-      colDef(
-        PColumnId,
-        _.value.toOption.map(row => getStep(row).flatMap(_.offset.map(_.p))),
-        header = _ => "p",
-        cell = _.value.map(_.map(FormatOffsetP(_).value)).orEmpty
-      ),
-      colDef(
-        QColumnId,
-        _.value.toOption.map(row => getStep(row).flatMap(_.offset.map(_.q))),
-        header = _ => "q",
-        cell = _.value.map(_.map(FormatOffsetQ(_).value)).orEmpty
-      ),
-      colDef(
-        WavelengthColumnId,
-        _.value.toOption.map(row => getStep(row).flatMap(_.wavelength)),
-        header = _ => "λ (nm)",
-        cell = _.value.map(_.map(FormatWavelength(_).value).getOrElse("-")).orEmpty
-      ),
-      colDef(
-        FPUColumnId,
-        _.value.toOption.map(row => getStep(row).flatMap(_.fpuName).getOrElse("None")),
-        header = _ => "FPU",
-        cell = _.value.orEmpty
-      ),
-      colDef(
-        GratingColumnId,
-        _.value.toOption.map(row => getStep(row).flatMap(_.gratingName).getOrElse("None")),
-        header = "Grating",
-        cell = _.value.orEmpty
-      ),
-      colDef(
-        FilterColumnId,
-        _.value.toOption.map(row => getStep(row).flatMap(_.filterName).getOrElse("None")),
-        header = "Filter",
-        cell = _.value.orEmpty
-      ),
-      colDef(
-        XBinColumnId,
-        _.value.toOption.flatMap(row => getStep(row).flatMap(_.readoutXBin)),
-        header = _ => "Xbin",
-        cell = _.value.orEmpty
-      ),
-      colDef(
-        YBinColumnId,
-        _.value.toOption.flatMap(row => getStep(row).flatMap(_.readoutYBin)),
-        header = _ => "Ybin",
-        cell = _.value.orEmpty
-      ),
-      colDef(
-        ROIColumnId,
-        _.value.toOption.flatMap(row => getStep(row).flatMap(_.roi)),
-        header = "ROI",
-        cell = _.value.orEmpty
-      ),
-      colDef(
-        SNColumnId,
-        _.value.toOption.flatMap(row => getStep(row).flatMap(_.signalToNoise)),
-        header = "S/N",
-        cell = _.value.map(formatSN).orEmpty
-      )
     )

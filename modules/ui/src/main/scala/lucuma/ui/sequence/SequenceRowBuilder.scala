@@ -4,7 +4,6 @@
 package lucuma.ui.sequence
 
 import cats.data.NonEmptyList
-import cats.effect.IO
 import cats.syntax.all.*
 import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.numeric.PosInt
@@ -32,7 +31,6 @@ import lucuma.ui.format.UtcFormatter
 import lucuma.ui.sequence.*
 import lucuma.ui.syntax.render.*
 import lucuma.ui.table.*
-import org.typelevel.log4cats.Logger
 
 import java.time.Duration
 
@@ -104,7 +102,7 @@ trait SequenceRowBuilder[D]:
     showOngoingLabel:   Boolean,
     renderDatasetQa:    (Dataset, VdomNode) => VdomNode = (_, renderIcon) => renderIcon,
     datasetIdsInFlight: Set[Dataset.Id] = Set.empty
-  )(using Logger[IO]) =
+  ) =
     <.div(SequenceStyles.VisitStepExtra)(
       <.span(SequenceStyles.VisitStepExtraDatetime)(
         step.interval
