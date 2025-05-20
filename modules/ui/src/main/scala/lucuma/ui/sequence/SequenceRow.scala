@@ -12,7 +12,8 @@ import lucuma.core.math.Offset
 import lucuma.core.math.SignalToNoise
 import lucuma.core.math.Wavelength
 import lucuma.core.model.sequence.*
-import lucuma.core.model.sequence.gmos.DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2DynamicConfig
+import lucuma.core.model.sequence.flamingos2.Flamingos2FpuMask
 import lucuma.core.model.sequence.gmos.GmosFpuMask
 import lucuma.core.util.TimeSpan
 import lucuma.core.util.Timestamp
@@ -46,8 +47,9 @@ trait SequenceRow[+D]:
       case Right(stepId) => stepId.toString
 
   lazy val instrument: Option[Instrument] = instrumentConfig.map:
-    case DynamicConfig.GmosNorth(_, _, _, _, _, _, _) => Instrument.GmosNorth
-    case DynamicConfig.GmosSouth(_, _, _, _, _, _, _) => Instrument.GmosSouth
+    case gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, _)  => Instrument.GmosNorth
+    case gmos.DynamicConfig.GmosSouth(_, _, _, _, _, _, _)  => Instrument.GmosSouth
+    case Flamingos2DynamicConfig(_, _, _, _, _, _, _, _, _) => Instrument.Flamingos2
 
   lazy val stepTypeDisplay: Option[StepTypeDisplay] =
     stepConfig.flatMap(StepTypeDisplay.fromStepConfig)
@@ -60,48 +62,63 @@ trait SequenceRow[+D]:
   lazy val hasBreakpoint: Boolean = breakpoint === Breakpoint.Enabled
 
   lazy val wavelength: Option[Wavelength] = instrumentConfig.flatMap:
-    case gn @ DynamicConfig.GmosNorth(_, _, _, _, _, _, _) => gn.centralWavelength
-    case gs @ DynamicConfig.GmosSouth(_, _, _, _, _, _, _) => gs.centralWavelength
+    case gn @ gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, _)  => gn.centralWavelength
+    case gs @ gmos.DynamicConfig.GmosSouth(_, _, _, _, _, _, _)  => gs.centralWavelength
+    case f2 @ Flamingos2DynamicConfig(_, _, _, _, _, _, _, _, _) => f2.centralWavelength.some
 
   lazy val exposureTime: Option[TimeSpan] = instrumentConfig.flatMap:
-    case DynamicConfig.GmosNorth(exposure, _, _, _, _, _, _) => exposure.some
-    case DynamicConfig.GmosSouth(exposure, _, _, _, _, _, _) => exposure.some
-    case _                                                   => none
+    case gmos.DynamicConfig.GmosNorth(exposure, _, _, _, _, _, _)  => exposure.some
+    case gmos.DynamicConfig.GmosSouth(exposure, _, _, _, _, _, _)  => exposure.some
+    case Flamingos2DynamicConfig(exposure, _, _, _, _, _, _, _, _) => exposure.some
+    case _                                                         => none
 
   // There's no unified grating type, so we return a string.
   lazy val gratingName: Option[String] = instrumentConfig.flatMap:
-    case DynamicConfig.GmosNorth(_, _, _, _, grating, _, _) => grating.map(_.grating.shortName)
-    case DynamicConfig.GmosSouth(_, _, _, _, grating, _, _) => grating.map(_.grating.shortName)
+    case gmos.DynamicConfig.GmosNorth(_, _, _, _, grating, _, _)    => grating.map(_.grating.shortName)
+    case gmos.DynamicConfig.GmosSouth(_, _, _, _, grating, _, _)    => grating.map(_.grating.shortName)
+    case Flamingos2DynamicConfig(_, disperser, _, _, _, _, _, _, _) =>
+      disperser.map(_.shortName)
 
   // There's no unified FPU type, so we return a string.
   lazy val fpuName: Option[String] = instrumentConfig.flatMap:
-    case DynamicConfig.GmosNorth(_, _, _, _, _, _, Some(GmosFpuMask.Builtin(builtin)))     =>
-      builtin.longName.some
-    case DynamicConfig.GmosNorth(_, _, _, _, _, _, Some(GmosFpuMask.Custom(_, slitWidth))) =>
-      slitWidth.longName.some
-    case DynamicConfig.GmosSouth(_, _, _, _, _, _, Some(GmosFpuMask.Builtin(builtin)))     =>
-      builtin.longName.some
-    case DynamicConfig.GmosSouth(_, _, _, _, _, _, Some(GmosFpuMask.Custom(_, slitWidth))) =>
-      slitWidth.longName.some
-    case _                                                                                 =>
+    case gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, fpu)  =>
+      fpu match
+        case Some(GmosFpuMask.Builtin(builtin))     => builtin.longName.some
+        case Some(GmosFpuMask.Custom(_, slitWidth)) => slitWidth.longName.some
+        case None                                   => "Imaging".some
+    case gmos.DynamicConfig.GmosSouth(_, _, _, _, _, _, fpu)  =>
+      fpu match
+        case Some(GmosFpuMask.Builtin(builtin))     => builtin.longName.some
+        case Some(GmosFpuMask.Custom(_, slitWidth)) => slitWidth.longName.some
+        case None                                   => "Imaging".some
+    case Flamingos2DynamicConfig(_, _, _, _, _, fpu, _, _, _) =>
+      fpu match
+        case Flamingos2FpuMask.Builtin(builtin)     => builtin.longName.some
+        case Flamingos2FpuMask.Custom(_, slitWidth) => slitWidth.longName.some
+        case Flamingos2FpuMask.Imaging              => "Imaging".some
+    case _                                                    =>
       none
 
   // There's no unified filter type, so we return a string.
   lazy val filterName: Option[String] = instrumentConfig.flatMap:
-    case DynamicConfig.GmosNorth(_, _, _, _, _, filter, _) => filter.map(_.shortName)
-    case DynamicConfig.GmosSouth(_, _, _, _, _, filter, _) => filter.map(_.shortName)
+    case gmos.DynamicConfig.GmosNorth(_, _, _, _, _, filter, _)  => filter.map(_.shortName)
+    case gmos.DynamicConfig.GmosSouth(_, _, _, _, _, filter, _)  => filter.map(_.shortName)
+    case Flamingos2DynamicConfig(_, _, filter, _, _, _, _, _, _) => filter.shortName.some
 
-  lazy val readoutXBin: Option[String] = instrumentConfig.flatMap:
-    case DynamicConfig.GmosNorth(_, readout, _, _, _, _, _) => readout.xBin.shortName.some
-    case DynamicConfig.GmosSouth(_, readout, _, _, _, _, _) => readout.xBin.shortName.some
+  lazy val readoutXBin: Option[String] = instrumentConfig.collect:
+    case gmos.DynamicConfig.GmosNorth(_, readout, _, _, _, _, _) => readout.xBin.shortName
+    case gmos.DynamicConfig.GmosSouth(_, readout, _, _, _, _, _) => readout.xBin.shortName
 
-  lazy val readoutYBin: Option[String] = instrumentConfig.flatMap:
-    case DynamicConfig.GmosNorth(_, readout, _, _, _, _, _) => readout.yBin.shortName.some
-    case DynamicConfig.GmosSouth(_, readout, _, _, _, _, _) => readout.yBin.shortName.some
+  lazy val readoutYBin: Option[String] = instrumentConfig.collect:
+    case gmos.DynamicConfig.GmosNorth(_, readout, _, _, _, _, _) => readout.yBin.shortName
+    case gmos.DynamicConfig.GmosSouth(_, readout, _, _, _, _, _) => readout.yBin.shortName
 
-  lazy val roi: Option[String] = instrumentConfig.flatMap:
-    case DynamicConfig.GmosNorth(_, _, _, roi, _, _, _) => roi.shortName.some
-    case DynamicConfig.GmosSouth(_, _, _, roi, _, _, _) => roi.shortName.some
+  lazy val readMode: Option[String] = instrumentConfig.collect:
+    case Flamingos2DynamicConfig(_, _, _, readMode, _, _, _, _, _) => readMode.shortName
+
+  lazy val roi: Option[String] = instrumentConfig.collect:
+    case gmos.DynamicConfig.GmosNorth(_, _, _, roi, _, _, _) => roi.shortName
+    case gmos.DynamicConfig.GmosSouth(_, _, _, roi, _, _, _) => roi.shortName
 
 object SequenceRow:
   case class FutureStep[+D](
@@ -121,30 +138,30 @@ object SequenceRow:
 
   object FutureStep:
     def fromAtom[D](
-      atom:          Atom[D],
-      signalToNoise: Step[D] => Option[SignalToNoise]
+      atom:              Atom[D],
+      atomSignalToNoise: Option[SignalToNoise]
     ): List[FutureStep[D]] =
       FutureStep(
         atom.steps.head,
         atom.id,
         atom.steps.length.some.filter(_ > 1),
-        signalToNoise(atom.steps.head)
+        atom.steps.head.getSignalToNoise(atomSignalToNoise)
       ) +: atom.steps.tail.map(step =>
-        SequenceRow.FutureStep(step, atom.id, none, signalToNoise(step))
+        SequenceRow.FutureStep(step, atom.id, none, step.getSignalToNoise(atomSignalToNoise))
       )
 
     def fromAtoms[D](
-      atoms:         List[Atom[D]],
-      signalToNoise: Step[D] => Option[SignalToNoise]
+      atoms:                List[Atom[D]],
+      seqTypeSignalToNoise: Option[SignalToNoise]
     ): List[FutureStep[D]] =
       atoms.flatMap(atom =>
         FutureStep(
           atom.steps.head,
           atom.id,
           atom.steps.length.some.filter(_ > 1),
-          signalToNoise(atom.steps.head)
+          atom.steps.head.getSignalToNoise(seqTypeSignalToNoise)
         ) +: atom.steps.tail.map(step =>
-          SequenceRow.FutureStep(step, atom.id, none, signalToNoise(step))
+          SequenceRow.FutureStep(step, atom.id, none, step.getSignalToNoise(seqTypeSignalToNoise))
         )
       )
 

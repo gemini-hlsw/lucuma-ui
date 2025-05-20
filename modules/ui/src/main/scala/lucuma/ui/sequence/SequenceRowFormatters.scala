@@ -31,7 +31,7 @@ object SequenceRowFormatters:
     i =>
       NonEmptyString.unsafeFrom
         .compose: (s: BigDecimal) =>
-          i match
-            case Instrument.GmosNorth | Instrument.GmosSouth => f"$s%.0f"
-            case _                                           => f"$s%.2f"
+          i match // GMOS and Flamingos2 are limited to integer exposure times.
+            case Instrument.GmosNorth | Instrument.GmosSouth | Instrument.Flamingos2 => f"$s%.0f"
+            case _                                                                   => f"$s%.2f"
         .compose(_.toSeconds)
