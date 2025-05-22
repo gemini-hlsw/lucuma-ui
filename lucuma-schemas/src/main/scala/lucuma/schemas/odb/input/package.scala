@@ -22,6 +22,7 @@ import lucuma.core.model.sequence.StepConfig
 import lucuma.core.model.sequence.TelescopeConfig
 import lucuma.core.model.sequence.flamingos2.Flamingos2DynamicConfig
 import lucuma.core.model.sequence.flamingos2.Flamingos2FpuMask
+import lucuma.core.model.sequence.flamingos2.Flamingos2StaticConfig
 import lucuma.core.model.sequence.gmos
 import lucuma.core.model.sequence.gmos.GmosCcdMode
 import lucuma.core.model.sequence.gmos.GmosFpuMask
@@ -600,6 +601,12 @@ extension (gmosSStatic: gmos.StaticConfig.GmosSouth)
     gmosSStatic.detector.assign,
     gmosSStatic.mosPreImaging.assign,
     gmosSStatic.nodAndShuffle.map(_.toInput).orUnassign
+  )
+
+extension (flamingos2Static: Flamingos2StaticConfig)
+  def toInput: Flamingos2StaticInput = Flamingos2StaticInput(
+    flamingos2Static.mosPreImaging.assign,
+    flamingos2Static.useElectronicOffsetting.assign
   )
 
 extension (gmosSDynamic: gmos.DynamicConfig.GmosSouth)
