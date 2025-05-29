@@ -5,6 +5,7 @@ package lucuma.ui.utils
 
 import cats.Monad
 import cats.data.NonEmptyList
+import cats.effect.Sync
 import cats.syntax.all.*
 import coulomb.Quantity
 import crystal.ViewF
@@ -13,10 +14,12 @@ import crystal.react.ReuseViewOptF
 import crystal.react.reuse.*
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.enums.ExecutionEnvironment
 import lucuma.core.optics.*
 import lucuma.core.util.Enumerated
 import monocle.function.At.at
 import monocle.function.Index.index
+import org.scalajs.dom
 
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -99,3 +102,14 @@ extension [A](list: List[A])
 given Conversion[NonEmptyString, VdomNode] with
   def apply(s: NonEmptyString): VdomNode =
     s.value
+
+def showEnvironment[F[_]: Sync](env: ExecutionEnvironment): F[Unit] =
+  Sync[F]
+    .delay:
+      val nonProdBanner = dom.document.createElement("div")
+      nonProdBanner.id = "non-prod-banner"
+      nonProdBanner.textContent = env.tag
+      dom.document.body.appendChild(nonProdBanner)
+    .whenA:
+      env =!= ExecutionEnvironment.Production &&
+      dom.document.querySelector("#non-prod-banner") == null
