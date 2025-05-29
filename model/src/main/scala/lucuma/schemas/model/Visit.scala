@@ -51,7 +51,7 @@ object Visit:
   type Id = lucuma.core.model.Visit.Id
   val Id = lucuma.core.model.Visit.Id
 
-  given [A](using Eq[A]): Eq[Visit[A]] = Eq.derived
+  given [A]: Eq[Visit[A]] = Eq.derived
 
   object GmosNorth:
     given Eq[GmosNorth] = Eq.derived
