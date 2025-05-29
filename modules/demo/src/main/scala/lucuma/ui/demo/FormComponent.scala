@@ -18,7 +18,6 @@ import eu.timepit.refined.char.LowerCase
 import eu.timepit.refined.collection.Forall
 import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.numeric.*
-import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.Declination

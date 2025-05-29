@@ -32,8 +32,6 @@ import lucuma.ui.sequence.*
 import lucuma.ui.syntax.render.*
 import lucuma.ui.table.*
 
-import java.time.Duration
-
 // Methods for building visits rows on the sequence table
 trait SequenceRowBuilder[D]:
   protected type SequenceTableRowType = Expandable[HeaderOrRow[SequenceIndexedRow[D]]]
@@ -73,7 +71,7 @@ trait SequenceRowBuilder[D]:
         DurationFormatter(
           visit.stepRows
             .map(_.step.exposureTime.orEmpty.toDuration)
-            .reduce(_.plus(_))
+            .reduce(using _.plus(_))
         )
       )
     )

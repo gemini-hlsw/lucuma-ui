@@ -3,11 +3,9 @@
 
 package lucuma.ui.utils
 
-import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
-@nowarn
 @js.native
 trait Browser extends js.Object {
   val name: String    = js.native

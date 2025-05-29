@@ -3,7 +3,6 @@
 
 package lucuma.ui.sequence
 
-import cats.syntax.eq.*
 import cats.syntax.option.*
 import eu.timepit.refined.types.numeric.PosInt
 import japgolly.scalajs.react.vdom.html_<^.*

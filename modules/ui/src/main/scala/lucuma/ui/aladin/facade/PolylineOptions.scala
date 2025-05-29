@@ -4,7 +4,6 @@
 package lucuma.ui.aladin.facade
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters.*
 
 @js.native
 trait PolylineOptions extends js.Object {

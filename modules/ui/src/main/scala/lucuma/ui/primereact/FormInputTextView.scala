@@ -14,7 +14,6 @@ import lucuma.core.validation.*
 import lucuma.react.common.*
 import lucuma.react.primereact.PrimeStyles
 import lucuma.react.primereact.TooltipOptions
-import lucuma.typed.primereact.components.Button as CButton
 import lucuma.ui.input.AuditResult
 import lucuma.ui.input.ChangeAuditor
 import org.scalajs.dom.Element
@@ -34,8 +33,8 @@ final case class FormInputTextView[V[_], A](
   id:             NonEmptyString,
   label:          js.UndefOr[TagMod] = js.undefined,
   units:          js.UndefOr[String] = js.undefined,
-  preAddons:      List[TagMod | CButton.Builder] = List.empty,
-  postAddons:     List[TagMod | CButton.Builder] = List.empty,
+  preAddons:      List[TagMod] = List.empty,
+  postAddons:     List[TagMod] = List.empty,
   size:           js.UndefOr[PlSize] = js.undefined,
   groupClass:     js.UndefOr[Css] = js.undefined,
   inputClass:     js.UndefOr[Css] = js.undefined,
@@ -54,13 +53,13 @@ final case class FormInputTextView[V[_], A](
   modifiers:      Seq[TagMod] = Seq.empty
 )(using val eq: Eq[A], val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextView.component):
-  def stringValue: String                                   = value.get.foldMap(validFormat.reverseGet)
-  def addModifiers(modifiers: Seq[TagMod])                  = copy(modifiers = this.modifiers ++ modifiers)
-  def withMods(mods:          TagMod*)                      = addModifiers(mods)
-  def apply(mods:             TagMod*)                      = addModifiers(mods)
-  def addPostAddons(addons: List[TagMod | CButton.Builder]) =
+  def stringValue: String                  = value.get.foldMap(validFormat.reverseGet)
+  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)     = addModifiers(mods)
+  def apply(mods:             TagMod*)     = addModifiers(mods)
+  def addPostAddons(addons: List[TagMod])  =
     copy(postAddons = this.postAddons ++ addons)
-  def withPostAddons(addons:  (TagMod | CButton.Builder)*)  = addPostAddons(addons.toList)
+  def withPostAddons(addons:  TagMod*)     = addPostAddons(addons.toList)
 
 object FormInputTextView {
   type AnyF[_] = Any

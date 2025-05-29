@@ -3,7 +3,6 @@
 
 package lucuma.ui.aladin
 
-import cats.syntax.all.*
 import lucuma.core.math.*
 import lucuma.core.util.Enumerated
 import lucuma.react.common.*
@@ -74,7 +73,7 @@ object AladinOptions:
     fov:                      js.UndefOr[Angle] = js.undefined,
     target:                   js.UndefOr[String] = js.undefined,
     survey:                   js.UndefOr[ImageSurvey] = js.undefined,
-    cooFrame:                 js.UndefOr[String] = js.undefined,
+    // cooFrame:                 js.UndefOr[String] = js.undefined,
     showReticle:              js.UndefOr[Boolean] = js.undefined,
     showZoomControl:          js.UndefOr[Boolean] = js.undefined,
     showFullscreenControl:    js.UndefOr[Boolean] = js.undefined,

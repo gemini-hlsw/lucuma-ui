@@ -58,7 +58,7 @@ object SVGVisualizationOverlay {
 
       val composite = evald
         .map(_.g)
-        .reduce(geometryUnionSemigroup)
+        .reduce(using geometryUnionSemigroup)
 
       val envelope = composite.getBoundary.getEnvelopeInternal
 

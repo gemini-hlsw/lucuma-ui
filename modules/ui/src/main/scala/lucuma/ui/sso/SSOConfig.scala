@@ -6,7 +6,6 @@ package lucuma.ui.sso
 import cats.Eq
 import cats.Show
 import cats.derived.*
-import cats.syntax.all.*
 import io.circe.*
 import org.http4s.Uri
 import org.http4s.circe.*

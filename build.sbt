@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.143"
+ThisBuild / tlBaseVersion       := "0.144"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
@@ -15,12 +15,12 @@ val Versions = new {
   val http4s            = "0.23.30"
   val http4sDom         = "0.2.12"
   val log4catsLogLevel  = "0.3.1"
-  val lucumaCore        = "0.129.0"
+  val lucumaCore        = "0.132.0"
   val lucumaPrimeStyles = "0.3.0"
-  val lucumaReact       = "0.83.0"
+  val lucumaReact       = "0.84.0"
   val lucumaRefined     = "0.1.4"
-  val lucumaSchemas     = "0.135.0"
-  val lucumaSso         = "0.8.13"
+  val lucumaSchemas     = "0.138.0"
+  val lucumaSso         = "0.8.18"
   val monocle           = "3.3.0"
   val mouse             = "1.3.2"
   val munit             = "1.1.1"
@@ -40,8 +40,8 @@ addCommandAlias(
 
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
-ThisBuild / scalaVersion             := "3.6.4"
-ThisBuild / crossScalaVersions       := Seq("3.6.4")
+ThisBuild / scalaVersion             := "3.7.1"
+ThisBuild / crossScalaVersions       := Seq("3.7.1")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions", "-explain-cyclic")
 
 enablePlugins(NoPublishPlugin)

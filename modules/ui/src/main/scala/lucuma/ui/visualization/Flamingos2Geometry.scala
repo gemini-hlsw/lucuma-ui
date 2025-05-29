@@ -72,7 +72,7 @@ object Flamingos2Geometry:
     (PatrolFieldIntersection |+| extraCss) ->
       offsets
         .map(patrolField(posAngle, _, configuration, lyotWheel, port))
-        .reduce(_ ∩ _)
+        .reduce(using _ ∩ _)
 
   // Shape for the patrol field at a single position
   def patrolField(
