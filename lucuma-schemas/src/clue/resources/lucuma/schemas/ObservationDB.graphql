@@ -3500,14 +3500,20 @@ input ObservingModeInput {
 """Edit science requirements"""
 input ScienceRequirementsInput {
   """
-  The mode field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  ExposureTimeMode, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
   """
-  mode: ScienceMode
+  exposureTimeMode: ExposureTimeModeInput
 
   """
   The spectroscopy field must be either specified or skipped altogether.  It cannot be unset with a null value.
   """
   spectroscopy: SpectroscopyScienceRequirementsInput
+
+  """
+  The imaging field must be either specified or skipped altogether.  It cannot be unset with a null value.
+  """
+  imaging: ImagingScienceRequirementsInput
 }
 
 """
@@ -3741,12 +3747,6 @@ input SpectroscopyScienceRequirementsInput {
   The resolution field may be unset by assigning a null value, or ignored by skipping it altogether
   """
   resolution: PosInt
-
-  """
-  ExposureTimeMode, which may be unset by assigning a null value, or ignored by
-  skipping it altogether.
-  """
-  exposureTimeMode: ExposureTimeModeInput
 
   """
   The wavelengthCoverage field may be unset by assigning a null value, or ignored by skipping it altogether
@@ -5911,7 +5911,7 @@ enum Flamingos2Reads {
   READS_16
 }
 
-"""Flamingos2 South Long Slit mode"""
+"""Flamingos2 Long Slit mode"""
 type Flamingos2LongSlit {
   """Flamingos2 Disperser"""
   disperser: Flamingos2Disperser!
@@ -7036,7 +7036,6 @@ enum GuideProbe {
   PWFS_1
   PWFS_2
   GMOS_OIWFS
-  FLAMINGOS2_OIWFS
 }
 
 """
@@ -7212,6 +7211,59 @@ type SpectroscopyConfigOptionFlamingos2 {
   fpu: Flamingos2Fpu!
   disperser: Flamingos2Disperser!
   filter: Flamingos2Filter!
+}
+
+"""Edit or create imaging science requirements"""
+input ImagingScienceRequirementsInput {
+  """
+  minimumFov, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
+  """
+  minimumFov: AngleInput
+
+  """
+  narrowFilters, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
+  """
+  narrowFilters: Boolean
+
+  """
+  broadFilters, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
+  """
+  broadFilters: Boolean
+
+  """
+  combinedFilters, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
+  """
+  combinedFilters: Boolean
+}
+
+type ImagingScienceRequirements {
+  """
+  minimumFov, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
+  """
+  minimumFov: Angle
+
+  """
+  narrowFilters, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
+  """
+  narrowFilters: Boolean
+
+  """
+  broadFilters, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
+  """
+  broadFilters: Boolean
+
+  """
+  combinedFilters, which may be unset by assigning a null value, or ignored by
+  skipping it altogether.
+  """
+  combinedFilters: Boolean
 }
 
 """Describes an instrument configuration option for imaging."""
@@ -8594,10 +8646,18 @@ enum ScienceSubtype {
 
 type ScienceRequirements {
   """Science mode"""
-  mode: ScienceMode!
+  mode: ScienceMode
 
-  """Spectroscopy requirements"""
-  spectroscopy: SpectroscopyScienceRequirements!
+  """Requested exposure time mode."""
+  exposureTimeMode: ExposureTimeMode
+
+  """
+  Spectroscopy requirements, if mode is Spectroscopy, this mode must be set
+  """
+  spectroscopy: SpectroscopyScienceRequirements
+
+  """Imaging requirements, if mode is Imaging, this mode must be set"""
+  imaging: ImagingScienceRequirements
 }
 
 type ScienceRequirementsGroup {
@@ -8864,9 +8924,6 @@ type SpectroscopyScienceRequirements {
 
   """Requested resolution"""
   resolution: PosInt
-
-  """Requested exposure time mode."""
-  exposureTimeMode: ExposureTimeMode
 
   """Wavelength range"""
   wavelengthCoverage: Wavelength
