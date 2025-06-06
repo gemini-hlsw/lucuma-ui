@@ -3,7 +3,6 @@
 
 package lucuma.ui.aladin
 
-import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.hooks.*
 import japgolly.scalajs.react.hooks.Hooks.UseState

@@ -109,9 +109,8 @@ object UserSelectionForm:
                 )
               ),
               <.div(LoginStyles.LoginMessagesLayout)(
-                props.message.get.whenDefined(message =>
-                  Message(text = message.value, severity = Message.Severity.Error)
-                ),
+                props.message.get
+                  .whenDefined(using message => Message(text = message.value, severity = Message.Severity.Error)),
                 Message(
                   text =
                     "This version of Safari isn't supported. Try a newer version (≥14.0.1) or a recent version of Chrome or Firefox.",

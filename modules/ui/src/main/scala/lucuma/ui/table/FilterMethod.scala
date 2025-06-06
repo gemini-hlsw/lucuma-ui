@@ -7,7 +7,6 @@ import cats.Eq
 import cats.syntax.all.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.Css
-import lucuma.react.table.BuiltInFilter
 import lucuma.react.table.Column
 import lucuma.react.table.ColumnDef
 import lucuma.react.table.ColumnId

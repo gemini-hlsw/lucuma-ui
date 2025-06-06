@@ -11,7 +11,6 @@ import lucuma.react.common.*
 import lucuma.react.primereact.InputText
 import lucuma.react.primereact.PrimeStyles
 import lucuma.react.primereact.TooltipOptions
-import lucuma.typed.primereact.components.Button as CButton
 
 import scalajs.js
 
@@ -20,8 +19,8 @@ case class FormInputText(
   value:          js.UndefOr[String] = js.undefined,
   label:          js.UndefOr[TagMod] = js.undefined,
   units:          js.UndefOr[String] = js.undefined,
-  preAddons:      List[TagMod | CButton.Builder] = List.empty,
-  postAddons:     List[TagMod | CButton.Builder] = List.empty,
+  preAddons:      List[TagMod] = List.empty,
+  postAddons:     List[TagMod] = List.empty,
   size:           js.UndefOr[PlSize] = js.undefined,
   groupClass:     js.UndefOr[Css] = js.undefined,
   inputClass:     js.UndefOr[Css] = js.undefined,
@@ -36,12 +35,12 @@ case class FormInputText(
   onKeyDown:      js.UndefOr[ReactKeyboardEventFromInput => Callback] = js.undefined,
   modifiers:      Seq[TagMod] = Seq.empty
 ) extends ReactFnProps(FormInputText.component):
-  def addModifiers(modifiers: Seq[TagMod])                  = copy(modifiers = this.modifiers ++ modifiers)
-  def withMods(mods:          TagMod*)                      = addModifiers(mods)
-  def apply(mods:             TagMod*)                      = addModifiers(mods)
-  def addPostAddons(addons: List[TagMod | CButton.Builder]) =
+  def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
+  def withMods(mods:          TagMod*)     = addModifiers(mods)
+  def apply(mods:             TagMod*)     = addModifiers(mods)
+  def addPostAddons(addons: List[TagMod])  =
     copy(postAddons = this.postAddons ++ addons)
-  def withPostAddons(addons:  (TagMod | CButton.Builder)*)  = addPostAddons(addons.toList)
+  def withPostAddons(addons:  TagMod*)     = addPostAddons(addons.toList)
 
 object FormInputText:
   private val component = ScalaFnComponent[FormInputText]: props =>

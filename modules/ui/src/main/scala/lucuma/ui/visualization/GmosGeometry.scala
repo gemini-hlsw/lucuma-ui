@@ -66,7 +66,7 @@ object GmosGeometry:
     (PatrolFieldIntersection |+| extraCss) ->
       offsets
         .map(patrolField(posAngle, _, configuration, port))
-        .reduce(_ ∩ _)
+        .reduce(using _ ∩ _)
 
   // Shape for the patrol field at a single position
   def patrolField(

@@ -13,8 +13,6 @@ import lucuma.react.primereact.Button
 import lucuma.react.primereact.InputText
 import lucuma.react.primereact.PrimeStyles
 import lucuma.react.primereact.SelectButtonOptional
-import lucuma.typed.StBuildingComponent
-import lucuma.typed.primereact.components.Button as CButton
 
 import scalajs.js
 
@@ -40,17 +38,25 @@ extension (button: Button)
   def huge    = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Huge)
   def massive = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Massive)
 
-extension [A: Eq](button: SelectButtonOptional[A])
-  def compact = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Compact)
+extension [A](button: SelectButtonOptional[A])
+  def compact(using Eq[A]) =
+    button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Compact)
 
-  def mini    = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Mini)
-  def tiny    = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Tiny)
-  def small   = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Small)
-  def medium  = button // medium is the default
-  def large   = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Large)
-  def big     = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Big)
-  def huge    = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Huge)
-  def massive = button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Massive)
+  def mini(using Eq[A])    =
+    button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Mini)
+  def tiny(using Eq[A])    =
+    button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Tiny)
+  def small(using Eq[A])   =
+    button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Small)
+  def medium               = button // medium is the default
+  def large(using Eq[A])   =
+    button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Large)
+  def big(using Eq[A])     =
+    button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Big)
+  def huge(using Eq[A])    =
+    button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Huge)
+  def massive(using Eq[A]) =
+    button.copy(clazz = button.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Massive)
 
 extension (input: InputText)
   def mini    = input.copy(clazz = input.clazz.toOption.orEmpty |+| LucumaPrimeStyles.Mini)
@@ -76,10 +82,7 @@ extension [A](
       input.copy(postAddons = newAddon :: input.postAddons)
     }
 
-extension (addons: List[TagMod | CButton.Builder])
-  private[primereact] def build(size: js.UndefOr[PlSize]): TagMod = addons.toTagMod(a =>
-    a match {
-      case b: CButton.Builder => b.build
-      case t: TagMod          => <.span(t, PrimeStyles.InputGroupAddon |+| size.toOption.map(_.cls).orEmpty)
-    }
+extension (addons: List[TagMod])
+  private[primereact] def build(size: js.UndefOr[PlSize]): TagMod = addons.toTagMod(
+    using a => <.span(a, PrimeStyles.InputGroupAddon |+| size.toOption.map(_.cls).orEmpty)
   )

@@ -4,7 +4,6 @@
 package lucuma.ui.aladin.facade
 
 import scala.scalajs.js
-import scala.scalajs.js.JSConverters.*
 
 // This will be the props object used from JS-land
 @js.native

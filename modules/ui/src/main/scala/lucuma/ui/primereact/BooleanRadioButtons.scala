@@ -10,7 +10,7 @@ import lucuma.react.common.*
 
 import scalajs.js
 
-final case class BooleanRadioButtons[V[_]: ViewLike] private (
+final case class BooleanRadioButtons[V[_]] private (
   trueButton:  RadioButtonView[V, Boolean],
   falseButton: RadioButtonView[V, Boolean]
 ):

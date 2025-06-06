@@ -4,7 +4,6 @@
 package lucuma.ui.components.state
 
 import cats.effect.Async
-import cats.effect.IO
 import cats.effect.Sync
 import cats.syntax.all.*
 import crystal.react.*

@@ -111,11 +111,11 @@ object AladinContainer {
       val screenOffset =
         currentPos.value.diff(props.coordinates).offset
 
-      def onZoom(aladin: Aladin) = (v: Fov) => props.fov.set(v)
+      def onZoom = (v: Fov) => props.fov.set(v)
 
       def customizeAladin(v: Aladin): Callback =
         aladinRef.setState(Some(v)) *>
-          v.onZoomCB(onZoom(v)) *> // re render on zoom
+          v.onZoomCB(onZoom) *> // re render on zoom
           v.onPositionChangedCB(onPositionChanged)
 
       val gs          = props.coordinates

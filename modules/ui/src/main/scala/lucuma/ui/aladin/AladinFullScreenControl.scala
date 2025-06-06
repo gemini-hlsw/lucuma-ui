@@ -6,7 +6,6 @@ package lucuma.ui.aladin
 import cats.syntax.all.*
 import crystal.react.View
 import japgolly.scalajs.react.*
-import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.NewBoolean
 import lucuma.react.common.ReactFnProps
 import lucuma.react.common.style.Css

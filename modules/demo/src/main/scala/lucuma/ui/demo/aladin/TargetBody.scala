@@ -15,11 +15,9 @@ import lucuma.ui.aladin.*
 import lucuma.ui.hooks.*
 import lucuma.ui.reusability.given
 
-import scala.annotation.nowarn
 import scala.scalajs.js
 
 @js.native
-@nowarn
 trait SourceData extends js.Object {
   var name: String  = js.native
   var size: Double  = js.native
@@ -40,7 +38,6 @@ object SourceData {
 case class AladinTile(s: Size, c: Coordinates)
     extends ReactFnProps[AladinTile](AladinTile.component)
 
-@nowarn
 object AladinTile {
   type Props = AladinTile
 
@@ -116,7 +113,7 @@ object TargetBody:
   ).mapN(Coordinates.apply).getOrElse(Coordinates.Zero)
 
   val component =
-    ScalaFnComponent[Props]: props =>
+    ScalaFnComponent[Props]: _ =>
       for {
         _ <- useTheme()
         s <- useResizeDetector

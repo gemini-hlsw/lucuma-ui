@@ -39,7 +39,6 @@ import org.typelevel.cats.time.given
 
 import java.time.Duration
 import java.time.Instant
-import scala.annotation.nowarn
 import scala.collection.immutable.HashSet
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.SortedSet
@@ -59,7 +58,7 @@ trait UtilReusabilityInstances:
 
   given sortedSetReuse[A: Order]: Reusability[SortedSet[A]]    = Reusability.byEq
   given sortedMapReuse[K, V: Eq]: Reusability[SortedMap[K, V]] = Reusability.byEq
-  given [T: Reusability]: Reusability[HashSet[T]]              = Reusability.by(_.toSet)
+  given [T]: Reusability[HashSet[T]]                           = Reusability.by(_.toSet)
 
   given nonEmptyListReuse[A: Reusability]: Reusability[NonEmptyList[A]] =
     Reusability.by(nel => (nel.head, nel.tail))
@@ -153,7 +152,7 @@ trait ModelReusabiltyInstances
   given Reusability[ElevationRange]                          = Reusability.byEq
   given Reusability[ConstraintSet]                           = Reusability.byEq
   given Reusability[InstrumentExecutionConfig]               = Reusability.byEq
-  given [D: Eq]: Reusability[Visit[D]]                       = Reusability.byEq
+  given [D]: Reusability[Visit[D]]                           = Reusability.byEq
 
 trait TableReusabilityInstances:
   given Reusability[SizePx]                    = Reusability.by(_.value)
@@ -162,7 +161,6 @@ trait TableReusabilityInstances:
   given Reusability[Map[ColumnId, Visibility]] = Reusability.map
   given Reusability[ColumnVisibility]          = Reusability.by(_.value)
   given Reusability[SortDirection]             = Reusability.by(_.toDescending)
-  @nowarn
   given Reusability[ColumnSort]                = Reusability.derive
   given Reusability[Sorting]                   = Reusability.by(_.value)
   given [TF]: Reusability[TableState[TF]]      =

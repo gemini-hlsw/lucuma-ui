@@ -8,7 +8,6 @@ import cats.syntax.all.*
 import crystal.react.*
 import crystal.react.hooks.*
 import eu.timepit.refined.cats.given
-import eu.timepit.refined.numeric.NonNegative
 import eu.timepit.refined.types.numeric.NonNegLong
 import eu.timepit.refined.types.string.NonEmptyString
 import japgolly.scalajs.react.*
@@ -67,18 +66,21 @@ object FormTimeSpanInput:
             props.value.set(vs.toClampedTimeSpan(props.min.toOption, props.max.toOption))
           )
           .toListOfViews
-          .toVdomArray: (unit, valueView) =>
-            val unitName = unit.shortName
-            FormInputTextView(
-              id = NonEmptyString.unsafeFrom(s"${props.id.value}-${unitName}-input"),
-              disabled = props.disabled,
-              value = valueView,
-              validFormat = InputValidSplitEpi.nonNegLong,
-              changeAuditor = ChangeAuditor.int,
-              units = unitName
-            ).withMods(^.size := Math.max(valueView.get.toString.length, 2))
-              .withKey(unitName)
-              .toUnmounted
+          .toVdomArray(
+            using
+            (unit, valueView) =>
+              val unitName = unit.shortName
+              FormInputTextView(
+                id = NonEmptyString.unsafeFrom(s"${props.id.value}-${unitName}-input"),
+                disabled = props.disabled,
+                value = valueView,
+                validFormat = InputValidSplitEpi.nonNegLong,
+                changeAuditor = ChangeAuditor.int,
+                units = unitName
+              ).withMods(^.size := Math.max(valueView.get.toString.length, 2))
+                .withKey(unitName)
+                .toUnmounted
+          )
       )
 
       React.Fragment(
