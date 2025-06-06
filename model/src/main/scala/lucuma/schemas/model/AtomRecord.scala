@@ -55,7 +55,7 @@ enum AtomRecord[+D]:
   ) extends AtomRecord[Flamingos2DynamicConfig]
 
 object AtomRecord:
-  given [A](using Eq[A]): Eq[AtomRecord[A]] = Eq.derived
+  given [A]: Eq[AtomRecord[A]] = Eq.derived
 
   object GmosNorth:
     given Eq[GmosNorth] = Eq.derived

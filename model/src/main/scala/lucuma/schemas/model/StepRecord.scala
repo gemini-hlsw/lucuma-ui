@@ -74,7 +74,7 @@ enum StepRecord[+D]:
   ) extends StepRecord[Flamingos2DynamicConfig]
 
 object StepRecord:
-  given [A](using Eq[A]): Eq[StepRecord[A]] = Eq.derived
+  given [A]: Eq[StepRecord[A]] = Eq.derived
 
   object GmosNorth:
     given Eq[GmosNorth] = Eq.derived
