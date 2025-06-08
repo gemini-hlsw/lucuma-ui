@@ -381,8 +381,8 @@ extension (o: ObservingMode.GmosNorthLongSlit)
     filter = o.filter.orUnassign,
     fpu = o.fpu.assign,
     centralWavelength = o.centralWavelength.value.toInput.assign,
-    explicitXBin = o.explicitXBin.orUnassign,
-    explicitYBin = o.explicitYBin.orUnassign,
+    explicitXBin = o.explicitXBin.map(_.value).orUnassign,
+    explicitYBin = o.explicitYBin.map(_.value).orUnassign,
     explicitAmpReadMode = o.explicitAmpReadMode.orUnassign,
     explicitAmpGain = o.explicitAmpGain.orUnassign,
     explicitRoi = o.explicitRoi.orUnassign,
@@ -396,8 +396,8 @@ extension (o: ObservingMode.GmosSouthLongSlit)
     filter = o.filter.orUnassign,
     fpu = o.fpu.assign,
     centralWavelength = o.centralWavelength.value.toInput.assign,
-    explicitXBin = o.explicitXBin.orUnassign,
-    explicitYBin = o.explicitYBin.orUnassign,
+    explicitXBin = o.explicitXBin.map(_.value).orUnassign,
+    explicitYBin = o.explicitYBin.map(_.value).orUnassign,
     explicitAmpReadMode = o.explicitAmpReadMode.orUnassign,
     explicitAmpGain = o.explicitAmpGain.orUnassign,
     explicitRoi = o.explicitRoi.orUnassign,
@@ -518,8 +518,8 @@ extension (tw: TimingWindow)
 
 extension (ccd: GmosCcdMode)
   def toInput: GmosCcdModeInput =
-    GmosCcdModeInput(xBin = ccd.xBin.assign,
-                     yBin = ccd.yBin.assign,
+    GmosCcdModeInput(xBin = ccd.xBin.value.assign,
+                     yBin = ccd.yBin.value.assign,
                      ampCount = ccd.ampCount.assign,
                      ampGain = ccd.ampGain.assign,
                      ampReadMode = ccd.ampReadMode.assign
