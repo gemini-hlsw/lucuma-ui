@@ -11,8 +11,7 @@ import lucuma.core.model.sequence.*
 import lucuma.core.util.*
 import lucuma.core.math.BrightnessUnits.*
 
-// gql: import clue.BigNumberEncoders._
-// gql: import io.circe.refined._
+// gql: import io.circe.refined.*
 // gql: import lucuma.schemas.decoders.given
 // gql: import lucuma.odb.json.sequence.given
 
