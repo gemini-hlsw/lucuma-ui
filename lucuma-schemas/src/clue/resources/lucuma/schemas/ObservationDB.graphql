@@ -3063,6 +3063,15 @@ type FastTurnaround implements ProposalType {
   by which time it must be defined.
   """
   piAffiliation: Partner
+
+  """Program User that will be selected as a reviewer for this program"""
+  reviewer: ProgramUser
+
+  """
+  Program User that will be selected as a mentor for this program.
+  Required when the reviewer does not have PhD educational status.
+  """
+  mentor: ProgramUser
 }
 
 """Proposal properties for Large Program CallForProposals."""
@@ -3217,6 +3226,18 @@ input FastTurnaroundInput {
   must be specified upon submission.
   """
   piAffiliation: Partner
+
+  """
+  The program user ID to be designated as the reviewer for this FT proposal.
+  If not specified, the PI will be the default reviewer.
+  """
+  reviewerId: ProgramUserId
+
+  """
+  The program user ID to be designated as the mentor for this FT proposal.
+  If not specified, no mentor will be assigned.
+  """
+  mentorId: ProgramUserId
 }
 
 input LargeProgramInput {
@@ -5405,7 +5426,14 @@ type Execution {
   If a sequence cannot be generated for this observation, `null` is returned
   along with warning messages.
   """
-  digest: ExecutionDigest
+  digest: ExecutionDigest @deprecated(reason: "will be updated with a CalculatedExecutionDigest result, use calculatedDigest for now")
+
+  """
+  Calculations dependent on the sequence, such as planned time and offsets.
+  If a sequence cannot be generated for this observation, `null` is returned
+  along with warning messages.
+  """
+  calculatedDigest: CalculatedExecutionDigest
 
   """
   Full execution config, including acquisition and science sequences.  If a
@@ -5563,6 +5591,15 @@ type ExecutionDigest {
 
   """Science sequence summary."""
   science: SequenceDigest
+}
+
+"""Wraps an ExecutionDigest with the background calculation state."""
+type CalculatedExecutionDigest {
+  """Background calculation state."""
+  state: CalculationState!
+
+  """The current execution digest itself."""
+  value: ExecutionDigest
 }
 
 """Exposure time mode, either signal to noise or fixed"""
