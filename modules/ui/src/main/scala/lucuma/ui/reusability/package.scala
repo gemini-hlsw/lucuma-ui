@@ -171,7 +171,12 @@ trait SequenceReusabilityInstances:
 
 trait AladinReusabilityInstances extends UtilReusabilityInstances:
 
-  private given Reusability[Double] = Reusability.double(0.00001)
+  private given Reusability[Double] = Reusability {
+    case (0.0, 0.0) => true
+    case (0.0, a)   => true
+    case (a, 0.0)   => true
+    case (a, b)     => (a.abs / b.abs) > 0.01 // 1% it is just a heuristic
+  }
 
   // check every field except customizee
   // I'm running over the 22 field limit. I'll just split it
