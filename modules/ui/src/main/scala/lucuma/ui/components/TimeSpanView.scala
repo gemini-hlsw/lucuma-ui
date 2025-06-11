@@ -7,8 +7,11 @@ import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.util.TimeSpan
 import lucuma.react.common.ReactFnProps
+import lucuma.react.primereact.Tooltip
 import lucuma.react.primereact.tooltip.*
 import lucuma.ui.format.TimeSpanFormatter
+
+import scalajs.js.JSConverters.*
 
 /**
  * A view of a TimeSpan that formats the value with the given formatter, with hours and minutes as
@@ -18,10 +21,11 @@ import lucuma.ui.format.TimeSpanFormatter
  * unless a different tooltip is supplied.
  */
 case class TimeSpanView(
-  timespan:  TimeSpan,
-  formatter: TimeSpanFormatter = TimeSpanFormatter.HoursMinutesAbbreviation,
-  tooltip:   Option[VdomNode] = None,
-  modifiers: Seq[TagMod] = Seq.empty
+  timespan:        TimeSpan,
+  formatter:       TimeSpanFormatter = TimeSpanFormatter.HoursMinutesAbbreviation,
+  tooltip:         Option[VdomNode] = None,
+  tooltipPosition: Option[Tooltip.Position] = None,
+  modifiers:       Seq[TagMod] = Seq.empty
 ) extends ReactFnProps(TimeSpanView.component):
   def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   def withMods(mods:          TagMod*)     = addModifiers(mods)
@@ -39,4 +43,4 @@ object TimeSpanView:
       props.modifiers.toTagMod
     )(
       props.formatter.format(ts)
-    ).withTooltip(content = tooltip)
+    ).withTooltip(content = tooltip, position = props.tooltipPosition.orUndefined)
