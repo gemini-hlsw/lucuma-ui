@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.145"
+ThisBuild / tlBaseVersion       := "0.146"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
@@ -8,7 +8,7 @@ val Versions = new {
   val catsRetry         = "3.1.3"
   val catsTime          = "0.5.1"
   val circe             = "0.14.13"
-  val crystal           = "0.47.6"
+  val crystal           = "0.48.0"
   val disciplineMunit   = "2.0.0"
   val fs2Dom            = "0.3.0-M1"
   val kittens           = "3.5.0"
@@ -27,8 +27,6 @@ val Versions = new {
   val pprint            = "0.9.0"
   val scalaJsReact      = "3.0.0-beta12"
 }
-
-ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 Global / onChangedBuildSource                                        := ReloadOnSourceChanges
 ThisBuild / ScalafixConfig / bspEnabled.withRank(KeyRanks.Invisible) := false

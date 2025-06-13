@@ -3,7 +3,6 @@
 
 package lucuma.ui.utils
 
-import cats.Monad
 import cats.data.NonEmptyList
 import cats.effect.Sync
 import cats.syntax.all.*
@@ -92,8 +91,8 @@ extension [F[_], N, U](self:          ViewF[F, Quantity[N, U]])
 extension [F[_], N, U](self: ViewOptF[F, Quantity[N, U]])
   def stripQuantity: ViewOptF[F, N] = self.as(quantityIso[N, U])
 
-extension [F[_], N, U](self:    ReuseViewOptF[F, Quantity[N, U]])
-  def stripQuantity(implicit F: Monad[F]): ReuseViewOptF[F, N] = self.as(quantityIso[N, U])
+extension [F[_], N, U](self: ReuseViewOptF[F, Quantity[N, U]])
+  def stripQuantity: ReuseViewOptF[F, N] = self.as(quantityIso[N, U])
 
 extension [A](list: List[A])
   def zipWithMappedIndex[B](f: Int => B): List[(A, B)] =
