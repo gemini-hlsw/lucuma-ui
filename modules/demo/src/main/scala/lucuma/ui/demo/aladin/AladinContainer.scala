@@ -37,6 +37,7 @@ import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
+import scalajs.js
 
 case class AladinContainer(
   fov:         ReuseView[Fov],
@@ -203,10 +204,10 @@ object AladinContainer {
         value:    A,
         onChange: A => Callback,
         filter:   A => Boolean = (_: A) => true,
-        display:  A => String = (a: A) => a.tag.capitalize
+        display:  js.UndefOr[A => String] = js.undefined
       )(using E: Enumerated[A]): VdomElement =
         ReactFragment(
-          <.label(^.htmlFor := id, s"$label:"),
+          <.label(^.htmlFor := id, s"$label: "),
           <.select(
             ^.id    := id,
             ^.value := value.tag,
@@ -220,7 +221,7 @@ object AladinContainer {
                 <.option(
                   ^.key   := item.tag,
                   ^.value := item.tag,
-                  displayFn(item)
+                  display.map(_(item)).getOrElse(item.tag.capitalize)
                 )
               )
               .toTagMod
@@ -376,7 +377,7 @@ object AladinContainer {
               ),
               <.div(
                 Css("config-controls"),
-                <.label(^.htmlFor     := "instrument-selector", "Select Instrument:"),
+                <.label(^.htmlFor     := "instrument-selector", "Select Instrument: "),
                 <.select(
                   ^.id    := "instrument-selector",
                   ^.value := (instrument.value match {
@@ -404,7 +405,7 @@ object AladinContainer {
                 ),
                 enumeratedSelect(
                   "port-selector",
-                  "Select Port Disposition",
+                  "Select Port Disposition: ",
                   portDisposition.value,
                   portDisposition.setState
                 ),
@@ -430,7 +431,7 @@ object AladinContainer {
                     Css("config-controls"),
                     enumeratedSelect(
                       "fpu-selector",
-                      "Select FPU",
+                      "Select FPU: ",
                       gmosConf.value.fpu,
                       fpu => gmosConf.setState(gmosConf.value.copy(fpu = fpu)),
                       _.tag.startsWith("LongSlit"),
@@ -456,7 +457,8 @@ object AladinContainer {
                   "survey-selector",
                   "Select Survey",
                   survey.value,
-                  survey.setState
+                  survey.setState,
+                  display = _.name
                 )
               ),
               // Offset controls in a separate row
