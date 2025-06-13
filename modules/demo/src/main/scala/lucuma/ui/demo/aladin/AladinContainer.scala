@@ -60,6 +60,23 @@ object AladinContainer {
 
   val coordinates = GenLens[AladinContainer](_.coordinates)
 
+  // Generate a 5x5 grid of offsets separated by 5 arcsec
+  def generateOffsetGrid(
+    shiftP: Angle = Angle.Angle0,
+    shiftQ: Angle = Angle.Angle0
+  ): NonEmptyList[Offset] = {
+    val step        = 5
+    val shiftOffset = Offset(shiftP.p, shiftQ.q)
+    val offsets     =
+      for {
+        i <- -2 to 2
+        j <- -2 to 2
+      } yield Offset(Angle.fromDoubleArcseconds(step * i).p,
+                     Angle.fromDoubleArcseconds(step * j).q
+      ) + shiftOffset
+    NonEmptyList.fromListUnsafe(offsets.toList)
+  }
+
   val component = ScalaFnComponent[Props]: props =>
     for {
       // View coordinates (in case the user pans)
@@ -98,11 +115,14 @@ object AladinContainer {
                               case InstrumentType.GMOS       => ImageSurvey.DSS
                               case InstrumentType.Flamingos2 => ImageSurvey.TWOMASS
                             })
-      // State for science and acquisition offsets
-      scienceOffset      <- useState(Offset.Zero)
-      acquisitionOffset  <- useState(Offset.Zero)
-
     } yield
+      // Grid of offsets
+      val scienceOffsetGrid     = AladinContainer.generateOffsetGrid()
+      val acquisitionOffsetGrid = AladinContainer.generateOffsetGrid(
+        Angle.fromDoubleArcseconds(1.5),
+        Angle.fromDoubleArcseconds(1.5)
+      )
+
       /**
        * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
        * keep the internal target correct
@@ -129,13 +149,9 @@ object AladinContainer {
         case InstrumentType.GMOS       => gmosConf.value.some
         case InstrumentType.Flamingos2 => f2Conf.value.some
 
-      // Convert individual offsets to NonEmptyList format needed by the geometries
-      val scienceOffsetList     =
-        NonEmptyList.one(scienceOffset.value).some.filter(_ => scienceOffset.value != Offset.Zero)
-      val acquisitionOffsetList = NonEmptyList
-        .one(acquisitionOffset.value)
-        .some
-        .filter(_ => acquisitionOffset.value != Offset.Zero)
+      // Use the generated offset grids
+      val scienceOffsetList     = scienceOffsetGrid.some
+      val acquisitionOffsetList = acquisitionOffsetGrid.some
 
       val shapes = instrument.value match {
         case InstrumentType.GMOS       =>
@@ -230,51 +246,6 @@ object AladinContainer {
           )
         )
 
-      def offsetControl(
-        label:  String,
-        offset: UseState[Offset]
-      ): VdomElement =
-        <.div(
-          Css("offset-control"),
-          <.label(s"$label (arcsec):"),
-          <.div(
-            <.label("p: "),
-            <.input(
-              ^.`type` := "number",
-              ^.step   := "5",
-              ^.value  := {
-                val (p, _) = Offset.signedDecimalArcseconds.get(offset.value)
-                p.toString
-              },
-              ^.onChange ==> ((e: ReactEventFromInput) => {
-                val pValue = e.target.value.toDoubleOption
-                  .map(Angle.fromDoubleArcseconds)
-                  .getOrElse(Angle.Angle0)
-                offset.modState(_.copy(p = pValue.p))
-              })
-            ),
-            <.label("q: "),
-            <.input(
-              ^.`type` := "number",
-              ^.step   := "5",
-              ^.value  := {
-                val (_, q) = Offset.signedDecimalArcseconds.get(offset.value)
-                q.toString
-              },
-              ^.onChange ==> ((e: ReactEventFromInput) => {
-                val qValue = e.target.value.toDoubleOption
-                  .map(Angle.fromDoubleArcseconds)
-                  .getOrElse(Angle.Angle0)
-                offset.modState(_.copy(q = qValue.q))
-              })
-            ),
-            <.button(
-              ^.onClick --> offset.setState(Offset.Zero),
-              "Reset"
-            )
-          )
-        )
-
       def visibilityClasses = instrument.value match {
         case InstrumentType.GMOS       =>
           VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
@@ -300,7 +271,7 @@ object AladinContainer {
 
       val scienceOffsetIndicators =
         offsetIndicators(
-          NonEmptyList.one(scienceOffset.value).some,
+          scienceOffsetList,
           props.coordinates,
           posAngle.value,
           SequenceType.Science,
@@ -310,7 +281,7 @@ object AladinContainer {
 
       val acquisitionOffsetIndicators =
         offsetIndicators(
-          NonEmptyList.one(acquisitionOffset.value).some,
+          acquisitionOffsetList,
           props.coordinates,
           posAngle.value,
           SequenceType.Science,
@@ -388,10 +359,10 @@ object AladinContainer {
                 currentPos.value.diff(props.coordinates).offset.toStringOffset,
                 <.label("PA: "),
                 s"${posAngle.value.toDoubleDegrees}°",
-                <.label("Science Offset: "),
-                scienceOffset.value.toStringOffset,
-                <.label("Acquisition Offset: "),
-                acquisitionOffset.value.toStringOffset
+                <.label("Science Offsets: "),
+                s"5x5 grid (${scienceOffsetGrid.size} positions)",
+                <.label("Acquisition Offsets: "),
+                s"5x5 grid (${acquisitionOffsetGrid.size} positions)"
               ),
               <.div(
                 Css("config-togglers"),
@@ -487,12 +458,13 @@ object AladinContainer {
                   display = _.name
                 )
               ),
-              // Offset controls in a separate row
+              // Offset grid information
               <.div(
                 Css("config-controls"),
-                <.h5("Offset Controls"),
-                offsetControl("Science Offset", scienceOffset),
-                offsetControl("Acquisition Offset", acquisitionOffset)
+                <.h5("Offset Grids"),
+                <.p("Science: 5×5 grid, 5″ separation"),
+                <.p("Acquisition: 5×5 grid, 5″ separation, +1.5″ shift"),
+                <.p(s"Total positions: ${scienceOffsetGrid.size} each")
               )
             )
           )
