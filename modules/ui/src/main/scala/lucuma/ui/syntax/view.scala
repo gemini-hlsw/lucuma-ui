@@ -3,7 +3,6 @@
 
 package lucuma.ui.syntax
 
-import cats.Monad
 import cats.effect.Sync
 import crystal.ViewF
 import crystal.ViewOptF
@@ -33,12 +32,12 @@ trait view:
       self.zoom(splitEpi.get)(splitEpi.modify)
 
   extension [F[_], A](self: Reuse[ViewF[F, A]])
-    def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewF[F, B]] =
+    def zoomSplitEpi[B](splitEpi: SplitEpi[A, B]): Reuse[ViewF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
 
   extension [F[_], A](self: Reuse[ViewOptF[F, A]])
     @targetName("zoomSplitEpiOpt")
-    def zoomSplitEpi[B](splitEpi: SplitEpi[A, B])(implicit ev: Monad[F]): Reuse[ViewOptF[F, B]] =
+    def zoomSplitEpi[B](splitEpi: SplitEpi[A, B]): Reuse[ViewOptF[F, B]] =
       self.zoom(splitEpi.get)(splitEpi.modify)
 
 object view extends view
