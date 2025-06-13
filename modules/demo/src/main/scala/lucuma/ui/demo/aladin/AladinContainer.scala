@@ -25,6 +25,7 @@ import lucuma.core.enums.GmosSouthGrating
 import lucuma.core.enums.GuideProbe
 import lucuma.core.enums.GuideSpeed
 import lucuma.core.enums.PortDisposition
+import lucuma.core.enums.SequenceType
 import lucuma.core.geom.Area
 import lucuma.core.math.*
 import lucuma.core.model.SiderealTracking
@@ -37,6 +38,7 @@ import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
+
 import scalajs.js
 
 case class AladinContainer(
@@ -296,6 +298,30 @@ object AladinContainer {
             VisualizationStyles.Flamingos2ProbeArmVisible.when_(probeVisible.value)
       }
 
+      val scienceOffsetIndicators =
+        offsetIndicators(
+          NonEmptyList.one(scienceOffset.value).some,
+          props.coordinates,
+          posAngle.value,
+          SequenceType.Science,
+          VisualizationStyles.ScienceOffsetPosition,
+          true
+        )
+
+      val acquisitionOffsetIndicators =
+        offsetIndicators(
+          NonEmptyList.one(acquisitionOffset.value).some,
+          props.coordinates,
+          posAngle.value,
+          SequenceType.Science,
+          VisualizationStyles.AcquisitionOffsetPosition,
+          true
+        )
+
+      val offsetTargets =
+        // order is important, scienc to be drawn above acq
+        (acquisitionOffsetIndicators |+| scienceOffsetIndicators).flattenOption
+
       <.div(
         Css("react-aladin-container"),
         aladinRef.value.map(AladinZoomControl(_)),
@@ -329,7 +355,7 @@ object AladinContainer {
                       .CrosshairTarget(props.coordinates, Css("science-target"), 10)
                       .some,
                     gs.some.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
-                  ).flatten
+                  ).flatten ++ offsetTargets
                 )
               ),
             ReactAladin(

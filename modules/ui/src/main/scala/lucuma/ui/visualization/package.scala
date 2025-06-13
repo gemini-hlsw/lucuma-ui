@@ -4,8 +4,15 @@
 package lucuma.ui.visualization
 
 import cats.Semigroup
+import cats.data.NonEmptyList
+import cats.syntax.all.*
+import eu.timepit.refined.numeric.NonNegative
+import eu.timepit.refined.refineV
 import japgolly.scalajs.react.vdom.html_<^.VdomAttr
 import lucuma.ags.GuideStarCandidate
+import lucuma.core.enums.SequenceType
+import lucuma.core.math.Angle
+import lucuma.core.math.Coordinates
 import lucuma.core.math.Offset
 import lucuma.core.util.NewBoolean
 import lucuma.react.common.Css
@@ -125,3 +132,18 @@ def textDomSize(textValue: String): (Double, Double) =
 extension (target: GuideStarCandidate)
   protected def selector: Css =
     Css(s"guide-star-${target.id}")
+
+def offsetIndicators(
+  offsets:         Option[NonEmptyList[Offset]],
+  baseCoordinates: Coordinates,
+  posAngle:        Angle,
+  oType:           SequenceType,
+  css:             Css,
+  visible:         Boolean
+) =
+  offsets.foldMap(_.toList).zipWithIndex.map { case (o, i) =>
+    for {
+      idx <- refineV[NonNegative](i).toOption
+      c   <- baseCoordinates.offsetBy(posAngle, o) if visible
+    } yield SVGTarget.OffsetIndicator(c, idx, o, oType, css, 4)
+  }
