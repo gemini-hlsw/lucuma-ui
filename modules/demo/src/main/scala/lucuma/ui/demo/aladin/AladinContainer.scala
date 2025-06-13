@@ -28,6 +28,7 @@ import lucuma.core.enums.PortDisposition
 import lucuma.core.geom.Area
 import lucuma.core.math.*
 import lucuma.core.model.SiderealTracking
+import lucuma.core.syntax.enumerated.*
 import lucuma.core.util.Enumerated
 import lucuma.react.common.*
 import lucuma.react.resizeDetector.hooks.*
@@ -196,6 +197,81 @@ object AladinContainer {
           )
         )
 
+      def enumeratedSelect[A](
+        id:       String,
+        label:    String,
+        value:    A,
+        onChange: A => Callback,
+        filter:   A => Boolean = (_: A) => true,
+        display:  A => String = (a: A) => a.tag.capitalize
+      )(using E: Enumerated[A]): VdomElement =
+        ReactFragment(
+          <.label(^.htmlFor := id, s"$label:"),
+          <.select(
+            ^.id    := id,
+            ^.value := value.tag,
+            ^.onChange ==> ((r: ReactUIEventFromInput) =>
+              E.fromTag(r.target.value).map(onChange).getOrElse(Callback.empty)
+            )
+          )(
+            E.all
+              .filter(filter)
+              .map(item =>
+                <.option(
+                  ^.key   := item.tag,
+                  ^.value := item.tag,
+                  displayFn(item)
+                )
+              )
+              .toTagMod
+          )
+        )
+
+      def offsetControl(
+        label:  String,
+        offset: UseState[Offset]
+      ): VdomElement =
+        <.div(
+          Css("offset-control"),
+          <.label(s"$label (arcsec):"),
+          <.div(
+            <.label("p: "),
+            <.input(
+              ^.`type` := "number",
+              ^.step   := "5",
+              ^.value  := {
+                val (p, _) = Offset.signedDecimalArcseconds.get(offset.value)
+                p.toString
+              },
+              ^.onChange ==> ((e: ReactEventFromInput) => {
+                val pValue = e.target.value.toDoubleOption
+                  .map(Angle.fromDoubleArcseconds)
+                  .getOrElse(Angle.Angle0)
+                offset.modState(_.copy(p = pValue.p))
+              })
+            ),
+            <.label("q: "),
+            <.input(
+              ^.`type` := "number",
+              ^.step   := "5",
+              ^.value  := {
+                val (_, q) = Offset.signedDecimalArcseconds.get(offset.value)
+                q.toString
+              },
+              ^.onChange ==> ((e: ReactEventFromInput) => {
+                val qValue = e.target.value.toDoubleOption
+                  .map(Angle.fromDoubleArcseconds)
+                  .getOrElse(Angle.Angle0)
+                offset.modState(_.copy(q = qValue.q))
+              })
+            ),
+            <.button(
+              ^.onClick --> offset.setState(Offset.Zero),
+              "Reset"
+            )
+          )
+        )
+
       def visibilityClasses = instrument.value match {
         case InstrumentType.GMOS       =>
           VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
@@ -326,26 +402,11 @@ object AladinContainer {
                     "Flamingos2"
                   )
                 ),
-                <.label(^.htmlFor     := "port-selector", "Select Port Disposition:"),
-                <.select(
-                  ^.id    := "port-selector",
-                  ^.value := portDisposition.value.tag,
-                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                    Enumerated[PortDisposition]
-                      .fromTag(r.target.value)
-                      .map(port => portDisposition.setState(port))
-                      .getOrElse(Callback.empty)
-                  )
-                )(
-                  Enumerated[PortDisposition].all
-                    .map(port =>
-                      <.option(
-                        ^.key   := port.tag,
-                        ^.value := port.tag,
-                        port.tag.capitalize
-                      )
-                    )
-                    .toTagMod
+                enumeratedSelect(
+                  "port-selector",
+                  "Select Port Disposition",
+                  portDisposition.value,
+                  portDisposition.setState
                 ),
                 <.label(^.htmlFor     := "pa-input", "Position Angle (°):"),
                 <.input(
@@ -367,174 +428,43 @@ object AladinContainer {
                 case InstrumentType.GMOS       =>
                   <.div(
                     Css("config-controls"),
-                    <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
-                    <.select(
-                      ^.id    := "fpu-selector",
-                      ^.value := gmosConf.value.fpu.tag,
-                      ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                        Enumerated[GmosSouthFpu]
-                          .fromTag(r.target.value)
-                          .map(fpu =>
-                            gmosConf.setState(
-                              gmosConf.value.copy(fpu = fpu)
-                            )
-                          )
-                          .getOrElse(Callback.empty)
-                      )
-                    )(
-                      Enumerated[GmosSouthFpu].all
-                        .filter(_.tag.startsWith("LongSlit"))
-                        .map(fpu =>
-                          <.option(
-                            ^.key   := fpu.tag,
-                            ^.value := fpu.tag,
-                            fpu.longName
-                          )
-                        )
-                        .toTagMod
+                    enumeratedSelect(
+                      "fpu-selector",
+                      "Select FPU",
+                      gmosConf.value.fpu,
+                      fpu => gmosConf.setState(gmosConf.value.copy(fpu = fpu)),
+                      _.tag.startsWith("LongSlit"),
+                      _.longName
                     )
                   )
                 case InstrumentType.Flamingos2 =>
                   <.div(
                     Css("config-controls"),
-                    <.label(^.htmlFor := "f2-fpu-selector", "Select Flamingos2 FPU:"),
-                    <.select(
-                      ^.id    := "f2-fpu-selector",
-                      ^.value := f2Conf.value.fpu.tag,
-                      ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                        Enumerated[Flamingos2Fpu]
-                          .fromTag(r.target.value)
-                          .map(fpu =>
-                            f2Conf.setState(
-                              f2Conf.value.copy(fpu = fpu)
-                            )
-                          )
-                          .getOrElse(Callback.empty)
-                      )
-                    )(
-                      Enumerated[Flamingos2Fpu].all
-                        .filter(_.tag.startsWith("LongSlit"))
-                        .map(fpu =>
-                          <.option(
-                            ^.key   := fpu.tag,
-                            ^.value := fpu.tag,
-                            fpu.longName
-                          )
-                        )
-                        .toTagMod
+                    enumeratedSelect(
+                      "f2-fpu-selector",
+                      "Select Flamingos2 FPU",
+                      f2Conf.value.fpu,
+                      fpu => f2Conf.setState(f2Conf.value.copy(fpu = fpu)),
+                      _.tag.startsWith("LongSlit"),
+                      _.longName
                     )
                   )
               },
               <.div(
                 Css("config-controls"),
-                <.label(^.htmlFor := "survey-selector", "Select Survey:"),
-                <.select(
-                  ^.id    := "survey-selector",
-                  ^.value := survey.value.tag,
-                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                    Enumerated[ImageSurvey]
-                      .fromTag(r.target.value)
-                      .map { s =>
-                        survey.setState(s)
-                      }
-                      .getOrElse(Callback.empty)
-                  )
-                )(
-                  Enumerated[ImageSurvey].all
-                    .map(s =>
-                      <.option(
-                        ^.key   := s.tag,
-                        ^.value := s.tag,
-                        s.name
-                      )
-                    )
-                    .toTagMod
+                enumeratedSelect(
+                  "survey-selector",
+                  "Select Survey",
+                  survey.value,
+                  survey.setState
                 )
               ),
               // Offset controls in a separate row
               <.div(
                 Css("config-controls"),
                 <.h5("Offset Controls"),
-                <.div(
-                  Css("offset-control"),
-                  <.label("Science Offset (arcsec):"),
-                  <.div(
-                    <.label("p: "),
-                    <.input(
-                      ^.`type` := "number",
-                      ^.step   := "5",
-                      ^.value  := {
-                        val (p, _) = Offset.signedDecimalArcseconds.get(scienceOffset.value)
-                        p.toString
-                      },
-                      ^.onChange ==> ((e: ReactEventFromInput) => {
-                        val pValue = e.target.value.toDoubleOption
-                          .map(Angle.fromDoubleArcseconds)
-                          .getOrElse(Angle.Angle0)
-                        scienceOffset.modState(_.copy(p = pValue.p))
-                      })
-                    ),
-                    <.label("q: "),
-                    <.input(
-                      ^.`type` := "number",
-                      ^.step   := "5",
-                      ^.value  := {
-                        val (_, q) = Offset.signedDecimalArcseconds.get(scienceOffset.value)
-                        q.toString
-                      },
-                      ^.onChange ==> ((e: ReactEventFromInput) => {
-                        val qValue = e.target.value.toDoubleOption
-                          .map(Angle.fromDoubleArcseconds)
-                          .getOrElse(Angle.Angle0)
-                        scienceOffset.modState(_.copy(q = qValue.q))
-                      })
-                    ),
-                    <.button(
-                      ^.onClick --> scienceOffset.setState(Offset.Zero),
-                      "Reset"
-                    )
-                  )
-                ),
-                <.div(
-                  Css("offset-control"),
-                  <.label("Acquisition Offset (arcsec):"),
-                  <.div(
-                    <.label("p: "),
-                    <.input(
-                      ^.`type` := "number",
-                      ^.step   := "5",
-                      ^.value  := {
-                        val (p, _) = Offset.signedDecimalArcseconds.get(acquisitionOffset.value)
-                        p.toString
-                      },
-                      ^.onChange ==> ((e: ReactEventFromInput) => {
-                        val pValue = e.target.value.toDoubleOption
-                          .map(Angle.fromDoubleArcseconds)
-                          .getOrElse(Angle.Angle0)
-                        acquisitionOffset.modState(_.copy(p = pValue.p))
-                      })
-                    ),
-                    <.label("q: "),
-                    <.input(
-                      ^.`type` := "number",
-                      ^.step   := "5",
-                      ^.value  := {
-                        val (_, q) = Offset.signedDecimalArcseconds.get(acquisitionOffset.value)
-                        q.toString
-                      },
-                      ^.onChange ==> ((e: ReactEventFromInput) => {
-                        val qValue = e.target.value.toDoubleOption
-                          .map(Angle.fromDoubleArcseconds)
-                          .getOrElse(Angle.Angle0)
-                        acquisitionOffset.modState(_.copy(q = qValue.q))
-                      })
-                    ),
-                    <.button(
-                      ^.onClick --> acquisitionOffset.setState(Offset.Zero),
-                      "Reset"
-                    )
-                  )
-                )
+                offsetControl("Science Offset", scienceOffset),
+                offsetControl("Acquisition Offset", acquisitionOffset)
               )
             )
           )
