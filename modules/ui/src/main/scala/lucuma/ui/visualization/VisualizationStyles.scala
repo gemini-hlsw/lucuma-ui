@@ -16,6 +16,9 @@ object VisualizationStyles:
   val GuideStarTarget                 = Css("guide-star-target")
   val GuideStarCandidateVisible       = Css("guide-star-candidate-target-visible")
 
+  val ScienceOffsetPosition     = Css("science-offset-position")
+  val AcquisitionOffsetPosition = Css("acquisition-offset-position")
+
   val AgsFast: Css    = Css("ags-fast-color")
   val AgsMedium: Css  = Css("ags-medium-color")
   val AgsSlow: Css    = Css("ags-slow-color")

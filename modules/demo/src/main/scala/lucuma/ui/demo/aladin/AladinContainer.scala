@@ -25,9 +25,11 @@ import lucuma.core.enums.GmosSouthGrating
 import lucuma.core.enums.GuideProbe
 import lucuma.core.enums.GuideSpeed
 import lucuma.core.enums.PortDisposition
+import lucuma.core.enums.SequenceType
 import lucuma.core.geom.Area
 import lucuma.core.math.*
 import lucuma.core.model.SiderealTracking
+import lucuma.core.syntax.enumerated.*
 import lucuma.core.util.Enumerated
 import lucuma.react.common.*
 import lucuma.react.resizeDetector.hooks.*
@@ -36,6 +38,8 @@ import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
+
+import scalajs.js
 
 case class AladinContainer(
   fov:         ReuseView[Fov],
@@ -55,6 +59,23 @@ object AladinContainer {
   type Props = AladinContainer
 
   val coordinates = GenLens[AladinContainer](_.coordinates)
+
+  // Generate a 5x5 grid of offsets separated by 5 arcsec
+  def generateOffsetGrid(
+    shiftP: Angle = Angle.Angle0,
+    shiftQ: Angle = Angle.Angle0
+  ): NonEmptyList[Offset] = {
+    val step        = 5
+    val shiftOffset = Offset(shiftP.p, shiftQ.q)
+    val offsets     =
+      for {
+        i <- -2 to 2
+        j <- -2 to 2
+      } yield Offset(Angle.fromDoubleArcseconds(step * i).p,
+                     Angle.fromDoubleArcseconds(step * j).q
+      ) + shiftOffset
+    NonEmptyList.fromListUnsafe(offsets.toList)
+  }
 
   val component = ScalaFnComponent[Props]: props =>
     for {
@@ -94,11 +115,14 @@ object AladinContainer {
                               case InstrumentType.GMOS       => ImageSurvey.DSS
                               case InstrumentType.Flamingos2 => ImageSurvey.TWOMASS
                             })
-      // State for science and acquisition offsets
-      scienceOffset      <- useState(Offset.Zero)
-      acquisitionOffset  <- useState(Offset.Zero)
-
     } yield
+      // Grid of offsets
+      val scienceOffsetGrid     = AladinContainer.generateOffsetGrid()
+      val acquisitionOffsetGrid = AladinContainer.generateOffsetGrid(
+        Angle.fromDoubleArcseconds(1.5),
+        Angle.fromDoubleArcseconds(1.5)
+      )
+
       /**
        * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
        * keep the internal target correct
@@ -125,13 +149,9 @@ object AladinContainer {
         case InstrumentType.GMOS       => gmosConf.value.some
         case InstrumentType.Flamingos2 => f2Conf.value.some
 
-      // Convert individual offsets to NonEmptyList format needed by the geometries
-      val scienceOffsetList     =
-        NonEmptyList.one(scienceOffset.value).some.filter(_ => scienceOffset.value != Offset.Zero)
-      val acquisitionOffsetList = NonEmptyList
-        .one(acquisitionOffset.value)
-        .some
-        .filter(_ => acquisitionOffset.value != Offset.Zero)
+      // Use the generated offset grids
+      val scienceOffsetList     = scienceOffsetGrid.some
+      val acquisitionOffsetList = acquisitionOffsetGrid.some
 
       val shapes = instrument.value match {
         case InstrumentType.GMOS       =>
@@ -196,6 +216,36 @@ object AladinContainer {
           )
         )
 
+      def enumeratedSelect[A](
+        id:       String,
+        label:    String,
+        value:    A,
+        onChange: A => Callback,
+        filter:   A => Boolean = (_: A) => true,
+        display:  js.UndefOr[A => String] = js.undefined
+      )(using E: Enumerated[A]): VdomElement =
+        ReactFragment(
+          <.label(^.htmlFor := id, s"$label: "),
+          <.select(
+            ^.id    := id,
+            ^.value := value.tag,
+            ^.onChange ==> ((r: ReactUIEventFromInput) =>
+              E.fromTag(r.target.value).map(onChange).getOrElse(Callback.empty)
+            )
+          )(
+            E.all
+              .filter(filter)
+              .map(item =>
+                <.option(
+                  ^.key   := item.tag,
+                  ^.value := item.tag,
+                  display.map(_(item)).getOrElse(item.tag.capitalize)
+                )
+              )
+              .toTagMod
+          )
+        )
+
       def visibilityClasses = instrument.value match {
         case InstrumentType.GMOS       =>
           VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
@@ -218,6 +268,30 @@ object AladinContainer {
             ) |+|
             VisualizationStyles.Flamingos2ProbeArmVisible.when_(probeVisible.value)
       }
+
+      val scienceOffsetIndicators =
+        offsetIndicators(
+          scienceOffsetList,
+          props.coordinates,
+          posAngle.value,
+          SequenceType.Science,
+          VisualizationStyles.ScienceOffsetPosition,
+          true
+        )
+
+      val acquisitionOffsetIndicators =
+        offsetIndicators(
+          acquisitionOffsetList,
+          props.coordinates,
+          posAngle.value,
+          SequenceType.Science,
+          VisualizationStyles.AcquisitionOffsetPosition,
+          true
+        )
+
+      val offsetTargets =
+        // order is important, scienc to be drawn above acq
+        (acquisitionOffsetIndicators |+| scienceOffsetIndicators).flattenOption
 
       <.div(
         Css("react-aladin-container"),
@@ -252,7 +326,7 @@ object AladinContainer {
                       .CrosshairTarget(props.coordinates, Css("science-target"), 10)
                       .some,
                     gs.some.map(SVGTarget.CircleTarget(_, Css("guidestar"), 3))
-                  ).flatten
+                  ).flatten ++ offsetTargets
                 )
               ),
             ReactAladin(
@@ -285,10 +359,10 @@ object AladinContainer {
                 currentPos.value.diff(props.coordinates).offset.toStringOffset,
                 <.label("PA: "),
                 s"${posAngle.value.toDoubleDegrees}°",
-                <.label("Science Offset: "),
-                scienceOffset.value.toStringOffset,
-                <.label("Acquisition Offset: "),
-                acquisitionOffset.value.toStringOffset
+                <.label("Science Offsets: "),
+                s"5x5 grid (${scienceOffsetGrid.size} positions)",
+                <.label("Acquisition Offsets: "),
+                s"5x5 grid (${acquisitionOffsetGrid.size} positions)"
               ),
               <.div(
                 Css("config-togglers"),
@@ -300,7 +374,7 @@ object AladinContainer {
               ),
               <.div(
                 Css("config-controls"),
-                <.label(^.htmlFor     := "instrument-selector", "Select Instrument:"),
+                <.label(^.htmlFor     := "instrument-selector", "Select Instrument: "),
                 <.select(
                   ^.id    := "instrument-selector",
                   ^.value := (instrument.value match {
@@ -326,26 +400,11 @@ object AladinContainer {
                     "Flamingos2"
                   )
                 ),
-                <.label(^.htmlFor     := "port-selector", "Select Port Disposition:"),
-                <.select(
-                  ^.id    := "port-selector",
-                  ^.value := portDisposition.value.tag,
-                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                    Enumerated[PortDisposition]
-                      .fromTag(r.target.value)
-                      .map(port => portDisposition.setState(port))
-                      .getOrElse(Callback.empty)
-                  )
-                )(
-                  Enumerated[PortDisposition].all
-                    .map(port =>
-                      <.option(
-                        ^.key   := port.tag,
-                        ^.value := port.tag,
-                        port.tag.capitalize
-                      )
-                    )
-                    .toTagMod
+                enumeratedSelect(
+                  "port-selector",
+                  "Select Port Disposition: ",
+                  portDisposition.value,
+                  portDisposition.setState
                 ),
                 <.label(^.htmlFor     := "pa-input", "Position Angle (°):"),
                 <.input(
@@ -367,174 +426,45 @@ object AladinContainer {
                 case InstrumentType.GMOS       =>
                   <.div(
                     Css("config-controls"),
-                    <.label(^.htmlFor := "fpu-selector", "Select FPU:"),
-                    <.select(
-                      ^.id    := "fpu-selector",
-                      ^.value := gmosConf.value.fpu.tag,
-                      ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                        Enumerated[GmosSouthFpu]
-                          .fromTag(r.target.value)
-                          .map(fpu =>
-                            gmosConf.setState(
-                              gmosConf.value.copy(fpu = fpu)
-                            )
-                          )
-                          .getOrElse(Callback.empty)
-                      )
-                    )(
-                      Enumerated[GmosSouthFpu].all
-                        .filter(_.tag.startsWith("LongSlit"))
-                        .map(fpu =>
-                          <.option(
-                            ^.key   := fpu.tag,
-                            ^.value := fpu.tag,
-                            fpu.longName
-                          )
-                        )
-                        .toTagMod
+                    enumeratedSelect(
+                      "fpu-selector",
+                      "Select FPU: ",
+                      gmosConf.value.fpu,
+                      fpu => gmosConf.setState(gmosConf.value.copy(fpu = fpu)),
+                      _.tag.startsWith("LongSlit"),
+                      _.longName
                     )
                   )
                 case InstrumentType.Flamingos2 =>
                   <.div(
                     Css("config-controls"),
-                    <.label(^.htmlFor := "f2-fpu-selector", "Select Flamingos2 FPU:"),
-                    <.select(
-                      ^.id    := "f2-fpu-selector",
-                      ^.value := f2Conf.value.fpu.tag,
-                      ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                        Enumerated[Flamingos2Fpu]
-                          .fromTag(r.target.value)
-                          .map(fpu =>
-                            f2Conf.setState(
-                              f2Conf.value.copy(fpu = fpu)
-                            )
-                          )
-                          .getOrElse(Callback.empty)
-                      )
-                    )(
-                      Enumerated[Flamingos2Fpu].all
-                        .filter(_.tag.startsWith("LongSlit"))
-                        .map(fpu =>
-                          <.option(
-                            ^.key   := fpu.tag,
-                            ^.value := fpu.tag,
-                            fpu.longName
-                          )
-                        )
-                        .toTagMod
+                    enumeratedSelect(
+                      "f2-fpu-selector",
+                      "Select Flamingos2 FPU",
+                      f2Conf.value.fpu,
+                      fpu => f2Conf.setState(f2Conf.value.copy(fpu = fpu)),
+                      _.tag.startsWith("LongSlit"),
+                      _.longName
                     )
                   )
               },
               <.div(
                 Css("config-controls"),
-                <.label(^.htmlFor := "survey-selector", "Select Survey:"),
-                <.select(
-                  ^.id    := "survey-selector",
-                  ^.value := survey.value.tag,
-                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                    Enumerated[ImageSurvey]
-                      .fromTag(r.target.value)
-                      .map { s =>
-                        survey.setState(s)
-                      }
-                      .getOrElse(Callback.empty)
-                  )
-                )(
-                  Enumerated[ImageSurvey].all
-                    .map(s =>
-                      <.option(
-                        ^.key   := s.tag,
-                        ^.value := s.tag,
-                        s.name
-                      )
-                    )
-                    .toTagMod
+                enumeratedSelect(
+                  "survey-selector",
+                  "Select Survey",
+                  survey.value,
+                  survey.setState,
+                  display = _.name
                 )
               ),
-              // Offset controls in a separate row
+              // Offset grid information
               <.div(
                 Css("config-controls"),
-                <.h5("Offset Controls"),
-                <.div(
-                  Css("offset-control"),
-                  <.label("Science Offset (arcsec):"),
-                  <.div(
-                    <.label("p: "),
-                    <.input(
-                      ^.`type` := "number",
-                      ^.step   := "5",
-                      ^.value  := {
-                        val (p, _) = Offset.signedDecimalArcseconds.get(scienceOffset.value)
-                        p.toString
-                      },
-                      ^.onChange ==> ((e: ReactEventFromInput) => {
-                        val pValue = e.target.value.toDoubleOption
-                          .map(Angle.fromDoubleArcseconds)
-                          .getOrElse(Angle.Angle0)
-                        scienceOffset.modState(_.copy(p = pValue.p))
-                      })
-                    ),
-                    <.label("q: "),
-                    <.input(
-                      ^.`type` := "number",
-                      ^.step   := "5",
-                      ^.value  := {
-                        val (_, q) = Offset.signedDecimalArcseconds.get(scienceOffset.value)
-                        q.toString
-                      },
-                      ^.onChange ==> ((e: ReactEventFromInput) => {
-                        val qValue = e.target.value.toDoubleOption
-                          .map(Angle.fromDoubleArcseconds)
-                          .getOrElse(Angle.Angle0)
-                        scienceOffset.modState(_.copy(q = qValue.q))
-                      })
-                    ),
-                    <.button(
-                      ^.onClick --> scienceOffset.setState(Offset.Zero),
-                      "Reset"
-                    )
-                  )
-                ),
-                <.div(
-                  Css("offset-control"),
-                  <.label("Acquisition Offset (arcsec):"),
-                  <.div(
-                    <.label("p: "),
-                    <.input(
-                      ^.`type` := "number",
-                      ^.step   := "5",
-                      ^.value  := {
-                        val (p, _) = Offset.signedDecimalArcseconds.get(acquisitionOffset.value)
-                        p.toString
-                      },
-                      ^.onChange ==> ((e: ReactEventFromInput) => {
-                        val pValue = e.target.value.toDoubleOption
-                          .map(Angle.fromDoubleArcseconds)
-                          .getOrElse(Angle.Angle0)
-                        acquisitionOffset.modState(_.copy(p = pValue.p))
-                      })
-                    ),
-                    <.label("q: "),
-                    <.input(
-                      ^.`type` := "number",
-                      ^.step   := "5",
-                      ^.value  := {
-                        val (_, q) = Offset.signedDecimalArcseconds.get(acquisitionOffset.value)
-                        q.toString
-                      },
-                      ^.onChange ==> ((e: ReactEventFromInput) => {
-                        val qValue = e.target.value.toDoubleOption
-                          .map(Angle.fromDoubleArcseconds)
-                          .getOrElse(Angle.Angle0)
-                        acquisitionOffset.modState(_.copy(q = qValue.q))
-                      })
-                    ),
-                    <.button(
-                      ^.onClick --> acquisitionOffset.setState(Offset.Zero),
-                      "Reset"
-                    )
-                  )
-                )
+                <.h5("Offset Grids"),
+                <.p("Science: 5×5 grid, 5″ separation"),
+                <.p("Acquisition: 5×5 grid, 5″ separation, +1.5″ shift"),
+                <.p(s"Total positions: ${scienceOffsetGrid.size} each")
               )
             )
           )
