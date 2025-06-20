@@ -4,8 +4,8 @@ val Versions = new { // sbt doesn't like object definitions in build.sbt
   val disciplineMUnit = "2.0.0"
   val fs2             = "3.12.0"
   val kittens         = "3.5.0"
-  val lucumaCore      = "0.135.1"
-  val lucumaODBSchema = "0.24.1"
+  val lucumaCore      = "0.136.1"
+  val lucumaODBSchema = "0.25.1"
   val munit           = "1.1.1"
   val munitCatsEffect = "2.1.0"
 }
