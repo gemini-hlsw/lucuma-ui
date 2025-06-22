@@ -405,6 +405,26 @@ extension (o: ObservingMode.GmosSouthLongSlit)
     explicitSpatialOffsets = o.explicitSpatialOffsets.map(_.toList.map(_.toInput)).orUnassign
   )
 
+extension (o: ObservingMode.GmosNorthImaging)
+  def toInput: GmosNorthImagingInput = GmosNorthImagingInput(
+    filters = o.filters.toList.assign,
+    explicitBin = o.explicitBin.orUnassign,
+    explicitAmpReadMode = o.explicitAmpReadMode.orUnassign,
+    explicitAmpGain = o.explicitAmpGain.orUnassign,
+    explicitRoi = o.explicitRoi.orUnassign,
+    explicitSpatialOffsets = o.explicitSpatialOffsets.map(_.toList.map(_.toInput)).orUnassign
+  )
+
+extension (o: ObservingMode.GmosSouthImaging)
+  def toInput: GmosSouthImagingInput = GmosSouthImagingInput(
+    filters = o.filters.toList.assign,
+    explicitBin = o.explicitBin.orUnassign,
+    explicitAmpReadMode = o.explicitAmpReadMode.orUnassign,
+    explicitAmpGain = o.explicitAmpGain.orUnassign,
+    explicitRoi = o.explicitRoi.orUnassign,
+    explicitSpatialOffsets = o.explicitSpatialOffsets.map(_.toList.map(_.toInput)).orUnassign
+  )
+
 extension (o: ObservingMode.Flamingos2LongSlit)
   def toInput: Flamingos2LongSlitInput = Flamingos2LongSlitInput(
     disperser = o.disperser.assign,
@@ -422,12 +442,16 @@ extension (b: ObservingMode)
       ObservingModeInput(gmosNorthLongSlit = o.toInput.assign)
     case o: ObservingMode.GmosSouthLongSlit  =>
       ObservingModeInput(gmosSouthLongSlit = o.toInput.assign)
+    case o: ObservingMode.GmosNorthImaging   =>
+      ObservingModeInput(gmosNorthImaging = o.toInput.assign)
+    case o: ObservingMode.GmosSouthImaging   =>
+      ObservingModeInput(gmosSouthImaging = o.toInput.assign)
     case o: ObservingMode.Flamingos2LongSlit =>
       ObservingModeInput(flamingos2LongSlit = o.toInput.assign)
 
 extension (i: BasicConfiguration)
   def toInput: ObservingModeInput = i match
-    case o: BasicConfiguration.GmosNorthLongSlit =>
+    case o: BasicConfiguration.GmosNorthLongSlit  =>
       ObservingModeInput(
         gmosNorthLongSlit = GmosNorthLongSlitInput(
           grating = o.grating.assign,
@@ -436,7 +460,7 @@ extension (i: BasicConfiguration)
           centralWavelength = o.centralWavelength.value.toInput.assign
         ).assign
       )
-    case o: BasicConfiguration.GmosSouthLongSlit =>
+    case o: BasicConfiguration.GmosSouthLongSlit  =>
       ObservingModeInput(
         gmosSouthLongSlit = GmosSouthLongSlitInput(
           grating = o.grating.assign,
@@ -445,7 +469,18 @@ extension (i: BasicConfiguration)
           centralWavelength = o.centralWavelength.value.toInput.assign
         ).assign
       )
-
+    case o: BasicConfiguration.GmosNorthImaging   =>
+      ObservingModeInput(
+        gmosNorthImaging = GmosNorthImagingInput(
+          filters = o.filter.toList.assign
+        ).assign
+      )
+    case o: BasicConfiguration.GmosSouthImaging   =>
+      ObservingModeInput(
+        gmosSouthImaging = GmosSouthImagingInput(
+          filters = o.filter.toList.assign
+        ).assign
+      )
     case o: BasicConfiguration.Flamingos2LongSlit =>
       ObservingModeInput(
         flamingos2LongSlit = Flamingos2LongSlitInput(

@@ -28,6 +28,8 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
   def obsModeType: ObservingModeType = this match
     case _: ObservingMode.GmosNorthLongSlit  => ObservingModeType.GmosNorthLongSlit
     case _: ObservingMode.GmosSouthLongSlit  => ObservingModeType.GmosSouthLongSlit
+    case _: ObservingMode.GmosNorthImaging   => ObservingModeType.GmosNorthImaging
+    case _: ObservingMode.GmosSouthImaging   => ObservingModeType.GmosSouthImaging
     case _: ObservingMode.Flamingos2LongSlit => ObservingModeType.Flamingos2LongSlit
 
   def gmosFpuAlternative: Option[Either[GmosNorthFpu, GmosSouthFpu]] = this match
@@ -38,6 +40,8 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
   def siteFor: Site = this match
     case _: ObservingMode.GmosNorthLongSlit  => Site.GN
     case _: ObservingMode.GmosSouthLongSlit  => Site.GS
+    case _: ObservingMode.GmosNorthImaging   => Site.GN
+    case _: ObservingMode.GmosSouthImaging   => Site.GS
     case _: ObservingMode.Flamingos2LongSlit => Site.GS
 
   def toBasicConfiguration: BasicConfiguration = this match
@@ -45,6 +49,10 @@ sealed abstract class ObservingMode(val instrument: Instrument) extends Product 
       BasicConfiguration.GmosNorthLongSlit(n.grating, n.filter, n.fpu, n.centralWavelength)
     case s: ObservingMode.GmosSouthLongSlit  =>
       BasicConfiguration.GmosSouthLongSlit(s.grating, s.filter, s.fpu, s.centralWavelength)
+    case n: ObservingMode.GmosNorthImaging   =>
+      BasicConfiguration.GmosNorthImaging(n.filters)
+    case s: ObservingMode.GmosSouthImaging   =>
+      BasicConfiguration.GmosSouthImaging(s.filters)
     case f: ObservingMode.Flamingos2LongSlit =>
       BasicConfiguration.Flamingos2LongSlit(f.disperser, f.filter, f.fpu)
 }
@@ -61,6 +69,10 @@ object ObservingMode:
           .as[GmosNorthLongSlit]
           .orElse:
             c.downField("gmosSouthLongSlit").as[GmosSouthLongSlit]
+          .orElse:
+            c.downField("gmosNorthImaging").as[GmosNorthImaging]
+          .orElse:
+            c.downField("gmosSouthImaging").as[GmosSouthImaging]
           .orElse:
             c.downField("flamingos2LongSlit").as[Flamingos2LongSlit]
 
@@ -294,6 +306,148 @@ object ObservingMode:
     val explicitSpatialOffsets: Lens[GmosSouthLongSlit, Option[NonEmptyList[Offset.Q]]]            =
       Focus[GmosSouthLongSlit](_.explicitSpatialOffsets)
 
+  case class GmosNorthImaging(
+    initialFilters:         NonEmptyList[GmosNorthFilter],
+    filters:                NonEmptyList[GmosNorthFilter],
+    defaultBin:             GmosBinning,
+    explicitBin:            Option[GmosBinning],
+    defaultAmpReadMode:     GmosAmpReadMode,
+    explicitAmpReadMode:    Option[GmosAmpReadMode],
+    defaultAmpGain:         GmosAmpGain,
+    explicitAmpGain:        Option[GmosAmpGain],
+    defaultRoi:             GmosRoi,
+    explicitRoi:            Option[GmosRoi],
+    defaultSpatialOffsets:  NonEmptyList[Offset],
+    explicitSpatialOffsets: Option[NonEmptyList[Offset]]
+  ) extends ObservingMode(Instrument.GmosNorth) derives Eq:
+    val bin: GmosBinning                     =
+      explicitBin.getOrElse(defaultBin)
+    val ampReadMode: GmosAmpReadMode         =
+      explicitAmpReadMode.getOrElse(defaultAmpReadMode)
+    val ampGain: GmosAmpGain                 =
+      explicitAmpGain.getOrElse(defaultAmpGain)
+    val roi: GmosRoi                         =
+      explicitRoi.getOrElse(defaultRoi)
+    val spatialOffsets: NonEmptyList[Offset] =
+      explicitSpatialOffsets.getOrElse(defaultSpatialOffsets)
+
+    def isCustomized: Boolean =
+      initialFilters =!= filters ||
+        explicitBin.exists(_ =!= defaultBin) ||
+        explicitAmpReadMode.exists(_ =!= defaultAmpReadMode) ||
+        explicitAmpGain.exists(_ =!= defaultAmpGain) ||
+        explicitRoi.exists(_ =!= defaultRoi) ||
+        explicitSpatialOffsets.exists(_ =!= defaultSpatialOffsets)
+
+    def revertCustomizations: GmosNorthImaging =
+      this.copy(
+        filters = this.initialFilters,
+        explicitBin = None,
+        explicitAmpReadMode = None,
+        explicitAmpGain = None,
+        explicitRoi = None,
+        explicitSpatialOffsets = None
+      )
+
+  object GmosNorthImaging:
+    given Decoder[GmosNorthImaging] = deriveDecoder
+
+    val initialFilters: Lens[GmosNorthImaging, NonEmptyList[GmosNorthFilter]]        =
+      Focus[GmosNorthImaging](_.initialFilters)
+    val filters: Lens[GmosNorthImaging, NonEmptyList[GmosNorthFilter]]               =
+      Focus[GmosNorthImaging](_.filters)
+    val defaultBin: Lens[GmosNorthImaging, GmosBinning]                              =
+      Focus[GmosNorthImaging](_.defaultBin)
+    val explicitBin: Lens[GmosNorthImaging, Option[GmosBinning]]                     =
+      Focus[GmosNorthImaging](_.explicitBin)
+    val defaultAmpReadMode: Lens[GmosNorthImaging, GmosAmpReadMode]                  =
+      Focus[GmosNorthImaging](_.defaultAmpReadMode)
+    val explicitAmpReadMode: Lens[GmosNorthImaging, Option[GmosAmpReadMode]]         =
+      Focus[GmosNorthImaging](_.explicitAmpReadMode)
+    val defaultAmpGain: Lens[GmosNorthImaging, GmosAmpGain]                          =
+      Focus[GmosNorthImaging](_.defaultAmpGain)
+    val explicitAmpGain: Lens[GmosNorthImaging, Option[GmosAmpGain]]                 =
+      Focus[GmosNorthImaging](_.explicitAmpGain)
+    val defaultRoi: Lens[GmosNorthImaging, GmosRoi]                                  =
+      Focus[GmosNorthImaging](_.defaultRoi)
+    val explicitRoi: Lens[GmosNorthImaging, Option[GmosRoi]]                         =
+      Focus[GmosNorthImaging](_.explicitRoi)
+    val defaultSpatialOffsets: Lens[GmosNorthImaging, NonEmptyList[Offset]]          =
+      Focus[GmosNorthImaging](_.defaultSpatialOffsets)
+    val explicitSpatialOffsets: Lens[GmosNorthImaging, Option[NonEmptyList[Offset]]] =
+      Focus[GmosNorthImaging](_.explicitSpatialOffsets)
+
+  case class GmosSouthImaging(
+    initialFilters:         NonEmptyList[GmosSouthFilter],
+    filters:                NonEmptyList[GmosSouthFilter],
+    defaultBin:             GmosBinning,
+    explicitBin:            Option[GmosBinning],
+    defaultAmpReadMode:     GmosAmpReadMode,
+    explicitAmpReadMode:    Option[GmosAmpReadMode],
+    defaultAmpGain:         GmosAmpGain,
+    explicitAmpGain:        Option[GmosAmpGain],
+    defaultRoi:             GmosRoi,
+    explicitRoi:            Option[GmosRoi],
+    defaultSpatialOffsets:  NonEmptyList[Offset],
+    explicitSpatialOffsets: Option[NonEmptyList[Offset]]
+  ) extends ObservingMode(Instrument.GmosSouth) derives Eq:
+    val bin: GmosBinning                     =
+      explicitBin.getOrElse(defaultBin)
+    val ampReadMode: GmosAmpReadMode         =
+      explicitAmpReadMode.getOrElse(defaultAmpReadMode)
+    val ampGain: GmosAmpGain                 =
+      explicitAmpGain.getOrElse(defaultAmpGain)
+    val roi: GmosRoi                         =
+      explicitRoi.getOrElse(defaultRoi)
+    val spatialOffsets: NonEmptyList[Offset] =
+      explicitSpatialOffsets.getOrElse(defaultSpatialOffsets)
+
+    def isCustomized: Boolean =
+      initialFilters =!= filters ||
+        explicitBin.exists(_ =!= defaultBin) ||
+        explicitAmpReadMode.exists(_ =!= defaultAmpReadMode) ||
+        explicitAmpGain.exists(_ =!= defaultAmpGain) ||
+        explicitRoi.exists(_ =!= defaultRoi) ||
+        explicitSpatialOffsets.exists(_ =!= defaultSpatialOffsets)
+
+    def revertCustomizations: GmosSouthImaging =
+      this.copy(
+        filters = this.initialFilters,
+        explicitBin = None,
+        explicitAmpReadMode = None,
+        explicitAmpGain = None,
+        explicitRoi = None,
+        explicitSpatialOffsets = None
+      )
+
+  object GmosSouthImaging:
+    given Decoder[GmosSouthImaging] = deriveDecoder
+
+    val initialFilters: Lens[GmosSouthImaging, NonEmptyList[GmosSouthFilter]]        =
+      Focus[GmosSouthImaging](_.initialFilters)
+    val filters: Lens[GmosSouthImaging, NonEmptyList[GmosSouthFilter]]               =
+      Focus[GmosSouthImaging](_.filters)
+    val defaultBin: Lens[GmosSouthImaging, GmosBinning]                              =
+      Focus[GmosSouthImaging](_.defaultBin)
+    val explicitBin: Lens[GmosSouthImaging, Option[GmosBinning]]                     =
+      Focus[GmosSouthImaging](_.explicitBin)
+    val defaultAmpReadMode: Lens[GmosSouthImaging, GmosAmpReadMode]                  =
+      Focus[GmosSouthImaging](_.defaultAmpReadMode)
+    val explicitAmpReadMode: Lens[GmosSouthImaging, Option[GmosAmpReadMode]]         =
+      Focus[GmosSouthImaging](_.explicitAmpReadMode)
+    val defaultAmpGain: Lens[GmosSouthImaging, GmosAmpGain]                          =
+      Focus[GmosSouthImaging](_.defaultAmpGain)
+    val explicitAmpGain: Lens[GmosSouthImaging, Option[GmosAmpGain]]                 =
+      Focus[GmosSouthImaging](_.explicitAmpGain)
+    val defaultRoi: Lens[GmosSouthImaging, GmosRoi]                                  =
+      Focus[GmosSouthImaging](_.defaultRoi)
+    val explicitRoi: Lens[GmosSouthImaging, Option[GmosRoi]]                         =
+      Focus[GmosSouthImaging](_.explicitRoi)
+    val defaultSpatialOffsets: Lens[GmosSouthImaging, NonEmptyList[Offset]]          =
+      Focus[GmosSouthImaging](_.defaultSpatialOffsets)
+    val explicitSpatialOffsets: Lens[GmosSouthImaging, Option[NonEmptyList[Offset]]] =
+      Focus[GmosSouthImaging](_.explicitSpatialOffsets)
+
   case class Flamingos2LongSlit(
     initialDisperser:    Flamingos2Disperser,
     disperser:           Flamingos2Disperser,
@@ -367,5 +521,11 @@ object ObservingMode:
   val gmosSouthLongSlit: Prism[ObservingMode, GmosSouthLongSlit] =
     GenPrism[ObservingMode, GmosSouthLongSlit]
 
-  val f2LongSlit: Prism[ObservingMode, Flamingos2LongSlit] =
+  val gmosNorthImaging: Prism[ObservingMode, GmosNorthImaging] =
+    GenPrism[ObservingMode, GmosNorthImaging]
+
+  val gmosSouthImaging: Prism[ObservingMode, GmosSouthImaging] =
+    GenPrism[ObservingMode, GmosSouthImaging]
+
+  val flamingos2LongSlit: Prism[ObservingMode, Flamingos2LongSlit] =
     GenPrism[ObservingMode, Flamingos2LongSlit]

@@ -239,6 +239,68 @@ trait ArbObservingMode {
         )
       )
 
+  given Arbitrary[ObservingMode.GmosNorthImaging] =
+    Arbitrary[ObservingMode.GmosNorthImaging](
+      for {
+        initialFilters         <- arbitrary[NonEmptyList[GmosNorthFilter]]
+        filters                <- arbitrary[NonEmptyList[GmosNorthFilter]]
+        defaultBin             <- arbitrary[GmosBinning]
+        explicitBin            <- arbitrary[Option[GmosBinning]]
+        defaultAmpReadMode     <- arbitrary[GmosAmpReadMode]
+        explicitAmpReadMode    <- arbitrary[Option[GmosAmpReadMode]]
+        defaultAmpGain         <- arbitrary[GmosAmpGain]
+        explicitAmpGain        <- arbitrary[Option[GmosAmpGain]]
+        defaultRoi             <- arbitrary[GmosRoi]
+        explicitRoi            <- arbitrary[Option[GmosRoi]]
+        defaultSpatialOffsets  <- arbitrary[NonEmptyList[Offset]]
+        explicitSpatialOffsets <- arbitrary[Option[NonEmptyList[Offset]]]
+      } yield ObservingMode.GmosNorthImaging(
+        initialFilters,
+        filters,
+        defaultBin,
+        explicitBin,
+        defaultAmpReadMode,
+        explicitAmpReadMode,
+        defaultAmpGain,
+        explicitAmpGain,
+        defaultRoi,
+        explicitRoi,
+        defaultSpatialOffsets,
+        explicitSpatialOffsets
+      )
+    )
+
+  given Arbitrary[ObservingMode.GmosSouthImaging] =
+    Arbitrary[ObservingMode.GmosSouthImaging](
+      for {
+        initialFilters         <- arbitrary[NonEmptyList[GmosSouthFilter]]
+        filters                <- arbitrary[NonEmptyList[GmosSouthFilter]]
+        defaultBin             <- arbitrary[GmosBinning]
+        explicitBin            <- arbitrary[Option[GmosBinning]]
+        defaultAmpReadMode     <- arbitrary[GmosAmpReadMode]
+        explicitAmpReadMode    <- arbitrary[Option[GmosAmpReadMode]]
+        defaultAmpGain         <- arbitrary[GmosAmpGain]
+        explicitAmpGain        <- arbitrary[Option[GmosAmpGain]]
+        defaultRoi             <- arbitrary[GmosRoi]
+        explicitRoi            <- arbitrary[Option[GmosRoi]]
+        defaultSpatialOffsets  <- arbitrary[NonEmptyList[Offset]]
+        explicitSpatialOffsets <- arbitrary[Option[NonEmptyList[Offset]]]
+      } yield ObservingMode.GmosSouthImaging(
+        initialFilters,
+        filters,
+        defaultBin,
+        explicitBin,
+        defaultAmpReadMode,
+        explicitAmpReadMode,
+        defaultAmpGain,
+        explicitAmpGain,
+        defaultRoi,
+        explicitRoi,
+        defaultSpatialOffsets,
+        explicitSpatialOffsets
+      )
+    )
+
   given Arbitrary[ObservingMode.Flamingos2LongSlit] =
     Arbitrary[ObservingMode.Flamingos2LongSlit](
       for {
@@ -303,14 +365,87 @@ trait ArbObservingMode {
         )
       )
 
+  given Cogen[ObservingMode.GmosNorthImaging] =
+    Cogen[
+      (NonEmptyList[GmosNorthFilter],
+       NonEmptyList[GmosNorthFilter],
+       GmosBinning,
+       Option[GmosBinning],
+       GmosAmpReadMode,
+       Option[GmosAmpReadMode],
+       GmosAmpGain,
+       Option[GmosAmpGain],
+       GmosRoi,
+       Option[GmosRoi],
+       NonEmptyList[Offset],
+       Option[NonEmptyList[Offset]]
+      )
+    ]
+      .contramap(o =>
+        (
+          o.initialFilters,
+          o.filters,
+          o.defaultBin,
+          o.explicitBin,
+          o.defaultAmpReadMode,
+          o.explicitAmpReadMode,
+          o.defaultAmpGain,
+          o.explicitAmpGain,
+          o.defaultRoi,
+          o.explicitRoi,
+          o.defaultSpatialOffsets,
+          o.explicitSpatialOffsets
+        )
+      )
+
+  given Cogen[ObservingMode.GmosSouthImaging] =
+    Cogen[
+      (NonEmptyList[GmosSouthFilter],
+       NonEmptyList[GmosSouthFilter],
+       GmosBinning,
+       Option[GmosBinning],
+       GmosAmpReadMode,
+       Option[GmosAmpReadMode],
+       GmosAmpGain,
+       Option[GmosAmpGain],
+       GmosRoi,
+       Option[GmosRoi],
+       NonEmptyList[Offset],
+       Option[NonEmptyList[Offset]]
+      )
+    ]
+      .contramap(o =>
+        (
+          o.initialFilters,
+          o.filters,
+          o.defaultBin,
+          o.explicitBin,
+          o.defaultAmpReadMode,
+          o.explicitAmpReadMode,
+          o.defaultAmpGain,
+          o.explicitAmpGain,
+          o.defaultRoi,
+          o.explicitRoi,
+          o.defaultSpatialOffsets,
+          o.explicitSpatialOffsets
+        )
+      )
+
   given Cogen[ObservingMode] =
-    Cogen[Either[ObservingMode.Flamingos2LongSlit, Either[ObservingMode.GmosNorthLongSlit,
-                                                          ObservingMode.GmosSouthLongSlit
-    ]]]
+    Cogen[Either[
+      ObservingMode.Flamingos2LongSlit,
+      Either[ObservingMode.GmosNorthLongSlit, Either[ObservingMode.GmosSouthLongSlit,
+                                                     Either[ObservingMode.GmosNorthImaging,
+                                                            ObservingMode.GmosSouthImaging
+                                                     ]
+      ]]
+    ]]
       .contramap {
-        case n: ObservingMode.GmosNorthLongSlit  => n.asLeft.asRight
-        case s: ObservingMode.GmosSouthLongSlit  => s.asRight.asRight
         case f: ObservingMode.Flamingos2LongSlit => f.asLeft
+        case n: ObservingMode.GmosNorthLongSlit  => n.asLeft.asRight
+        case s: ObservingMode.GmosSouthLongSlit  => s.asLeft.asRight.asRight
+        case n: ObservingMode.GmosNorthImaging   => n.asLeft.asRight.asRight.asRight
+        case s: ObservingMode.GmosSouthImaging   => s.asRight.asRight.asRight.asRight
       }
 
 }
