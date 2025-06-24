@@ -23,6 +23,12 @@ object BasicConfigurationSubquery
             fpu
             centralWavelength $WavelengthSubquery
           }
+          gmosNorthImaging {
+            filters
+          }
+          gmosSouthImaging {
+            filters
+          }
           flamingos2LongSlit {
             disperser
             filter

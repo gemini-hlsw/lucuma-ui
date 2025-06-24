@@ -304,18 +304,20 @@ trait ArbObservingMode {
   given Arbitrary[ObservingMode.Flamingos2LongSlit] =
     Arbitrary[ObservingMode.Flamingos2LongSlit](
       for {
-        initialDisperser   <- arbitrary[Flamingos2Disperser]
-        disperser          <- arbitrary[Flamingos2Disperser]
-        initialFilter      <- arbitrary[Flamingos2Filter]
-        filter             <- arbitrary[Flamingos2Filter]
-        initialFpu         <- arbitrary[Flamingos2Fpu]
-        fpu                <- arbitrary[Flamingos2Fpu]
-        explicitReadMode   <- arbitrary[Option[Flamingos2ReadMode]]
-        explicitReads      <- arbitrary[Option[Flamingos2Reads]]
-        defaultDecker      <- arbitrary[Flamingos2Decker]
-        explicitDecker     <- arbitrary[Option[Flamingos2Decker]]
-        defaultReadoutMode <- arbitrary[Flamingos2ReadoutMode]
-        expicitReadoutMode <- arbitrary[Option[Flamingos2ReadoutMode]]
+        initialDisperser       <- arbitrary[Flamingos2Disperser]
+        disperser              <- arbitrary[Flamingos2Disperser]
+        initialFilter          <- arbitrary[Flamingos2Filter]
+        filter                 <- arbitrary[Flamingos2Filter]
+        initialFpu             <- arbitrary[Flamingos2Fpu]
+        fpu                    <- arbitrary[Flamingos2Fpu]
+        explicitReadMode       <- arbitrary[Option[Flamingos2ReadMode]]
+        explicitReads          <- arbitrary[Option[Flamingos2Reads]]
+        defaultDecker          <- arbitrary[Flamingos2Decker]
+        explicitDecker         <- arbitrary[Option[Flamingos2Decker]]
+        defaultReadoutMode     <- arbitrary[Flamingos2ReadoutMode]
+        expicitReadoutMode     <- arbitrary[Option[Flamingos2ReadoutMode]]
+        defaultSpatialOffsets  <- arbitrary[NonEmptyList[Offset]]
+        explicitSpatialOffsets <- arbitrary[Option[NonEmptyList[Offset]]]
       } yield ObservingMode.Flamingos2LongSlit(
         initialDisperser,
         disperser,
@@ -328,7 +330,9 @@ trait ArbObservingMode {
         defaultDecker,
         explicitDecker,
         defaultReadoutMode,
-        expicitReadoutMode
+        expicitReadoutMode,
+        defaultSpatialOffsets,
+        explicitSpatialOffsets
       )
     )
 
@@ -345,7 +349,9 @@ trait ArbObservingMode {
        Flamingos2Decker,
        Option[Flamingos2Decker],
        Flamingos2ReadoutMode,
-       Option[Flamingos2ReadoutMode]
+       Option[Flamingos2ReadoutMode],
+       NonEmptyList[Offset],
+       Option[NonEmptyList[Offset]]
       )
     ]
       .contramap(o =>
@@ -361,7 +367,9 @@ trait ArbObservingMode {
           o.defaultDecker,
           o.explicitDecker,
           o.defaultReadoutMode,
-          o.explicitReadoutMode
+          o.explicitReadoutMode,
+          o.defaultSpatialOffsets,
+          o.explicitSpatialOffsets
         )
       )
 

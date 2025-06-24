@@ -59,6 +59,34 @@ object ObservingModeSubquery
             defaultSpatialOffsets $AngleSubquery
             explicitSpatialOffsets $AngleSubquery
           }
+          gmosNorthImaging {
+            initialFilters
+            filters
+            defaultBin
+            explicitBin
+            defaultAmpReadMode
+            explicitAmpReadMode
+            defaultAmpGain
+            explicitAmpGain
+            defaultRoi
+            explicitRoi
+            defaultSpatialOffsets $OffsetSubquery
+            explicitSpatialOffsets $OffsetSubquery
+          }
+          gmosSouthImaging {
+            initialFilters
+            filters
+            defaultBin
+            explicitBin
+            defaultAmpReadMode
+            explicitAmpReadMode
+            defaultAmpGain
+            explicitAmpGain
+            defaultRoi
+            explicitRoi
+            defaultSpatialOffsets $OffsetSubquery
+            explicitSpatialOffsets $OffsetSubquery
+          }
           flamingos2LongSlit {
             initialDisperser
             initialFilter
@@ -72,6 +100,8 @@ object ObservingModeSubquery
             explicitDecker
             defaultReadoutMode
             explicitReadoutMode
+            defaultSpatialOffsets $OffsetSubquery
+            explicitSpatialOffsets $OffsetSubquery
           }
         }
       """

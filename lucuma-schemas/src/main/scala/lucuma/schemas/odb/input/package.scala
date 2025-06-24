@@ -433,7 +433,8 @@ extension (o: ObservingMode.Flamingos2LongSlit)
     explicitReadMode = o.explicitReadMode.orUnassign,
     explicitReads = o.explicitReads.orUnassign,
     explicitDecker = o.explicitDecker.orUnassign,
-    explicitReadoutMode = o.explicitReadoutMode.orUnassign
+    explicitReadoutMode = o.explicitReadoutMode.orUnassign,
+    explicitSpatialOffsets = o.explicitSpatialOffsets.map(_.toList.map(_.toInput)).orUnassign
   )
 
 extension (b: ObservingMode)
