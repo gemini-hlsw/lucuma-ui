@@ -1716,6 +1716,11 @@ input GmosNorthImagingInput {
   The explicitRoi field may be unset by assigning a null value, or ignored by skipping it altogether
   """
   explicitRoi: GmosRoi
+
+  """
+  The explicitSpatialOffsets field may be unset by assigning a null value, or ignored by skipping it altogether
+  """
+  explicitSpatialOffsets: [OffsetInput!]
 }
 
 """GMOS North stage mode"""
@@ -2016,6 +2021,11 @@ input GmosSouthImagingInput {
   The explicitRoi field may be unset by assigning a null value, or ignored by skipping it altogether
   """
   explicitRoi: GmosRoi
+
+  """
+  The explicitSpatialOffsets field may be unset by assigning a null value, or ignored by skipping it altogether
+  """
+  explicitSpatialOffsets: [OffsetInput!]
 }
 
 """GMOS South stage mode"""
@@ -3777,6 +3787,27 @@ input SiderealInput {
   catalogInfo: CatalogInfoInput
 }
 
+input OpportunityInput {
+  region: RegionInput!
+}
+
+input RegionInput {
+  rightAscensionArc: RightAscensionArcInput!
+  declinationArc: DeclinationArcInput!
+}
+
+input RightAscensionArcInput {
+  type: ArcType!
+  start: RightAscensionInput
+  end: RightAscensionInput
+}
+
+input DeclinationArcInput {
+  type: ArcType!
+  start: DeclinationInput
+  end: DeclinationInput
+}
+
 """Signal-to-noise mode parameters"""
 input SignalToNoiseExposureTimeModeInput {
   """s/n value"""
@@ -4213,6 +4244,7 @@ input TargetPropertiesInput {
   name: NonEmptyString
   sidereal: SiderealInput
   nonsidereal: NonsiderealInput
+  opportunity: OpportunityInput
   sourceProfile: SourceProfileInput
   existence: Existence
 }
@@ -6099,6 +6131,21 @@ type Flamingos2LongSlit {
   explicitReadoutMode: Flamingos2ReadoutMode
 
   """
+  Spatial offsets, either explicitly specified in explicitSpatialOffsets
+  or else taken from defaultSpatialOffsets
+  """
+  spatialOffsets: [Offset!]!
+
+  """Default spatial offsets."""
+  defaultSpatialOffsets: [Offset!]!
+
+  """
+  Optional explicitly specified spatial offsets. If set it overrides the
+  the default.
+  """
+  explicitSpatialOffsets: [Offset!]
+
+  """
   The disperser as it was initially selected.  See the `disperser` field for the
   disperser that will be used in the observation.
   """
@@ -6153,6 +6200,11 @@ input Flamingos2LongSlitInput {
   The readoutMode field may be unset by assigning a null value, or ignored by skipping it altogether
   """
   explicitReadoutMode: Flamingos2ReadoutMode
+
+  """
+  The explicitSpatialOffsets field may be unset by assigning a null value, or ignored by skipping it altogether
+  """
+  explicitSpatialOffsets: [OffsetInput!]
 }
 
 """Metadata for `enum FilterType`"""
@@ -6593,12 +6645,17 @@ type GmosNorthImaging {
   filters: [GmosNorthFilter!]!
 
   """
+  Initial GMOS North Filters that were used when creating the imaging mode
+  """
+  initialFilters: [GmosNorthFilter!]!
+
+  """
   GMOS Binning, either explicitly specified in explicitBin or else taken
   from the defaultBin. XBinning == YBinning = Binning
   """
   bin: GmosBinning!
 
-  """Default GMOS Binning (ONE)."""
+  """Default GMOS Binning (TWO)."""
   defaultBin: GmosBinning!
 
   """
@@ -6649,6 +6706,21 @@ type GmosNorthImaging {
   Optional explicitly specified GMOS ROI.  If set it overrides the default.
   """
   explicitRoi: GmosRoi
+
+  """
+  Spacial offsets, either explicitly specified in explicitSpatialOffsets
+  or else taken from defaultSpatialOffsets
+  """
+  spatialOffsets: [Offset!]!
+
+  """Default spatial offsets."""
+  defaultSpatialOffsets: [Offset!]!
+
+  """
+  Optional explicitly specified spatial offsets. If set it overrides the
+  the default.
+  """
+  explicitSpatialOffsets: [Offset!]
 }
 
 """GMOS Region Of Interest"""
@@ -6997,12 +7069,17 @@ type GmosSouthImaging {
   filters: [GmosSouthFilter!]!
 
   """
+  Initial GMOS South Filters that were used when creating the imaging mode
+  """
+  initialFilters: [GmosSouthFilter!]!
+
+  """
   GMOS Binning, either explicitly specified in explicitBin or else taken
   from the defaultBin. XBinning == YBinning = Binning
   """
   bin: GmosBinning!
 
-  """Default GMOS Binning (ONE)."""
+  """Default GMOS Binning (TWO)."""
   defaultBin: GmosBinning!
 
   """
@@ -7053,6 +7130,21 @@ type GmosSouthImaging {
   Optional explicitly specified GMOS ROI.  If set it overrides the default.
   """
   explicitRoi: GmosRoi
+
+  """
+  Spacial offsets, either explicitly specified in explicitSpatialOffsets
+  or else taken from defaultSpatialOffsets
+  """
+  spatialOffsets: [Offset!]!
+
+  """Default spatial offsets."""
+  defaultSpatialOffsets: [Offset!]!
+
+  """
+  Optional explicitly specified spatial offsets. If set it overrides the
+  the default.
+  """
+  explicitSpatialOffsets: [Offset!]
 }
 
 """GMOS Binning"""
@@ -10093,6 +10185,36 @@ type Target {
 
   """Nonsidereal tracking information, if this is a nonsidereal target"""
   nonsidereal: Nonsidereal
+
+  """Target of opportunity range information, if this a TOO target"""
+  opportunity: Opportunity
+}
+
+type Opportunity {
+  region: Region!
+}
+
+enum ArcType {
+  EMPTY
+  FULL
+  PARTIAL
+}
+
+type RightAscensionArc {
+  type: ArcType!
+  start: RightAscension
+  end: RightAscension
+}
+
+type DeclinationArc {
+  type: ArcType!
+  start: Declination
+  end: Declination
+}
+
+type Region {
+  rightAscensionArc: RightAscensionArc!
+  declinationArc: DeclinationArc!
 }
 
 type TargetEnvironment {

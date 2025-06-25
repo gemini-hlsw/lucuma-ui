@@ -3,6 +3,8 @@
 
 package lucuma.schemas.model.arb
 
+import cats.data.NonEmptyList
+import cats.laws.discipline.arbitrary.*
 import cats.syntax.all.*
 import lucuma.core.enums.*
 import lucuma.core.math.Wavelength
@@ -48,6 +50,20 @@ trait ArbBasicConfiguration {
       )
     )
 
+  given Arbitrary[BasicConfiguration.GmosNorthImaging] =
+    Arbitrary[BasicConfiguration.GmosNorthImaging](
+      for {
+        filter <- arbitrary[NonEmptyList[GmosNorthFilter]]
+      } yield BasicConfiguration.GmosNorthImaging(filter)
+    )
+
+  given Arbitrary[BasicConfiguration.GmosSouthImaging] =
+    Arbitrary[BasicConfiguration.GmosSouthImaging](
+      for {
+        filter <- arbitrary[NonEmptyList[GmosSouthFilter]]
+      } yield BasicConfiguration.GmosSouthImaging(filter)
+    )
+
   given Arbitrary[BasicConfiguration.Flamingos2LongSlit] =
     Arbitrary[BasicConfiguration.Flamingos2LongSlit](
       for {
@@ -61,6 +77,8 @@ trait ArbBasicConfiguration {
     Gen.oneOf(
       arbitrary[BasicConfiguration.GmosNorthLongSlit],
       arbitrary[BasicConfiguration.GmosSouthLongSlit],
+      arbitrary[BasicConfiguration.GmosNorthImaging],
+      arbitrary[BasicConfiguration.GmosSouthImaging],
       arbitrary[BasicConfiguration.Flamingos2LongSlit]
     )
   )
@@ -101,18 +119,34 @@ trait ArbBasicConfiguration {
         )
       )
 
+  given Cogen[BasicConfiguration.GmosNorthImaging] =
+    Cogen[NonEmptyList[GmosNorthFilter]]
+      .contramap(_.filter)
+
+  given Cogen[BasicConfiguration.GmosSouthImaging] =
+    Cogen[NonEmptyList[GmosSouthFilter]]
+      .contramap(_.filter)
+
   given Cogen[BasicConfiguration] =
     Cogen[Either[
       BasicConfiguration.Flamingos2LongSlit,
       Either[
         BasicConfiguration.GmosNorthLongSlit,
-        BasicConfiguration.GmosSouthLongSlit
+        Either[
+          BasicConfiguration.GmosSouthLongSlit,
+          Either[
+            BasicConfiguration.GmosNorthImaging,
+            BasicConfiguration.GmosSouthImaging
+          ]
+        ]
       ]
     ]]
       .contramap {
-        case n: BasicConfiguration.GmosNorthLongSlit  => n.asLeft.asRight
-        case s: BasicConfiguration.GmosSouthLongSlit  => s.asRight.asRight
         case f: BasicConfiguration.Flamingos2LongSlit => f.asLeft
+        case n: BasicConfiguration.GmosNorthLongSlit  => n.asLeft.asRight
+        case s: BasicConfiguration.GmosSouthLongSlit  => s.asLeft.asRight.asRight
+        case n: BasicConfiguration.GmosNorthImaging   => n.asLeft.asRight.asRight.asRight
+        case s: BasicConfiguration.GmosSouthImaging   => s.asRight.asRight.asRight.asRight
       }
 
 }
