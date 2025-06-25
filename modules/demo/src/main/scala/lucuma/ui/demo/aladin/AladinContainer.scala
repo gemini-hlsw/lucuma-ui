@@ -5,13 +5,12 @@ package demo
 
 import cats.data.NonEmptyList
 import cats.data.NonEmptyMap
-import cats.implicits.*
+import cats.syntax.all.*
 import crystal.react.ReuseView
 import crystal.react.hooks.*
 import crystal.react.reuse.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.feature.ReactFragment
-import japgolly.scalajs.react.hooks.Hooks.UseState
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.ags.AgsAnalysis
 import lucuma.ags.AgsGuideQuality
@@ -44,9 +43,7 @@ import scalajs.js
 case class AladinContainer(
   fov:         ReuseView[Fov],
   coordinates: Coordinates
-) extends ReactFnProps[AladinContainer](AladinContainer.component) {
-  val aladinCoordsStr: String = Coordinates.fromHmsDms.reverseGet(coordinates)
-}
+) extends ReactFnProps[AladinContainer](AladinContainer.component)
 
 extension (o: Offset)
   def toStringOffset: String =
@@ -54,6 +51,20 @@ extension (o: Offset)
 
 enum InstrumentType:
   case GMOS, Flamingos2
+
+enum GmosMode:
+  case LongSlit, Imaging
+
+object GmosMode:
+  given Enumerated[GmosMode] = Enumerated.from(LongSlit, Imaging).withTag(_.toString)
+
+case class VisualizationSettings(
+  fpuVisible:         Boolean = true,
+  ccdVisible:         Boolean = true,
+  candidatesVisible:  Boolean = true,
+  patrolFieldVisible: Boolean = true,
+  probeVisible:       Boolean = true
+)
 
 object AladinContainer {
   type Props = AladinContainer
@@ -77,44 +88,48 @@ object AladinContainer {
     NonEmptyList.fromListUnsafe(offsets.toList)
   }
 
+  def baseGmosConf(gmosMode: GmosMode) =
+    if (gmosMode == GmosMode.LongSlit) {
+      BasicConfiguration.GmosSouthLongSlit(
+        grating = GmosSouthGrating.R400_G5325,
+        filter = GmosSouthFilter.HeII.some,
+        fpu = GmosSouthFpu.LongSlit_2_00,
+        centralWavelength = CentralWavelength(Wavelength.fromIntNanometers(500).get)
+      )
+    } else
+      BasicConfiguration.GmosSouthImaging(
+        filter = NonEmptyList.one(GmosSouthFilter.HeII)
+      )
+
   val component = ScalaFnComponent[Props]: props =>
     for {
+      viewOffset      <- useStateView(Offset.Zero)
       // View coordinates (in case the user pans)
-      currentPos         <- useState(props.coordinates)
+      currentPos      <- useState(props.coordinates.offsetBy(Angle.Angle0, viewOffset.get))
       // Ref to the aladin component
-      aladinRef          <- useState(none[Aladin])
+      aladinRef       <- useState(none[Aladin])
       // resize detector
-      resize             <- useResizeDetector
-      flip               <- useState(true)
+      resize          <- useResizeDetector
+      flip            <- useState(true)
       // Toggle state for SVGVisualizationOverlay CSS
-      fpuVisible         <- useState(true)
-      ccdVisible         <- useState(true)
-      candidatesVisible  <- useState(true)
-      patrolFieldVisible <- useState(true)
-      probeVisible       <- useState(true)
-      fullScreen         <- useStateView(AladinFullScreen.Normal)
-      instrument         <- useState[InstrumentType](InstrumentType.Flamingos2)
-      gmosConf           <- useState(
-                              BasicConfiguration.GmosSouthLongSlit(
-                                grating = GmosSouthGrating.R400_G5325,
-                                filter = GmosSouthFilter.HeII.some,
-                                fpu = GmosSouthFpu.LongSlit_2_00,
-                                centralWavelength = CentralWavelength(Wavelength.fromIntNanometers(500).get)
-                              )
-                            )
-      f2Conf             <- useState(
-                              BasicConfiguration.Flamingos2LongSlit(
-                                disperser = Flamingos2Disperser.R1200HK,
-                                filter = Flamingos2Filter.H,
-                                fpu = Flamingos2Fpu.LongSlit2
-                              )
-                            )
-      portDisposition    <- useState(PortDisposition.Side)
-      posAngle           <- useState(Angle.Angle0)
-      survey             <- useState(instrument.value match {
-                              case InstrumentType.GMOS       => ImageSurvey.DSS
-                              case InstrumentType.Flamingos2 => ImageSurvey.TWOMASS
-                            })
+      visSettings     <- useState(VisualizationSettings())
+      fullScreen      <- useStateView(AladinFullScreen.Normal)
+      instrument      <- useState(InstrumentType.GMOS)
+      gmosMode        <- useState(GmosMode.Imaging)
+      gmosConf        <- useStateView(baseGmosConf(gmosMode.value))
+      f2Conf          <- useState(
+                           BasicConfiguration.Flamingos2LongSlit(
+                             disperser = Flamingos2Disperser.R1200HK,
+                             filter = Flamingos2Filter.H,
+                             fpu = Flamingos2Fpu.LongSlit2
+                           )
+                         )
+      portDisposition <- useState(PortDisposition.Side)
+      posAngle        <- useState(Angle.Angle0)
+      survey          <- useState(instrument.value match {
+                           case InstrumentType.GMOS       => ImageSurvey.DSS
+                           case InstrumentType.Flamingos2 => ImageSurvey.TWOMASS
+                         })
     } yield
       // Grid of offsets
       val scienceOffsetGrid     = AladinContainer.generateOffsetGrid()
@@ -128,12 +143,19 @@ object AladinContainer {
        * keep the internal target correct
        */
       def onPositionChanged(u: PositionChanged): Callback = {
-        val viewCoords = Coordinates(u.ra, u.dec)
-        currentPos.setState(viewCoords)
+        val viewCoords     = Coordinates(u.ra, u.dec)
+        val offsetFromView = props.coordinates.diff(viewCoords).offset
+        currentPos.setState(Some(viewCoords)) *>
+          viewOffset.set(offsetFromView)
       }
 
+      val baseCoordinatesForAladin: String =
+        currentPos.value
+          .map(Coordinates.fromHmsDms.reverseGet)
+          .getOrElse(Coordinates.fromHmsDms.reverseGet(props.coordinates))
+
       val screenOffset =
-        currentPos.value.diff(props.coordinates).offset
+        currentPos.value.map(_.diff(props.coordinates).offset).getOrElse(Offset.Zero)
 
       def onZoom = (v: Fov) => props.fov.set(v)
 
@@ -144,9 +166,9 @@ object AladinContainer {
 
       val gs          = props.coordinates
       //
-      // Get the appropriate configuration based on selected instrument
+      // Get the appropriate configuration based on selected instrument and mode
       val currentConf = instrument.value match
-        case InstrumentType.GMOS       => gmosConf.value.some
+        case InstrumentType.GMOS       => gmosConf.get.some
         case InstrumentType.Flamingos2 => f2Conf.value.some
 
       // Use the generated offset grids
@@ -197,18 +219,21 @@ object AladinContainer {
       }
 
       def toggler(
-        id:    String,
-        item:  String,
-        state: UseState[Boolean],
-        clazz: Css = Css("toggle-container")
+        id:       String,
+        item:     String,
+        getValue: VisualizationSettings => Boolean,
+        setValue: (VisualizationSettings, Boolean) => VisualizationSettings,
+        clazz:    Css = Css("toggle-container")
       ) =
         <.div(
           clazz,
           <.input(
             ^.`type`  := "checkbox",
             ^.id      := s"overlay-toggle-$id",
-            ^.checked := state.value,
-            ^.onChange --> state.setState(!state.value)
+            ^.checked := getValue(visSettings.value),
+            ^.onChange --> visSettings.setState(
+              setValue(visSettings.value, !getValue(visSettings.value))
+            )
           ),
           <.label(
             ^.htmlFor := s"overlay-toggle-$id",
@@ -248,25 +273,27 @@ object AladinContainer {
 
       def visibilityClasses = instrument.value match {
         case InstrumentType.GMOS       =>
-          VisualizationStyles.GmosFpuVisible.when_(fpuVisible.value) |+|
-            VisualizationStyles.GmosCcdVisible.when_(ccdVisible.value) |+|
+          VisualizationStyles.GmosFpuVisible.when_(visSettings.value.fpuVisible) |+|
+            VisualizationStyles.GmosCcdVisible.when_(
+              visSettings.value.ccdVisible && gmosMode.value == GmosMode.Imaging
+            ) |+|
             VisualizationStyles.GmosCandidatesAreaVisible.when_(
-              candidatesVisible.value
+              visSettings.value.candidatesVisible
             ) |+|
             VisualizationStyles.GmosPatrolFieldVisible.when_(
-              patrolFieldVisible.value
+              visSettings.value.patrolFieldVisible
             ) |+|
-            VisualizationStyles.GmosProbeVisible.when_(probeVisible.value)
+            VisualizationStyles.GmosProbeVisible.when_(visSettings.value.probeVisible)
         case InstrumentType.Flamingos2 =>
-          VisualizationStyles.Flamingos2FpuVisible.when_(fpuVisible.value) |+|
-            VisualizationStyles.Flamingos2ScienceAreaVisible.when_(ccdVisible.value) |+|
+          VisualizationStyles.Flamingos2FpuVisible.when_(visSettings.value.fpuVisible) |+|
+            VisualizationStyles.Flamingos2ScienceAreaVisible.when_(visSettings.value.ccdVisible) |+|
             VisualizationStyles.Flamingos2CandidatesAreaVisible.when_(
-              candidatesVisible.value
+              visSettings.value.candidatesVisible
             ) |+|
             VisualizationStyles.Flamingos2PatrolFieldVisible.when_(
-              patrolFieldVisible.value
+              visSettings.value.patrolFieldVisible
             ) |+|
-            VisualizationStyles.Flamingos2ProbeArmVisible.when_(probeVisible.value)
+            VisualizationStyles.Flamingos2ProbeArmVisible.when_(visSettings.value.probeVisible)
       }
 
       val scienceOffsetIndicators =
@@ -292,6 +319,8 @@ object AladinContainer {
       val offsetTargets =
         // order is important, scienc to be drawn above acq
         (acquisitionOffsetIndicators |+| scienceOffsetIndicators).flattenOption
+
+      val lsMode = gmosConf.zoom(BasicConfiguration.gmosSouthLongSlit)
 
       <.div(
         Css("react-aladin-container"),
@@ -319,7 +348,7 @@ object AladinContainer {
                   _,
                   _,
                   props.fov.get,
-                  currentPos.value.diff(props.coordinates).offset,
+                  screenOffset,
                   props.coordinates,
                   List(
                     SVGTarget
@@ -334,7 +363,7 @@ object AladinContainer {
               AladinOptions(
                 showReticle = true,
                 showLayersControl = false,
-                target = props.aladinCoordsStr,
+                target = baseCoordinatesForAladin,
                 fov = props.fov.get.x,
                 showGotoControl = false,
                 showZoomControl = false,
@@ -352,11 +381,11 @@ object AladinContainer {
                 <.label("FOV: "),
                 props.fov.get.toStringAngle,
                 <.label("Coord: "),
-                props.aladinCoordsStr,
+                baseCoordinatesForAladin,
                 <.label("Pos: "),
                 currentPos.value.toString,
                 <.label("Offset: "),
-                currentPos.value.diff(props.coordinates).offset.toStringOffset,
+                screenOffset.toStringOffset,
                 <.label("PA: "),
                 s"${posAngle.value.toDoubleDegrees}°",
                 <.label("Science Offsets: "),
@@ -366,11 +395,32 @@ object AladinContainer {
               ),
               <.div(
                 Css("config-togglers"),
-                toggler("fpu", "FPU", fpuVisible),
-                toggler("ccd", "Science CCD", ccdVisible),
-                toggler("candidates", "Candidates Field", candidatesVisible),
-                toggler("patrol-field", "Patrol Field", patrolFieldVisible),
-                toggler("probe", "Probe", probeVisible)
+                instrument.value match {
+                  case InstrumentType.GMOS       =>
+                    gmosMode.value match {
+                      case GmosMode.LongSlit =>
+                        toggler(
+                          "fpu",
+                          "GMOS FPU",
+                          _.fpuVisible,
+                          (s, v) => s.copy(fpuVisible = v)
+                        )
+                      case GmosMode.Imaging  => "No FPU (Imaging)"
+                    }
+                  case InstrumentType.Flamingos2 => "FPU"
+                },
+                toggler("ccd", "Science CCD", _.ccdVisible, (s, v) => s.copy(ccdVisible = v)),
+                toggler("candidates",
+                        "Candidates Field",
+                        _.candidatesVisible,
+                        (s, v) => s.copy(candidatesVisible = v)
+                ),
+                toggler("patrol-field",
+                        "Patrol Field",
+                        _.patrolFieldVisible,
+                        (s, v) => s.copy(patrolFieldVisible = v)
+                ),
+                toggler("probe", "Probe", _.probeVisible, (s, v) => s.copy(probeVisible = v))
               ),
               <.div(
                 Css("config-controls"),
@@ -427,13 +477,25 @@ object AladinContainer {
                   <.div(
                     Css("config-controls"),
                     enumeratedSelect(
-                      "fpu-selector",
-                      "Select FPU: ",
-                      gmosConf.value.fpu,
-                      fpu => gmosConf.setState(gmosConf.value.copy(fpu = fpu)),
-                      _.tag.startsWith("LongSlit"),
-                      _.longName
-                    )
+                      "gmos-mode-selector",
+                      "Select GMOS Mode",
+                      gmosMode.value,
+                      m => gmosMode.setState(m) *> gmosConf.mod(_ => baseGmosConf(m))
+                    ),
+                    gmosMode.value match {
+                      case GmosMode.LongSlit =>
+                        lsMode.asView.map: lsMode =>
+                          enumeratedSelect(
+                            "fpu-selector",
+                            "Select FPU: ",
+                            lsMode.get.fpu,
+                            fpu => lsMode.mod(_.copy(fpu = fpu)),
+                            _.tag.startsWith("LongSlit"),
+                            _.longName
+                          )
+                      case GmosMode.Imaging  =>
+                        <.p(Css("imaging-mode-info"), "Imaging mode - no FPU selection needed")
+                    }
                   )
                 case InstrumentType.Flamingos2 =>
                   <.div(

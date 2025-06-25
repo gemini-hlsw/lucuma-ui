@@ -32,27 +32,27 @@ object GmosGeometry:
     configuration: Option[BasicConfiguration],
     port:          PortDisposition
   ): SortedMap[Css, ShapeExpression] =
+    val base =
+      configuration
+        .map(conf =>
+          SortedMap((GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
+                    (GmosPatrolField, patrolField(posAngle, offset, conf, port))
+          )
+        )
+        .getOrElse(SortedMap.empty[Css, ShapeExpression])
     configuration match {
       case Some(m: BasicConfiguration.GmosNorthLongSlit) =>
-        SortedMap(
-          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
-          (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asLeft.some)),
-          (GmosPatrolField,
-           gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
-          )
-        )
+        base +
+          (GmosFpu -> gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asLeft.some))
       case Some(m: BasicConfiguration.GmosSouthLongSlit) =>
-        SortedMap(
-          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle),
-          (GmosFpu, gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asRight.some)),
-          (GmosPatrolField,
-           gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
-          )
-        )
+        base +
+          (GmosFpu -> gmos.scienceArea.shapeAt(posAngle, offset, m.fpu.asRight.some))
+      case Some(_: BasicConfiguration.GmosNorthImaging)  =>
+        base
+      case Some(_: BasicConfiguration.GmosSouthImaging)  =>
+        base
       case _                                             =>
-        SortedMap(
-          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle)
-        )
+        SortedMap.empty
     }
 
   // Shape for the intersection of patrol fields at each offset
@@ -80,6 +80,10 @@ object GmosGeometry:
         gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asLeft.some, port)
       case m: BasicConfiguration.GmosSouthLongSlit  =>
         gmos.patrolField.patrolFieldAt(posAngle, offset, m.fpu.asRight.some, port)
+      case _: BasicConfiguration.GmosNorthImaging   =>
+        gmos.patrolField.patrolFieldAt(posAngle, offset, none, port)
+      case _: BasicConfiguration.GmosSouthImaging   =>
+        gmos.patrolField.patrolFieldAt(posAngle, offset, none, port)
       case m: BasicConfiguration.Flamingos2LongSlit =>
         ShapeExpression.Empty
     }
@@ -114,7 +118,9 @@ object GmosGeometry:
         )
       case _                                             =>
         SortedMap(
-          (GmosScienceCcd, gmos.scienceArea.imaging ⟲ posAngle)
+          (GmosProbeArm |+| extraCss,
+           gmos.probeArm.shapeAt(posAngle, guideStarOffset, offsetPos, none, port)
+          )
         )
 
   // Full geometry for GMOS
@@ -143,7 +149,7 @@ object GmosGeometry:
             val gsOffset   =
               referenceCoordinates.diff(gs.target.tracking.baseCoordinates).offset
             val probeShape =
-              GmosGeometry.probeShapes(posAngle, gsOffset, Offset.Zero, conf, port, Css.Empty)
+              probeShapes(posAngle, gsOffset, Offset.Zero, conf, port, Css.Empty)
 
             val offsets =
               (scienceOffsets |+| acquisitionOffsets)
