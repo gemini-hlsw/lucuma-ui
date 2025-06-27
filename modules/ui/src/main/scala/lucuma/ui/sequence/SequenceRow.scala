@@ -5,7 +5,6 @@ package lucuma.ui.sequence
 
 import cats.Eq
 import cats.syntax.all.*
-import lucuma.core.enums.Breakpoint
 import lucuma.core.enums.Instrument
 import lucuma.core.enums.StepGuideState
 import lucuma.core.math.Offset
@@ -36,7 +35,6 @@ trait SequenceRow[+D]:
   protected def instrumentConfig: Option[D]
   def stepConfig: Option[StepConfig]
   def telescopeConfig: Option[TelescopeConfig]
-  def breakpoint: Breakpoint
   def isFinished: Boolean
   def stepEstimate: Option[StepEstimate]
   def signalToNoise: Option[SignalToNoise]
@@ -58,8 +56,6 @@ trait SequenceRow[+D]:
 
   lazy val guiding: Option[StepGuideState] = telescopeConfig.map(_.guiding)
   lazy val hasGuiding: Boolean             = guiding.contains_(StepGuideState.Enabled)
-
-  lazy val hasBreakpoint: Boolean = breakpoint === Breakpoint.Enabled
 
   lazy val wavelength: Option[Wavelength] = instrumentConfig.flatMap:
     case gn @ gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, _)  => gn.centralWavelength
@@ -168,7 +164,6 @@ object SequenceRow:
     given [D]: Eq[FutureStep[D]] = Eq.by(_.id)
 
   sealed abstract class Executed[+D] extends SequenceRow[D]:
-    val breakpoint   = Breakpoint.Disabled
     val isFinished   = true
     val stepEstimate = none
 
