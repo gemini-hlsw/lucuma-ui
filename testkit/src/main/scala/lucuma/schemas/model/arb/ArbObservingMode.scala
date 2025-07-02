@@ -128,13 +128,6 @@ trait ArbObservingMode {
       )
     )
 
-  given Arbitrary[ObservingMode] = Arbitrary[ObservingMode](
-    Gen.oneOf(
-      arbitrary[ObservingMode.GmosNorthLongSlit],
-      arbitrary[ObservingMode.GmosSouthLongSlit]
-    )
-  )
-
   given Cogen[ObservingMode.GmosNorthLongSlit] =
     Cogen[
       (GmosNorthGrating,
@@ -252,8 +245,8 @@ trait ArbObservingMode {
         explicitAmpGain        <- arbitrary[Option[GmosAmpGain]]
         defaultRoi             <- arbitrary[GmosRoi]
         explicitRoi            <- arbitrary[Option[GmosRoi]]
-        defaultSpatialOffsets  <- arbitrary[NonEmptyList[Offset]]
-        explicitSpatialOffsets <- arbitrary[Option[NonEmptyList[Offset]]]
+        defaultSpatialOffsets  <- arbitrary[List[Offset]]
+        explicitSpatialOffsets <- arbitrary[Option[List[Offset]]]
       } yield ObservingMode.GmosNorthImaging(
         initialFilters,
         filters,
@@ -283,8 +276,8 @@ trait ArbObservingMode {
         explicitAmpGain        <- arbitrary[Option[GmosAmpGain]]
         defaultRoi             <- arbitrary[GmosRoi]
         explicitRoi            <- arbitrary[Option[GmosRoi]]
-        defaultSpatialOffsets  <- arbitrary[NonEmptyList[Offset]]
-        explicitSpatialOffsets <- arbitrary[Option[NonEmptyList[Offset]]]
+        defaultSpatialOffsets  <- arbitrary[List[Offset]]
+        explicitSpatialOffsets <- arbitrary[Option[List[Offset]]]
       } yield ObservingMode.GmosSouthImaging(
         initialFilters,
         filters,
@@ -385,8 +378,8 @@ trait ArbObservingMode {
        Option[GmosAmpGain],
        GmosRoi,
        Option[GmosRoi],
-       NonEmptyList[Offset],
-       Option[NonEmptyList[Offset]]
+       List[Offset],
+       Option[List[Offset]]
       )
     ]
       .contramap(o =>
@@ -418,8 +411,8 @@ trait ArbObservingMode {
        Option[GmosAmpGain],
        GmosRoi,
        Option[GmosRoi],
-       NonEmptyList[Offset],
-       Option[NonEmptyList[Offset]]
+       List[Offset],
+       Option[List[Offset]]
       )
     ]
       .contramap(o =>
@@ -438,6 +431,16 @@ trait ArbObservingMode {
           o.explicitSpatialOffsets
         )
       )
+
+  given Arbitrary[ObservingMode] = Arbitrary[ObservingMode](
+    Gen.oneOf(
+      arbitrary[ObservingMode.GmosNorthLongSlit],
+      arbitrary[ObservingMode.GmosSouthLongSlit],
+      arbitrary[ObservingMode.GmosNorthImaging],
+      arbitrary[ObservingMode.GmosSouthImaging],
+      arbitrary[ObservingMode.Flamingos2LongSlit]
+    )
+  )
 
   given Cogen[ObservingMode] =
     Cogen[Either[
