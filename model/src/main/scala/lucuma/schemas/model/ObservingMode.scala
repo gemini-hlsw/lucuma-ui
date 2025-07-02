@@ -317,18 +317,18 @@ object ObservingMode:
     explicitAmpGain:        Option[GmosAmpGain],
     defaultRoi:             GmosRoi,
     explicitRoi:            Option[GmosRoi],
-    defaultSpatialOffsets:  NonEmptyList[Offset],
-    explicitSpatialOffsets: Option[NonEmptyList[Offset]]
+    defaultSpatialOffsets:  List[Offset],
+    explicitSpatialOffsets: Option[List[Offset]]
   ) extends ObservingMode(Instrument.GmosNorth) derives Eq:
-    val bin: GmosBinning                     =
+    val bin: GmosBinning             =
       explicitBin.getOrElse(defaultBin)
-    val ampReadMode: GmosAmpReadMode         =
+    val ampReadMode: GmosAmpReadMode =
       explicitAmpReadMode.getOrElse(defaultAmpReadMode)
-    val ampGain: GmosAmpGain                 =
+    val ampGain: GmosAmpGain         =
       explicitAmpGain.getOrElse(defaultAmpGain)
-    val roi: GmosRoi                         =
+    val roi: GmosRoi                 =
       explicitRoi.getOrElse(defaultRoi)
-    val spatialOffsets: NonEmptyList[Offset] =
+    val spatialOffsets: List[Offset] =
       explicitSpatialOffsets.getOrElse(defaultSpatialOffsets)
 
     def isCustomized: Boolean =
@@ -352,29 +352,29 @@ object ObservingMode:
   object GmosNorthImaging:
     given Decoder[GmosNorthImaging] = deriveDecoder
 
-    val initialFilters: Lens[GmosNorthImaging, NonEmptyList[GmosNorthFilter]]        =
+    val initialFilters: Lens[GmosNorthImaging, NonEmptyList[GmosNorthFilter]] =
       Focus[GmosNorthImaging](_.initialFilters)
-    val filters: Lens[GmosNorthImaging, NonEmptyList[GmosNorthFilter]]               =
+    val filters: Lens[GmosNorthImaging, NonEmptyList[GmosNorthFilter]]        =
       Focus[GmosNorthImaging](_.filters)
-    val defaultBin: Lens[GmosNorthImaging, GmosBinning]                              =
+    val defaultBin: Lens[GmosNorthImaging, GmosBinning]                       =
       Focus[GmosNorthImaging](_.defaultBin)
-    val explicitBin: Lens[GmosNorthImaging, Option[GmosBinning]]                     =
+    val explicitBin: Lens[GmosNorthImaging, Option[GmosBinning]]              =
       Focus[GmosNorthImaging](_.explicitBin)
-    val defaultAmpReadMode: Lens[GmosNorthImaging, GmosAmpReadMode]                  =
+    val defaultAmpReadMode: Lens[GmosNorthImaging, GmosAmpReadMode]           =
       Focus[GmosNorthImaging](_.defaultAmpReadMode)
-    val explicitAmpReadMode: Lens[GmosNorthImaging, Option[GmosAmpReadMode]]         =
+    val explicitAmpReadMode: Lens[GmosNorthImaging, Option[GmosAmpReadMode]]  =
       Focus[GmosNorthImaging](_.explicitAmpReadMode)
-    val defaultAmpGain: Lens[GmosNorthImaging, GmosAmpGain]                          =
+    val defaultAmpGain: Lens[GmosNorthImaging, GmosAmpGain]                   =
       Focus[GmosNorthImaging](_.defaultAmpGain)
-    val explicitAmpGain: Lens[GmosNorthImaging, Option[GmosAmpGain]]                 =
+    val explicitAmpGain: Lens[GmosNorthImaging, Option[GmosAmpGain]]          =
       Focus[GmosNorthImaging](_.explicitAmpGain)
-    val defaultRoi: Lens[GmosNorthImaging, GmosRoi]                                  =
+    val defaultRoi: Lens[GmosNorthImaging, GmosRoi]                           =
       Focus[GmosNorthImaging](_.defaultRoi)
-    val explicitRoi: Lens[GmosNorthImaging, Option[GmosRoi]]                         =
+    val explicitRoi: Lens[GmosNorthImaging, Option[GmosRoi]]                  =
       Focus[GmosNorthImaging](_.explicitRoi)
-    val defaultSpatialOffsets: Lens[GmosNorthImaging, NonEmptyList[Offset]]          =
+    val defaultSpatialOffsets: Lens[GmosNorthImaging, List[Offset]]           =
       Focus[GmosNorthImaging](_.defaultSpatialOffsets)
-    val explicitSpatialOffsets: Lens[GmosNorthImaging, Option[NonEmptyList[Offset]]] =
+    val explicitSpatialOffsets: Lens[GmosNorthImaging, Option[List[Offset]]]  =
       Focus[GmosNorthImaging](_.explicitSpatialOffsets)
 
   case class GmosSouthImaging(
@@ -388,18 +388,18 @@ object ObservingMode:
     explicitAmpGain:        Option[GmosAmpGain],
     defaultRoi:             GmosRoi,
     explicitRoi:            Option[GmosRoi],
-    defaultSpatialOffsets:  NonEmptyList[Offset],
-    explicitSpatialOffsets: Option[NonEmptyList[Offset]]
+    defaultSpatialOffsets:  List[Offset],
+    explicitSpatialOffsets: Option[List[Offset]]
   ) extends ObservingMode(Instrument.GmosSouth) derives Eq:
-    val bin: GmosBinning                     =
+    val bin: GmosBinning             =
       explicitBin.getOrElse(defaultBin)
-    val ampReadMode: GmosAmpReadMode         =
+    val ampReadMode: GmosAmpReadMode =
       explicitAmpReadMode.getOrElse(defaultAmpReadMode)
-    val ampGain: GmosAmpGain                 =
+    val ampGain: GmosAmpGain         =
       explicitAmpGain.getOrElse(defaultAmpGain)
-    val roi: GmosRoi                         =
+    val roi: GmosRoi                 =
       explicitRoi.getOrElse(defaultRoi)
-    val spatialOffsets: NonEmptyList[Offset] =
+    val spatialOffsets: List[Offset] =
       explicitSpatialOffsets.getOrElse(defaultSpatialOffsets)
 
     def isCustomized: Boolean =
@@ -423,29 +423,29 @@ object ObservingMode:
   object GmosSouthImaging:
     given Decoder[GmosSouthImaging] = deriveDecoder
 
-    val initialFilters: Lens[GmosSouthImaging, NonEmptyList[GmosSouthFilter]]        =
+    val initialFilters: Lens[GmosSouthImaging, NonEmptyList[GmosSouthFilter]] =
       Focus[GmosSouthImaging](_.initialFilters)
-    val filters: Lens[GmosSouthImaging, NonEmptyList[GmosSouthFilter]]               =
+    val filters: Lens[GmosSouthImaging, NonEmptyList[GmosSouthFilter]]        =
       Focus[GmosSouthImaging](_.filters)
-    val defaultBin: Lens[GmosSouthImaging, GmosBinning]                              =
+    val defaultBin: Lens[GmosSouthImaging, GmosBinning]                       =
       Focus[GmosSouthImaging](_.defaultBin)
-    val explicitBin: Lens[GmosSouthImaging, Option[GmosBinning]]                     =
+    val explicitBin: Lens[GmosSouthImaging, Option[GmosBinning]]              =
       Focus[GmosSouthImaging](_.explicitBin)
-    val defaultAmpReadMode: Lens[GmosSouthImaging, GmosAmpReadMode]                  =
+    val defaultAmpReadMode: Lens[GmosSouthImaging, GmosAmpReadMode]           =
       Focus[GmosSouthImaging](_.defaultAmpReadMode)
-    val explicitAmpReadMode: Lens[GmosSouthImaging, Option[GmosAmpReadMode]]         =
+    val explicitAmpReadMode: Lens[GmosSouthImaging, Option[GmosAmpReadMode]]  =
       Focus[GmosSouthImaging](_.explicitAmpReadMode)
-    val defaultAmpGain: Lens[GmosSouthImaging, GmosAmpGain]                          =
+    val defaultAmpGain: Lens[GmosSouthImaging, GmosAmpGain]                   =
       Focus[GmosSouthImaging](_.defaultAmpGain)
-    val explicitAmpGain: Lens[GmosSouthImaging, Option[GmosAmpGain]]                 =
+    val explicitAmpGain: Lens[GmosSouthImaging, Option[GmosAmpGain]]          =
       Focus[GmosSouthImaging](_.explicitAmpGain)
-    val defaultRoi: Lens[GmosSouthImaging, GmosRoi]                                  =
+    val defaultRoi: Lens[GmosSouthImaging, GmosRoi]                           =
       Focus[GmosSouthImaging](_.defaultRoi)
-    val explicitRoi: Lens[GmosSouthImaging, Option[GmosRoi]]                         =
+    val explicitRoi: Lens[GmosSouthImaging, Option[GmosRoi]]                  =
       Focus[GmosSouthImaging](_.explicitRoi)
-    val defaultSpatialOffsets: Lens[GmosSouthImaging, NonEmptyList[Offset]]          =
+    val defaultSpatialOffsets: Lens[GmosSouthImaging, List[Offset]]           =
       Focus[GmosSouthImaging](_.defaultSpatialOffsets)
-    val explicitSpatialOffsets: Lens[GmosSouthImaging, Option[NonEmptyList[Offset]]] =
+    val explicitSpatialOffsets: Lens[GmosSouthImaging, Option[List[Offset]]]  =
       Focus[GmosSouthImaging](_.explicitSpatialOffsets)
 
   case class Flamingos2LongSlit(

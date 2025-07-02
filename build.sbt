@@ -10,7 +10,7 @@ val Versions = new { // sbt doesn't like object definitions in build.sbt
   val munitCatsEffect = "2.1.0"
 }
 
-ThisBuild / tlBaseVersion       := "0.143"
+ThisBuild / tlBaseVersion       := "0.144"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 ThisBuild / crossScalaVersions  := Seq("3.7.1")
 ThisBuild / tlVersionIntroduced := Map("3" -> "0.29.0")
@@ -61,7 +61,7 @@ val testkit =
 
 val modelTests =
   crossProject(JVMPlatform, JSPlatform)
-    .crossType(CrossType.Pure)
+    .crossType(CrossType.Full)
     .in(file("tests"))
     .dependsOn(testkit)
     .enablePlugins(NoPublishPlugin)
