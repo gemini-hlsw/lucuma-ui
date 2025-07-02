@@ -61,7 +61,7 @@ val testkit =
 
 val modelTests =
   crossProject(JVMPlatform, JSPlatform)
-    .crossType(CrossType.Pure)
+    .crossType(CrossType.Full)
     .in(file("tests"))
     .dependsOn(testkit)
     .enablePlugins(NoPublishPlugin)
