@@ -33,6 +33,7 @@ case class PositionChanged(ra: RightAscension, dec: Declination, dragging: Boole
 
 object PositionChanged:
   def fromJs(p: JsPositionChanged): PositionChanged =
+    org.scalajs.dom.console.log(p)
     PositionChanged(
       RightAscension.fromDoubleDegrees(p.ra),
       Declination.fromDoubleDegrees(p.dec).getOrElse(Declination.Zero),
