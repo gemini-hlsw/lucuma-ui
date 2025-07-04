@@ -8,3 +8,5 @@ import scala.scalajs.js
 @js.native
 trait AladinView extends js.Object:
   val aladin: js.Object = js.native
+  val view: ZoomHold    = js.native
+  val zoom: Zoom        = js.native

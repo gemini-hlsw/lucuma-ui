@@ -3,6 +3,7 @@
 
 package lucuma.ui.aladin
 
+import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.hooks.*
 import japgolly.scalajs.react.hooks.Hooks.UseState
@@ -22,11 +23,13 @@ extension (a: Aladin)
 
   def onPositionChangedCB(cb: PositionChanged => Callback): Callback =
     Callback(
-      a.on("positionChanged", (o: JsPositionChanged) => cb(PositionChanged.fromJs(o)).runNow())
+      a.on("positionChanged",
+           (o: JsPositionChanged) => (Callback.log(o) *> cb(PositionChanged.fromJs(o))).runNow()
+      )
     )
 
   def onZoomCB(cb: Fov => Callback): Callback =
-    Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
+    Callback.log("add zoom") *> Callback(a.on("zoomChanged", (_: Double) => cb(fov).runNow()))
 
   def onZoomCB(cb: => Callback): Callback =
     Callback(a.on("zoomChanged", (_: Double) => cb.runNow()))
@@ -43,14 +46,27 @@ extension (a: Aladin)
   def pixelScale: PixelScale =
     PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
 
+  def applyZoom(zoomFactor: Double, duration: Int = 200): Callback =
+    Callback(
+      a.view.zoom.applyZoom(js.Dynamic.literal(stop = zoomFactor, duration = duration))
+    ) // *> Callback(a.view.zoom.apply(zoomFactor, duration))
+  // *>
+  //     Callback(a.view.view.zoom.apply(zoomFactor, duration))
+
   def increaseZoomCB: Callback =
-    Callback(a.increaseZoom())
+    Callback.log("increase zoom") // *> applyZoom(a.getZoomFactor() * 2)
+
+  def increaseZoomCB(f: Double): Callback =
+    Callback.log(s"increase zoom by $f") // *> applyZoom(a.getZoomFactor() / f)
 
   def decreaseZoomCB: Callback =
     Callback(a.decreaseZoom())
 
+  def decreaseZoomCB(f: Double): Callback =
+    Callback.log(s"decrease zoom by $f") // *> applyZoom(a.getZoomFactor() * f)
+
   def fixLayoutDimensionsCB: Callback =
-    Callback(a.fixLayoutDimensions())
+    Callback.log(a)
 
   def recalculateViewCB: Callback =
     Callback(a.recalculateView())
@@ -75,7 +91,7 @@ case class ReactAladin(
 object ReactAladin
     extends ReactFnComponent[ReactAladin](props =>
 
-      type Props = ReactAladin
+      import props.given
 
       given Reusability[ReactAladin] = {
         given Reusability[AladinOptions] = props.R
@@ -85,12 +101,12 @@ object ReactAladin
       def resetAladin(
         r:     CallbackTo[Option[html.Div]],
         state: UseState[Boolean],
-        props: Props,
+        props: ReactAladin,
         force: Boolean
       ): Callback =
         r.flatMap {
           case Some(e) if force || !state.value =>
-            CallbackTo(new JsAladin(e, props.options)).flatMap { a =>
+            CallbackTo(A.aladin(e, props.options)).flatMap { a =>
               state.setState(true) *>
                 props.customize.fold(Callback.empty)(f => f(a))
             }
@@ -104,7 +120,10 @@ object ReactAladin
                   init.setState(true) *> resetAladin(r.get, init, props, true)
                 }
         _    <- useLayoutEffectOnMount {
-                  resetAladin(r.get, init, props, false)
+                  Callback(org.scalajs.dom.console.log(A)) *> Callback.log(
+                    "9Reset on mount"
+                  ) *> AsyncCallback.fromCallbackToJsPromise(CallbackTo(A.init)).toCallback *>
+                    resetAladin(r.get, init, props, false)
                 }
       } yield <.div(props.clazz, ^.untypedRef := r)
     )

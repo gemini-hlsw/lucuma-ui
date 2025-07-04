@@ -3,12 +3,16 @@
 
 package lucuma.ui.aladin
 
+import cats.syntax.all.*
 import lucuma.core.math.*
 import lucuma.core.util.Enumerated
 import lucuma.react.common.*
 import lucuma.ui.aladin.facade.*
+import lucuma.ui.reusability.given
 
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters.*
+import japgolly.scalajs.react.Reusability
 
 type Aladin        = lucuma.ui.aladin.facade.JsAladin
 type AladinOptions = lucuma.ui.aladin.facade.AladinOptions
@@ -29,11 +33,12 @@ case class Fov(x: Angle, y: Angle) {
 object Fov:
   def square(a: Angle): Fov = Fov(a, a)
 
+  given Reusability[Fov] = Reusability.derive
+
 case class PositionChanged(ra: RightAscension, dec: Declination, dragging: Boolean)
 
 object PositionChanged:
   def fromJs(p: JsPositionChanged): PositionChanged =
-    org.scalajs.dom.console.log(p)
     PositionChanged(
       RightAscension.fromDoubleDegrees(p.ra),
       Declination.fromDoubleDegrees(p.dec).getOrElse(Declination.Zero),
@@ -77,7 +82,7 @@ object AladinOptions:
     fov:                      js.UndefOr[Angle] = js.undefined,
     target:                   js.UndefOr[String] = js.undefined,
     survey:                   js.UndefOr[ImageSurvey] = js.undefined,
-    // cooFrame:                 js.UndefOr[String] = js.undefined,
+    cooFrame:                 js.UndefOr[String] = js.undefined,
     showReticle:              js.UndefOr[Boolean] = js.undefined,
     showZoomControl:          js.UndefOr[Boolean] = js.undefined,
     showFullscreenControl:    js.UndefOr[Boolean] = js.undefined,

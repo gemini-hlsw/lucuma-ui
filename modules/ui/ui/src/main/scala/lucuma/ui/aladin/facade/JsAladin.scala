@@ -9,7 +9,7 @@ import scala.scalajs.js
 import scala.scalajs.js.annotation.JSImport
 
 @js.native
-@JSImport("@cquiroz/aladin-lite/lib/js/Aladin.js", JSImport.Default)
+@JSImport("aladin-lite", "Aladin")
 class JsAladin(val aladinDiv: Element, val options: AladinOptions) extends js.Object {
   def setImageSurvey(s:           String): Unit                                       = js.native
   def setBaseImageLayer(s:        String): Unit                                       = js.native
@@ -34,6 +34,8 @@ class JsAladin(val aladinDiv: Element, val options: AladinOptions) extends js.Ob
   def recalculateView(): Unit                                                         = js.native
   def increaseZoom(): Unit                                                            = js.native
   def decreaseZoom(): Unit                                                            = js.native
+  // def getZoomFactor(): Double                                                         = js.native
+  // def setZoomFactor(f:            Double): js.Object                                  = js.native
   def requestRedraw(): Unit                                                           = js.native
   def toggleFullscreen(): Unit                                                        = js.native
   def fixLayoutDimensions(): Unit                                                     = js.native
