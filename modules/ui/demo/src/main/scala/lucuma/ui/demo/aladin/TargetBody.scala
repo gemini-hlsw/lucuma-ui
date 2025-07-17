@@ -7,13 +7,19 @@ import cats.syntax.all.*
 import crystal.react.hooks.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.enums.Flamingos2Disperser
+import lucuma.core.enums.Flamingos2Filter
+import lucuma.core.enums.Flamingos2Fpu
+import lucuma.core.enums.PortDisposition
 import lucuma.core.math.*
 import lucuma.react.common.*
 import lucuma.react.gridlayout.*
 import lucuma.react.resizeDetector.hooks.*
+import lucuma.schemas.model.BasicConfiguration
 import lucuma.ui.aladin.*
 import lucuma.ui.hooks.*
 import lucuma.ui.reusability.given
+import org.scalajs.dom
 
 import scala.scalajs.js
 
@@ -49,14 +55,14 @@ object AladinTile {
   private val layoutLg: Layout = Layout(
     List(
       LayoutItem(x = 0, y = 0, w = targetW, h = 16, i = "target"),
-      LayoutItem(x = 0, y = 8, w = 12, h = 8, i = "constraints")
+      LayoutItem(x = 0, y = 16, w = 12, h = 12, i = "controls")
     )
   )
 
   private val layoutMd: Layout = Layout(
     List(
       LayoutItem(x = 0, y = 0, w = targetW, h = 16, i = "target"),
-      LayoutItem(x = 0, y = 8, w = 12, h = 8, i = "constraints")
+      LayoutItem(x = 0, y = 16, w = 10, h = 12, i = "controls")
     )
   )
 
@@ -70,13 +76,51 @@ object AladinTile {
 
   given Reusability[Fov] = Reusability.derive
 
+  private def loadOffsetFromStorage(): Offset =
+    Option(dom.window.localStorage.getItem("aladin-view-offset"))
+      .flatMap: str =>
+        str.split(",").toList match
+          case List(pStr, qStr) =>
+            for
+              p <- pStr.toDoubleOption
+              q <- qStr.toDoubleOption
+            yield Offset(Offset.P(Angle.fromDoubleArcseconds(p)),
+                         Offset.Q(Angle.fromDoubleArcseconds(q))
+            )
+          case _                => None
+      .getOrElse(Offset.Zero)
+
   val component =
     ScalaFnComponent[Props]: props =>
       for {
-        s   <- useResizeDetector
-        fov <- useStateViewWithReuse(
-                 Fov(Angle.fromDMS(0, 15, 0, 0, 0), Angle.fromDMS(0, 15, 0, 0, 0))
-               )
+        s               <- useResizeDetector
+        ov              <- useStateView(loadOffsetFromStorage())
+        fov             <- useStateViewWithReuse(
+                             Fov(Angle.fromDMS(0, 15, 0, 0, 0), Angle.fromDMS(0, 15, 0, 0, 0))
+                           )
+        scienceOffset   <- useStateView(AladinContainer.generateOffsetGrid().some)
+        posAngle        <- useStateView(Angle.Angle0)
+        instrument      <- useStateView(InstrumentType.GMOS)
+        configuration   <-
+          useStateView[BasicConfiguration](AladinContainer.baseGmosConf(GmosMode.Imaging))
+        portDisposition <- useStateView(PortDisposition.Side)
+        survey          <- useStateView(ImageSurvey.DSS)
+        visSettings     <- useStateView(VisualizationSettings())
+        _               <- useEffectWithDeps(instrument.get): instr =>
+                             val newSurvey = instr match {
+                               case InstrumentType.GMOS       => ImageSurvey.DSS
+                               case InstrumentType.Flamingos2 => ImageSurvey.TWOMASS
+                             }
+                             val newConfig = instr match {
+                               case InstrumentType.GMOS       => AladinContainer.baseGmosConf(GmosMode.Imaging)
+                               case InstrumentType.Flamingos2 =>
+                                 BasicConfiguration.Flamingos2LongSlit(
+                                   disperser = Flamingos2Disperser.R1200HK,
+                                   filter = Flamingos2Filter.H,
+                                   fpu = Flamingos2Fpu.LongSlit2
+                                 )
+                             }
+                             survey.set(newSurvey) *> configuration.set(newConfig)
       } yield <.div(
         ^.height := "100%",
         ^.width  := "100%",
@@ -93,7 +137,34 @@ object AladinTile {
             ^.width  := "100%",
             ^.key    := "target",
             ^.cls    := "tile",
-            AladinContainer(fov, props.c)
+            AladinContainer(fov,
+                            props.c,
+                            ov,
+                            scienceOffset,
+                            posAngle,
+                            instrument,
+                            configuration,
+                            portDisposition,
+                            survey,
+                            visSettings
+            )
+          ),
+          <.div(
+            ^.height := "100%",
+            ^.width  := "100%",
+            ^.key    := "controls",
+            ^.cls    := "tile",
+            AladinControlsPanel(fov,
+                                props.c,
+                                ov,
+                                scienceOffset,
+                                posAngle,
+                                instrument,
+                                configuration,
+                                portDisposition,
+                                survey,
+                                visSettings
+            )
           )
         )
       )

@@ -67,7 +67,6 @@ extension (a: Aladin)
 case class ReactAladin(
   clazz:     Css = Css.Empty,
   options:   AladinOptions = AladinOptions.Default,
-  target:    js.UndefOr[String] = js.undefined,
   customize: js.UndefOr[Aladin => Callback] = js.undefined,
   modifiers: Seq[TagMod] = Seq.empty
 ) extends ReactFnProps(ReactAladin):

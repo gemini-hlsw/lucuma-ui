@@ -2,11 +2,11 @@
 
 /* stylelint-disable no-invalid-position-at-import-rule */
 .light-theme {
-  @import '../../../../ui/src/main/resources/lucuma-css/light-theme.css';
+  @import '@lucuma-css/light-theme.css';
 }
 
 .dark-theme {
-  @import '../../../../ui/src/main/resources/lucuma-css/dark-theme.css';
+  @import '@lucuma-css/dark-theme.css';
 }
 
 @import '../../../../ui/src/main/resources/lucuma-css/lucuma-ui-prime';

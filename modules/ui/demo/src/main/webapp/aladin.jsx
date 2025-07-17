@@ -1,7 +1,10 @@
-import './theme.scss';
-import "./aladin.css";
-import '../../../../ui/src/main/resources/lucuma-css/visualization.scss';
+import '@lucuma-css/visualization.scss';
+import '../../../node_modules/primereact/resources/primereact.min.css';
+import '@lucuma-css/lucuma-ui-sequence.scss';
+import '@lucuma-css/lucuma-ui-prime.scss';
 import './rgl.scss';
+import "./aladin.css";
+import './aladinstyles.scss';
 
 if (import.meta.env.DEV) {
   process.env = { CATS_EFFECT_TRACING_MODE: 'none' };

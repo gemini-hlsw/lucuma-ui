@@ -1,0 +1,231 @@
+@use '@lucuma-css/lucuma-ui-common.scss';
+@use '@lucuma-css/lucuma-ui-prime.scss';
+@import '@lucuma-css/light-theme.css';
+
+#root,
+body,
+html {
+  height: 100%;
+  width: 100%;
+}
+body {
+  padding: 0;
+  margin: 0;
+  font-family: Roboto, Open Sans, sans-serif;
+  font-size: smaller;
+  box-sizing: border-box;
+
+  &.dark-theme {
+    color: #F7F7F7;
+    background-color: black;
+  }
+
+  &.light-theme {
+    color: #272727;
+    background-color: white;
+  }
+
+  .aladin-demo {
+    height: 500px;
+    width: 100%;
+  }
+
+  .descriptionconfig-togglers {
+    display: flex;
+  }
+}
+
+.react-aladin-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+}
+
+.aladin-viewer {
+  position: relative;
+  height: 100%;
+  width: 100%;
+}
+
+.aladin-controls-panel {
+  height: 100%;
+  width: 100%;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  padding: 0.5em;
+  box-sizing: border-box;
+  overflow-y: auto;
+
+  .dark-theme & {
+    background: #1a1a1a;
+    border-color: #444;
+  }
+}
+
+.react-aladin.aladin-container {
+  border: 1px solid #555;
+}
+
+.aladin-info {
+  margin-bottom: 0.5em;
+  padding: 0.5em;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+
+  .dark-theme & {
+    background: #2d2d2d;
+    border-color: #555;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 6px;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-label {
+      font-weight: 600;
+      color: #495057;
+      min-width: 50px;
+      font-size: small;
+
+      .dark-theme & {
+        color: #adb5bd;
+      }
+    }
+
+    .info-value {
+      color: #212529;
+      font-family: monospace;
+
+      .dark-theme & {
+        color: #f8f9fa;
+      }
+    }
+  }
+}
+
+.controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.control-section {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  padding: 1em;
+
+  .dark-theme & {
+    background: #2d2d2d;
+    border-color: #555;
+  }
+
+  h4 {
+    margin: 0;
+    color: #495057;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-bottom: 1px solid #e9ecef;
+    padding-bottom: 0.5em;
+
+    .dark-theme & {
+      color: #f8f9fa;
+      border-bottom-color: #555;
+    }
+  }
+
+  .input-group {
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 3px;
+      font-weight: 500;
+      color: #495057;
+
+      .dark-theme & {
+        color: #adb5bd;
+      }
+    }
+  }
+
+  .mode-info {
+    margin: 0;
+    color: #6c757d;
+    font-style: italic;
+
+    .dark-theme & {
+      color: #8e9297;
+    }
+  }
+
+  // Make PrimeReact components smaller
+  .p-dropdown {
+    .p-dropdown-label {
+      font-size: 0.75rem;
+    }
+  }
+
+  .p-inputnumber-input {
+    font-size: 0.75rem;
+  }
+
+  .p-button {
+    font-size: 0.75rem;
+
+    &.p-button-sm {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+.toggles-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+
+  .toggle-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    label {
+      margin: 0;
+      color: #495057;
+
+      .dark-theme & {
+        color: #adb5bd;
+      }
+    }
+  }
+}
+
+.button-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.offset-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .input-group {
+    margin-bottom: 0;
+  }
+
+  .p-button {
+    margin-top: 8px;
+  }
+}
+

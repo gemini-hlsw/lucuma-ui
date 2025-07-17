@@ -38,7 +38,7 @@ trait AladinAppMain extends IOApp.Simple {
 object AladinDemo extends AladinAppMain {
   override protected val rootComponent: VdomElement =
     <.div(
-      ^.cls := "aladin-demo",
+      <.h1("Aladin Demo"),
       TargetBody()
     )
 }
