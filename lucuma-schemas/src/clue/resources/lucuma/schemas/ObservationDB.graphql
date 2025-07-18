@@ -193,6 +193,37 @@ input AngleInput {
   hms: String
 }
 
+enum GcalLampType {
+  ARC
+  FLAT
+}
+
+type AtomDigest {
+  """Atom id"""
+  id: AtomId!
+
+  """
+  Observe class for this atom as a whole (combined observe class for each of
+  its steps).
+  """
+  observeClass: ObserveClass!
+
+  """Expected execution time for this atom."""
+  timeEstimate: CategorizedTime!
+
+  """Step types contained in this atom."""
+  stepTypes: [StepType!]!
+
+  """Gcal lamp types used in this atom, if any."""
+  lampTypes: [GcalLampType!]!
+}
+
+type CalculatedAtomDigests {
+  """The current state of the background calculation."""
+  state: CalculationState!
+  value: [AtomDigest!]!
+}
+
 """
 Atom-level events.  The execution of a single atom will generate multiple events.
 """
@@ -1698,6 +1729,12 @@ input GmosNorthImagingInput {
   filters: [GmosNorthFilter!]
 
   """
+  How sequences are generated when multiple filters are specified.
+  Defaults to GROUPED.
+  """
+  explicitMultipleFiltersMode: MultipleFiltersMode
+
+  """
   The explicitBin field may be unset by assigning a null value, or ignored by skipping it altogether
   """
   explicitBin: GmosBinning
@@ -2001,6 +2038,12 @@ input GmosSouthImagingInput {
   The filters field must be specified with at least one filter. It cannot be unset with a null value.
   """
   filters: [GmosSouthFilter!]
+
+  """
+  How sequences are generated when multiple filters are specified.
+  Defaults to GROUPED.
+  """
+  explicitMultipleFiltersMode: MultipleFiltersMode
 
   """
   The explicitBin field may be unset by assigning a null value, or ignored by skipping it altogether
@@ -5528,6 +5571,12 @@ type Execution {
   calculatedDigest: CalculatedExecutionDigest
 
   """
+  A summary of pending atoms in this observation's sequence.  This is intended
+  for the scheduler, but is available generally.
+  """
+  atomDigests: CalculatedAtomDigests!
+
+  """
   Full execution config, including acquisition and science sequences.  If a
   sequence cannot be generated for this observation, `null` is returned along
   with warning messages.
@@ -6650,6 +6699,21 @@ type GmosNorthImaging {
   initialFilters: [GmosNorthFilter!]!
 
   """
+  MultipleFiltersMode, either explicitly specified in explicitMultipleFiltersMode or else taken
+  from the defaultMultipleFiltersMode.
+  """
+  multipleFiltersMode: MultipleFiltersMode!
+
+  """Default MultipleFiltersMode (GROUPED)."""
+  defaultMultipleFiltersMode: MultipleFiltersMode!
+
+  """
+  Optional explictly specified MultipleFiltersMode. If set it overrides the
+  default.
+  """
+  explicitMultipleFiltersMode: MultipleFiltersMode
+
+  """
   GMOS Binning, either explicitly specified in explicitBin or else taken
   from the defaultBin. XBinning == YBinning = Binning
   """
@@ -7072,6 +7136,21 @@ type GmosSouthImaging {
   Initial GMOS South Filters that were used when creating the imaging mode
   """
   initialFilters: [GmosSouthFilter!]!
+
+  """
+  MultipleFiltersMode, either explicitly specified in explicitMultipleFiltersMode or else taken
+  from the defaultMultipleFiltersMode.
+  """
+  multipleFiltersMode: MultipleFiltersMode!
+
+  """Default MultipleFiltersMode (GROUPED)."""
+  defaultMultipleFiltersMode: MultipleFiltersMode!
+
+  """
+  Optional explictly specified MultipleFiltersMode. If set it overrides the
+  default.
+  """
+  explicitMultipleFiltersMode: MultipleFiltersMode
 
   """
   GMOS Binning, either explicitly specified in explicitBin or else taken
@@ -8035,6 +8114,15 @@ type ConfigurationRequestSelectResult {
 
   """`true` when there were additional matches that were not returned."""
   hasMore: Boolean!
+}
+
+"""How sequences are generated when multiple filters are specified."""
+enum MultipleFiltersMode {
+  """Grouped filters"""
+  GROUPED
+
+  """Interleaved filters"""
+  INTERLEAVED
 }
 
 """

@@ -235,21 +235,25 @@ trait ArbObservingMode {
   given Arbitrary[ObservingMode.GmosNorthImaging] =
     Arbitrary[ObservingMode.GmosNorthImaging](
       for {
-        initialFilters         <- arbitrary[NonEmptyList[GmosNorthFilter]]
-        filters                <- arbitrary[NonEmptyList[GmosNorthFilter]]
-        defaultBin             <- arbitrary[GmosBinning]
-        explicitBin            <- arbitrary[Option[GmosBinning]]
-        defaultAmpReadMode     <- arbitrary[GmosAmpReadMode]
-        explicitAmpReadMode    <- arbitrary[Option[GmosAmpReadMode]]
-        defaultAmpGain         <- arbitrary[GmosAmpGain]
-        explicitAmpGain        <- arbitrary[Option[GmosAmpGain]]
-        defaultRoi             <- arbitrary[GmosRoi]
-        explicitRoi            <- arbitrary[Option[GmosRoi]]
-        defaultSpatialOffsets  <- arbitrary[List[Offset]]
-        explicitSpatialOffsets <- arbitrary[Option[List[Offset]]]
+        initialFilters              <- arbitrary[NonEmptyList[GmosNorthFilter]]
+        filters                     <- arbitrary[NonEmptyList[GmosNorthFilter]]
+        defaultMultipleFiltersMode  <- arbitrary[MultipleFiltersMode]
+        explicitMultipleFiltersMode <- arbitrary[Option[MultipleFiltersMode]]
+        defaultBin                  <- arbitrary[GmosBinning]
+        explicitBin                 <- arbitrary[Option[GmosBinning]]
+        defaultAmpReadMode          <- arbitrary[GmosAmpReadMode]
+        explicitAmpReadMode         <- arbitrary[Option[GmosAmpReadMode]]
+        defaultAmpGain              <- arbitrary[GmosAmpGain]
+        explicitAmpGain             <- arbitrary[Option[GmosAmpGain]]
+        defaultRoi                  <- arbitrary[GmosRoi]
+        explicitRoi                 <- arbitrary[Option[GmosRoi]]
+        defaultSpatialOffsets       <- arbitrary[List[Offset]]
+        explicitSpatialOffsets      <- arbitrary[Option[List[Offset]]]
       } yield ObservingMode.GmosNorthImaging(
         initialFilters,
         filters,
+        defaultMultipleFiltersMode,
+        explicitMultipleFiltersMode,
         defaultBin,
         explicitBin,
         defaultAmpReadMode,
@@ -266,21 +270,25 @@ trait ArbObservingMode {
   given Arbitrary[ObservingMode.GmosSouthImaging] =
     Arbitrary[ObservingMode.GmosSouthImaging](
       for {
-        initialFilters         <- arbitrary[NonEmptyList[GmosSouthFilter]]
-        filters                <- arbitrary[NonEmptyList[GmosSouthFilter]]
-        defaultBin             <- arbitrary[GmosBinning]
-        explicitBin            <- arbitrary[Option[GmosBinning]]
-        defaultAmpReadMode     <- arbitrary[GmosAmpReadMode]
-        explicitAmpReadMode    <- arbitrary[Option[GmosAmpReadMode]]
-        defaultAmpGain         <- arbitrary[GmosAmpGain]
-        explicitAmpGain        <- arbitrary[Option[GmosAmpGain]]
-        defaultRoi             <- arbitrary[GmosRoi]
-        explicitRoi            <- arbitrary[Option[GmosRoi]]
-        defaultSpatialOffsets  <- arbitrary[List[Offset]]
-        explicitSpatialOffsets <- arbitrary[Option[List[Offset]]]
+        initialFilters              <- arbitrary[NonEmptyList[GmosSouthFilter]]
+        filters                     <- arbitrary[NonEmptyList[GmosSouthFilter]]
+        defaultMultipleFiltersMode  <- arbitrary[MultipleFiltersMode]
+        explicitMultipleFiltersMode <- arbitrary[Option[MultipleFiltersMode]]
+        defaultBin                  <- arbitrary[GmosBinning]
+        explicitBin                 <- arbitrary[Option[GmosBinning]]
+        defaultAmpReadMode          <- arbitrary[GmosAmpReadMode]
+        explicitAmpReadMode         <- arbitrary[Option[GmosAmpReadMode]]
+        defaultAmpGain              <- arbitrary[GmosAmpGain]
+        explicitAmpGain             <- arbitrary[Option[GmosAmpGain]]
+        defaultRoi                  <- arbitrary[GmosRoi]
+        explicitRoi                 <- arbitrary[Option[GmosRoi]]
+        defaultSpatialOffsets       <- arbitrary[List[Offset]]
+        explicitSpatialOffsets      <- arbitrary[Option[List[Offset]]]
       } yield ObservingMode.GmosSouthImaging(
         initialFilters,
         filters,
+        defaultMultipleFiltersMode,
+        explicitMultipleFiltersMode,
         defaultBin,
         explicitBin,
         defaultAmpReadMode,
@@ -370,6 +378,8 @@ trait ArbObservingMode {
     Cogen[
       (NonEmptyList[GmosNorthFilter],
        NonEmptyList[GmosNorthFilter],
+       MultipleFiltersMode,
+       Option[MultipleFiltersMode],
        GmosBinning,
        Option[GmosBinning],
        GmosAmpReadMode,
@@ -386,6 +396,8 @@ trait ArbObservingMode {
         (
           o.initialFilters,
           o.filters,
+          o.defaultMultipleFiltersMode,
+          o.explicitMultipleFiltersMode,
           o.defaultBin,
           o.explicitBin,
           o.defaultAmpReadMode,
@@ -403,6 +415,8 @@ trait ArbObservingMode {
     Cogen[
       (NonEmptyList[GmosSouthFilter],
        NonEmptyList[GmosSouthFilter],
+       MultipleFiltersMode,
+       Option[MultipleFiltersMode],
        GmosBinning,
        Option[GmosBinning],
        GmosAmpReadMode,
@@ -419,6 +433,8 @@ trait ArbObservingMode {
         (
           o.initialFilters,
           o.filters,
+          o.defaultMultipleFiltersMode,
+          o.explicitMultipleFiltersMode,
           o.defaultBin,
           o.explicitBin,
           o.defaultAmpReadMode,
