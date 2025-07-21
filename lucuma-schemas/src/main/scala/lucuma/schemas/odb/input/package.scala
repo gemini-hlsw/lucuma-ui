@@ -106,7 +106,7 @@ extension (info: CatalogInfo)
 
 extension (ra: RightAscension)
   def toInput: RightAscensionInput =
-    RightAscensionInput(microarcseconds = ra.toAngle.toMicroarcseconds.assign)
+    RightAscensionInput(microseconds = ra.toHourAngle.toMicroseconds.assign)
 
 extension (dec: Declination)
   def toInput: DeclinationInput =
