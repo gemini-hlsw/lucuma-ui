@@ -62,6 +62,8 @@ object ObservingModeSubquery
           gmosNorthImaging {
             initialFilters
             filters
+            defaultMultipleFiltersMode
+            explicitMultipleFiltersMode
             defaultBin
             explicitBin
             defaultAmpReadMode
@@ -76,6 +78,8 @@ object ObservingModeSubquery
           gmosSouthImaging {
             initialFilters
             filters
+            defaultMultipleFiltersMode
+            explicitMultipleFiltersMode
             defaultBin
             explicitBin
             defaultAmpReadMode

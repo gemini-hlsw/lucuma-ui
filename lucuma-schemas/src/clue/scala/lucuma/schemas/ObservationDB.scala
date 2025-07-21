@@ -141,6 +141,7 @@ trait ObservationDB {
     type LineFluxIntegratedUnits             = Units Of LineFlux[Integrated]
     type LineFluxSurfaceUnits                = Units Of LineFlux[Surface]
     type MosPreImaging                       = enums.MosPreImaging
+    type MultipleFiltersMode                 = enums.MultipleFiltersMode
     type ObsActiveStatus                     = enums.ObsActiveStatus
     type ObservationWorkflowState            = enums.ObservationWorkflowState
     type ObsStatus                           = enums.ObsStatus

@@ -19,6 +19,7 @@ class ObservingModeSuite extends FunSuite:
       case Right(gni: ObservingMode.GmosNorthImaging) =>
         assertEquals(gni.initialFilters.size, 1)
         assertEquals(gni.filters.size, 1)
+        assertEquals(gni.explicitMultipleFiltersMode, None)
         assertEquals(gni.explicitBin, None)
         assertEquals(gni.explicitAmpReadMode, None)
         assertEquals(gni.explicitAmpGain, None)
