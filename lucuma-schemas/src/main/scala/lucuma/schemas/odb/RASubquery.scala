@@ -11,6 +11,6 @@ import lucuma.schemas.ObservationDB
 object RASubquery extends GraphQLSubquery.Typed[ObservationDB, RightAscension]("RightAscension"):
   override val subquery: String = """
         {
-          microarcseconds
+          microseconds
         }
       """
