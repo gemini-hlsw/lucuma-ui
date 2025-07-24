@@ -16,38 +16,37 @@ object SequenceQueriesGQL:
         query($$obsId: ObservationId!) {
           observation(observationId: $$obsId) {
             itc { ...itcFields }
-            execution {
-              config(futureLimit: 100) {
-                instrument
-                gmosNorth {
-                  static {
-                    stageMode
-                    detector
-                    mosPreImaging
-                    nodAndShuffle { ...nodAndShuffleFields }
-                  }
-                  acquisition { ...gmosNorthSequenceFields }
-                  science { ...gmosNorthSequenceFields }
-                }
-                gmosSouth {
-                  static {
-                    stageMode
-                    detector
-                    mosPreImaging
-                    nodAndShuffle { ...nodAndShuffleFields }
-                  }
-                  acquisition { ...gmosSouthSequenceFields }
-                  science { ...gmosSouthSequenceFields }
-                }
-                flamingos2 {
-                  static {
-                    mosPreImaging
-                    useElectronicOffsetting
-                  }
-                  acquisition { ...flamingos2SequenceFields }
-                  science { ...flamingos2SequenceFields }
-                }
+          }
+
+          executionConfig(observationId: $$obsId, futureLimit: 100) {
+            instrument
+            gmosNorth {
+              static {
+                stageMode
+                detector
+                mosPreImaging
+                nodAndShuffle { ...nodAndShuffleFields }
               }
+              acquisition { ...gmosNorthSequenceFields }
+              science { ...gmosNorthSequenceFields }
+            }
+            gmosSouth {
+              static {
+                stageMode
+                detector
+                mosPreImaging
+                nodAndShuffle { ...nodAndShuffleFields }
+              }
+              acquisition { ...gmosSouthSequenceFields }
+              science { ...gmosSouthSequenceFields }
+            }
+            flamingos2 {
+              static {
+                mosPreImaging
+                useElectronicOffsetting
+              }
+              acquisition { ...flamingos2SequenceFields }
+              science { ...flamingos2SequenceFields }
             }
           }
         }
@@ -193,6 +192,4 @@ object SequenceQueriesGQL:
       """
 
     object Data:
-      object Observation:
-        object Execution:
-          type Config = InstrumentExecutionConfig
+      type ExecutionConfig = InstrumentExecutionConfig
