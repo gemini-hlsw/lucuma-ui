@@ -66,7 +66,7 @@ if (!response.ok) {
   );
 }
 
-console.log('Fetched ODB schema.');
+console.log(`Fetched ODB schema from ${url}`);
 
 const data = (await response.json()).data;
 

@@ -7942,7 +7942,6 @@ type Observation {
 
   """Program configuration requests applicable to this observation."""
   configurationRequests: [ConfigurationRequest!]!
-  workflow: ObservationWorkflow! @deprecated(reason: "will be updated with a CalculatedObservationWorkflow result, use calculatedWorkflow for now")
 
   """
   Obtains the current observation workflow state and valid transitions (and any
@@ -7950,10 +7949,8 @@ type Observation {
   the background when something relevant changes and may be in a state of flux
   when queried.  The calculation state in the result can be used to determine
   whether a pending update is expected.
-  
-  NOTE: Temporary - will replace the 'workflow' field.
   """
-  calculatedWorkflow: CalculatedObservationWorkflow
+  workflow: CalculatedObservationWorkflow
 }
 
 enum ExecutionState {
