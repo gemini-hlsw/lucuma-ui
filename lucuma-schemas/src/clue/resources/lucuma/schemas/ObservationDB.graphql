@@ -193,37 +193,6 @@ input AngleInput {
   hms: String
 }
 
-enum GcalLampType {
-  ARC
-  FLAT
-}
-
-type AtomDigest {
-  """Atom id"""
-  id: AtomId!
-
-  """
-  Observe class for this atom as a whole (combined observe class for each of
-  its steps).
-  """
-  observeClass: ObserveClass!
-
-  """Expected execution time for this atom."""
-  timeEstimate: CategorizedTime!
-
-  """Step types contained in this atom."""
-  stepTypes: [StepType!]!
-
-  """Gcal lamp types used in this atom, if any."""
-  lampTypes: [GcalLampType!]!
-}
-
-type CalculatedAtomDigests {
-  """The current state of the background calculation."""
-  state: CalculationState!
-  value: [AtomDigest!]!
-}
-
 """
 Atom-level events.  The execution of a single atom will generate multiple events.
 """
@@ -5557,12 +5526,6 @@ type Execution {
   digest: CalculatedExecutionDigest
 
   """
-  A summary of pending atoms in this observation's sequence.  This is intended
-  for the scheduler, but is available generally.
-  """
-  atomDigests: CalculatedAtomDigests!
-
-  """
   Full execution config, including acquisition and science sequences.  If a
   sequence cannot be generated for this observation, `null` is returned along
   with warning messages.
@@ -5577,7 +5540,7 @@ type Execution {
     projected atom count is available in the execution digest.
     """
     futureLimit: NonNegInt = 25
-  ): ExecutionConfig
+  ): ExecutionConfig @deprecated(reason: "moved to Query -> executionConfig")
 
   """Determines the execution state as a whole of this observation."""
   executionState: ExecutionState!
@@ -8709,6 +8672,29 @@ type Query {
     LIMIT: NonNegInt
   ): ExecutionEventSelectResult!
 
+  """
+  Full execution config, including static values and acquisition and science
+  sequences.  If a sequence cannot be generated for this observation, `null`
+  is returned along with warning messages.
+  """
+  executionConfig(
+    """Specify to lookup the observation by its ID."""
+    observationId: ObservationId
+
+    """Specify to lookup the observation by its reference."""
+    observationReference: ObservationReferenceLabel
+
+    """
+    The maximum size (number of atoms) of the `possibleFuture` in the sequences.
+    If the projected future is longer, the size will be capped at this value.
+    Use 0 if only interested in the `nextAtom`.  The maximum is 100.  Each
+    sequence has a `hasMore` field that can be used to determine whether there
+    additional atoms beyond those returned in `possibleFuture`.  The total
+    projected atom count is available in the execution digest.
+    """
+    futureLimit: NonNegInt = 25
+  ): ExecutionConfig
+
   """Metadata for `enum FilterType`"""
   filterTypeMeta: [FilterTypeMeta!]!
 
@@ -8758,13 +8744,6 @@ type Query {
     """Set to true to include deleted values"""
     includeDeleted: Boolean! = false
   ): ObservationSelectResult!
-
-  """
-  Selects observations via a normal predicate *and* an additional filter for allowed
-  workflow states. This query is intended for operations and is available only for
-  service users.
-  """
-  observationsByWorkflowState(WHERE: WhereObservation, states: [ObservationWorkflowState!]): [Observation!]! @deprecated(reason: "use 'workflow' field in WhereObservation filter")
 
   """
   Selects the first `LIMIT` matching configuration requests based on the provided `WHERE` parameter, if any.
