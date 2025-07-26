@@ -15,24 +15,27 @@ trait pot:
   extension [A](pot: Pot[A])
     inline def renderPot(
       valueRender:   A => VdomNode,
-      pendingRender: => VdomNode = DefaultPendingRender,
+      id:            String = "pot",
+      pendingRender: (id: String) => VdomNode = id => DefaultPendingRender(id),
       errorRender:   Throwable => VdomNode = DefaultErrorRender
     ): VdomNode =
-      pot.fold(pendingRender, errorRender, valueRender)
+      pot.fold(pendingRender(id), errorRender, valueRender)
 
   extension [A](potView: View[Pot[A]])
     inline def renderPotView(
       valueRender:   A => VdomNode,
-      pendingRender: => VdomNode = DefaultPendingRender,
+      id:            String = "pot-view",
+      pendingRender: (id: String) => VdomNode = id => DefaultPendingRender(id),
       errorRender:   Throwable => VdomNode = DefaultErrorRender
     ): VdomNode =
-      potView.get.renderPot(valueRender, pendingRender, errorRender)
+      potView.get.renderPot(valueRender, id, pendingRender, errorRender)
 
   extension [A](po: PotOption[A])
     inline def renderPotOption(
       valueRender:   A => VdomNode,
-      pendingRender: => VdomNode = DefaultPendingRender,
+      id:            String = "pot-option",
+      pendingRender: (id: String) => VdomNode = id => DefaultPendingRender(id),
       errorRender:   Throwable => VdomNode = DefaultErrorRender
-    ): VdomNode = po.toPot.renderPot(valueRender, pendingRender, errorRender)
+    ): VdomNode = po.toPot.renderPot(valueRender, id, pendingRender, errorRender)
 
 object pot extends pot

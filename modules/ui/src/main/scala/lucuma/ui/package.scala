@@ -8,7 +8,7 @@ import lucuma.react.common.*
 import lucuma.react.primereact.Message
 import lucuma.ui.components.SolarProgress
 
-val DefaultPendingRender: VdomNode = SolarProgress()
+def DefaultPendingRender(id: String = ""): VdomNode = SolarProgress(id)
 
 val DefaultErrorRender: Throwable => VdomNode =
   t => Message(text = t.getMessage, severity = Message.Severity.Error)
