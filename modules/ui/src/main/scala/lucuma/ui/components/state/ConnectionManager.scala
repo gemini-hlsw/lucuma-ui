@@ -41,4 +41,4 @@ object ConnectionManager:
       Resource.make(props.openConnections(payloadRef.getAsync))(_ => props.closeConnections) >>
         Resource.eval(props.onConnect)
     .render: (_, children, _, connectedPot) =>
-      connectedPot.renderPot(_ => children)
+      connectedPot.renderPot(_ => children, "connection-manager")

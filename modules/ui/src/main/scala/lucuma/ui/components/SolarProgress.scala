@@ -8,13 +8,16 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.react.common.Css
 import lucuma.react.common.ReactFnProps
 
-case class SolarProgress(css: Css = Css.Empty) extends ReactFnProps(SolarProgress.component)
+case class SolarProgress(id: String = "", css: Css = Css.Empty)
+    extends ReactFnProps(SolarProgress.component)
 
 object SolarProgress {
   private type Props = SolarProgress
 
   private val component = ScalaFnComponent[Props] { p =>
     <.div(
+      ^.id  := s"solar-progress-${p.id}",
+      ^.key := s"solar-progress-${p.id}",
       ^.cls := "solar-system",
       p.css,
       <.div(
