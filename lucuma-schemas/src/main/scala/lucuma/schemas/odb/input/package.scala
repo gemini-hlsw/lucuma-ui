@@ -6,7 +6,6 @@ package lucuma.schemas.odb.input
 import cats.syntax.all.*
 import clue.data.Input
 import clue.data.syntax.*
-import eu.timepit.refined.types.numeric.NonNegInt
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.syntax.*
@@ -309,7 +308,7 @@ extension (etm: ExposureTimeMode)
     case TimeAndCountMode(time, count, at) =>
       ExposureTimeModeInput(timeAndCount =
         TimeAndCountExposureTimeModeInput(
-          count = NonNegInt.unsafeFrom(count.value),
+          count = count,
           time = time.toInput,
           at = at.toInput
         ).assign
