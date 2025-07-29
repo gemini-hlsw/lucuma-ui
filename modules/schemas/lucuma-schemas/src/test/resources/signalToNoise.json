@@ -1,0 +1,8 @@
+{
+  "signalToNoise": {
+    "value": 1.23,
+    "at": {
+      "nanometers": 500
+    }
+  }
+}

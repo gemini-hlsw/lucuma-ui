@@ -1,0 +1,60 @@
+{
+  "id": "t-3",
+  "name": "NGC 5949",
+  "sidereal": {
+    "ra": {
+      "microarcseconds": 835210020000
+    },
+    "dec": {
+      "microarcseconds": 233147400000
+    },
+    "epoch": "J2000.000",
+    "properMotion": {
+      "ra": {
+        "microarcsecondsPerYear": 0
+      },
+      "dec": {
+        "microarcsecondsPerYear": 0
+      }
+    },
+    "radialVelocity": {
+      "centimetersPerSecond": 42360700
+    },
+    "parallax": {
+      "microarcseconds": 0
+    },
+    "catalogInfo": null
+  },
+  "sourceProfile": {
+    "point": {
+      "emissionLines": {
+        "lines": [
+          {
+            "wavelength": {
+              "picometers": 1000000
+            },
+            "lineWidth": "1",
+            "lineFlux": {
+              "value": "1",
+              "units": "W_PER_M_SQUARED"
+            }
+          },
+          {
+            "wavelength": {
+              "picometers": 1000000000
+            },
+            "lineWidth": "1",
+            "lineFlux": {
+              "value": "1",
+              "units": "ERG_PER_S_PER_CM_SQUARED"
+            }
+          }
+        ],
+        "fluxDensityContinuum": {
+          "value": "0.12",
+          "units": "ERG_PER_S_PER_CM_SQUARED_PER_A"
+        }
+      }
+    }
+  }
+}

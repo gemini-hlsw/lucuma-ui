@@ -1,0 +1,27 @@
+{
+   "gmosSouthLongSlit" : null,
+   "gmosNorthImaging" : {
+     "initialFilters" : [
+       "HA"
+     ],
+     "filters" : [
+       "HA"
+     ],
+     "defaultMultipleFiltersMode" : "GROUPED",
+     "explicitMultipleFiltersMode" : null,
+     "defaultBin" : "TWO",
+     "explicitBin" : null,
+     "defaultAmpReadMode" : "SLOW",
+     "explicitAmpReadMode" : null,
+     "defaultAmpGain" : "LOW",
+     "explicitAmpGain" : null,
+     "defaultRoi" : "FULL_FRAME",
+     "explicitRoi" : null,
+     "defaultSpatialOffsets" : [
+     ],
+     "explicitSpatialOffsets" : [
+     ]
+   },
+   "gmosSouthImaging" : null,
+   "flamingos2LongSlit" : null
+}

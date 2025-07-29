@@ -1,0 +1,105 @@
+query {
+  observation(observationId: "o-14d") {
+    execution {
+      visits {
+        matches {
+          id
+          instrument
+          created
+          interval {
+            start
+            end
+          }
+          atomRecords {
+            matches {
+              id
+              created
+              executionState
+              interval {
+                start
+                end
+              }
+              sequenceType
+              steps {
+                matches {
+                  id
+                  created
+                  executionState
+                  interval {
+                    start
+                    end
+                  }
+                  gmosNorth {
+                    exposure {
+                      microseconds
+                    }
+                    readout {
+                      xBin
+                      yBin
+                      ampCount
+                      ampGain
+                      ampReadMode
+                    }
+                    dtax
+                    roi
+                    gratingConfig {
+                      grating
+                      order
+                      wavelength {
+                        picometers
+                      }
+                    }
+                    filter
+                    fpu {
+                      customMask {
+                        filename
+                        slitWidth
+                      }
+                      builtin
+                    }
+                  }
+                  stepConfig {
+                    stepType
+                    ... on Gcal {
+                      continuum
+                      arcs
+                      filter
+                      diffuser
+                      shutter
+                    }
+                  }
+                  telescopeConfig {
+                    offset {
+                      p {
+                        microarcseconds
+                      }
+                      q {
+                        microarcseconds
+                      }
+                    }
+                    guiding
+                  }
+                  observeClass
+                  qaState
+                  datasets {
+                    matches {
+                      id
+                      index
+                      filename
+                      qaState
+                      interval {
+                        start
+                        end
+                      }
+                      isWritten
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

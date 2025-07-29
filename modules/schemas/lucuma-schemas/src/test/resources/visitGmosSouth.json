@@ -1,0 +1,81 @@
+{
+  "observation": {
+    "execution": {
+      "visits": {
+        "matches": [
+          {
+            "id": "v-1c9",
+            "instrument": "GMOS_SOUTH",
+            "created": "2024-02-12 17:22:06.372335",
+            "interval": {
+              "start": "2024-02-12 17:22:06.937281",
+              "end": "2024-02-12 17:22:07.761573"
+            },
+            "atomRecords": {
+              "matches": [
+                {
+                  "id": "a-03e40772-09c1-443d-b4c8-b952995ad109",
+                  "created": "2024-02-12 17:22:06.673584",
+                  "executionState": "NOT_STARTED",
+                  "interval": {
+                    "start": "2024-02-12 17:22:07.761573",
+                    "end": "2024-02-12 17:22:07.761573"
+                  },
+                  "sequenceType": "ACQUISITION",
+                  "steps": {
+                    "matches": [
+                      {
+                        "id": "s-7adfa674-3753-4158-8dd8-cd08eddbb802",
+                        "created": "2024-02-12 17:22:07.490332",
+                        "executionState": "NOT_STARTED",
+                        "interval": {
+                          "start": "2024-02-12 17:22:07.761573",
+                          "end": "2024-02-12 17:22:07.761573"
+                        },
+                        "gmosSouth": {
+                          "exposure": {
+                            "microseconds": 1000000
+                          },
+                          "readout": {
+                            "xBin": "TWO",
+                            "yBin": "TWO",
+                            "ampCount": "TWELVE",
+                            "ampGain": "LOW",
+                            "ampReadMode": "FAST"
+                          },
+                          "dtax": "ZERO",
+                          "roi": "CCD2",
+                          "gratingConfig": null,
+                          "filter": "R_PRIME",
+                          "fpu": null
+                        },
+                        "stepConfig": {
+                          "stepType": "SCIENCE"
+                        },
+                        "telescopeConfig": {
+                          "offset": {
+                            "p": {
+                              "microarcseconds": 0
+                            },
+                            "q": {
+                              "microarcseconds": 0
+                            }
+                          },
+                          "guiding": "ENABLED"
+                        },
+                        "observeClass": "SCIENCE",
+                        "datasets": {
+                          "matches": []
+                        }
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  }
+}

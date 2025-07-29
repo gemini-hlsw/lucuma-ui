@@ -30,8 +30,8 @@ metals.sbt
 **/.DS_Store
 **/._.DS_Store
 
-# Hydra
-.hydra/
 .direnv/
-modules/demo/node_modules
+modules/ui/demo/node_modules/
+modules/schemas/lucuma-schemas/.js/
 .jvmopts
+logs/

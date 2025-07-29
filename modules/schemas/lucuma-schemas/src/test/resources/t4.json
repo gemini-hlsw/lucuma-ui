@@ -1,0 +1,80 @@
+{
+  "id": "t-4",
+  "name": "NGC 3312",
+  "sidereal": {
+    "ra": {
+      "microarcseconds": 573338235000
+    },
+    "dec": {
+      "microarcseconds": -99234170000
+    },
+    "epoch": "J2000.000",
+    "properMotion": {
+      "ra": {
+        "microarcsecondsPerYear": 0
+      },
+      "dec": {
+        "microarcsecondsPerYear": 0
+      }
+    },
+    "radialVelocity": {
+      "centimetersPerSecond": 282648300
+    },
+    "parallax": {
+      "microarcseconds": 0
+    },
+    "catalogInfo": null
+  },
+  "sourceProfile": {
+    "point": null,
+    "uniform": {
+      "bandNormalized": {
+        "sed": {
+          "stellarLibrary": null,
+          "coolStar": null,
+          "galaxy": "SPIRAL",
+          "planet": null,
+          "quasar": null,
+          "hiiRegion": null,
+          "planetaryNebula": null,
+          "powerLaw": null,
+          "blackBodyTempK": null,
+          "fluxDensities": null
+        },
+        "brightnesses": [
+          {
+            "band": "B",
+            "value": "12.63",
+            "units": "VEGA_MAG_PER_ARCSEC_SQUARED",
+            "error": null
+          },
+          {
+            "band": "V",
+            "value": "13.96",
+            "units": "VEGA_MAG_PER_ARCSEC_SQUARED",
+            "error": null
+          },
+          {
+            "band": "J",
+            "value": "9.552",
+            "units": "VEGA_MAG_PER_ARCSEC_SQUARED",
+            "error": "0.016"
+          },
+          {
+            "band": "H",
+            "value": "8.907",
+            "units": "VEGA_MAG_PER_ARCSEC_SQUARED",
+            "error": "0.017"
+          },
+          {
+            "band": "K",
+            "value": "8.665",
+            "units": "VEGA_MAG_PER_ARCSEC_SQUARED",
+            "error": "0.028"
+          }
+        ]
+      }
+    },
+    "gaussian": null
+  }
+}
