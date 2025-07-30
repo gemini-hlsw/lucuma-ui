@@ -1,0 +1,106 @@
+{
+  "id": "t-2",
+  "name": "NGC 5949",
+  "sidereal": {
+    "ra": {
+      "microarcseconds": 835210020000
+    },
+    "dec": {
+      "microarcseconds": 233147400000
+    },
+    "epoch": "J2000.000",
+    "properMotion": {
+      "ra": {
+        "microarcsecondsPerYear": 0
+      },
+      "dec": {
+        "microarcsecondsPerYear": 0
+      }
+    },
+    "radialVelocity": {
+      "centimetersPerSecond": 42360700
+    },
+    "parallax": {
+      "microarcseconds": 0
+    },
+    "catalogInfo": {
+      "name": "SIMBAD",
+      "id": "M   1",
+      "objectType": "SNR"
+    }
+  },
+  "sourceProfile": {
+    "point": {
+      "bandNormalized": {
+        "sed": {
+          "stellarLibrary": null,
+          "coolStar": null,
+          "galaxy": "SPIRAL",
+          "planet": null,
+          "quasar": null,
+          "hiiRegion": null,
+          "planetaryNebula": null,
+          "powerLaw": null,
+          "blackBodyTempK": null,
+          "fluxDensities": null
+        },
+        "brightnesses": [
+          {
+            "band": "SLOAN_U",
+            "value": "14.147",
+            "units": "AB_MAGNITUDE",
+            "error": "0.005"
+          },
+          {
+            "band": "SLOAN_G",
+            "value": "12.924",
+            "units": "AB_MAGNITUDE",
+            "error": "0.002"
+          },
+          {
+            "band": "SLOAN_R",
+            "value": "12.252",
+            "units": "AB_MAGNITUDE",
+            "error": "0.002"
+          },
+          {
+            "band": "SLOAN_I",
+            "value": "11.888",
+            "units": "AB_MAGNITUDE",
+            "error": "0.002"
+          },
+          {
+            "band": "SLOAN_Z",
+            "value": "11.636",
+            "units": "AB_MAGNITUDE",
+            "error": "0.002"
+          },
+          {
+            "band": "B",
+            "value": "12.7",
+            "units": "VEGA_MAGNITUDE",
+            "error": null
+          },
+          {
+            "band": "J",
+            "value": "10.279",
+            "units": "VEGA_MAGNITUDE",
+            "error": "0.001"
+          },
+          {
+            "band": "H",
+            "value": "9.649",
+            "units": "VEGA_MAGNITUDE",
+            "error": "0.012"
+          },
+          {
+            "band": "K",
+            "value": "9.425",
+            "units": "VEGA_MAGNITUDE",
+            "error": "0.017"
+          }
+        ]
+      }
+    }
+  }
+}

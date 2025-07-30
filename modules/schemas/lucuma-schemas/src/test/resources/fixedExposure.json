@@ -1,0 +1,11 @@
+{
+  "timeAndCount": {
+    "count": 99,
+    "time": {
+      "microseconds": 47
+    },
+    "at": {
+      "nanometers": 500
+    }
+  }
+}

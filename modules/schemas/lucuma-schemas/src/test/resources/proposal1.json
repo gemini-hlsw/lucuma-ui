@@ -1,0 +1,24 @@
+{
+  "title": "Classy Proposal",
+  "proposalClass": {
+    "__typename": "LargeProgram",
+    "minPercentTime": 77,
+    "minPercentTotalTime": 88,
+    "totalTime": {
+      "microseconds": 660
+    }
+  },
+  "category": "EXOPLANET_HOST_STAR",
+  "toOActivation": "STANDARD",
+  "abstract": null,
+  "partnerSplits": [
+    {
+      "partner": "CL",
+      "percent": 60
+    },
+    {
+      "partner": "UH",
+      "percent": 40
+    }
+  ]
+}

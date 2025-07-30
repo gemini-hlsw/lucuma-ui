@@ -1,0 +1,23 @@
+{
+  "name": "lucuma-ui-schemas",
+  "version": "0.150.0",
+  "description": "Lucuma UI components and schemas for astronomical observation database",
+  "exports": {
+    "./odb": "./modules/schemas/lucuma-schemas/src/clue/resources/lucuma/schemas/ObservationDB.graphql"
+  },
+  "directories": {
+    "test": "modules"
+  },
+  "scripts": {
+    "start": "./fetchODBSchema.mjs",
+    "fetch-schema": "./fetchODBSchema.mjs"
+  },
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "graphql": "^16.9.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gemini-hlsw/lucuma-ui.git"
+  }
+}

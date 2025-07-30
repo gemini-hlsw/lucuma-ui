@@ -1,0 +1,13 @@
+{
+  "imageQuality": "POINT_EIGHT",
+  "cloudExtinction": "POINT_THREE",
+  "skyBackground": "BRIGHT",
+  "waterVapor": "WET",
+  "elevationRange": {
+    "airMass": {
+      "min": 1,
+      "max": 2
+    },
+    "hourAngle": null
+  }
+}

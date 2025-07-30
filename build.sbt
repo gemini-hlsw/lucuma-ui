@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.147"
+ThisBuild / tlBaseVersion       := "0.150"
 ThisBuild / tlCiReleaseBranches := Seq("master")
 
 val Versions = new {
@@ -8,22 +8,25 @@ val Versions = new {
   val catsRetry         = "3.1.3"
   val catsTime          = "0.6.0"
   val circe             = "0.14.14"
+  val circeRefined      = "0.15.1"
   val crystal           = "0.49.0"
   val disciplineMunit   = "2.0.0"
+  val fs2               = "3.12.0"
   val fs2Dom            = "0.3.0-M1"
   val kittens           = "3.5.0"
   val http4s            = "0.23.30"
   val http4sDom         = "0.2.12"
   val log4catsLogLevel  = "0.3.1"
   val lucumaCore        = "0.137.4"
+  val lucumaODBSchema   = "0.26.0"
   val lucumaPrimeStyles = "0.3.0"
   val lucumaReact       = "0.84.0"
   val lucumaRefined     = "0.1.4"
-  val lucumaSchemas     = "0.149.1"
   val lucumaSso         = "0.9.2"
   val monocle           = "3.3.0"
   val mouse             = "1.3.2"
   val munit             = "1.1.1"
+  val munitCatsEffect   = "2.1.0"
   val pprint            = "0.9.3"
   val scalaJsReact      = "3.0.0-beta12"
 }
@@ -44,28 +47,73 @@ ThisBuild / scalacOptions ++= Seq("-language:implicitConversions", "-explain-cyc
 
 enablePlugins(NoPublishPlugin)
 
-lazy val demo =
-  project
-    .in(file("modules/demo"))
-    .enablePlugins(ScalaJSPlugin, NoPublishPlugin, LucumaCssPlugin)
-    .dependsOn(ui, css)
+lazy val schemasModel =
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Pure)
+    .in(file("modules/schemas/model"))
     .settings(
-      Compile / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
-      Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
-        ModuleSplitStyle.SmallestModules
-      )),
+      name := "lucuma-schemas-model",
       libraryDependencies ++= Seq(
-        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact,
-        "com.rpiaggio"                      %%% "log4cats-loglevel"        % Versions.log4catsLogLevel,
-        "edu.gemini"                        %%% "lucuma-react-grid-layout" % Versions.lucumaReact
-      ),
-      Keys.test := {}
+        "io.circe"      %%% "circe-core"        % Versions.circe,
+        "io.circe"      %%% "circe-generic"     % Versions.circe,
+        "io.circe"      %%% "circe-refined"     % Versions.circeRefined,
+        "org.typelevel" %%% "kittens"           % Versions.kittens,
+        "edu.gemini"    %%% "lucuma-core"       % Versions.lucumaCore,
+        "edu.gemini"    %%% "lucuma-odb-schema" % Versions.lucumaODBSchema
+      )
     )
 
-lazy val ui =
+lazy val schemasTestkit =
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Pure)
+    .in(file("modules/schemas/testkit"))
+    .dependsOn(schemasModel)
+    .settings(
+      name := "lucuma-schemas-testkit",
+      libraryDependencies ++= Seq(
+        "edu.gemini" %%% "lucuma-core-testkit" % Versions.lucumaCore
+      )
+    )
+
+lazy val schemasTests =
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Full)
+    .in(file("modules/schemas/tests"))
+    .dependsOn(schemasTestkit)
+    .enablePlugins(NoPublishPlugin)
+    .settings(
+      libraryDependencies ++= Seq(
+        "org.typelevel" %%% "discipline-munit" % Versions.disciplineMunit % Test,
+        "org.scalameta" %%% "munit"            % Versions.munit           % Test
+      )
+    )
+
+lazy val schemas =
+  crossProject(JVMPlatform, JSPlatform)
+    .crossType(CrossType.Pure)
+    .in(file("modules/schemas/lucuma-schemas"))
+    .dependsOn(schemasModel)
+    .settings(
+      name                          := "lucuma-schemas",
+      libraryDependencies ++= Seq(
+        "co.fs2"        %%% "fs2-io"            % Versions.fs2             % Test,
+        "org.scalameta" %%% "munit"             % Versions.munit           % Test,
+        "org.typelevel" %%% "munit-cats-effect" % Versions.munitCatsEffect % Test
+      ),
+      Compile / clueSourceDirectory := (ThisBuild / baseDirectory).value / "modules" / "schemas" / "lucuma-schemas" / "src" / "clue",
+      // Include schema files in jar.
+      Compile / unmanagedResourceDirectories += (Compile / clueSourceDirectory).value / "resources"
+    )
+    .jsSettings(
+      Test / scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
+    )
+    .enablePlugins(CluePlugin)
+
+lazy val lucumaUi =
   project
-    .in(file("modules/ui"))
+    .in(file("modules/ui/ui"))
     .enablePlugins(ScalaJSPlugin)
+    .dependsOn(schemas.js)
     .settings(
       name := "lucuma-ui",
       libraryDependencies ++= Seq(
@@ -83,7 +131,6 @@ lazy val ui =
         "edu.gemini"                        %%% "lucuma-react-tanstack-table"  % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-prime-react"     % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-prime-styles"          % Versions.lucumaPrimeStyles,
-        "edu.gemini"                        %%% "lucuma-schemas"               % Versions.lucumaSchemas,
         "dev.optics"                        %%% "monocle-core"                 % Versions.monocle,
         "dev.optics"                        %%% "monocle-macro"                % Versions.monocle,
         "edu.gemini"                        %%% "crystal"                      % Versions.crystal,
@@ -101,8 +148,8 @@ lazy val ui =
 
 lazy val testkit =
   project
-    .in(file("modules/testkit"))
-    .dependsOn(ui)
+    .in(file("modules/ui/testkit"))
+    .dependsOn(lucumaUi, schemasTestkit.js)
     .enablePlugins(ScalaJSPlugin)
     .settings(
       name := "lucuma-ui-testkit",
@@ -113,14 +160,13 @@ lazy val testkit =
 
 lazy val tests =
   project
-    .in(file("modules/tests"))
+    .in(file("modules/ui/tests"))
     .dependsOn(testkit)
     .settings(
       libraryDependencies ++= Seq(
-        "edu.gemini"    %%% "lucuma-core-testkit"    % Versions.lucumaCore      % Test,
-        "edu.gemini"    %%% "lucuma-schemas-testkit" % Versions.lucumaSchemas   % Test,
-        "org.scalameta" %%% "munit"                  % Versions.munit           % Test,
-        "org.typelevel" %%% "discipline-munit"       % Versions.disciplineMunit % Test
+        "edu.gemini"    %%% "lucuma-core-testkit" % Versions.lucumaCore      % Test,
+        "org.scalameta" %%% "munit"               % Versions.munit           % Test,
+        "org.typelevel" %%% "discipline-munit"    % Versions.disciplineMunit % Test
       )
     )
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
@@ -129,8 +175,8 @@ lazy val tests =
 lazy val npmPublish = taskKey[Unit]("Run npm publish")
 
 lazy val css = project
-  .in(file("modules/css"))
-  .dependsOn(ui)
+  .in(file("modules/ui/css"))
+  .dependsOn(lucumaUi)
   .enablePlugins(LucumaCssPlugin, NoPublishPlugin)
   .settings(
     npmPublish := {
@@ -150,6 +196,24 @@ lazy val css = project
     }
   )
 
+lazy val demo =
+  project
+    .in(file("modules/ui/demo"))
+    .enablePlugins(ScalaJSPlugin, NoPublishPlugin, LucumaCssPlugin)
+    .dependsOn(lucumaUi, css)
+    .settings(
+      Compile / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
+      Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
+        ModuleSplitStyle.SmallestModules
+      )),
+      libraryDependencies ++= Seq(
+        "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact,
+        "com.rpiaggio"                      %%% "log4cats-loglevel"        % Versions.log4catsLogLevel,
+        "edu.gemini"                        %%% "lucuma-react-grid-layout" % Versions.lucumaReact
+      ),
+      Keys.test := {}
+    )
+
 ThisBuild / githubWorkflowSbtCommand := "sbt -v -J-Xmx6g"
 
 ThisBuild / githubWorkflowPublishPreamble +=
@@ -166,5 +230,16 @@ ThisBuild / githubWorkflowPublish ++= Seq(
     List("css/npmPublish"),
     name = Some("NPM Publish"),
     env = Map("NODE_AUTH_TOKEN" -> s"$${{ secrets.NPM_REPO_TOKEN }}")
+  )
+)
+
+// Publish the schema package to npm
+ThisBuild / githubWorkflowPublishPostamble += WorkflowStep.Run(
+  name = Some("Publish npm package"),
+  cond = Some("github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/v')"),
+  commands = List(
+    "echo \"//registry.npmjs.org/:_authToken=${{ secrets.NPM_REPO_TOKEN }}\" > ~/.npmrc",
+    "npm version from-git --git-tag-version=false",
+    "npm publish --access public"
   )
 )
