@@ -473,6 +473,13 @@ input CallForProposalsPropertiesInput {
   semester: Semester
 
   """
+  The CfP title.  If not set then a title will be determined from the CfP
+  properties.  This property is not required on create and may be assigned
+  a null value to return to the default.
+  """
+  title: NonEmptyString
+
+  """
   Coordinate limits.  If not specified, they will default according to the
   coordinates that are safely visible during the active period of the call.
   """
@@ -2974,6 +2981,9 @@ input ProgramUserPropertiesInput {
   """The user's reported gender."""
   gender: Gender
 
+  """Investigator affiliation."""
+  affiliation: NonEmptyString
+
   """
   Whether the user has data access.  This property may be changed only by the
   PI (or staff).  If a COI attempts to change the data access flag, the entire
@@ -3039,6 +3049,9 @@ type ProgramUser {
 
   """User invitations, if any, associated with this program user."""
   invitations: [UserInvitation!]!
+
+  """Investigator affiliation."""
+  affiliation: NonEmptyString
 
   """Has access to data."""
   hasDataAccess: Boolean!
@@ -5138,6 +5151,9 @@ enum ChargeClass {
 
 """Cloud extinction"""
 enum CloudExtinctionPreset {
+  """CloudExtinctionPreset Zero"""
+  ZERO
+
   """CloudExtinctionPreset PointOne"""
   POINT_ONE
 
@@ -5149,9 +5165,6 @@ enum CloudExtinctionPreset {
 
   """CloudExtinctionPreset OnePointZero"""
   ONE_POINT_ZERO
-
-  """CloudExtinctionPreset OnePointFive"""
-  ONE_POINT_FIVE
 
   """CloudExtinctionPreset TwoPointZero"""
   TWO_POINT_ZERO
@@ -5337,6 +5350,58 @@ type Dataset {
   written when an `END_WRITE` event is received from Observe.
   """
   isWritten: Boolean!
+}
+
+"""Database operations that provoke Chronicle table updates."""
+enum DatabaseOperation {
+  INSERT
+  UPDATE
+  DELETE
+  TRUNCATE
+}
+
+"""The Chronicle entry for dataset updates."""
+type DatasetChronicleEntry {
+  id: ChronicleId!
+  transactionId: TransactionId!
+
+  """The user who performed the insertion or update."""
+  user: User
+
+  """When the update happened."""
+  timestamp: Timestamp!
+
+  """The database operation that was performed."""
+  operation: DatabaseOperation!
+
+  """The dataset that was inserted or updated."""
+  dataset: Dataset!
+  modDatasetId: Boolean!
+  modStepId: Boolean!
+  modObservationId: Boolean!
+  modVisitId: Boolean!
+  modReference: Boolean!
+  modFilename: Boolean!
+  modQaState: Boolean!
+  modInterval: Boolean!
+  modComment: Boolean!
+  newDatasetId: DatasetId
+  newStepId: StepId
+  newObservationId: ObservationId
+  newVisitId: VisitId
+  newReference: DatasetReferenceLabel
+  newFilename: DatasetFilename
+  newQaState: DatasetQaState
+  newInterval: TimestampInterval
+  newComment: NonEmptyString
+}
+
+type DatasetChronicleEntrySelectResult {
+  """Matching entries up to the return size limit of 1000"""
+  matches: [DatasetChronicleEntry!]!
+
+  """`true` when there were additional matches that were not returned."""
+  hasMore: Boolean!
 }
 
 """
@@ -6479,8 +6544,8 @@ enum GmosNorthGrating {
   """GmosNorthGrating B480_G5309"""
   B480_G5309
 
-  """GmosNorthGrating R400_G5305"""
-  R400_G5305
+  """GmosNorthGrating R400_G5310"""
+  R400_G5310
 
   """GmosNorthGrating R150_G5308"""
   R150_G5308
@@ -8650,6 +8715,20 @@ type Query {
     """
     LIMIT: NonNegInt
   ): DatasetSelectResult!
+
+  """
+  Select all dataset chronicle entries.  This will contain detailed information
+  about dataset creation and updates.
+  """
+  datasetChronicleEntries(
+    """Starts the result set at (or after if not existent) the given id."""
+    OFFSET: ChronicleId
+
+    """
+    Limits the result to at most this number of matches (but never more than 1000).
+    """
+    LIMIT: NonNegInt
+  ): DatasetChronicleEntrySelectResult!
 
   """
   Selects the first `LIMIT` matching execution events based on the provided `WHERE` parameter, if any.
