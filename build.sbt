@@ -41,8 +41,8 @@ addCommandAlias(
 
 ThisBuild / turbo                    := true
 ThisBuild / Test / parallelExecution := false
-ThisBuild / scalaVersion             := "3.7.1"
-ThisBuild / crossScalaVersions       := Seq("3.7.1")
+ThisBuild / scalaVersion             := "3.7.2"
+ThisBuild / crossScalaVersions       := Seq("3.7.2")
 ThisBuild / scalacOptions ++= Seq("-language:implicitConversions", "-explain-cyclic")
 
 enablePlugins(NoPublishPlugin)
