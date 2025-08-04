@@ -11,6 +11,8 @@ import lucuma.core.model.*
 import lucuma.core.model.sequence.*
 import lucuma.core.util.*
 
+import java.util.UUID
+
 // gql: import io.circe.refined.*
 // gql: import lucuma.schemas.decoders.given
 // gql: import lucuma.odb.json.sequence.given
@@ -34,6 +36,8 @@ trait ObservationDB {
     type TargetId                  = Target.Id
     type UserId                    = User.Id
     type VisitId                   = Visit.Id
+    type ChronicleId               = scala.Long
+    type ClientId                  = UUID
     type ProgramNoteId             = ProgramNote.Id
     // Basic types
     type BigDecimal                = scala.BigDecimal
