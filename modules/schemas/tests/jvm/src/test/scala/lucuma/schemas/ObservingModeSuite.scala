@@ -24,7 +24,6 @@ class ObservingModeSuite extends FunSuite:
         assertEquals(gni.explicitAmpReadMode, None)
         assertEquals(gni.explicitAmpGain, None)
         assertEquals(gni.explicitRoi, None)
-        assertEquals(gni.explicitSpatialOffsets, Some(List()))
-        assertEquals(gni.defaultSpatialOffsets.size, 0)
+        assertEquals(gni.offsets, List())
       case _                                          => assert(false, s"Failed to decode $json")
     }

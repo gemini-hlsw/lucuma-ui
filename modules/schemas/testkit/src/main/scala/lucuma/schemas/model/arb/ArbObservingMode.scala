@@ -247,11 +247,11 @@ trait ArbObservingMode {
         explicitAmpGain             <- arbitrary[Option[GmosAmpGain]]
         defaultRoi                  <- arbitrary[GmosRoi]
         explicitRoi                 <- arbitrary[Option[GmosRoi]]
-        defaultSpatialOffsets       <- arbitrary[List[Offset]]
-        explicitSpatialOffsets      <- arbitrary[Option[List[Offset]]]
+        offsets                     <- arbitrary[List[Offset]]
       } yield ObservingMode.GmosNorthImaging(
         initialFilters,
         filters,
+        offsets,
         defaultMultipleFiltersMode,
         explicitMultipleFiltersMode,
         defaultBin,
@@ -261,9 +261,7 @@ trait ArbObservingMode {
         defaultAmpGain,
         explicitAmpGain,
         defaultRoi,
-        explicitRoi,
-        defaultSpatialOffsets,
-        explicitSpatialOffsets
+        explicitRoi
       )
     )
 
@@ -282,11 +280,11 @@ trait ArbObservingMode {
         explicitAmpGain             <- arbitrary[Option[GmosAmpGain]]
         defaultRoi                  <- arbitrary[GmosRoi]
         explicitRoi                 <- arbitrary[Option[GmosRoi]]
-        defaultSpatialOffsets       <- arbitrary[List[Offset]]
-        explicitSpatialOffsets      <- arbitrary[Option[List[Offset]]]
+        offsets                     <- arbitrary[List[Offset]]
       } yield ObservingMode.GmosSouthImaging(
         initialFilters,
         filters,
+        offsets,
         defaultMultipleFiltersMode,
         explicitMultipleFiltersMode,
         defaultBin,
@@ -296,9 +294,7 @@ trait ArbObservingMode {
         defaultAmpGain,
         explicitAmpGain,
         defaultRoi,
-        explicitRoi,
-        defaultSpatialOffsets,
-        explicitSpatialOffsets
+        explicitRoi
       )
     )
 
@@ -388,8 +384,7 @@ trait ArbObservingMode {
        Option[GmosAmpGain],
        GmosRoi,
        Option[GmosRoi],
-       List[Offset],
-       Option[List[Offset]]
+       List[Offset]
       )
     ]
       .contramap(o =>
@@ -406,8 +401,7 @@ trait ArbObservingMode {
           o.explicitAmpGain,
           o.defaultRoi,
           o.explicitRoi,
-          o.defaultSpatialOffsets,
-          o.explicitSpatialOffsets
+          o.offsets
         )
       )
 
@@ -425,8 +419,7 @@ trait ArbObservingMode {
        Option[GmosAmpGain],
        GmosRoi,
        Option[GmosRoi],
-       List[Offset],
-       Option[List[Offset]]
+       List[Offset]
       )
     ]
       .contramap(o =>
@@ -443,8 +436,7 @@ trait ArbObservingMode {
           o.explicitAmpGain,
           o.defaultRoi,
           o.explicitRoi,
-          o.defaultSpatialOffsets,
-          o.explicitSpatialOffsets
+          o.offsets
         )
       )
 

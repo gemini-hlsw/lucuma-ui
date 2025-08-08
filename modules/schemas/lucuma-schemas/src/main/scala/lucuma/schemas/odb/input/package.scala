@@ -407,23 +407,23 @@ extension (o: ObservingMode.GmosSouthLongSlit)
 extension (o: ObservingMode.GmosNorthImaging)
   def toInput: GmosNorthImagingInput = GmosNorthImagingInput(
     filters = o.filters.toList.assign,
+    offsets = o.offsets.map(_.toInput).assign,
     explicitMultipleFiltersMode = o.explicitMultipleFiltersMode.orUnassign,
     explicitBin = o.explicitBin.orUnassign,
     explicitAmpReadMode = o.explicitAmpReadMode.orUnassign,
     explicitAmpGain = o.explicitAmpGain.orUnassign,
-    explicitRoi = o.explicitRoi.orUnassign,
-    explicitSpatialOffsets = o.explicitSpatialOffsets.map(_.toList.map(_.toInput)).orUnassign
+    explicitRoi = o.explicitRoi.orUnassign
   )
 
 extension (o: ObservingMode.GmosSouthImaging)
   def toInput: GmosSouthImagingInput = GmosSouthImagingInput(
     filters = o.filters.toList.assign,
+    offsets = o.offsets.map(_.toInput).assign,
     explicitMultipleFiltersMode = o.explicitMultipleFiltersMode.orUnassign,
     explicitBin = o.explicitBin.orUnassign,
     explicitAmpReadMode = o.explicitAmpReadMode.orUnassign,
     explicitAmpGain = o.explicitAmpGain.orUnassign,
-    explicitRoi = o.explicitRoi.orUnassign,
-    explicitSpatialOffsets = o.explicitSpatialOffsets.map(_.toList.map(_.toInput)).orUnassign
+    explicitRoi = o.explicitRoi.orUnassign
   )
 
 extension (o: ObservingMode.Flamingos2LongSlit)

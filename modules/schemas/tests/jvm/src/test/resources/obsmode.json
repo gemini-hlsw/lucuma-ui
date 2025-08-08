@@ -17,9 +17,7 @@
      "explicitAmpGain" : null,
      "defaultRoi" : "FULL_FRAME",
      "explicitRoi" : null,
-     "defaultSpatialOffsets" : [
-     ],
-     "explicitSpatialOffsets" : [
+     "offsets" : [
      ]
    },
    "gmosSouthImaging" : null,
