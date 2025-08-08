@@ -309,6 +309,7 @@ object ObservingMode:
   case class GmosNorthImaging(
     initialFilters:              NonEmptyList[GmosNorthFilter],
     filters:                     NonEmptyList[GmosNorthFilter],
+    offsets:                     List[Offset],
     defaultMultipleFiltersMode:  MultipleFiltersMode,
     explicitMultipleFiltersMode: Option[MultipleFiltersMode],
     defaultBin:                  GmosBinning,
@@ -318,9 +319,7 @@ object ObservingMode:
     defaultAmpGain:              GmosAmpGain,
     explicitAmpGain:             Option[GmosAmpGain],
     defaultRoi:                  GmosRoi,
-    explicitRoi:                 Option[GmosRoi],
-    defaultSpatialOffsets:       List[Offset],
-    explicitSpatialOffsets:      Option[List[Offset]]
+    explicitRoi:                 Option[GmosRoi]
   ) extends ObservingMode(Instrument.GmosNorth) derives Eq:
     val multipleFiltersMode: MultipleFiltersMode =
       explicitMultipleFiltersMode.getOrElse(defaultMultipleFiltersMode)
@@ -332,8 +331,6 @@ object ObservingMode:
       explicitAmpGain.getOrElse(defaultAmpGain)
     val roi: GmosRoi                             =
       explicitRoi.getOrElse(defaultRoi)
-    val spatialOffsets: List[Offset]             =
-      explicitSpatialOffsets.getOrElse(defaultSpatialOffsets)
 
     def isCustomized: Boolean =
       initialFilters =!= filters ||
@@ -341,18 +338,17 @@ object ObservingMode:
         explicitBin.exists(_ =!= defaultBin) ||
         explicitAmpReadMode.exists(_ =!= defaultAmpReadMode) ||
         explicitAmpGain.exists(_ =!= defaultAmpGain) ||
-        explicitRoi.exists(_ =!= defaultRoi) ||
-        explicitSpatialOffsets.exists(_ =!= defaultSpatialOffsets)
+        explicitRoi.exists(_ =!= defaultRoi)
 
     def revertCustomizations: GmosNorthImaging =
       this.copy(
         filters = this.initialFilters,
+        offsets = Nil,
         explicitMultipleFiltersMode = None,
         explicitBin = None,
         explicitAmpReadMode = None,
         explicitAmpGain = None,
-        explicitRoi = None,
-        explicitSpatialOffsets = None
+        explicitRoi = None
       )
 
   object GmosNorthImaging:
@@ -382,14 +378,13 @@ object ObservingMode:
       Focus[GmosNorthImaging](_.defaultRoi)
     val explicitRoi: Lens[GmosNorthImaging, Option[GmosRoi]]                             =
       Focus[GmosNorthImaging](_.explicitRoi)
-    val defaultSpatialOffsets: Lens[GmosNorthImaging, List[Offset]]                      =
-      Focus[GmosNorthImaging](_.defaultSpatialOffsets)
-    val explicitSpatialOffsets: Lens[GmosNorthImaging, Option[List[Offset]]]             =
-      Focus[GmosNorthImaging](_.explicitSpatialOffsets)
+    val offsets: Lens[GmosNorthImaging, List[Offset]]                                    =
+      Focus[GmosNorthImaging](_.offsets)
 
   case class GmosSouthImaging(
     initialFilters:              NonEmptyList[GmosSouthFilter],
     filters:                     NonEmptyList[GmosSouthFilter],
+    offsets:                     List[Offset],
     defaultMultipleFiltersMode:  MultipleFiltersMode,
     explicitMultipleFiltersMode: Option[MultipleFiltersMode],
     defaultBin:                  GmosBinning,
@@ -399,9 +394,7 @@ object ObservingMode:
     defaultAmpGain:              GmosAmpGain,
     explicitAmpGain:             Option[GmosAmpGain],
     defaultRoi:                  GmosRoi,
-    explicitRoi:                 Option[GmosRoi],
-    defaultSpatialOffsets:       List[Offset],
-    explicitSpatialOffsets:      Option[List[Offset]]
+    explicitRoi:                 Option[GmosRoi]
   ) extends ObservingMode(Instrument.GmosSouth) derives Eq:
     val multipleFiltersMode: MultipleFiltersMode =
       explicitMultipleFiltersMode.getOrElse(defaultMultipleFiltersMode)
@@ -413,8 +406,6 @@ object ObservingMode:
       explicitAmpGain.getOrElse(defaultAmpGain)
     val roi: GmosRoi                             =
       explicitRoi.getOrElse(defaultRoi)
-    val spatialOffsets: List[Offset]             =
-      explicitSpatialOffsets.getOrElse(defaultSpatialOffsets)
 
     def isCustomized: Boolean =
       initialFilters =!= filters ||
@@ -422,18 +413,17 @@ object ObservingMode:
         explicitBin.exists(_ =!= defaultBin) ||
         explicitAmpReadMode.exists(_ =!= defaultAmpReadMode) ||
         explicitAmpGain.exists(_ =!= defaultAmpGain) ||
-        explicitRoi.exists(_ =!= defaultRoi) ||
-        explicitSpatialOffsets.exists(_ =!= defaultSpatialOffsets)
+        explicitRoi.exists(_ =!= defaultRoi)
 
     def revertCustomizations: GmosSouthImaging =
       this.copy(
         filters = this.initialFilters,
+        offsets = Nil,
         explicitMultipleFiltersMode = None,
         explicitBin = None,
         explicitAmpReadMode = None,
         explicitAmpGain = None,
-        explicitRoi = None,
-        explicitSpatialOffsets = None
+        explicitRoi = None
       )
 
   object GmosSouthImaging:
@@ -463,10 +453,8 @@ object ObservingMode:
       Focus[GmosSouthImaging](_.defaultRoi)
     val explicitRoi: Lens[GmosSouthImaging, Option[GmosRoi]]                             =
       Focus[GmosSouthImaging](_.explicitRoi)
-    val defaultSpatialOffsets: Lens[GmosSouthImaging, List[Offset]]                      =
-      Focus[GmosSouthImaging](_.defaultSpatialOffsets)
-    val explicitSpatialOffsets: Lens[GmosSouthImaging, Option[List[Offset]]]             =
-      Focus[GmosSouthImaging](_.explicitSpatialOffsets)
+    val offsets: Lens[GmosSouthImaging, List[Offset]]                                    =
+      Focus[GmosSouthImaging](_.offsets)
 
   case class Flamingos2LongSlit(
     initialDisperser:       Flamingos2Disperser,
