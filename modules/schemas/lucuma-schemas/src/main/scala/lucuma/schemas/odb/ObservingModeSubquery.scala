@@ -72,8 +72,7 @@ object ObservingModeSubquery
             explicitAmpGain
             defaultRoi
             explicitRoi
-            defaultSpatialOffsets $OffsetSubquery
-            explicitSpatialOffsets $OffsetSubquery
+            offsets $OffsetSubquery
           }
           gmosSouthImaging {
             initialFilters
@@ -88,8 +87,7 @@ object ObservingModeSubquery
             explicitAmpGain
             defaultRoi
             explicitRoi
-            defaultSpatialOffsets $OffsetSubquery
-            explicitSpatialOffsets $OffsetSubquery
+            offsets $OffsetSubquery
           }
           flamingos2LongSlit {
             initialDisperser
