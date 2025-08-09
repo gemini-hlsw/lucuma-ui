@@ -102,8 +102,8 @@ object ObservingModeSubquery
             explicitDecker
             defaultReadoutMode
             explicitReadoutMode
-            defaultSpatialOffsets $OffsetSubquery
-            explicitSpatialOffsets $OffsetSubquery
+            defaultOffsets $OffsetSubquery
+            explicitOffsets $OffsetSubquery
           }
         }
       """

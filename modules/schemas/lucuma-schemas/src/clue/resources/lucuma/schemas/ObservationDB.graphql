@@ -6285,19 +6285,19 @@ type Flamingos2LongSlit {
   explicitReadoutMode: Flamingos2ReadoutMode
 
   """
-  Spatial offsets, either explicitly specified in explicitSpatialOffsets
-  or else taken from defaultSpatialOffsets
+  Offsets, either explicitly specified in explicitOffsets
+  or else taken from defaultOffsets
   """
-  spatialOffsets: [Offset!]!
+  offsets: [Offset!]!
 
-  """Default spatial offsets."""
-  defaultSpatialOffsets: [Offset!]!
+  """Default offsets."""
+  defaultOffsets: [Offset!]!
 
   """
-  Optional explicitly specified spatial offsets. If set it overrides the
+  Optional explicitly specified offsets. If set it overrides the
   the default.
   """
-  explicitSpatialOffsets: [Offset!]
+  explicitOffsets: [Offset!]
 
   """
   The disperser as it was initially selected.  See the `disperser` field for the
@@ -6356,9 +6356,9 @@ input Flamingos2LongSlitInput {
   explicitReadoutMode: Flamingos2ReadoutMode
 
   """
-  The explicitSpatialOffsets field may be unset by assigning a null value, or ignored by skipping it altogether
+  The explicitOffsets field may be unset by assigning a null value, or ignored by skipping it altogether
   """
-  explicitSpatialOffsets: [OffsetInput!]
+  explicitOffsets: [OffsetInput!]
 }
 
 """Metadata for `enum FilterType`"""
