@@ -318,14 +318,14 @@ extension (etm: ExposureTimeMode)
         SignalToNoiseExposureTimeModeInput(value = value, at = at.toInput).assign
       )
 
-extension (pl: Option[PartnerLink])
+extension (pl: PartnerLink)
   def toInput: PartnerLinkInput =
     pl match
-      case Some(PartnerLink.HasPartner(p)) =>
+      case PartnerLink.HasPartner(p)         =>
         PartnerLinkInput(PartnerLinkType.HasPartner.assign, p.assign)
-      case Some(PartnerLink.HasNonPartner) =>
+      case PartnerLink.HasNonPartner         =>
         PartnerLinkInput(PartnerLinkType.HasNonPartner.assign, none.orUnassign)
-      case _                               =>
+      case PartnerLink.HasUnspecifiedPartner =>
         PartnerLinkInput(PartnerLinkType.HasUnspecifiedPartner.assign, none.orUnassign)
 
 extension (sidereal: Target.Sidereal)
