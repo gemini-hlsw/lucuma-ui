@@ -1,13 +1,8 @@
 {
-  "name": "lucuma-ui-schemas",
+  "name": "lucuma-ui",
+  "private": true,
   "version": "0.150.0",
   "description": "Lucuma UI components and schemas for astronomical observation database",
-  "exports": {
-    "./odb": "./modules/schemas/lucuma-schemas/src/clue/resources/lucuma/schemas/ObservationDB.graphql"
-  },
-  "directories": {
-    "test": "modules"
-  },
   "scripts": {
     "start": "./fetchODBSchema.mjs",
     "fetch-schema": "./fetchODBSchema.mjs"

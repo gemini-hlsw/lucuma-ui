@@ -102,7 +102,41 @@ lazy val schemas =
       ),
       Compile / clueSourceDirectory := (ThisBuild / baseDirectory).value / "modules" / "schemas" / "lucuma-schemas" / "src" / "clue",
       // Include schema files in jar.
-      Compile / unmanagedResourceDirectories += (Compile / clueSourceDirectory).value / "resources"
+      Compile / unmanagedResourceDirectories += (Compile / clueSourceDirectory).value / "resources",
+      createNpmProject              := {
+        val npmDir = target.value / "npm"
+
+        val schemaFile =
+          (Compile / clueSourceDirectory).value / "resources" / "lucuma" / "schemas" / "ObservationDB.graphql"
+
+        IO.write(
+          npmDir / "package.json",
+          s"""|{
+             |  "name": "lucuma-schemas",
+             |  "version": "${version.value}",
+             |  "license": "${licenses.value.head._1}",
+             |  "exports": {
+             |    "./odb": "./${schemaFile.getName}"
+             |  },
+             |  "repository": {
+             |    "type": "git",
+             |    "url": "git+https://github.com/gemini-hlsw/lucuma-ui.git"
+             |  }
+             |}
+             |""".stripMargin
+        )
+
+        IO.copyFile(schemaFile, npmDir / schemaFile.getName)
+
+        streams.value.log.info(s"Created NPM project in ${npmDir}")
+      },
+      npmPublish                    := {
+        import scala.sys.process._
+        val npmDir = target.value / "npm"
+
+        val _ = createNpmProject.value
+        Process(List("npm", "publish", "--provenance"), npmDir).!!
+      }
     )
     .jsSettings(
       Test / scalaJSLinkerConfig ~= (_.withModuleKind(ModuleKind.CommonJSModule))
@@ -171,28 +205,39 @@ lazy val tests =
     )
     .enablePlugins(ScalaJSPlugin, NoPublishPlugin)
 
-// for publishing CSS to npm
-lazy val npmPublish = taskKey[Unit]("Run npm publish")
+// for publishing packages to npm
+lazy val createNpmProject = taskKey[Unit]("Create NPM project, package.json and files")
+lazy val npmPublish       = taskKey[Unit]("Run npm publish")
 
 lazy val css = project
   .in(file("modules/ui/css"))
   .dependsOn(lucumaUi)
   .enablePlugins(LucumaCssPlugin, NoPublishPlugin)
   .settings(
-    npmPublish := {
-      import scala.sys.process._
+    createNpmProject := {
       val _      = (Compile / lucumaCss).value
       val cssDir = target.value / "lucuma-css"
       IO.write(
         cssDir / "package.json",
         s"""|{
-            |  "name": "lucuma-ui-css",
-            |  "version": "${version.value}",
-            |  "license": "${licenses.value.head._1}"
-            |}
-            |""".stripMargin
+          |  "name": "lucuma-ui-css",
+          |  "version": "${version.value}",
+          |  "license": "${licenses.value.head._1}",
+          |  "repository": {
+          |    "type": "git",
+          |    "url": "git+https://github.com/gemini-hlsw/lucuma-ui.git"
+          |  }
+          |}
+          |""".stripMargin
       )
-      Process(List("npm", "publish"), cssDir).!!
+      streams.value.log.info(s"Created NPM project in ${cssDir}")
+    },
+    npmPublish       := {
+      import scala.sys.process._
+      val cssDir = target.value / "lucuma-css"
+
+      val _ = createNpmProject.value
+      Process(List("npm", "publish", "--provenance"), cssDir).!!
     }
   )
 
@@ -220,26 +265,16 @@ ThisBuild / githubWorkflowPublishPreamble +=
   WorkflowStep.Use(
     UseRef.Public("actions", "setup-node", "v4"),
     Map(
-      "node-version" -> "20",
-      "registry-url" -> "https://registry.npmjs.org"
+      "node-version" -> "24",
+      "registry-url" -> "https://registry.npmjs.org",
+      "cache"        -> "npm"
     )
   )
 
 ThisBuild / githubWorkflowPublish ++= Seq(
   WorkflowStep.Sbt(
-    List("css/npmPublish"),
+    List("css/npmPublish", "schemasJVM/npmPublish"),
     name = Some("NPM Publish"),
     env = Map("NODE_AUTH_TOKEN" -> s"$${{ secrets.NPM_REPO_TOKEN }}")
-  )
-)
-
-// Publish the schema package to npm
-ThisBuild / githubWorkflowPublishPostamble += WorkflowStep.Run(
-  name = Some("Publish npm package"),
-  cond = Some("github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/v')"),
-  commands = List(
-    "echo \"//registry.npmjs.org/:_authToken=${{ secrets.NPM_REPO_TOKEN }}\" > ~/.npmrc",
-    "npm version from-git --git-tag-version=false",
-    "npm publish --access public"
   )
 )

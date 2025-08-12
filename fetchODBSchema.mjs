@@ -72,9 +72,8 @@ const data = (await response.json()).data;
 
 const schema = printSchema(buildClientSchema(data));
 
-await writeFile(
-  'modules/schemas/lucuma-schemas/src/clue/resources/lucuma/schemas/ObservationDB.graphql',
-  schema
-);
+const outputFile =
+  'modules/schemas/lucuma-schemas/src/clue/resources/lucuma/schemas/ObservationDB.graphql';
 
-console.log('Wrote ODB schema to modules/schemas/lucuma-schemas.');
+await writeFile(outputFile, schema);
+console.log(`Wrote ODB schema to ${outputFile}.`);
