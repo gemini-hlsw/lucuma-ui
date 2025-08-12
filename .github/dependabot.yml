@@ -8,6 +8,8 @@ registries:
 updates:
   - package-ecosystem: "npm"
     directory: "/modules/ui/demo/"
+    registries:
+      - fortawesome
     schedule:
       interval: "weekly"
       # Check for npm updates on Sundays
