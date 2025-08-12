@@ -135,7 +135,7 @@ lazy val schemas =
         val npmDir = target.value / "npm"
 
         val _ = createNpmProject.value
-        Process(List("npm", "publish", "--provenance"), npmDir).!!
+        Process(List("npm", "publish"), npmDir).!!
       }
     )
     .jsSettings(
@@ -237,7 +237,7 @@ lazy val css = project
       val cssDir = target.value / "lucuma-css"
 
       val _ = createNpmProject.value
-      Process(List("npm", "publish", "--provenance"), cssDir).!!
+      Process(List("npm", "publish"), cssDir).!!
     }
   )
 
