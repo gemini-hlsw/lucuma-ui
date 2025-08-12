@@ -2,7 +2,7 @@
   "devDependencies": {
     "@cquiroz/aladin-lite": "^0.7.7",
     "@fortawesome/fontawesome-svg-core": "^6.4.2",
-    "@fortawesome/pro-solid-svg-icons": "^6.4.2",
+    "@fortawesome/pro-solid-svg-icons": "^7.0.0",
     "@react-hook/resize-observer": "^2.0.2",
     "@vitejs/plugin-react": "^4.5.0",
     "loglevel": "1.9.2",
