@@ -1,5 +1,5 @@
 {
-  "name": "lucuma-ui-schemas",
+  "name": "lucuma-schemas",
   "version": "0.150.0",
   "description": "Lucuma UI components and schemas for astronomical observation database",
   "exports": {
