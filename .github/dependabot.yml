@@ -1,4 +1,10 @@
 version: 2
+registries:
+  fortawesome:
+    type: npm-registry
+    url: https://npm.fontawesome.com/
+    token: ${{secrets.FONTAWESOME_NPM_AUTH_TOKEN}}
+    replaces-base: true
 updates:
   - package-ecosystem: "npm"
     directory: "/modules/ui/demo/"
