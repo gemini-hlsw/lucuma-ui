@@ -26,6 +26,20 @@ object TargetWithIdSubquery extends GraphQLSubquery.Typed[ObservationDB, TargetW
           objectType
         }
       }
+      opportunity {
+        region {
+          rightAscensionArc {
+            type
+            start $RASubquery
+            end $RASubquery
+          }
+          declinationArc {
+            type
+            start $DecSubquery
+            end $DecSubquery
+          }
+        }
+      }
       sourceProfile {
         point {
           bandNormalized $BandNormalizedIntegratedSubquery
