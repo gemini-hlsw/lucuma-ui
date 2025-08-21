@@ -82,17 +82,20 @@ extension [D, R <: SequenceRow[D]](list: List[R])
      initial.modifyValue(i => PosInt.unsafeFrom(i.value + list.size))
     )
 
+extension [D](instrumentConfig: D)
+  def shouldShowAcquisitionSn: Boolean =
+    instrumentConfig match
+      case gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, None)                       => true
+      case gmos.DynamicConfig.GmosSouth(_, _, _, _, _, _, None)                       => true
+      case Flamingos2DynamicConfig(_, _, Flamingos2FpuMask.Imaging, _, _, _, _, _, _) => true
+      case _                                                                          => false
+
 extension [D](step: Step[D])
   def getSignalToNoise(
     signalToNoise: Option[SignalToNoise]
   ): Option[SignalToNoise] =
     step.observeClass match
-      case a @ ObserveClass.Acquisition =>
-        step.instrumentConfig match
-          case gmos.DynamicConfig.GmosNorth(_, _, _, _, _, _, None)                       => signalToNoise
-          case gmos.DynamicConfig.GmosSouth(_, _, _, _, _, _, None)                       => signalToNoise
-          case Flamingos2DynamicConfig(_, _, _, _, _, Flamingos2FpuMask.Imaging, _, _, _) =>
-            signalToNoise
-          case _                                                                          => none
-      case ObserveClass.Science         => signalToNoise
-      case _                            => none
+      case ObserveClass.Acquisition if step.instrumentConfig.shouldShowAcquisitionSn =>
+        signalToNoise
+      case ObserveClass.Science                                                      => signalToNoise
+      case _                                                                         => none
