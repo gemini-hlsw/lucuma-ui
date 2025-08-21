@@ -18,7 +18,8 @@ val Versions = new {
   val http4sDom         = "0.2.12"
   val log4catsLogLevel  = "0.3.1"
   val lucumaCore        = "0.141.3"
-  val lucumaODBSchema   = "0.26.3"
+  val lucumaOdbSchema   = "0.26.3"
+  val lucumaItc         = "0.42.5"
   val lucumaPrimeStyles = "0.5.0"
   val lucumaReact       = "0.84.0"
   val lucumaRefined     = "0.1.4"
@@ -59,7 +60,7 @@ lazy val schemasModel =
         "io.circe"      %%% "circe-refined"     % Versions.circeRefined,
         "org.typelevel" %%% "kittens"           % Versions.kittens,
         "edu.gemini"    %%% "lucuma-core"       % Versions.lucumaCore,
-        "edu.gemini"    %%% "lucuma-odb-schema" % Versions.lucumaODBSchema
+        "edu.gemini"    %%% "lucuma-odb-schema" % Versions.lucumaOdbSchema
       )
     )
 
@@ -159,6 +160,7 @@ lazy val lucumaUi =
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % Versions.scalaJsReact,
         "edu.gemini"                        %%% "lucuma-core"                  % Versions.lucumaCore,
         "edu.gemini"                        %%% "lucuma-ags"                   % Versions.lucumaCore,
+        "edu.gemini"                        %%% "lucuma-itc-client"            % Versions.lucumaItc,
         "edu.gemini"                        %%% "lucuma-react-common"          % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-font-awesome"    % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-resize-detector" % Versions.lucumaReact,
