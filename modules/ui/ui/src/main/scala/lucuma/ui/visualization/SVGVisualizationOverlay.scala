@@ -18,6 +18,9 @@ import lucuma.ui.syntax.all.given
 import org.locationtech.jts.geom.Geometry
 import org.locationtech.jts.geom.GeometryCollection
 import org.locationtech.jts.geom.Polygon
+import org.locationtech.jts.geom.util.PolygonExtracter
+
+import scala.jdk.CollectionConverters.*
 
 case class SVGVisualizationOverlay(
   width:        Int,
@@ -30,6 +33,42 @@ case class SVGVisualizationOverlay(
 
 object SVGVisualizationOverlay {
   private type Props = SVGVisualizationOverlay
+
+  extension (g: Geometry)
+    // This deserves an explanation.
+    // In the visualization we have included several geometriens includig the patrol field which
+    // can be the intersection between all the patrol fields geometries at each pos angle position.
+    //
+    // Normally the intersection would be a polygon but in some edge cases the intersection becomes
+    // disjoint and turns into a geometry collection.
+    //
+    // In this component (SVGVisualizationOverlay) we are going to make a union of all the
+    // geometries in the visualization (including the patrol field) to calculate the envelope
+    // and thus get the overall size.
+    //
+    // However the union is not defined for disjoint sets in the geometry library and we get an
+    // exception.
+    //
+    // In the method below, as a workaround we detect geometry collections and convert them to
+    // multi-polygons which are supported in a union even if they are disjoint
+    //
+    // It is debatable whether we should always do this for unions
+    //
+    // Some references:
+    // https://app.shortcut.com/lucuma/story/5685/explore-java-lang-illegalargumentexception-operation-does-not-support-geometrycollection-arguments
+    // https://github.com/locationtech/jts/issues/476#issuecomment-533451819
+    //
+    def resolveGeometryCollections =
+      if (g.isGeometryCollection)
+        // it is possible to have a geometry collection with something else than polygons but
+        // not in our use case
+        val pgs = PolygonExtracter
+          .getPolygons(g)
+          .asScala
+          .collect:
+            case p: Polygon => p
+        g.getFactory.createMultiPolygon(pgs.toArray)
+      else g
 
   private def forGeometry(css: Css, g: Geometry): VdomNode =
     g match {
@@ -57,7 +96,7 @@ object SVGVisualizationOverlay {
         }
 
       val composite = evald
-        .map(_.g)
+        .map(_.g.resolveGeometryCollections)
         .reduce(using geometryUnionSemigroup)
 
       val envelope = composite.getBoundary.getEnvelopeInternal
