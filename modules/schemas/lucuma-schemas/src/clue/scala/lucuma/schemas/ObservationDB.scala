@@ -78,6 +78,7 @@ trait ObservationDB {
   }
 
   object Enums {
+    type ArcType                             = enums.ArcType
     type AtomExecutionState                  = lucuma.schemas.model.enums.AtomExecutionState
     type AtomStage                           = enums.AtomStage
     type AttachmentType                      = enums.AttachmentType
