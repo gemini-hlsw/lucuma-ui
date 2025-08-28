@@ -9,6 +9,7 @@ import clue.data.syntax.*
 import eu.timepit.refined.types.numeric.PosBigDecimal
 import eu.timepit.refined.types.string.NonEmptyString
 import io.circe.syntax.*
+import lucuma.core.enums.ArcType
 import lucuma.core.enums.Band
 import lucuma.core.enums.GmosNorthFpu
 import lucuma.core.enums.GmosSouthFpu
@@ -328,6 +329,32 @@ extension (pl: PartnerLink)
       case PartnerLink.HasUnspecifiedPartner =>
         PartnerLinkInput(PartnerLinkType.HasUnspecifiedPartner.assign, none.orUnassign)
 
+extension [A](arc: Arc[A])
+  def arcType: ArcType = arc match
+    case Arc.Empty()       => ArcType.Empty
+    case Arc.Full()        => ArcType.Full
+    case Arc.Partial(_, _) => ArcType.Partial
+
+extension (raArc: Arc[RightAscension])
+  def toInput: RightAscensionArcInput = RightAscensionArcInput(
+    `type` = raArc.arcType,
+    start = Arc.start.getOption(raArc).map(_.toInput).orUnassign,
+    end = Arc.end.getOption(raArc).map(_.toInput).orUnassign
+  )
+
+extension (decArc: Arc[Declination])
+  def toInput: DeclinationArcInput = DeclinationArcInput(
+    `type` = decArc.arcType,
+    start = Arc.start.getOption(decArc).map(_.toInput).orUnassign,
+    end = Arc.end.getOption(decArc).map(_.toInput).orUnassign
+  )
+
+extension (region: Region)
+  def toInput: RegionInput = RegionInput(
+    rightAscensionArc = region.raArc.toInput,
+    declinationArc = region.decArc.toInput
+  )
+
 extension (sidereal: Target.Sidereal)
   def toInput: SiderealInput = SiderealInput(
     ra = sidereal.tracking.baseCoordinates.ra.toInput.assign,
@@ -363,6 +390,29 @@ extension (nonsidereal: Target.Nonsidereal)
         sourceProfile = nonsidereal.sourceProfile.toInput.assign
       )
     )
+
+extension (too: Target.Opportunity)
+  def toInput: OpportunityInput =
+    OpportunityInput(
+      region = too.region.toInput
+    )
+
+  def toCreateTargetInput(programId: Program.Id): CreateTargetInput =
+    CreateTargetInput(
+      programId = programId.assign,
+      SET = TargetPropertiesInput(
+        name = too.name.assign,
+        opportunity = toInput.assign,
+        sourceProfile = too.sourceProfile.toInput.assign
+      )
+    )
+
+extension (t: Target)
+  def toCreateTargetInput(programId: Program.Id): CreateTargetInput =
+    t match
+      case s: Target.Sidereal    => s.toCreateTargetInput(programId)
+      case n: Target.Nonsidereal => n.toCreateTargetInput(programId)
+      case o: Target.Opportunity => o.toCreateTargetInput(programId)
 
 extension (d: WavelengthDither)
   def toInput: WavelengthDitherInput =
