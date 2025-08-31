@@ -10,6 +10,9 @@ import lucuma.ui.aladin.facade.*
 
 import scala.scalajs.js
 
+type Aladin        = lucuma.ui.aladin.facade.JsAladin
+type AladinOptions = lucuma.ui.aladin.facade.AladinOptions
+
 /**
  * ALadin field of view angles horizontally and vertically
  *

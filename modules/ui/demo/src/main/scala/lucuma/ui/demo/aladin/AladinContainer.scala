@@ -30,6 +30,7 @@ import lucuma.react.resizeDetector.hooks.*
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
+import lucuma.ui.reusability
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
 import org.scalajs.dom
@@ -164,9 +165,7 @@ object AladinContainer {
           viewOffset.set(newOffset).when_(relevantChange)
 
       val aladinCoordsStr: String =
-        Coordinates.fromHmsDms.reverseGet(
-          currentPos.get // .offsetBy(Angle.Angle0, viewOffset.get).getOrElse(Coordinates.Zero)
-        )
+        Coordinates.fromHmsDms.reverseGet(props.coordinates) // Use stable initial coordinates
 
       def onZoom = (v: Fov) => props.fov.set(v)
 
