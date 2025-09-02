@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.158"
+ThisBuild / tlBaseVersion       := "0.159"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 
 val Versions = new {
@@ -251,7 +251,7 @@ lazy val demo =
     .settings(
       Compile / scalaJSLinkerConfig ~= { _.withModuleKind(ModuleKind.ESModule) },
       Compile / fastLinkJS / scalaJSLinkerConfig ~= (_.withModuleSplitStyle(
-        ModuleSplitStyle.SmallestModules
+        ModuleSplitStyle.FewestModules
       )),
       libraryDependencies ++= Seq(
         "com.github.japgolly.scalajs-react" %%% "callback-ext-cats_effect" % Versions.scalaJsReact,

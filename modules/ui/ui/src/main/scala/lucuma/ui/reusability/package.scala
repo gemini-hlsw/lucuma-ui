@@ -42,7 +42,6 @@ import java.time.Instant
 import scala.collection.immutable.HashSet
 import scala.collection.immutable.SortedMap
 import scala.collection.immutable.SortedSet
-import scala.scalajs.js
 
 /**
  * Instances of reusability for some utility types
@@ -170,6 +169,7 @@ trait SequenceReusabilityInstances:
   given [D]: Reusability[SequenceRow[D]] = Reusability.byEq
 
 trait AladinReusabilityInstances extends UtilReusabilityInstances:
+  import scala.scalajs.js
 
   private given Reusability[Double] = Reusability {
     case (0.0, 0.0) => true
@@ -178,9 +178,40 @@ trait AladinReusabilityInstances extends UtilReusabilityInstances:
     case (a, b)     => (a.abs / b.abs) > 0.01 // 1% it is just a heuristic
   }
 
-  // check every field except customizee
+  // Check every field except customize and target (target changes shouldn't trigger recreation)
   // I'm running over the 22 field limit. I'll just split it
-  given Reusability[AladinOptions] = Reusability.by: o =>
+  val withoutTarget: Reusability[AladinOptions] = Reusability.by: o =>
+    ((o.fov.toOption,
+      // o.target.toOption, // EXCLUDED: target changes should not trigger recreation
+      o.survey.toOption,
+      o.cooFrame.toOption,
+      o.showReticle.toOption,
+      o.showZoomControl.toOption,
+      o.showFullscreenControl.toOption,
+      o.showLayersControl.toOption,
+      o.showGotoControl.toOption,
+      o.showCooGridControl.toOption,
+      o.showSettingsControl.toOption,
+      o.showStatusBar.toOption,
+      o.showCooLocation.toOption,
+      o.showProjectionControl.toOption,
+      o.showShareControl.toOption,
+      o.showSimbadPointerControl.toOption,
+      o.showFrame.toOption,
+      o.showCoordinates.toOption,
+      o.showFov.toOption
+     ),
+     (o.fullScreen.toOption,
+      o.reticleColor.toOption,
+      o.reticleSize.toOption,
+      o.imageSurvey.toOption,
+      o.baseImageLayer.toOption,
+      o.log.toOption
+     )
+    )
+
+  // Include all fields
+  val all: Reusability[AladinOptions] = Reusability.by: o =>
     ((o.fov.toOption,
       o.target.toOption,
       o.survey.toOption,

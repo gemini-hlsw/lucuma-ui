@@ -36,3 +36,4 @@ modules/ui/demo/node_modules/
 modules/schemas/lucuma-schemas/.js/
 .jvmopts
 logs/
+modules/ui/demo/.vite/

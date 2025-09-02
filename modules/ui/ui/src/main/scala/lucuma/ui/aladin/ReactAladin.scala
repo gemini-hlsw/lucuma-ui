@@ -10,12 +10,9 @@ import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.core.math.*
 import lucuma.react.common.*
 import lucuma.ui.aladin.facade.*
-import lucuma.ui.reusability.given
 import org.scalajs.dom.html
 
 import scala.scalajs.js
-
-type Aladin = lucuma.ui.aladin.facade.JsAladin
 
 extension (a: Aladin)
   def size: Size = Size(a.getSize()(0), a.getSize()(1))
@@ -67,10 +64,10 @@ extension (a: Aladin)
 case class ReactAladin(
   clazz:     Css = Css.Empty,
   options:   AladinOptions = AladinOptions.Default,
-  target:    js.UndefOr[String] = js.undefined,
   customize: js.UndefOr[Aladin => Callback] = js.undefined,
   modifiers: Seq[TagMod] = Seq.empty
-) extends ReactFnProps(ReactAladin):
+)(using val R: Reusability[AladinOptions])
+    extends ReactFnProps(ReactAladin):
   inline def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
   inline def withMods(mods:          TagMod*)     = addModifiers(mods)
   inline def apply(mods:             TagMod*)     = addModifiers(mods)
@@ -79,6 +76,11 @@ object ReactAladin
     extends ReactFnComponent[ReactAladin](props =>
 
       type Props = ReactAladin
+
+      given Reusability[ReactAladin] = {
+        given Reusability[AladinOptions] = props.R
+        Reusability.by[ReactAladin, (Css, AladinOptions)](x => (x.clazz, x.options))
+      }
 
       def resetAladin(
         r:     CallbackTo[Option[html.Div]],
@@ -98,7 +100,7 @@ object ReactAladin
       for {
         init <- useState(false)
         r    <- useRefToVdom[html.Div]
-        _    <- useLayoutEffectWithDeps((props.clazz, props.options)) { _ =>
+        _    <- useLayoutEffectWithDeps(props) { _ =>
                   init.setState(true) *> resetAladin(r.get, init, props, true)
                 }
         _    <- useLayoutEffectOnMount {

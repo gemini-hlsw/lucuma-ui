@@ -6,18 +6,13 @@ package demo
 import cats.data.NonEmptyList
 import cats.data.NonEmptyMap
 import cats.syntax.all.*
-import crystal.react.ReuseView
+import crystal.react.View
 import crystal.react.hooks.*
-import crystal.react.reuse.*
 import japgolly.scalajs.react.*
-import japgolly.scalajs.react.feature.ReactFragment
 import japgolly.scalajs.react.vdom.html_<^.*
 import lucuma.ags.AgsAnalysis
 import lucuma.ags.AgsGuideQuality
 import lucuma.ags.GuideStarCandidate
-import lucuma.core.enums.Flamingos2Disperser
-import lucuma.core.enums.Flamingos2Filter
-import lucuma.core.enums.Flamingos2Fpu
 import lucuma.core.enums.GmosSouthFilter
 import lucuma.core.enums.GmosSouthFpu
 import lucuma.core.enums.GmosSouthGrating
@@ -28,22 +23,32 @@ import lucuma.core.enums.SequenceType
 import lucuma.core.geom.Area
 import lucuma.core.math.*
 import lucuma.core.model.SiderealTracking
-import lucuma.core.syntax.enumerated.*
+import lucuma.core.util.Display
 import lucuma.core.util.Enumerated
 import lucuma.react.common.*
 import lucuma.react.resizeDetector.hooks.*
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
+import lucuma.ui.reusability
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
-
-import scalajs.js
+import org.scalajs.dom
 
 case class AladinContainer(
-  fov:         ReuseView[Fov],
-  coordinates: Coordinates
-) extends ReactFnProps[AladinContainer](AladinContainer.component)
+  fov:             View[Fov],
+  coordinates:     Coordinates,
+  viewOffset:      View[Offset],
+  scienceOffset:   View[Option[NonEmptyList[Offset]]],
+  posAngle:        View[Angle],
+  instrument:      View[InstrumentType],
+  configuration:   View[BasicConfiguration],
+  portDisposition: View[PortDisposition],
+  survey:          View[ImageSurvey],
+  visSettings:     View[VisualizationSettings]
+) extends ReactFnProps[AladinContainer](AladinContainer.component) {
+  val aladinCoordsStr: String = Coordinates.fromHmsDms.reverseGet(coordinates)
+}
 
 extension (o: Offset)
   def toStringOffset: String =
@@ -52,18 +57,27 @@ extension (o: Offset)
 enum InstrumentType:
   case GMOS, Flamingos2
 
+object InstrumentType:
+  given Enumerated[InstrumentType] = Enumerated.from(GMOS, Flamingos2).withTag(_.toString)
+  given Display[InstrumentType]    = Display.by[InstrumentType](_.toString, _.toString)
+
 enum GmosMode:
   case LongSlit, Imaging
 
 object GmosMode:
   given Enumerated[GmosMode] = Enumerated.from(LongSlit, Imaging).withTag(_.toString)
+  given Display[GmosMode]    = Display.by[GmosMode](_.toString, _.toString)
+
+given Display[PortDisposition] = Display.by[PortDisposition](_.tag, _.tag)
+given Display[GmosSouthFpu]    = Display.by[GmosSouthFpu](_.tag, _.longName)
+given Display[ImageSurvey]     = Display.by[ImageSurvey](_.tag, _.name)
 
 case class VisualizationSettings(
-  fpuVisible:         Boolean = true,
-  ccdVisible:         Boolean = true,
-  candidatesVisible:  Boolean = true,
-  patrolFieldVisible: Boolean = true,
-  probeVisible:       Boolean = true
+  fpuVisible:            Boolean = true,
+  ccdVisible:            Boolean = true,
+  candidatesAreaVisible: Boolean = true,
+  patrolFieldVisible:    Boolean = true,
+  probeVisible:          Boolean = true
 )
 
 object AladinContainer {
@@ -73,18 +87,17 @@ object AladinContainer {
 
   // Generate a 5x5 grid of offsets separated by 5 arcsec
   def generateOffsetGrid(
-    shiftP: Angle = Angle.Angle0,
-    shiftQ: Angle = Angle.Angle0
+    stepArcsec: Double = 5.0,
+    shiftP:     Angle = Angle.Angle0,
+    shiftQ:     Angle = Angle.Angle0
   ): NonEmptyList[Offset] = {
-    val step        = 5
-    val shiftOffset = Offset(shiftP.p, shiftQ.q)
+    val step        = Angle.fromDoubleArcseconds(stepArcsec)
+    val shiftOffset = Offset(Offset.P(shiftP), Offset.Q(shiftQ))
     val offsets     =
       for {
         i <- -2 to 2
         j <- -2 to 2
-      } yield Offset(Angle.fromDoubleArcseconds(step * i).p,
-                     Angle.fromDoubleArcseconds(step * j).q
-      ) + shiftOffset
+      } yield Offset(Offset.P(step * i), Offset.Q(step * j)) + shiftOffset
     NonEmptyList.fromListUnsafe(offsets.toList)
   }
 
@@ -103,59 +116,56 @@ object AladinContainer {
 
   val component = ScalaFnComponent[Props]: props =>
     for {
-      viewOffset      <- useStateView(Offset.Zero)
       // View coordinates (in case the user pans)
-      currentPos      <- useState(props.coordinates.offsetBy(Angle.Angle0, viewOffset.get))
+      currentPos            <- useStateView(props.coordinates)
       // Ref to the aladin component
-      aladinRef       <- useState(none[Aladin])
+      aladinRef             <- useState(none[Aladin])
       // resize detector
-      resize          <- useResizeDetector
-      flip            <- useState(true)
-      // Toggle state for SVGVisualizationOverlay CSS
-      visSettings     <- useState(VisualizationSettings())
-      fullScreen      <- useStateView(AladinFullScreen.Normal)
-      instrument      <- useState(InstrumentType.GMOS)
-      gmosMode        <- useState(GmosMode.Imaging)
-      gmosConf        <- useStateView(baseGmosConf(gmosMode.value))
-      f2Conf          <- useState(
-                           BasicConfiguration.Flamingos2LongSlit(
-                             disperser = Flamingos2Disperser.R1200HK,
-                             filter = Flamingos2Filter.H,
-                             fpu = Flamingos2Fpu.LongSlit2
-                           )
-                         )
-      portDisposition <- useState(PortDisposition.Side)
-      posAngle        <- useState(Angle.Angle0)
-      survey          <- useState(instrument.value match {
-                           case InstrumentType.GMOS       => ImageSurvey.DSS
-                           case InstrumentType.Flamingos2 => ImageSurvey.TWOMASS
-                         })
+      resize                <- useResizeDetector
+      flip                  <- useState(true)
+      fullScreen            <- useStateView(AladinFullScreen.Normal)
+      acquisitionOffsetGrid <- useStateView(
+                                 AladinContainer.generateOffsetGrid(
+                                   stepArcsec = 5.0,
+                                   shiftP = Angle.fromDoubleArcseconds(1.5),
+                                   shiftQ = Angle.fromDoubleArcseconds(1.5)
+                                 )
+                               )
     } yield
-      // Grid of offsets
-      val scienceOffsetGrid     = AladinContainer.generateOffsetGrid()
-      val acquisitionOffsetGrid = AladinContainer.generateOffsetGrid(
-        Angle.fromDoubleArcseconds(1.5),
-        Angle.fromDoubleArcseconds(1.5)
+      // Save offsets like explore
+      def saveOffsetToStorage(offset: Offset): Callback =
+        Callback {
+          dom.window.localStorage.setItem(
+            "aladin-view-offset",
+            s"${Offset.P.signedDecimalArcseconds.get(offset.p)},${Offset.Q.signedDecimalArcseconds.get(offset.q)}"
+          )
+        }
+
+      def isRelevantChange(prevOffset: Offset, newOffset: Offset): Boolean =
+        prevOffset.distance(newOffset).toMicroarcseconds > (1e6 / 50)
+
+      val viewOffset = props.viewOffset.withOnMod((prevOffset, newOffset) =>
+        val relevantChange = isRelevantChange(prevOffset, newOffset)
+        saveOffsetToStorage(newOffset).when_(relevantChange)
       )
+
+      val vizOffset = viewOffset.get
 
       /**
        * Called when the position changes, i.e. aladin pans. We want to offset the visualization to
        * keep the internal target correct
        */
-      def onPositionChanged(u: PositionChanged): Callback = {
+      def onPositionChanged = (u: PositionChanged) =>
         val viewCoords     = Coordinates(u.ra, u.dec)
-        val offsetFromView = props.coordinates.diff(viewCoords).offset
-        currentPos.setState(Some(viewCoords)) *>
-          viewOffset.set(offsetFromView)
-      }
+        val newOffset      = viewCoords.diff(props.coordinates).offset
+        val relevantChange = isRelevantChange(viewOffset.get, newOffset) && viewCoords
+          .angularDistance(currentPos.get)
+          .toMicroarcseconds > (1e6 / 50)
+        currentPos.set(viewCoords) *>
+          viewOffset.set(newOffset).when_(relevantChange)
 
-      val baseCoordinatesForAladin: String =
-        currentPos.value
-          .map(Coordinates.fromHmsDms.reverseGet)
-          .getOrElse(Coordinates.fromHmsDms.reverseGet(props.coordinates))
-
-      val screenOffset =
-        currentPos.value.map(_.diff(props.coordinates).offset).getOrElse(Offset.Zero)
+      val aladinCoordsStr: String =
+        Coordinates.fromHmsDms.reverseGet(props.coordinates) // Use stable initial coordinates
 
       def onZoom = (v: Fov) => props.fov.set(v)
 
@@ -164,33 +174,31 @@ object AladinContainer {
           v.onZoomCB(onZoom) *> // re render on zoom
           v.onPositionChangedCB(onPositionChanged)
 
-      val gs          = props.coordinates
-      //
+      val gs = props.coordinates
+
       // Get the appropriate configuration based on selected instrument and mode
-      val currentConf = instrument.value match
-        case InstrumentType.GMOS       => gmosConf.get.some
-        case InstrumentType.Flamingos2 => f2Conf.value.some
+      val currentConf = props.configuration.get.some
 
       // Use the generated offset grids
-      val scienceOffsetList     = scienceOffsetGrid.some
-      val acquisitionOffsetList = acquisitionOffsetGrid.some
+      val scienceOffsetList     = props.scienceOffset.get
+      val acquisitionOffsetList = acquisitionOffsetGrid.get.some
 
-      val shapes = instrument.value match {
+      val shapes = props.instrument.get match {
         case InstrumentType.GMOS       =>
           GmosGeometry.gmosGeometry(
             props.coordinates,
             scienceOffsetList,
             acquisitionOffsetList,
-            posAngle.value.some,
+            props.posAngle.get.some,
             currentConf,
-            portDisposition.value,
+            props.portDisposition.get,
             AgsAnalysis
               .Usable(
                 GuideProbe.GmosOIWFS,
                 GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
                 GuideSpeed.Fast,
                 AgsGuideQuality.DeliversRequestedIq,
-                posAngle.value,
+                props.posAngle.get,
                 Area.MinArea
               )
               .some,
@@ -201,16 +209,16 @@ object AladinContainer {
             props.coordinates,
             scienceOffsetList,
             acquisitionOffsetList,
-            posAngle.value.some,
+            props.posAngle.get.some,
             currentConf,
-            portDisposition.value,
+            props.portDisposition.get,
             AgsAnalysis
               .Usable(
                 GuideProbe.GmosOIWFS,
                 GuideStarCandidate(0L, SiderealTracking.const(gs), None).get,
                 GuideSpeed.Fast,
                 AgsGuideQuality.DeliversRequestedIq,
-                posAngle.value,
+                props.posAngle.get,
                 Area.MinArea
               )
               .some,
@@ -218,89 +226,42 @@ object AladinContainer {
           )
       }
 
-      def toggler(
-        id:       String,
-        item:     String,
-        getValue: VisualizationSettings => Boolean,
-        setValue: (VisualizationSettings, Boolean) => VisualizationSettings,
-        clazz:    Css = Css("toggle-container")
-      ) =
-        <.div(
-          clazz,
-          <.input(
-            ^.`type`  := "checkbox",
-            ^.id      := s"overlay-toggle-$id",
-            ^.checked := getValue(visSettings.value),
-            ^.onChange --> visSettings.setState(
-              setValue(visSettings.value, !getValue(visSettings.value))
-            )
-          ),
-          <.label(
-            ^.htmlFor := s"overlay-toggle-$id",
-            s"Show/Hide $item"
-          )
-        )
-
-      def enumeratedSelect[A](
-        id:       String,
-        label:    String,
-        value:    A,
-        onChange: A => Callback,
-        filter:   A => Boolean = (_: A) => true,
-        display:  js.UndefOr[A => String] = js.undefined
-      )(using E: Enumerated[A]): VdomElement =
-        ReactFragment(
-          <.label(^.htmlFor := id, s"$label: "),
-          <.select(
-            ^.id    := id,
-            ^.value := value.tag,
-            ^.onChange ==> ((r: ReactUIEventFromInput) =>
-              E.fromTag(r.target.value).map(onChange).getOrElse(Callback.empty)
-            )
-          )(
-            E.all
-              .filter(filter)
-              .map(item =>
-                <.option(
-                  ^.key   := item.tag,
-                  ^.value := item.tag,
-                  display.map(_(item)).getOrElse(item.tag.capitalize)
-                )
-              )
-              .toTagMod
-          )
-        )
-
-      def visibilityClasses = instrument.value match {
+      def visibilityClasses = props.instrument.get match {
         case InstrumentType.GMOS       =>
-          VisualizationStyles.GmosFpuVisible.when_(visSettings.value.fpuVisible) |+|
+          val isImaging = props.configuration.get match {
+            case _: BasicConfiguration.GmosSouthImaging => true
+            case _                                      => false
+          }
+          VisualizationStyles.GmosFpuVisible.when_(props.visSettings.get.fpuVisible) |+|
             VisualizationStyles.GmosCcdVisible.when_(
-              visSettings.value.ccdVisible && gmosMode.value == GmosMode.Imaging
+              props.visSettings.get.ccdVisible && isImaging
             ) |+|
             VisualizationStyles.GmosCandidatesAreaVisible.when_(
-              visSettings.value.candidatesVisible
+              props.visSettings.get.candidatesAreaVisible
             ) |+|
             VisualizationStyles.GmosPatrolFieldVisible.when_(
-              visSettings.value.patrolFieldVisible
+              props.visSettings.get.patrolFieldVisible
             ) |+|
-            VisualizationStyles.GmosProbeVisible.when_(visSettings.value.probeVisible)
+            VisualizationStyles.GmosProbeVisible.when_(props.visSettings.get.probeVisible)
         case InstrumentType.Flamingos2 =>
-          VisualizationStyles.Flamingos2FpuVisible.when_(visSettings.value.fpuVisible) |+|
-            VisualizationStyles.Flamingos2ScienceAreaVisible.when_(visSettings.value.ccdVisible) |+|
+          VisualizationStyles.Flamingos2FpuVisible.when_(props.visSettings.get.fpuVisible) |+|
+            VisualizationStyles.Flamingos2ScienceAreaVisible.when_(
+              props.visSettings.get.ccdVisible
+            ) |+|
             VisualizationStyles.Flamingos2CandidatesAreaVisible.when_(
-              visSettings.value.candidatesVisible
+              props.visSettings.get.candidatesAreaVisible
             ) |+|
             VisualizationStyles.Flamingos2PatrolFieldVisible.when_(
-              visSettings.value.patrolFieldVisible
+              props.visSettings.get.patrolFieldVisible
             ) |+|
-            VisualizationStyles.Flamingos2ProbeArmVisible.when_(visSettings.value.probeVisible)
+            VisualizationStyles.Flamingos2ProbeArmVisible.when_(props.visSettings.get.probeVisible)
       }
 
       val scienceOffsetIndicators =
         offsetIndicators(
           scienceOffsetList,
           props.coordinates,
-          posAngle.value,
+          props.posAngle.get,
           SequenceType.Science,
           VisualizationStyles.ScienceOffsetPosition,
           true
@@ -310,7 +271,7 @@ object AladinContainer {
         offsetIndicators(
           acquisitionOffsetList,
           props.coordinates,
-          posAngle.value,
+          props.posAngle.get,
           SequenceType.Science,
           VisualizationStyles.AcquisitionOffsetPosition,
           true
@@ -320,7 +281,8 @@ object AladinContainer {
         // order is important, scienc to be drawn above acq
         (acquisitionOffsetIndicators |+| scienceOffsetIndicators).flattenOption
 
-      val lsMode = gmosConf.zoom(BasicConfiguration.gmosSouthLongSlit)
+      // Use explicit reusability that excludes target changes
+      given Reusability[AladinOptions] = reusability.withoutTarget
 
       <.div(
         Css("react-aladin-container"),
@@ -330,14 +292,15 @@ object AladinContainer {
         // will take it as 1. This height ends up being a denominator, which, if low,
         // will make aladin request a large amount of tiles and end up freezing the demo.
         if (resize.height.exists(_ >= 100))
-          ReactFragment(
+          <.div(
+            Css("aladin-viewer"),
             (resize.width, resize.height, shapes.flatMap(NonEmptyMap.fromMap))
               .mapN((w, h, s) =>
                 SVGVisualizationOverlay(
                   w,
                   h,
                   props.fov.get,
-                  screenOffset,
+                  vizOffset,
                   s,
                   clazz = visibilityClasses
                 )
@@ -348,7 +311,7 @@ object AladinContainer {
                   _,
                   _,
                   props.fov.get,
-                  screenOffset,
+                  vizOffset,
                   props.coordinates,
                   List(
                     SVGTarget
@@ -361,173 +324,18 @@ object AladinContainer {
             ReactAladin(
               Css("react-aladin") |+| Css("test").when_(flip.value),
               AladinOptions(
-                showReticle = true,
+                showReticle = false,
                 showLayersControl = false,
-                target = baseCoordinatesForAladin,
+                target = aladinCoordsStr,
                 fov = props.fov.get.x,
                 showGotoControl = false,
                 showZoomControl = false,
-                showCooLocation = true,
+                showCooLocation = false,
                 showFullscreenControl = false,
                 showProjectionControl = false,
-                survey = survey.value
+                survey = props.survey.get
               ),
               customize = customizeAladin(_)
-            ),
-            <.div(
-              Css("aladin-controls"),
-              <.div(
-                Css("descriptionconfig-togglers"),
-                <.label("FOV: "),
-                props.fov.get.toStringAngle,
-                <.label("Coord: "),
-                baseCoordinatesForAladin,
-                <.label("Pos: "),
-                currentPos.value.toString,
-                <.label("Offset: "),
-                screenOffset.toStringOffset,
-                <.label("PA: "),
-                s"${posAngle.value.toDoubleDegrees}°",
-                <.label("Science Offsets: "),
-                s"5x5 grid (${scienceOffsetGrid.size} positions)",
-                <.label("Acquisition Offsets: "),
-                s"5x5 grid (${acquisitionOffsetGrid.size} positions)"
-              ),
-              <.div(
-                Css("config-togglers"),
-                instrument.value match {
-                  case InstrumentType.GMOS       =>
-                    gmosMode.value match {
-                      case GmosMode.LongSlit =>
-                        toggler(
-                          "fpu",
-                          "GMOS FPU",
-                          _.fpuVisible,
-                          (s, v) => s.copy(fpuVisible = v)
-                        )
-                      case GmosMode.Imaging  => "No FPU (Imaging)"
-                    }
-                  case InstrumentType.Flamingos2 => "FPU"
-                },
-                toggler("ccd", "Science CCD", _.ccdVisible, (s, v) => s.copy(ccdVisible = v)),
-                toggler("candidates",
-                        "Candidates Field",
-                        _.candidatesVisible,
-                        (s, v) => s.copy(candidatesVisible = v)
-                ),
-                toggler("patrol-field",
-                        "Patrol Field",
-                        _.patrolFieldVisible,
-                        (s, v) => s.copy(patrolFieldVisible = v)
-                ),
-                toggler("probe", "Probe", _.probeVisible, (s, v) => s.copy(probeVisible = v))
-              ),
-              <.div(
-                Css("config-controls"),
-                <.label(^.htmlFor     := "instrument-selector", "Select Instrument: "),
-                <.select(
-                  ^.id    := "instrument-selector",
-                  ^.value := (instrument.value match {
-                    case InstrumentType.GMOS       => "gmos"
-                    case InstrumentType.Flamingos2 => "f2"
-                  }),
-                  ^.onChange ==> ((r: ReactUIEventFromInput) =>
-                    r.target.value match {
-                      case "gmos" => instrument.setState(InstrumentType.GMOS)
-                      case "f2"   => instrument.setState(InstrumentType.Flamingos2)
-                      case _      => Callback.empty
-                    }
-                  )
-                )(
-                  <.option(
-                    ^.key   := "gmos",
-                    ^.value := "gmos",
-                    "GMOS"
-                  ),
-                  <.option(
-                    ^.key   := "f2",
-                    ^.value := "f2",
-                    "Flamingos2"
-                  )
-                ),
-                enumeratedSelect(
-                  "port-selector",
-                  "Select Port Disposition: ",
-                  portDisposition.value,
-                  portDisposition.setState
-                ),
-                <.label(^.htmlFor     := "pa-input", "Position Angle (°):"),
-                <.input(
-                  ^.`type` := "number",
-                  ^.id     := "pa-input",
-                  ^.min    := "0",
-                  ^.max    := "360",
-                  ^.step   := "5",
-                  ^.value  := posAngle.value.toDoubleDegrees.toString,
-                  ^.onChange ==> ((e: ReactEventFromInput) =>
-                    e.target.value.toDoubleOption
-                      .map(Angle.fromDoubleDegrees)
-                      .map(posAngle.setState)
-                      .getOrEmpty
-                  )
-                )
-              ),
-              instrument.value match {
-                case InstrumentType.GMOS       =>
-                  <.div(
-                    Css("config-controls"),
-                    enumeratedSelect(
-                      "gmos-mode-selector",
-                      "Select GMOS Mode",
-                      gmosMode.value,
-                      m => gmosMode.setState(m) *> gmosConf.mod(_ => baseGmosConf(m))
-                    ),
-                    gmosMode.value match {
-                      case GmosMode.LongSlit =>
-                        lsMode.asView.map: lsMode =>
-                          enumeratedSelect(
-                            "fpu-selector",
-                            "Select FPU: ",
-                            lsMode.get.fpu,
-                            fpu => lsMode.mod(_.copy(fpu = fpu)),
-                            _.tag.startsWith("LongSlit"),
-                            _.longName
-                          )
-                      case GmosMode.Imaging  =>
-                        <.p(Css("imaging-mode-info"), "Imaging mode - no FPU selection needed")
-                    }
-                  )
-                case InstrumentType.Flamingos2 =>
-                  <.div(
-                    Css("config-controls"),
-                    enumeratedSelect(
-                      "f2-fpu-selector",
-                      "Select Flamingos2 FPU",
-                      f2Conf.value.fpu,
-                      fpu => f2Conf.setState(f2Conf.value.copy(fpu = fpu)),
-                      _.tag.startsWith("LongSlit"),
-                      _.longName
-                    )
-                  )
-              },
-              <.div(
-                Css("config-controls"),
-                enumeratedSelect(
-                  "survey-selector",
-                  "Select Survey",
-                  survey.value,
-                  survey.setState,
-                  display = _.name
-                )
-              ),
-              // Offset grid information
-              <.div(
-                Css("config-controls"),
-                <.h5("Offset Grids"),
-                <.p("Science: 5×5 grid, 5″ separation"),
-                <.p("Acquisition: 5×5 grid, 5″ separation, +1.5″ shift"),
-                <.p(s"Total positions: ${scienceOffsetGrid.size} each")
-              )
             )
           )
         else EmptyVdom
