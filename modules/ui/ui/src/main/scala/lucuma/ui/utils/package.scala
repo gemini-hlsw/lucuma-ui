@@ -20,16 +20,10 @@ import monocle.function.At.at
 import monocle.function.Index.index
 import org.scalajs.dom
 
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import scala.annotation.targetName
 import scala.collection.immutable.SortedMap
 
-def abbreviate(s: String, maxLength: Int): String =
-  if (s.length > maxLength) s"${s.substring(0, maxLength)}\u2026" else s
-
-implicit class ListOps[A](val list: List[A]) extends AnyVal {
+extension [A](list: List[A])
   def modFirstWhere(find: A => Boolean, mod: A => A): List[A] =
     list.indexWhere(find) match
       case -1 => list
@@ -39,13 +33,6 @@ implicit class ListOps[A](val list: List[A]) extends AnyVal {
     list.indexWhere(find) match
       case -1 => list
       case n  => list.take(n) ++ list.drop(n + 1)
-}
-
-val versionDateFormatter: DateTimeFormatter =
-  DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.from(ZoneOffset.UTC))
-
-val versionDateTimeFormatter: DateTimeFormatter =
-  DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").withZone(ZoneId.from(ZoneOffset.UTC))
 
 extension [A, B, C, D](list: List[(A, B, C, D)])
   def unzip4: (List[A], List[B], List[C], List[D]) =
