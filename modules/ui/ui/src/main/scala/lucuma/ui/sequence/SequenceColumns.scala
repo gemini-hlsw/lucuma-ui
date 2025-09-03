@@ -13,10 +13,10 @@ import lucuma.core.util.TimeSpan
 import lucuma.react.common.*
 import lucuma.react.syntax.*
 import lucuma.react.table.*
+import lucuma.ui.format.formatSN
 import lucuma.ui.syntax.all.*
 import lucuma.ui.table.*
 import lucuma.ui.table.ColumnSize.*
-import lucuma.ui.utils.formatSN
 
 import SequenceRowFormatters.*
 
