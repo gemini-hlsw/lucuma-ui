@@ -59,6 +59,12 @@ val DurationLongWithSecondsFormatter: Duration => String = d =>
     .flattenOption
     .mkString(", ") + s", ${seconds}s"
 
+val versionDateFormatter: DateTimeFormatter =
+  DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.from(ZoneOffset.UTC))
+
+val versionDateTimeFormatter: DateTimeFormatter =
+  DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").withZone(ZoneId.from(ZoneOffset.UTC))
+
 def formatDurationSeconds(ts: TimeSpan): String =
   val seconds = ts.toSeconds
   f"$seconds%.0f sec"
@@ -72,16 +78,16 @@ def formatDurationHours(ts: TimeSpan): String =
   else
     f"${seconds / 3600.0}%.2f hr"
 
+extension (ts: TimeSpan)
+  def formatSeconds: String = formatDurationSeconds(ts)
+  def formatHours: String   = formatDurationHours(ts)
+
 def format(time: TimeSpan, count: PosInt): String =
   s"$count × ${formatDurationSeconds(time)} = ${formatDurationHours(time *| count.value)}"
 
 def formatSN(sn: SignalToNoise): String = f"${sn.toBigDecimal.toDouble}%.1f"
 
-val versionDateFormatter: DateTimeFormatter =
-  DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.from(ZoneOffset.UTC))
-
-val versionDateTimeFormatter: DateTimeFormatter =
-  DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss").withZone(ZoneId.from(ZoneOffset.UTC))
+extension (sn: SignalToNoise) def format: String = formatSN(sn)
 
 def abbreviate(s: String, maxLength: Int): String =
   if (s.length > maxLength) s"${s.substring(0, maxLength)}\u2026" else s
