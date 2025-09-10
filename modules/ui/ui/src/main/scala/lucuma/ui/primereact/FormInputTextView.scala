@@ -38,6 +38,7 @@ final case class FormInputTextView[V[_], A](
   size:           js.UndefOr[PlSize] = js.undefined,
   groupClass:     js.UndefOr[Css] = js.undefined,
   inputClass:     js.UndefOr[Css] = js.undefined,
+  labelClass:     js.UndefOr[Css] = js.undefined,
   disabled:       js.UndefOr[Boolean] = js.undefined,
   error:          js.UndefOr[NonEmptyString] = js.undefined,
   placeholder:    js.UndefOr[String] = js.undefined,
@@ -228,6 +229,7 @@ object FormInputTextView {
           groupClass = props.groupClass,
           inputClass =
             error.map(_ => PrimeStyles.Invalid).orEmpty |+| props.inputClass.toOption.orEmpty,
+          labelClass = props.labelClass,
           tooltip = error.orUndefined,
           tooltipOptions = props.tooltipOptions,
           disabled = props.disabled,
