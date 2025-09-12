@@ -13,25 +13,6 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
-val DateFormat = "yyyy-MMM-dd"
-val TimeFormat = "HH:mm"
-
-val GppDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(DateFormat)
-
-val GppTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern(TimeFormat)
-
-val GppTimeTZFormatter: DateTimeFormatter =
-  DateTimeFormatter.ofPattern(TimeFormat).withZone(ZoneOffset.UTC)
-
-val GppTimeTZFormatterWithZone: DateTimeFormatter =
-  DateTimeFormatter.ofPattern("HH:mm 'UTC'").withZone(ZoneOffset.UTC)
-
-val IsoUTCFormatter: DateTimeFormatter =
-  DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(ZoneOffset.UTC)
-
-val UtcFormatter: DateTimeFormatter =
-  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneOffset.UTC)
-
 val DurationFormatter: Duration => String = d =>
   val hours: Option[Long]  = d.toHours.some.filter(_ > 0)
   val minutes: Option[Int] = d.toMinutesPart.some.filter(_ > 0 || hours.isDefined)

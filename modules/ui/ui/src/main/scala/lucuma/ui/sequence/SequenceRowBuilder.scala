@@ -15,6 +15,7 @@ import lucuma.core.enums.SequenceType
 import lucuma.core.model.sequence.Step
 import lucuma.core.syntax.all.*
 import lucuma.core.util.Timestamp
+import lucuma.core.util.time.format.UtcFormatter
 import lucuma.react.primereact.Tooltip
 import lucuma.react.primereact.tooltip.*
 import lucuma.react.table.Expandable
@@ -27,7 +28,6 @@ import lucuma.schemas.model.enums.StepExecutionState
 import lucuma.ui.LucumaIcons
 import lucuma.ui.display.given
 import lucuma.ui.format.DurationFormatter
-import lucuma.ui.format.UtcFormatter
 import lucuma.ui.sequence.*
 import lucuma.ui.syntax.render.*
 import lucuma.ui.table.*
