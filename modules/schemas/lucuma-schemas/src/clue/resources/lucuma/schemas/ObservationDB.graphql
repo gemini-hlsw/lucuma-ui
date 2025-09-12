@@ -1175,7 +1175,7 @@ input TimeAndCountExposureTimeModeInput {
 """Flux density entry"""
 input FluxDensity {
   wavelength: WavelengthInput!
-  density: PosBigDecimal!
+  density: BigDecimal!
 }
 
 """A flux density continuum value with integrated units"""
@@ -6424,7 +6424,7 @@ enum FluxDensityContinuumSurfaceUnits {
 
 type FluxDensityEntry {
   wavelength: Wavelength!
-  density: PosBigDecimal!
+  density: BigDecimal!
 }
 
 """Focal plane Single/Multi/IFU"""
