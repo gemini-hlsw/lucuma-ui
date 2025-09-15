@@ -149,9 +149,16 @@ extension (u: UnnormalizedSED)
       case UnnormalizedSED.BlackBody(temperature)                   =>
         UnnormalizedSedInput(blackBodyTempK = temperature.value.assign)
       case UnnormalizedSED.UserDefined(fluxDensities)               =>
-        UnnormalizedSedInput(fluxDensities = fluxDensities.toSortedMap.toList.map {
-          case (wavelength, value) => FluxDensity(wavelength.toInput, value)
-        }.assign)
+        UnnormalizedSedInput(fluxDensities =
+          fluxDensities.toSortedMap.toList
+            .map { case (wavelength, value) =>
+              (wavelength, PosBigDecimal.from(value).toOption)
+            }
+            .collect { case (wavelength, Some(value)) =>
+              FluxDensity(wavelength.toInput, value.value)
+            }
+            .assign
+        )
       case UnnormalizedSED.UserDefinedAttachment(attachmentId)      =>
         UnnormalizedSedInput(fluxDensitiesAttachment = attachmentId.assign)
     }
@@ -224,13 +231,13 @@ extension (lines: SortedMap[Wavelength, EmissionLine[Surface]])
 
 extension (fdc: FluxDensityContinuumMeasure[Integrated])
   def toInput: FluxDensityContinuumIntegratedInput = FluxDensityContinuumIntegratedInput(
-    value = PosBigDecimal.unsafeFrom(fdc.value.value.value),
+    value = fdc.value.value.value,
     units = Measure.unitsTagged.get(fdc)
   )
 
 extension (fdc: FluxDensityContinuumMeasure[Surface])
   def toInput: FluxDensityContinuumSurfaceInput = FluxDensityContinuumSurfaceInput(
-    value = PosBigDecimal.unsafeFrom(fdc.value.value.value),
+    value = fdc.value.value.value,
     units = Measure.unitsTagged.get(fdc)
   )
 

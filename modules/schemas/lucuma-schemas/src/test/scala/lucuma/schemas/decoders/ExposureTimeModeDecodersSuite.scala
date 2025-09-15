@@ -6,8 +6,8 @@ package lucuma.schemas.decoders
 import lucuma.core.math.SignalToNoise
 import lucuma.core.math.Wavelength
 import lucuma.core.model.ExposureTimeMode
+import lucuma.core.refined.auto.*
 import lucuma.core.syntax.timespan.*
-import lucuma.refined.*
 
 class ExposureTimeModeDecodersSuite extends InputStreamSuite {
   test("SignalToNoise decoder") {

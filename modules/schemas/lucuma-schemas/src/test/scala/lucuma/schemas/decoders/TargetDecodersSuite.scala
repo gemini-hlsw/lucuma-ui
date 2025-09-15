@@ -5,7 +5,7 @@ package lucuma.schemas.decoders
 
 import cats.Order.*
 import cats.syntax.all.*
-import coulomb.*
+import coulomb.Quantity
 import coulomb.syntax.*
 import eu.timepit.refined.collection.NonEmpty
 import eu.timepit.refined.numeric.Positive
@@ -36,8 +36,8 @@ import lucuma.core.model.SourceProfile
 import lucuma.core.model.SpectralDefinition
 import lucuma.core.model.Target
 import lucuma.core.model.UnnormalizedSED
+import lucuma.core.refined.auto.*
 import lucuma.odb.json.target.decoder.given
-import lucuma.refined.*
 import lucuma.schemas.model.TargetWithId
 
 import scala.collection.immutable.SortedMap

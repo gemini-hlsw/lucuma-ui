@@ -4,13 +4,13 @@
 package lucuma.ui.sequence.arb
 
 import lucuma.core.enums.SequenceType
+import lucuma.core.math.SingleSN
+import lucuma.core.math.TotalSN
 import lucuma.core.math.arb.ArbSignalToNoise.given
 import lucuma.core.model.sequence.InstrumentExecutionConfig
 import lucuma.core.model.sequence.arb.ArbInstrumentExecutionConfig.given
 import lucuma.core.util.arb.ArbEnumerated.given
 import lucuma.core.util.arb.ArbNewType.given
-import lucuma.itc.SingleSN
-import lucuma.itc.TotalSN
 import lucuma.ui.sequence.SequenceData
 import org.scalacheck.Arbitrary
 import org.scalacheck.Arbitrary.arbitrary

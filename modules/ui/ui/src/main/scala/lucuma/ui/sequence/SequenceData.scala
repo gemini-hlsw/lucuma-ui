@@ -9,9 +9,9 @@ import cats.syntax.all.*
 import japgolly.scalajs.react.ReactCats.*
 import japgolly.scalajs.react.Reusability
 import lucuma.core.enums.SequenceType
+import lucuma.core.math.SingleSN
+import lucuma.core.math.TotalSN
 import lucuma.core.model.sequence.InstrumentExecutionConfig
-import lucuma.itc.SingleSN
-import lucuma.itc.TotalSN
 import lucuma.schemas.odb.SequenceQueriesGQL.SequenceQuery
 import monocle.Focus
 import monocle.Lens
