@@ -17,12 +17,10 @@ val Versions = new {
   val http4s            = "0.23.30"
   val http4sDom         = "0.2.12"
   val log4catsLogLevel  = "0.3.1"
-  val lucumaCore        = "0.143.3"
-  val lucumaOdbSchema   = "0.28.2"
-  val lucumaItc         = "0.45.3"
+  val lucumaCore        = "0.144.0"
+  val lucumaOdbSchema   = "0.28.3"
   val lucumaPrimeStyles = "0.5.0"
   val lucumaReact       = "0.85.0"
-  val lucumaRefined     = "0.1.4"
   val monocle           = "3.3.0"
   val mouse             = "1.3.2"
   val munit             = "1.1.1"
@@ -159,7 +157,6 @@ lazy val lucumaUi =
         "com.github.japgolly.scalajs-react" %%% "extra-ext-monocle3"           % Versions.scalaJsReact,
         "edu.gemini"                        %%% "lucuma-core"                  % Versions.lucumaCore,
         "edu.gemini"                        %%% "lucuma-ags"                   % Versions.lucumaCore,
-        "edu.gemini"                        %%% "lucuma-itc-client"            % Versions.lucumaItc,
         "edu.gemini"                        %%% "lucuma-react-common"          % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-font-awesome"    % Versions.lucumaReact,
         "edu.gemini"                        %%% "lucuma-react-resize-detector" % Versions.lucumaReact,

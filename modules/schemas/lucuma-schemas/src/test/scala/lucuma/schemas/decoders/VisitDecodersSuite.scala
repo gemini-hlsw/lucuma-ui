@@ -21,10 +21,10 @@ import lucuma.core.enums.StepGuideState
 import lucuma.core.math.Offset
 import lucuma.core.model.sequence.*
 import lucuma.core.model.sequence.gmos.*
+import lucuma.core.refined.auto.*
 import lucuma.core.syntax.timespan.*
 import lucuma.core.util.Timestamp
 import lucuma.core.util.TimestampInterval
-import lucuma.refined.*
 import lucuma.schemas.model.AtomRecord
 import lucuma.schemas.model.ExecutionVisits
 import lucuma.schemas.model.StepRecord
