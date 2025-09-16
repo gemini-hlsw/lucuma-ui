@@ -191,6 +191,12 @@ class SequenceColumns[D, T, R <: SequenceRow[D], TM, CM, TF](
       snCol
     )
 
+  def apply(instrument: Instrument): List[colDef.TypeFor[?]] =
+    instrument match
+      case Instrument.GmosNorth | Instrument.GmosSouth => ForGmos
+      case Instrument.Flamingos2                       => ForFlamingos2
+      case _                                           => throw new Exception(s"Unimplemented instrument: $instrument")
+
 object SequenceColumns:
   val IndexAndTypeColumnId: ColumnId = ColumnId("stepType")
   val ExposureColumnId: ColumnId     = ColumnId("exposure")
