@@ -6,6 +6,7 @@ package lucuma.ui.sequence
 import cats.syntax.all.*
 import japgolly.scalajs.react.*
 import japgolly.scalajs.react.vdom.html_<^.*
+import lucuma.core.enums.Instrument
 import lucuma.core.math.Offset
 import lucuma.core.math.SignalToNoise
 import lucuma.core.math.Wavelength
@@ -127,12 +128,6 @@ class SequenceColumns[D, T, R <: SequenceRow[D], TM, CM, TF](
       header = _ => "Ybin",
       cell = _.value.orEmpty
     )
-  colDef(
-    SequenceColumns.YBinColumnId,
-    _.value.toOption.flatMap(row => getStep(row).flatMap(_.readoutYBin)),
-    header = _ => "Ybin",
-    cell = _.value.orEmpty
-  )
 
   private lazy val roiCol: colDef.TypeFor[Option[String]] =
     colDef(
@@ -164,7 +159,7 @@ class SequenceColumns[D, T, R <: SequenceRow[D], TM, CM, TF](
       cell = _.value.orEmpty
     )
 
-  lazy val forGmos: List[colDef.TypeFor[?]] =
+  lazy val ForGmos: List[colDef.TypeFor[?]] =
     List(
       indexAndTypeCol,
       exposureCol,
@@ -181,7 +176,7 @@ class SequenceColumns[D, T, R <: SequenceRow[D], TM, CM, TF](
       snCol
     )
 
-  lazy val forFlamingos2: List[colDef.TypeFor[?]] =
+  lazy val ForFlamingos2: List[colDef.TypeFor[?]] =
     List(
       indexAndTypeCol,
       exposureCol,
@@ -196,6 +191,12 @@ class SequenceColumns[D, T, R <: SequenceRow[D], TM, CM, TF](
       snCol
     )
 
+  def apply(instrument: Instrument): List[colDef.TypeFor[?]] =
+    instrument match
+      case Instrument.GmosNorth | Instrument.GmosSouth => ForGmos
+      case Instrument.Flamingos2                       => ForFlamingos2
+      case _                                           => throw new Exception(s"Unimplemented instrument: $instrument")
+
 object SequenceColumns:
   val IndexAndTypeColumnId: ColumnId = ColumnId("stepType")
   val ExposureColumnId: ColumnId     = ColumnId("exposure")
@@ -207,43 +208,78 @@ object SequenceColumns:
   val GratingColumnId: ColumnId      = ColumnId("grating")
   val FilterColumnId: ColumnId       = ColumnId("filter")
   val XBinColumnId: ColumnId         = ColumnId("xbin")
-  val YBinColumnId: ColumnId         = ColumnId("Ybin")
+  val YBinColumnId: ColumnId         = ColumnId("ybin")
   val ROIColumnId: ColumnId          = ColumnId("roi")
   val ReadModeColumnId: ColumnId     = ColumnId("readMode")
   val SNColumnId: ColumnId           = ColumnId("sn")
 
-  val BaseColumnSizes: Map[ColumnId, ColumnSize] = Map(
-    IndexAndTypeColumnId -> FixedSize(60.toPx),
-    ExposureColumnId     -> Resizable(77.toPx, min = 77.toPx, max = 130.toPx),
-    GuideColumnId        -> FixedSize(33.toPx),
-    PColumnId            -> FixedSize(75.toPx),
-    QColumnId            -> FixedSize(75.toPx),
-    WavelengthColumnId   -> Resizable(75.toPx, min = 75.toPx, max = 130.toPx),
-    FPUColumnId          -> Resizable(132.toPx, min = 132.toPx),
-    GratingColumnId      -> Resizable(120.toPx, min = 120.toPx),
-    FilterColumnId       -> Resizable(90.toPx, min = 90.toPx),
-    XBinColumnId         -> FixedSize(60.toPx),
-    YBinColumnId         -> FixedSize(60.toPx),
-    ROIColumnId          -> Resizable(75.toPx, min = 75.toPx),
-    ReadModeColumnId     -> Resizable(75.toPx, min = 75.toPx),
-    SNColumnId           -> Resizable(75.toPx, min = 75.toPx, max = 130.toPx)
-  )
+  object BaseColumnSizes {
+    private val CommonColumnSizes: Map[ColumnId, ColumnSize] = Map(
+      IndexAndTypeColumnId -> FixedSize(60.toPx),
+      ExposureColumnId     -> Resizable(77.toPx, min = 77.toPx, max = 130.toPx),
+      GuideColumnId        -> FixedSize(33.toPx),
+      PColumnId            -> FixedSize(75.toPx),
+      QColumnId            -> FixedSize(75.toPx),
+      WavelengthColumnId   -> Resizable(75.toPx, min = 75.toPx, max = 130.toPx),
+      FPUColumnId          -> Resizable(132.toPx, min = 132.toPx),
+      GratingColumnId      -> Resizable(120.toPx, min = 120.toPx),
+      FilterColumnId       -> Resizable(90.toPx, min = 90.toPx),
+      SNColumnId           -> Resizable(75.toPx, min = 75.toPx, max = 130.toPx)
+    )
+
+    val ForGmos: Map[ColumnId, ColumnSize] =
+      CommonColumnSizes ++ Map(
+        XBinColumnId -> FixedSize(60.toPx),
+        YBinColumnId -> FixedSize(60.toPx),
+        ROIColumnId  -> Resizable(75.toPx, min = 75.toPx)
+      )
+
+    val ForFlamingos2: Map[ColumnId, ColumnSize] =
+      CommonColumnSizes ++ Map(
+        ReadModeColumnId -> Resizable(75.toPx, min = 75.toPx)
+      )
+
+    def apply(instrument: Instrument): Map[ColumnId, ColumnSize] =
+      instrument match
+        case Instrument.GmosNorth | Instrument.GmosSouth => ForGmos
+        case Instrument.Flamingos2                       => ForFlamingos2
+        case _                                           => throw new Exception(s"Unimplemented instrument: $instrument")
+  }
 
   // The order in which they are removed by overflow. The ones at the beginning go first.
   // Missing columns are not removed by overflow. (We declare them in reverse order)
-  val BaseColumnPriorities: List[ColumnId] = List(
-    PColumnId,
-    QColumnId,
-    GuideColumnId,
-    ExposureColumnId,
-    SNColumnId,
-    ROIColumnId,
-    XBinColumnId,
-    YBinColumnId,
-    FilterColumnId,
-    GratingColumnId,
-    FPUColumnId
-  ).reverse
+  object BaseColumnPriorities {
+    val ForGmos: List[ColumnId] = List(
+      PColumnId,
+      QColumnId,
+      GuideColumnId,
+      ExposureColumnId,
+      SNColumnId,
+      ROIColumnId,
+      XBinColumnId,
+      YBinColumnId,
+      FilterColumnId,
+      GratingColumnId,
+      FPUColumnId
+    ).reverse
+
+    val ForFlamingos2: List[ColumnId] = List(
+      PColumnId,
+      QColumnId,
+      GuideColumnId,
+      ExposureColumnId,
+      SNColumnId,
+      FilterColumnId,
+      GratingColumnId,
+      FPUColumnId
+    ).reverse
+
+    def apply(instrument: Instrument): List[ColumnId] =
+      instrument match
+        case Instrument.GmosNorth | Instrument.GmosSouth => ForGmos
+        case Instrument.Flamingos2                       => ForFlamingos2
+        case _                                           => throw new Exception(s"Unimplemented instrument: $instrument")
+  }
 
   def headerCell[T, R, TM, CM, FM](
     colId:  ColumnId,

@@ -8,6 +8,7 @@ import lucuma.react.SizePx
 import lucuma.react.table.*
 import lucuma.ui.table.*
 import lucuma.ui.table.ColumnSize.*
+import lucuma.ui.table.hooks.DynTable.ColState
 import monocle.Focus
 import monocle.Lens
 
@@ -64,35 +65,35 @@ case class DynTable(
     // This level just to avoid clearing overflow on co-recursion
     // @tailrec // Scala 3.6.3 thinks there are no recursive calls. Let's leave this commented in case it gets fixed.
     def go1(colState: DynTable.ColState): DynTable.ColState =
-      lazy val visible: Set[ColumnId] =
+      lazy val visibleColumns: Set[ColumnId] =
         columnSizes.keySet.filterNot(colId =>
           colState.visibility.value.get(colId).contains(Visibility.Hidden)
         ) -- colState.overflow
 
-      lazy val visibleSizes: Map[ColumnId, SizePx] =
-        visible
+      lazy val currentVisibleColumnSizes: Map[ColumnId, SizePx] =
+        visibleColumns
           .map: colId =>
             colId -> colState.resized.value.getOrElse(colId, columnSizes(colId).initial)
           .toMap
 
-      lazy val prioritizedRemainingCols: List[ColumnId] =
-        columnPriorities.filter(visible.contains)
-
-      lazy val overflowColumn: DynTable.ColState =
-        DynTable.ColState.overflow.modify(_ ++ prioritizedRemainingCols.headOption)(colState)
+      // We define these here to avoid recomputing in every go2 iteration.
+      lazy val nextOverflowCandidate: Option[ColumnId]        =
+        columnPriorities.find(visibleColumns.contains)
+      lazy val stateWithNextOverflowColumn: DynTable.ColState =
+        DynTable.ColState.overflow.modify(_ ++ nextOverflowCandidate)(colState)
 
       if (width.value == 0) colState
       else {
         // Recurse at go2 when a column was shrunk/expanded beyond its bounds.
         @tailrec
         def go2(
-          remainingCols:  Map[ColumnId, SizePx],
+          visibleCols:    Map[ColumnId, SizePx],
           fixedAccum:     Map[ColumnId, SizePx] = Map.empty,
           fixedSizeAccum: Int = 0
         ): DynTable.ColState = {
           val (boundedCols, unboundedCols)
             : (Iterable[(Option[ColumnId], SizePx)], Iterable[(ColumnId, SizePx)]) =
-            remainingCols.partitionMap: (colId, colSize) =>
+            visibleCols.partitionMap: (colId, colSize) =>
               columnSizes(colId) match
                 case FixedSize(size)                                         =>
                   (none -> size).asLeft
@@ -108,15 +109,15 @@ case class DynTable(
           val totalBounded: Int     = fixedSizeAccum + boundedColsWidth
 
           // If bounded columns are more than the viewport width, drop the lowest priority column and start again.
-          if (totalBounded > width.value && prioritizedRemainingCols.nonEmpty)
+          if (totalBounded > width.value && nextOverflowCandidate.isDefined)
             // We must remove columns one by one, since removing one causes the rest to recompute.
-            go1(overflowColumn)
+            go1(stateWithNextOverflowColumn)
           else
-            val remainingSpace: Int = width.value - totalBounded
+            val spaceForUnbounded: Int = width.value - totalBounded
 
             val totalNewUnbounded: Int = unboundedCols.map(_._2.value).sum
 
-            val ratio: Double = remainingSpace.toDouble / totalNewUnbounded
+            val ratio: Double = spaceForUnbounded.toDouble / totalNewUnbounded
 
             val newFixedAccum: Map[ColumnId, SizePx] =
               fixedAccum ++
@@ -130,15 +131,15 @@ case class DynTable(
                 .toMap
 
             boundedCols match
-              case Nil        =>
+              case Nil =>
                 DynTable.ColState.resized.replace(
                   ColumnSizing(newFixedAccum ++ unboundedColsAdjusted)
                 )(colState)
-              case newBounded =>
+              case _   =>
                 go2(unboundedColsAdjusted, newFixedAccum, totalBounded)
         }
 
-        go2(visibleSizes)
+        go2(currentVisibleColumnSizes)
       }
 
     go1(colState.resetOverflow)
@@ -154,7 +155,7 @@ object DynTable:
    *   Column visitibility without taking into account overflows. Do not pass to table. See
    *   `computedVisibility` instead.
    * @param overflow
-   *   Column overflows.
+   *   Columns removed becasue of overflow.
    */
   case class ColState(
     val resized:    ColumnSizing,
