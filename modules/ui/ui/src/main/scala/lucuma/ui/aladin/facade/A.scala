@@ -5,13 +5,11 @@ package lucuma.ui.aladin.facade
 
 import org.scalajs.dom.Element
 
-import scala.annotation.nowarn
 import scala.scalajs.js
 import scala.scalajs.js.annotation.*
 
 @js.native
 @JSImport("aladin-lite", JSImport.Default)
-@nowarn
 object A extends js.Object {
   def init: js.Promise[Unit]                                           = js.native
   def aladin(divSelector: String, options:  AladinOptions): JsAladin   = js.native

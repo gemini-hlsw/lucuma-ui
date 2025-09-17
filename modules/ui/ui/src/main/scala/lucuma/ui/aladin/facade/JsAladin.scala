@@ -34,8 +34,8 @@ class JsAladin(val aladinDiv: Element, val options: AladinOptions) extends js.Ob
   def recalculateView(): Unit                                                         = js.native
   def increaseZoom(): Unit                                                            = js.native
   def decreaseZoom(): Unit                                                            = js.native
-  // def getZoomFactor(): Double                                                         = js.native
-  // def setZoomFactor(f:            Double): js.Object                                  = js.native
+  def getZoomFactor(): Double                                                         = js.native
+  def setZoomFactor(f:            Double): js.Object                                  = js.native
   def requestRedraw(): Unit                                                           = js.native
   def toggleFullscreen(): Unit                                                        = js.native
   def fixLayoutDimensions(): Unit                                                     = js.native
