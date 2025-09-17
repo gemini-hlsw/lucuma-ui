@@ -142,7 +142,7 @@ object AladinContainer {
         }
 
       def isRelevantChange(prevOffset: Offset, newOffset: Offset): Boolean =
-        prevOffset.distance(newOffset).toMicroarcseconds > (1e6 / 50)
+        prevOffset.distance(newOffset).toMicroarcseconds > (1e6 / 120)
 
       val viewOffset = props.viewOffset.withOnMod((prevOffset, newOffset) =>
         val relevantChange = isRelevantChange(prevOffset, newOffset)
@@ -160,14 +160,23 @@ object AladinContainer {
         val newOffset      = viewCoords.diff(props.coordinates).offset
         val relevantChange = isRelevantChange(viewOffset.get, newOffset) && viewCoords
           .angularDistance(currentPos.get)
-          .toMicroarcseconds > (1e6 / 50)
+          .toMicroarcseconds > (1e6 / 120)
         currentPos.set(viewCoords) *>
           viewOffset.set(newOffset).when_(relevantChange)
 
       val aladinCoordsStr: String =
         Coordinates.fromHmsDms.reverseGet(props.coordinates) // Use stable initial coordinates
 
-      def onZoom = (v: Fov) => props.fov.set(v)
+      def isRelevantZoomChange(prevFov: Fov, newFov: Fov): Boolean = {
+        val xRatio = Math.abs(newFov.x.toMicroarcseconds / prevFov.x.toMicroarcseconds - 1.0)
+        val yRatio = Math.abs(newFov.y.toMicroarcseconds / prevFov.y.toMicroarcseconds - 1.0)
+        xRatio > 0.02 || yRatio > 0.02 // 2% change threshold for more responsive zoom
+      }
+
+      def onZoom = (v: Fov) => {
+        val relevantChange = isRelevantZoomChange(props.fov.get, v)
+        props.fov.set(v).when_(relevantChange)
+      }
 
       def customizeAladin(v: Aladin): Callback =
         aladinRef.setState(Some(v)) *>

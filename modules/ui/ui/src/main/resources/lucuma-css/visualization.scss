@@ -48,12 +48,21 @@
   position: absolute;
   pointer-events: none; // let aladin get pointer events
   z-index: 40;
+  transition: transform 150ms cubic-bezier(0.4, 0.0, 0.2, 1),
+              opacity 100ms ease-out;
+  will-change: transform, opacity;
 
   .viz-polygon {
     stroke: gray;
     stroke-width: 2px;
     fill: none;
     vector-effect: non-scaling-stroke;
+    transition: transform 120ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  // Smooth viewBox changes
+  svg {
+    transition: all 120ms cubic-bezier(0.4, 0.0, 0.2, 1);
   }
 
   &.flamingos2-probe-arm-visible .flamingos2-probe-arm,
@@ -156,11 +165,20 @@
   pointer-events: none; // let aladin get pointer events
   position: absolute;
   z-index: 40;
+  transition: transform 150ms cubic-bezier(0.4, 0.0, 0.2, 1),
+              opacity 100ms ease-out;
+  will-change: transform, opacity;
 
   rect,
   circle,
   line {
     vector-effect: non-scaling-stroke;
+    transition: transform 120ms cubic-bezier(0.4, 0.0, 0.2, 1);
+  }
+
+  // Smooth viewBox changes
+  svg {
+    transition: all 120ms cubic-bezier(0.4, 0.0, 0.2, 1);
   }
 
   .crosshair-target {
@@ -202,6 +220,8 @@
 
   .overlay-all-targets {
     isolation: inline;
+    transition: transform 120ms cubic-bezier(0.4, 0.0, 0.2, 1);
+    will-change: transform;
   }
 
   .offset-position {
