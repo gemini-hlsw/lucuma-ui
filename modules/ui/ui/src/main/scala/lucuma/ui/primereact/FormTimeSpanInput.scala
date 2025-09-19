@@ -38,7 +38,8 @@ case class FormTimeSpanInput[V[_]](
   max:      js.UndefOr[TimeSpan] = js.undefined,
   disabled: Boolean = false,
   clazz:    js.UndefOr[Css] = js.undefined,
-  tooltip:  js.UndefOr[VdomNode] = js.undefined
+  tooltip:  js.UndefOr[VdomNode] = js.undefined,
+  error:    js.UndefOr[NonEmptyString] = js.undefined
 )(using val vl: ViewLike[V])
     extends ReactFnProps(FormTimeSpanInput.component)
 
@@ -76,7 +77,8 @@ object FormTimeSpanInput:
                 value = valueView,
                 validFormat = InputValidSplitEpi.nonNegLong,
                 changeAuditor = ChangeAuditor.int,
-                units = unitName
+                units = unitName,
+                error = props.error
               ).withMods(^.size := Math.max(valueView.get.toString.length, 2))
                 .withKey(unitName)
                 .toUnmounted
