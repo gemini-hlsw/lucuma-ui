@@ -148,7 +148,16 @@ object AladinContainer {
 
       val viewOffset = props.viewOffset.withOnMod((prevOffset, newOffset) =>
         val relevantChange = isRelevantChange(prevOffset, newOffset)
-        saveOffsetToStorage(newOffset).when_(relevantChange)
+        val isReset = newOffset == Offset.Zero && prevOffset != Offset.Zero
+
+        // If offset is being reset to zero, move Aladin back to original coordinates
+        val moveAladinToTarget = if (isReset) {
+          aladinRef.value.fold(Callback.empty)(_.gotoRaDecCB(props.coordinates))
+        } else {
+          Callback.empty
+        }
+
+        saveOffsetToStorage(newOffset).when_(relevantChange) *> moveAladinToTarget
       )
 
       val vizOffset = viewOffset.get
@@ -187,115 +196,19 @@ object AladinContainer {
           props.fov.set(v).when_(relevantChange)
       }
 
-      // Synchronized SVG updates with Aladin's 60fps render loop
-      def hookIntoAladinRenderLoop(aladin: Aladin): Callback = {
-        var dragStartCoords: Option[Coordinates] = None
-        var currentDragCoords: Option[Coordinates] = None
-
-        // Function to update SVG transforms - called during Aladin's render loop
-        val updateSVGTransforms: js.Function0[Unit] = () => {
-          val isDragging = aladin.view.realDragging.getOrElse(false)
-
-          if (isDragging && dragStartCoords.isDefined && currentDragCoords.isDefined) {
-            val startCoords = dragStartCoords.get
-            val currentCoords = currentDragCoords.get
-
-            // Calculate offset difference
-            val deltaOffset = currentCoords.diff(startCoords).offset
-            val (deltaX, deltaY) = aladin.pixelScale.offsetToPixelDelta(deltaOffset)
-
-            // Apply transforms to SVG overlays
-            val visualizationOverlay = dom.document.querySelector(".visualization-overlay-svg")
-            val targetsOverlay = dom.document.querySelector(".targets-overlay-svg")
-
-            if (visualizationOverlay != null) {
-              val transform = s"translate3d(${deltaX}px, ${deltaY}px, 0)"
-              visualizationOverlay.asInstanceOf[js.Dynamic].style.transform = transform
-            }
-
-            if (targetsOverlay != null) {
-              val transform = s"translate3d(${deltaX}px, ${deltaY}px, 0)"
-              targetsOverlay.asInstanceOf[js.Dynamic].style.transform = transform
-            }
-          }
-        }
-
-        // Hook into Aladin's render loop by monkey-patching drawAllOverlays
-        val aladinView = aladin.view.asInstanceOf[js.Dynamic]
-        val originalDrawAllOverlays = aladinView.drawAllOverlays.asInstanceOf[js.Function0[Unit]]
-
-        aladinView.drawAllOverlays = () => {
-          // Update our SVG transforms first
-          updateSVGTransforms()
-          // Then call original Aladin overlay drawing
-          originalDrawAllOverlays()
-        }
-
-        // Mouse handlers to track drag coordinates
-        val mouseDownHandler: js.Function1[dom.MouseEvent, Unit] = (e: dom.MouseEvent) => {
-          val canvas = aladin.view.imageCanvas
-          val rect = canvas.getBoundingClientRect()
-          val x = e.clientX - rect.left
-          val y = e.clientY - rect.top
-
-          val worldCoords = aladin.pix2world(x, y)
-          if (worldCoords.length >= 2) {
-            val ra = RightAscension.fromDoubleDegrees(worldCoords(0))
-            val dec = Declination.fromDoubleDegrees(worldCoords(1)).getOrElse(Declination.Zero)
-            val coords = Coordinates(ra, dec)
-
-            dragStartCoords = Some(coords)
-            currentDragCoords = Some(coords)
-          }
-        }
-
-        val mouseMoveHandler: js.Function1[dom.MouseEvent, Unit] = (e: dom.MouseEvent) => {
-          val canvas = aladin.view.imageCanvas
-          val rect = canvas.getBoundingClientRect()
-          val x = e.clientX - rect.left
-          val y = e.clientY - rect.top
-
-          val worldCoords = aladin.pix2world(x, y)
-          if (worldCoords.length >= 2) {
-            val ra = RightAscension.fromDoubleDegrees(worldCoords(0))
-            val dec = Declination.fromDoubleDegrees(worldCoords(1)).getOrElse(Declination.Zero)
-            currentDragCoords = Some(Coordinates(ra, dec))
-          }
-        }
-
-        val mouseUpHandler: js.Function1[dom.MouseEvent, Unit] = (_: dom.MouseEvent) => {
-          // Reset transforms when drag ends
-          val visualizationOverlay = dom.document.querySelector(".visualization-overlay-svg")
-          val targetsOverlay = dom.document.querySelector(".targets-overlay-svg")
-
-          if (visualizationOverlay != null) {
-            visualizationOverlay.asInstanceOf[js.Dynamic].style.transform = ""
-          }
-          if (targetsOverlay != null) {
-            targetsOverlay.asInstanceOf[js.Dynamic].style.transform = ""
-          }
-
-          dragStartCoords = None
-          currentDragCoords = None
-        }
-
-        Callback {
-          val canvas = aladin.view.imageCanvas
-          canvas.addEventListener("mousedown", mouseDownHandler)
-          canvas.addEventListener("mousemove", mouseMoveHandler)
-          canvas.addEventListener("mouseup", mouseUpHandler)
-
-          // Store handlers for cleanup
-          canvas.asInstanceOf[js.Dynamic].renderSyncHandlers =
-            js.Array(mouseDownHandler, mouseMoveHandler, mouseUpHandler)
-        }
-      }
+      // Add SVG synchronization overlay to Aladin
+      def addSVGSynchronization(aladin: Aladin): Callback =
+        aladin.addSVGSyncOverlay(
+          name = "Lucuma SVG Synchronizer",
+          svgSelectors = js.Array(".visualization-overlay-svg", ".targets-overlay-svg"),
+          baseCoordinates = props.coordinates
+        )
 
       def customizeAladin(v: Aladin): Callback =
         aladinRef.setState(Some(v)) *>
           v.onZoomCB(onZoom) *>       // re render on zoom
           v.onPositionChangedCB(onPositionChanged) *>
-          hookIntoAladinRenderLoop(v) // Sync SVG updates with 60fps render loop
+          addSVGSynchronization(v)    // Add SVG sync overlay for smooth transforms
 
       val gs = props.coordinates
 

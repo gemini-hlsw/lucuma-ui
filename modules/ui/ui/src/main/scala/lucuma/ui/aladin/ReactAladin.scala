@@ -43,6 +43,20 @@ extension (a: Aladin)
   def pixelScale: PixelScale =
     PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
 
+  def addSVGSyncOverlay(
+    name: String = "SVG Synchronizer",
+    svgSelectors: js.Array[String] = js.Array(".visualization-overlay-svg", ".targets-overlay-svg"),
+    baseCoordinates: js.UndefOr[lucuma.core.math.Coordinates] = js.undefined
+  ): Callback =
+    val aladinBaseCoords = baseCoordinates.map { coords =>
+      js.Dynamic.literal(
+        ra = coords.ra.toAngle.toDoubleDegrees,
+        dec = coords.dec.toAngle.toSignedDoubleDegrees
+      ).asInstanceOf[AladinCoordinates]
+    }
+    val overlay = new SVGSyncOverlay(name, svgSelectors, aladinBaseCoords)
+    Callback(a.addOverlay(overlay.asInstanceOf[AladinOverlay]))
+
   def applyZoom(zoomFactor: Double, duration: Int = 200): Callback =
     Callback(
       a.view.zoom.applyZoom(js.Dynamic.literal(stop = zoomFactor, duration = duration))
