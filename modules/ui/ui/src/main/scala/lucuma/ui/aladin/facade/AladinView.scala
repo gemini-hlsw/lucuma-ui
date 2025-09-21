@@ -15,3 +15,4 @@ trait AladinView extends js.Object:
   val imageCanvas: html.Canvas          = js.native
   val catalogCanvas: html.Canvas        = js.native
   val realDragging: js.UndefOr[Boolean] = js.native
+  def drawAllOverlays(): Unit           = js.native
