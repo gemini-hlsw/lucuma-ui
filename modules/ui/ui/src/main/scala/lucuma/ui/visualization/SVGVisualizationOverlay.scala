@@ -36,7 +36,7 @@ object SVGVisualizationOverlay {
 
   extension (g: Geometry)
     // This deserves an explanation.
-    // In the visualization we have included several geometriens includig the patrol field which
+    // In the visualization we have included several geometries including the patrol field which
     // can be the intersection between all the patrol fields geometries at each pos angle position.
     //
     // Normally the intersection would be a polygon but in some edge cases the intersection becomes

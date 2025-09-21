@@ -7,6 +7,8 @@ import lucuma.core.math.*
 import lucuma.core.util.Enumerated
 import lucuma.react.common.*
 import lucuma.ui.aladin.facade.*
+import lucuma.core.math.Offset
+import lucuma.ui.visualization.micros
 
 import scala.scalajs.js
 
@@ -128,3 +130,10 @@ object AladinOptions:
     log.foreach(v => p.log = v)
     p
   }
+
+extension (pixelScale: PixelScale)
+  def offsetToPixelDelta(offset: Offset): (Double, Double) =
+    val (deltaXMicros, deltaYMicros) = offset.micros
+    val deltaX                       = deltaXMicros / pixelScale.x * 1e-6
+    val deltaY                       = -deltaYMicros / pixelScale.y * 1e-6
+    (deltaX, deltaY)

@@ -35,6 +35,8 @@ import lucuma.ui.visualization.*
 import monocle.macros.GenLens
 import org.scalajs.dom
 
+import scala.scalajs.js
+
 case class AladinContainer(
   fov:             View[Fov],
   coordinates:     Coordinates,
@@ -161,7 +163,11 @@ object AladinContainer {
         val relevantChange = isRelevantChange(viewOffset.get, newOffset) && viewCoords
           .angularDistance(currentPos.get)
           .toMicroarcseconds > (1e6 / 120)
-        currentPos.set(viewCoords) *>
+        Callback(
+          org.scalajs.dom.console
+            .log(s"📍 PAN EVENT: coords=${viewCoords}, relevantChange=${relevantChange}")
+        ) *>
+          currentPos.set(viewCoords) *>
           viewOffset.set(newOffset).when_(relevantChange)
 
       val aladinCoordsStr: String =
@@ -175,13 +181,126 @@ object AladinContainer {
 
       def onZoom = (v: Fov) => {
         val relevantChange = isRelevantZoomChange(props.fov.get, v)
-        props.fov.set(v).when_(relevantChange)
+        Callback(
+          org.scalajs.dom.console.log(s"🔍 ZOOM EVENT: fov=${v}, relevantChange=${relevantChange}")
+        ) *>
+          props.fov.set(v).when_(relevantChange)
+      }
+
+      // Synchronized SVG updates with Aladin's 60fps render loop
+      def hookIntoAladinRenderLoop(aladin: Aladin): Callback = {
+        var dragStartCoords: Option[Coordinates]   = None
+        var currentDragCoords: Option[Coordinates] = None
+        var isCurrentlyDragging                    = false
+
+        // Function to update SVG transforms - called during Aladin's render loop
+        val updateSVGTransforms: js.Function0[Unit] = () =>
+          if (isCurrentlyDragging) {
+            (dragStartCoords, currentDragCoords).mapN { (startCoords, currentCoords) =>
+              // Calculate offset difference
+              val offset = currentCoords.diff(startCoords).offset
+
+              // Convert offset to approximate pixel delta for transform
+              // This is a rough conversion - could be refined based on FOV and pixel scale
+              val (deltaX, deltaY) = aladin.pixelScale.offsetToPixelDelta(offset)
+
+              // Apply transforms to SVG overlays
+              val visualizationOverlay = dom.document.querySelector(".visualization-overlay-svg")
+              val targetsOverlay       = dom.document.querySelector(".targets-overlay-svg")
+
+              if (visualizationOverlay != null) {
+                val transform = s"translate3d(${deltaX}px, ${deltaY}px, 0)"
+                visualizationOverlay.asInstanceOf[js.Dynamic].style.transform = transform
+              }
+
+              if (targetsOverlay != null) {
+                val transform = s"translate3d(${deltaX}px, ${deltaY}px, 0)"
+                targetsOverlay.asInstanceOf[js.Dynamic].style.transform = transform
+              }
+              ()
+            }
+          }
+
+        // Hook into Aladin's render loop by monkey-patching drawAllOverlays
+        val aladinView              = aladin.view.asInstanceOf[js.Dynamic]
+        val originalDrawAllOverlays = aladinView.drawAllOverlays.asInstanceOf[js.Function0[Unit]]
+
+        aladinView.drawAllOverlays = () => {
+          // Update our SVG transforms first
+          updateSVGTransforms()
+          // Then call original Aladin overlay drawing
+          originalDrawAllOverlays()
+        }
+
+        // Mouse handlers to track drag state and coordinates
+        val mouseDownHandler: js.Function1[dom.MouseEvent, Unit] = (e: dom.MouseEvent) => {
+          val canvas = aladin.view.imageCanvas
+          val rect   = canvas.getBoundingClientRect()
+          val x      = e.clientX - rect.left
+          val y      = e.clientY - rect.top
+
+          val worldCoords = aladin.pix2world(x, y)
+          if (worldCoords.length >= 2) {
+            val ra     = RightAscension.fromDoubleDegrees(worldCoords(0))
+            val dec    = Declination.fromDoubleDegrees(worldCoords(1)).getOrElse(Declination.Zero)
+            val coords = Coordinates(ra, dec)
+
+            dragStartCoords = Some(coords)
+            currentDragCoords = Some(coords)
+            isCurrentlyDragging = true
+          }
+        }
+
+        val mouseMoveHandler: js.Function1[dom.MouseEvent, Unit] = (e: dom.MouseEvent) =>
+          if (isCurrentlyDragging) {
+            val canvas = aladin.view.imageCanvas
+            val rect   = canvas.getBoundingClientRect()
+            val x      = e.clientX - rect.left
+            val y      = e.clientY - rect.top
+
+            val worldCoords = aladin.pix2world(x, y)
+            if (worldCoords.length >= 2) {
+              val ra  = RightAscension.fromDoubleDegrees(worldCoords(0))
+              val dec = Declination.fromDoubleDegrees(worldCoords(1)).getOrElse(Declination.Zero)
+              currentDragCoords = Some(Coordinates(ra, dec))
+            }
+          }
+
+        val mouseUpHandler: js.Function1[dom.MouseEvent, Unit] = (_: dom.MouseEvent) =>
+          if (isCurrentlyDragging) {
+            // Reset transforms when drag ends
+            val visualizationOverlay = dom.document.querySelector(".visualization-overlay-svg")
+            val targetsOverlay       = dom.document.querySelector(".targets-overlay-svg")
+
+            if (visualizationOverlay != null) {
+              visualizationOverlay.asInstanceOf[js.Dynamic].style.transform = ""
+            }
+            if (targetsOverlay != null) {
+              targetsOverlay.asInstanceOf[js.Dynamic].style.transform = ""
+            }
+
+            isCurrentlyDragging = false
+            dragStartCoords = None
+            currentDragCoords = None
+          }
+
+        Callback {
+          val canvas = aladin.view.imageCanvas
+          canvas.addEventListener("mousedown", mouseDownHandler)
+          canvas.addEventListener("mousemove", mouseMoveHandler)
+          canvas.addEventListener("mouseup", mouseUpHandler)
+
+          // Store handlers for cleanup
+          canvas.asInstanceOf[js.Dynamic].renderSyncHandlers =
+            js.Array(mouseDownHandler, mouseMoveHandler, mouseUpHandler)
+        }
       }
 
       def customizeAladin(v: Aladin): Callback =
         aladinRef.setState(Some(v)) *>
-          v.onZoomCB(onZoom) *> // re render on zoom
-          v.onPositionChangedCB(onPositionChanged)
+          v.onZoomCB(onZoom) *>       // re render on zoom
+          v.onPositionChangedCB(onPositionChanged) *>
+          hookIntoAladinRenderLoop(v) // Sync SVG updates with 60fps render loop
 
       val gs = props.coordinates
 

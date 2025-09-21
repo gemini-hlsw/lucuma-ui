@@ -99,11 +99,13 @@ object ReactAladin
       ): Callback =
         r.flatMap {
           case Some(e) if force || !state.value =>
-            Callback(org.scalajs.dom.console.log(s"🚨 ALADIN RECREATION: survey=${props.options.survey}")) *>
-            CallbackTo(A.aladin(e, props.options)).flatMap { a =>
-              state.setState(true) *>
-                props.customize.fold(Callback.empty)(f => f(a))
-            }
+            Callback(
+              org.scalajs.dom.console.log(s"🚨 ALADIN RECREATION: survey=${props.options.survey}")
+            ) *>
+              CallbackTo(A.aladin(e, props.options)).flatMap { a =>
+                state.setState(true) *>
+                  props.customize.fold(Callback.empty)(f => f(a))
+              }
           case _                                => Callback.empty
         }
 
@@ -111,7 +113,10 @@ object ReactAladin
         init <- useState(false)
         r    <- useRefToVdom[html.Div]
         _    <- useLayoutEffectWithDeps(props) { _ =>
-                  init.setState(true) *> resetAladin(r.get, init, props, true)
+                  Callback(
+                    org.scalajs.dom.console.log(s"🔄 PROPS CHANGED: target=${props.options.target}, fov=${props.options.fov}, survey=${props.options.survey}")
+                  ) *>
+                    init.setState(true) *> resetAladin(r.get, init, props, true)
                 }
         _    <- useLayoutEffectOnMount {
                   AsyncCallback.fromCallbackToJsPromise(CallbackTo(A.init)).toCallback *>
