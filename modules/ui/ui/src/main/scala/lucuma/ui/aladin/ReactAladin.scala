@@ -69,6 +69,9 @@ extension (a: Aladin)
   def gotoRaDecCB(c: Coordinates): Callback =
     Callback(a.gotoRaDec(c.ra.toAngle.toDoubleDegrees, c.dec.toAngle.toSignedDoubleDegrees))
 
+  def setFovCB(f: Fov): Callback =
+    Callback(a.setFov(f.x.toDoubleDegrees))
+
 case class ReactAladin(
   clazz:     Css = Css.Empty,
   options:   AladinOptions = AladinOptions.Default,
@@ -96,6 +99,7 @@ object ReactAladin
       ): Callback =
         r.flatMap {
           case Some(e) if force || !state.value =>
+            Callback(org.scalajs.dom.console.log(s"🚨 ALADIN RECREATION: survey=${props.options.survey}")) *>
             CallbackTo(A.aladin(e, props.options)).flatMap { a =>
               state.setState(true) *>
                 props.customize.fold(Callback.empty)(f => f(a))

@@ -43,7 +43,7 @@ class JsAladin(val aladinDiv: Element, val options: AladinOptions) extends js.Ob
   def getParentDiv(): Element                                                         = js.native
   def getSize(): js.Array[Double]                                                     = js.native
   def getFov(): js.Array[Double]                                                      = js.native
-  def setZoom(fovDegrees:         Double): js.Array[Double]                           = js.native
+  def setFov(fovDegrees:          Double): js.Array[Double]                           = js.native
   def box(): Unit                                                                     = js.native
   def pix2world(x:                Double, y:        Double): js.Array[Double]         = js.native
   def world2pix(x:                Double, y:        Double): js.Array[Double]         = js.native
