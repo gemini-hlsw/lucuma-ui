@@ -1,6 +1,6 @@
 import org.scalajs.linker.interface.ModuleSplitStyle
 
-ThisBuild / tlBaseVersion       := "0.166"
+ThisBuild / tlBaseVersion       := "0.167"
 ThisBuild / tlCiReleaseBranches := Seq("main")
 
 val Versions = new {
@@ -17,8 +17,8 @@ val Versions = new {
   val http4s            = "0.23.31"
   val http4sDom         = "0.2.12"
   val log4catsLogLevel  = "0.3.1"
-  val lucumaCore        = "0.145.0"
-  val lucumaOdbSchema   = "0.29.0"
+  val lucumaCore        = "0.146.0"
+  val lucumaServers     = "0.50.1"
   val lucumaPrimeStyles = "0.5.0"
   val lucumaReact       = "0.85.1"
   val monocle           = "3.3.0"
@@ -57,7 +57,7 @@ lazy val schemasModel =
         "io.circe"      %%% "circe-refined"     % Versions.circeRefined,
         "org.typelevel" %%% "kittens"           % Versions.kittens,
         "edu.gemini"    %%% "lucuma-core"       % Versions.lucumaCore,
-        "edu.gemini"    %%% "lucuma-odb-schema" % Versions.lucumaOdbSchema
+        "edu.gemini"    %%% "lucuma-odb-schema" % Versions.lucumaServers
       )
     )
 
@@ -174,7 +174,7 @@ lazy val lucumaUi =
         "com.github.cb372"                  %%% "cats-retry"                   % Versions.catsRetry,
         "io.circe"                          %%% "circe-core"                   % Versions.circe,
         "io.circe"                          %%% "circe-parser"                 % Versions.circe,
-        "edu.gemini"                        %%% "lucuma-sso-frontend-client"   % Versions.lucumaOdbSchema
+        "edu.gemini"                        %%% "lucuma-sso-frontend-client"   % Versions.lucumaServers
       )
     )
 

@@ -9,7 +9,8 @@ import lucuma.core.math.BrightnessUnits.*
 import lucuma.core.math.dimensional.*
 import lucuma.core.model.*
 import lucuma.core.model.sequence.*
-import lucuma.core.util.*
+import lucuma.core.util
+import lucuma.core.util.Of
 
 // gql: import io.circe.refined.*
 // gql: import lucuma.schemas.decoders.given
@@ -24,11 +25,12 @@ trait ObservationDB {
     type AttachmentId              = Attachment.Id
     type CallForProposalsId        = CallForProposals.Id
     type ChronicleId               = scala.Long
-    type ClientId                  = Client.Id
+    type ClientId                  = Client.Id        // TODO Remove when it's removed from the schema
     type ConfigurationRequestId    = ConfigurationRequest.Id
     type DatasetId                 = Dataset.Id
     type ExecutionEventId          = ExecutionEvent.Id
     type GroupId                   = Group.Id
+    type IdempotencyKey            = util.IdempotencyKey
     type ObservationId             = Observation.Id
     type ProgramId                 = Program.Id
     type ProgramNoteId             = ProgramNote.Id
