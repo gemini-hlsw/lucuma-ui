@@ -30,28 +30,29 @@ import scalajs.js.JSConverters.*
  * FormInput component that uses a crystal View to share the content of the field
  */
 final case class FormInputTextView[V[_], A](
-  id:             NonEmptyString,
-  label:          js.UndefOr[TagMod] = js.undefined,
-  units:          js.UndefOr[String] = js.undefined,
-  preAddons:      List[TagMod] = List.empty,
-  postAddons:     List[TagMod] = List.empty,
-  size:           js.UndefOr[PlSize] = js.undefined,
-  groupClass:     js.UndefOr[Css] = js.undefined,
-  inputClass:     js.UndefOr[Css] = js.undefined,
-  labelClass:     js.UndefOr[Css] = js.undefined,
-  disabled:       js.UndefOr[Boolean] = js.undefined,
-  error:          js.UndefOr[NonEmptyString] = js.undefined,
-  placeholder:    js.UndefOr[String] = js.undefined,
-  tooltipOptions: js.UndefOr[TooltipOptions] = js.undefined,
-  value:          V[A],
-  validFormat:    InputValidFormat[A] = InputValidSplitEpi.id,
-  changeAuditor:  ChangeAuditor = ChangeAuditor.accept,
-  onTextChange:   String => Callback = _ => Callback.empty,
-  onValidChange:  FormInputTextView.ChangeCallback[Boolean] = _ => Callback.empty,
-  onFocus:        js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
-  onBlur:         FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) =>
+  id:              NonEmptyString,
+  label:           js.UndefOr[TagMod] = js.undefined,
+  units:           js.UndefOr[String] = js.undefined,
+  preAddons:       List[TagMod] = List.empty,
+  postAddons:      List[TagMod] = List.empty,
+  size:            js.UndefOr[PlSize] = js.undefined,
+  groupClass:      js.UndefOr[Css] = js.undefined,
+  inputClass:      js.UndefOr[Css] = js.undefined,
+  labelClass:      js.UndefOr[Css] = js.undefined,
+  disabled:        js.UndefOr[Boolean] = js.undefined,
+  error:           js.UndefOr[NonEmptyString] = js.undefined,
+  placeholder:     js.UndefOr[String] = js.undefined,
+  tooltipOptions:  js.UndefOr[TooltipOptions] = js.undefined,
+  value:           V[A],
+  validFormat:     InputValidFormat[A] = InputValidSplitEpi.id,
+  changeAuditor:   ChangeAuditor = ChangeAuditor.accept,
+  onTextChange:    String => Callback = _ => Callback.empty,
+  onValidChange:   FormInputTextView.ChangeCallback[Boolean] = _ => Callback.empty,
+  onFocus:         js.UndefOr[ReactFocusEventFromInput => Callback] = js.undefined,
+  onBlur:          FormInputTextView.ChangeCallback[EitherErrors[A]] = (_: EitherErrors[A]) =>
     Callback.empty,
-  modifiers:      Seq[TagMod] = Seq.empty
+  validateOnPaste: Boolean = true,
+  modifiers:       Seq[TagMod] = Seq.empty
 )(using val eq: Eq[A], val vl: ViewLike[V])
     extends ReactFnProps(FormInputTextView.component):
   def stringValue: String                  = value.get.foldMap(validFormat.reverseGet)
@@ -221,6 +222,13 @@ object FormInputTextView {
           val update     = normalized.foldMap(handleTextChange)
           e.preventDefaultCB >> update
 
+        // In many cases it is desireable to validate and normalize pasted text. Numeric fields, for example.
+        // However, in some cases we want to allow pasting of anything and just show the error state. See
+        // https://app.shortcut.com/lucuma/story/5817/allow-pasting-into-the-invitation-email-field
+        val allModifiers =
+          if props.validateOnPaste then (^.onPaste ==> onPaste) +: props.modifiers
+          else props.modifiers
+
         FormInputText(
           id = props.id,
           label = props.label,
@@ -241,7 +249,7 @@ object FormInputTextView {
           onKeyDown = onKeyDown,
           placeholder = props.placeholder,
           value = displayValue.value,
-          modifiers = (^.onPaste ==> onPaste) +: props.modifiers
+          modifiers = allModifiers
         )
       }
   }
