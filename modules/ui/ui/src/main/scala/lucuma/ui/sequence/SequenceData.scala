@@ -42,8 +42,9 @@ object SequenceData:
     List(acq, sci).flattenOption.toMap
 
   def fromOdbResponse(data: SequenceQuery.Data): Option[SequenceData] =
-    (data.observation, data.executionConfig).mapN: (obs, config) =>
-      SequenceData(config, buildSnMap(obs.itc))
+    data.executionConfig.map: config =>
+      val snMap = data.observation.map(obs => buildSnMap(obs.itc)).getOrElse(Map.empty)
+      SequenceData(config, snMap)
 
   val config: Lens[SequenceData, InstrumentExecutionConfig]                  = Focus[SequenceData](_.config)
   val snPerClass: Lens[SequenceData, Map[SequenceType, (SingleSN, TotalSN)]] =
