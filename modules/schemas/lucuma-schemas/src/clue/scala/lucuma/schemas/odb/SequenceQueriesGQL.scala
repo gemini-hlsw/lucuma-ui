@@ -13,8 +13,8 @@ object SequenceQueriesGQL:
   @GraphQL
   trait SequenceQuery extends GraphQLOperation[ObservationDB]:
     val document = s"""
-        query($$obsId: ObservationId!) {
-          observation(observationId: $$obsId) {
+        query($$obsId: ObservationId!, $$includeItc: Boolean = true) {
+          observation(observationId: $$obsId) @include(if: $$includeItc) {
             itc { ...itcFields }
           }
 
