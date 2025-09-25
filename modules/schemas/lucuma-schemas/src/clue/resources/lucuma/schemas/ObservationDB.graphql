@@ -346,6 +346,13 @@ type AtomRecord {
   Atom ID from the generated atom, if any, that produced this atom record.
   """
   generatedId: AtomId
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the atom is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """AtomRecord query results, limited to a maximum of 1000 entries."""
@@ -2775,6 +2782,9 @@ input ObservationPropertiesInput {
 
   """Set the notes for  thhe observer"""
   observerNotes: NonEmptyString
+
+  """Whether blind offset is enabled for this observation"""
+  useBlindOffset: Boolean
 }
 
 """Observation times properties"""
@@ -3523,6 +3533,13 @@ input RecordAtomInput {
   instrument: Instrument!
   sequenceType: SequenceType!
   generatedId: AtomId
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the atom is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """The result of recording an atom."""
@@ -3544,6 +3561,13 @@ input RecordDatasetInput {
 
   """Dataset comment."""
   comment: NonEmptyString
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the dataset is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """The result of recording a new dataset."""
@@ -3560,6 +3584,13 @@ input RecordGmosNorthStepInput {
   telescopeConfig: TelescopeConfigInput
   observeClass: ObserveClass!
   generatedId: StepId
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the step is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """The result of recording a GmosNorth step."""
@@ -3572,6 +3603,13 @@ type RecordGmosNorthStepResult {
 input RecordGmosNorthVisitInput {
   observationId: ObservationId!
   gmosNorth: GmosNorthStaticInput!
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the visit is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """The result of recording a GmosNorth visit."""
@@ -3588,6 +3626,13 @@ input RecordGmosSouthStepInput {
   telescopeConfig: TelescopeConfigInput
   observeClass: ObserveClass!
   generatedId: StepId
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the step is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """The result of recording a GmosSouth step."""
@@ -3600,6 +3645,13 @@ type RecordGmosSouthStepResult {
 input RecordGmosSouthVisitInput {
   observationId: ObservationId!
   gmosSouth: GmosSouthStaticInput!
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the visit is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """The result of recording a GmosSouth visit."""
@@ -4342,6 +4394,9 @@ input TargetEnvironmentInput {
   """
   explicitBase: CoordinatesInput
   asterism: [TargetId!]
+
+  """The target used for acquisition if a blind offset is needed."""
+  blindOffsetTarget: TargetPropertiesInput
 }
 
 """Target properties"""
@@ -5429,6 +5484,13 @@ type Dataset {
   """Dataset comment, if any has been set."""
   comment: NonEmptyString
 
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the dataset is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
+
   """Dataset time interval, if the dataset collection has started."""
   interval: TimestampInterval
 
@@ -5989,6 +6051,13 @@ input RecordFlamingos2StepInput {
   telescopeConfig: TelescopeConfigInput
   observeClass: ObserveClass!
   generatedId: StepId
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the step is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """The result of recording a Flamingos 2 step."""
@@ -6001,6 +6070,13 @@ type RecordFlamingos2StepResult {
 input RecordFlamingos2VisitInput {
   observationId: ObservationId!
   flamingos2: Flamingos2StaticInput!
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the visit is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 }
 
 """Result for recordFlamingos2Visit mutation."""
@@ -8205,6 +8281,9 @@ type Observation {
   whether a pending update is expected.
   """
   workflow: CalculatedObservationWorkflow
+
+  """Whether blind offset is enabled for this observation"""
+  useBlindOffset: Boolean!
 }
 
 enum ExecutionState {
@@ -10409,6 +10488,13 @@ type StepRecord {
   generatedId: StepId
 
   """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the step is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
+
+  """
   Flamingos 2 instrument configuration for this step, if any.  This will be null
   unless the `instrument` discriminator is "FLAMINGOS2".
   """
@@ -10638,6 +10724,9 @@ type TargetEnvironment {
   be returned.
   """
   guideTargetName: NonEmptyString
+
+  """The target used for blind offset acquisition, if any"""
+  blindOffsetTarget: Target
 }
 
 type TargetEnvironmentGroup {
@@ -11075,6 +11164,13 @@ type Visit {
 
   """Time accounting details for this visit."""
   timeChargeInvoice: TimeChargeInvoice!
+
+  """
+  Idempotency key, if any.  The IdempotencyKey may be provided by clients when
+  the visit is created and is used to enable problem-free retry in the case of
+  failure.
+  """
+  idempotencyKey: IdempotencyKey
 
   """
   Flamingos 2 static instrument configuration, for Flamingos 2 visits.  See the
