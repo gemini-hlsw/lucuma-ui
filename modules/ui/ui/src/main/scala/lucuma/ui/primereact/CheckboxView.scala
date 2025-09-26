@@ -14,7 +14,7 @@ import scalajs.js
 case class CheckboxView[V[_]](
   id:        NonEmptyString,
   value:     V[Boolean],
-  label:     String,
+  label:     TagMod,
   inputId:   js.UndefOr[String] = js.undefined, // id of the input element
   disabled:  js.UndefOr[Boolean] = js.undefined,
   clazz:     js.UndefOr[Css] = js.undefined,
