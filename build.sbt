@@ -25,7 +25,7 @@ val Versions = new {
   val mouse             = "1.3.2"
   val munit             = "1.2.0"
   val munitCatsEffect   = "2.1.0"
-  val pprint            = "0.9.3"
+  val pprint            = "0.9.4"
   val scalaJsReact      = "3.0.0-beta12"
 }
 
