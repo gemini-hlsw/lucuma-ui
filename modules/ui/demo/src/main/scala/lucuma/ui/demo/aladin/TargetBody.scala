@@ -19,8 +19,8 @@ import lucuma.schemas.model.BasicConfiguration
 import lucuma.ui.aladin.*
 import lucuma.ui.hooks.*
 import lucuma.ui.reusability.given
-import org.scalajs.dom
 
+import scala.concurrent.duration.*
 import scala.scalajs.js
 
 @js.native
@@ -76,28 +76,12 @@ object AladinTile {
 
   given Reusability[Fov] = Reusability.derive
 
-  private def loadOffsetFromStorage(): Offset =
-    Option(dom.window.localStorage.getItem("aladin-view-offset"))
-      .flatMap: str =>
-        str.split(",").toList match
-          case List(pStr, qStr) =>
-            for
-              p <- pStr.toDoubleOption
-              q <- qStr.toDoubleOption
-            yield Offset(Offset.P(Angle.fromDoubleArcseconds(p)),
-                         Offset.Q(Angle.fromDoubleArcseconds(q))
-            )
-          case _                => None
-      .getOrElse(Offset.Zero)
-
   val component =
     ScalaFnComponent[Props]: props =>
       for {
         s               <- useResizeDetector
-        ov              <- useStateView(loadOffsetFromStorage())
-        fov             <- useStateViewWithReuse(
-                             Fov(Angle.fromDMS(0, 15, 0, 0, 0), Angle.fromDMS(0, 15, 0, 0, 0))
-                           )
+        viewOffset      <- useStateView(AladinStorage.loadOffset)
+        fov             <- useStateView(AladinStorage.loadFov)
         scienceOffset   <- useStateView(AladinContainer.generateOffsetGrid().some)
         posAngle        <- useStateView(Angle.Angle0)
         instrument      <- useStateView(InstrumentType.GMOS)
@@ -106,6 +90,7 @@ object AladinTile {
         portDisposition <- useStateView(PortDisposition.Side)
         survey          <- useStateView(ImageSurvey.DSS)
         visSettings     <- useStateView(VisualizationSettings())
+        zoomDuration    <- useStateView(200.millis)
         _               <- useEffectWithDeps(instrument.get): instr =>
                              val newSurvey = instr match {
                                case InstrumentType.GMOS       => ImageSurvey.DSS
@@ -139,14 +124,15 @@ object AladinTile {
             ^.cls    := "tile",
             AladinContainer(fov,
                             props.c,
-                            ov,
+                            viewOffset,
                             scienceOffset,
                             posAngle,
                             instrument,
                             configuration,
                             portDisposition,
                             survey,
-                            visSettings
+                            visSettings,
+                            zoomDuration.get
             )
           ),
           <.div(
@@ -156,14 +142,15 @@ object AladinTile {
             ^.cls    := "tile",
             AladinControlsPanel(fov,
                                 props.c,
-                                ov,
+                                viewOffset,
                                 scienceOffset,
                                 posAngle,
                                 instrument,
                                 configuration,
                                 portDisposition,
                                 survey,
-                                visSettings
+                                visSettings,
+                                zoomDuration
             )
           )
         )

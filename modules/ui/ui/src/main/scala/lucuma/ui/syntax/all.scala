@@ -3,4 +3,16 @@
 
 package lucuma.ui.syntax
 
-object all extends render, components, pot, pprint, mod, css, util, view, effect, toast, table
+object all
+    extends render,
+      components,
+      console,
+      pot,
+      pprint,
+      mod,
+      css,
+      util,
+      view,
+      effect,
+      toast,
+      table
