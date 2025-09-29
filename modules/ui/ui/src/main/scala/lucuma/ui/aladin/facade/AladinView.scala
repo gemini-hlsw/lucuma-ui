@@ -7,4 +7,5 @@ import scala.scalajs.js
 
 @js.native
 trait AladinView extends js.Object:
-  val aladin: js.Object = js.native
+  val zoom: Zoom                        = js.native
+  val realDragging: js.UndefOr[Boolean] = js.native

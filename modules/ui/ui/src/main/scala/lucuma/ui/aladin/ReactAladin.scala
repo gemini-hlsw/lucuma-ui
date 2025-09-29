@@ -17,6 +17,9 @@ import scala.scalajs.js
 extension (a: Aladin)
   def size: Size = Size(a.getSize()(0), a.getSize()(1))
 
+  def isZooming: Boolean =
+    a.view.zoom.isZooming.toOption.getOrElse(false)
+
   def fov: Fov =
     Fov(Angle.fromDoubleDegrees(a.getFov()(0)), Angle.fromDoubleDegrees(a.getFov()(1)))
 
@@ -43,14 +46,28 @@ extension (a: Aladin)
   def pixelScale: PixelScale =
     PixelScale(a.getSize()(0) / a.getFov()(0), a.getSize()(1) / a.getFov()(1))
 
+  def applyZoom(zoomFactor: Double, duration: Int = 200): Callback =
+    Callback(
+      a.view.zoom.applyZoom(ZoomTo(zoomFactor, duration))
+    )
+
   def increaseZoomCB: Callback =
     Callback(a.increaseZoom())
+
+  def increaseZoomCB(f: Double): Callback =
+    applyZoom(a.getZoomFactor() / f)
+
+  def increaseZoomCB(f: Double, duration: Int): Callback =
+    applyZoom(a.getZoomFactor() / f, duration)
 
   def decreaseZoomCB: Callback =
     Callback(a.decreaseZoom())
 
-  def fixLayoutDimensionsCB: Callback =
-    Callback(a.fixLayoutDimensions())
+  def decreaseZoomCB(f: Double): Callback =
+    applyZoom(a.getZoomFactor() * f)
+
+  def decreaseZoomCB(f: Double, duration: Int): Callback =
+    applyZoom(a.getZoomFactor() * f, duration)
 
   def recalculateViewCB: Callback =
     Callback(a.recalculateView())
@@ -60,6 +77,9 @@ extension (a: Aladin)
 
   def gotoRaDecCB(c: Coordinates): Callback =
     Callback(a.gotoRaDec(c.ra.toAngle.toDoubleDegrees, c.dec.toAngle.toSignedDoubleDegrees))
+
+  def setFovCB(f: Fov): Callback =
+    Callback(a.setFov(f.x.toDoubleDegrees))
 
 case class ReactAladin(
   clazz:     Css = Css.Empty,
@@ -75,8 +95,6 @@ case class ReactAladin(
 object ReactAladin
     extends ReactFnComponent[ReactAladin](props =>
 
-      type Props = ReactAladin
-
       given Reusability[ReactAladin] = {
         given Reusability[AladinOptions] = props.R
         Reusability.by[ReactAladin, (Css, AladinOptions)](x => (x.clazz, x.options))
@@ -85,12 +103,12 @@ object ReactAladin
       def resetAladin(
         r:     CallbackTo[Option[html.Div]],
         state: UseState[Boolean],
-        props: Props,
+        props: ReactAladin,
         force: Boolean
       ): Callback =
         r.flatMap {
           case Some(e) if force || !state.value =>
-            CallbackTo(new JsAladin(e, props.options)).flatMap { a =>
+            CallbackTo(A.aladin(e, props.options)).flatMap { a =>
               state.setState(true) *>
                 props.customize.fold(Callback.empty)(f => f(a))
             }
@@ -100,11 +118,12 @@ object ReactAladin
       for {
         init <- useState(false)
         r    <- useRefToVdom[html.Div]
-        _    <- useLayoutEffectWithDeps(props) { _ =>
+        _    <- useEffectWithDeps(props) { _ =>
                   init.setState(true) *> resetAladin(r.get, init, props, true)
                 }
         _    <- useLayoutEffectOnMount {
-                  resetAladin(r.get, init, props, false)
+                  AsyncCallback.fromCallbackToJsPromise(CallbackTo(A.init)).toCallback *>
+                    resetAladin(r.get, init, props, false)
                 }
       } yield <.div(props.clazz, ^.untypedRef := r)
     )

@@ -51,12 +51,13 @@ object MouseMoved:
     )
 
 enum CooFrame:
-  given enumCooFrame: EnumValue[CooFrame] = EnumValue.toLowerCaseString
   case J2000    extends CooFrame
   case J2000d   extends CooFrame
   case Galactic extends CooFrame
 
 object CooFrame:
+  given EnumValue[CooFrame] = EnumValue.toLowerCaseString
+
   def fromString(s: String): Option[CooFrame] =
     s match
       case "j2000"    => Some(J2000)
@@ -76,7 +77,7 @@ object AladinOptions:
     fov:                      js.UndefOr[Angle] = js.undefined,
     target:                   js.UndefOr[String] = js.undefined,
     survey:                   js.UndefOr[ImageSurvey] = js.undefined,
-    // cooFrame:                 js.UndefOr[String] = js.undefined,
+    cooFrame:                 js.UndefOr[CooFrame] = js.undefined,
     showReticle:              js.UndefOr[Boolean] = js.undefined,
     showZoomControl:          js.UndefOr[Boolean] = js.undefined,
     showFullscreenControl:    js.UndefOr[Boolean] = js.undefined,
@@ -103,7 +104,7 @@ object AladinOptions:
     fov.foreach(v => p.fov = v.toDoubleDegrees)
     target.foreach(v => p.target = v)
     survey.foreach(v => p.survey = v.id)
-    // cooFrame.foreach(v => p.cooFrame = v.toJs)
+    cooFrame.foreach(v => p.cooFrame = v.toJs)
     reticleColor.foreach(v => p.reticleColor = v: String)
     reticleSize.foreach(v => p.reticleSize = v)
     imageSurvey.foreach(v => p.imageSurvey = v)

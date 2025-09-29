@@ -7,6 +7,7 @@ import cats.FlatMap
 import cats.effect.IO
 import japgolly.scalajs.react.Callback
 import lucuma.ui.pprint.PPrinter
+import org.scalajs.dom
 import org.typelevel.log4cats.Logger
 
 trait pprint:
@@ -46,3 +47,10 @@ trait pprint:
       PPrinter.trace(message, x)(using F, logger)
 
 object pprint extends pprint
+
+trait console:
+  extension (c: Callback.type)
+    def clog(x:   Any): Callback = Callback(dom.console.log(x))
+    def cerror(x: Any): Callback = Callback(dom.console.error(x))
+
+object console extends console

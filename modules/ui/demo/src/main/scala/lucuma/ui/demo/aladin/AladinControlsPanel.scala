@@ -25,9 +25,10 @@ import lucuma.ui.primereact.CheckboxView
 import lucuma.ui.primereact.FormEnumDropdownView
 import lucuma.ui.primereact.given_ViewLike_View
 import monocle.macros.GenLens
-import org.scalajs.dom
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.noop.NoOpLogger
+
+import scala.concurrent.duration.*
 
 case class AladinControlsPanel(
   fov:             View[Fov],
@@ -39,7 +40,8 @@ case class AladinControlsPanel(
   configuration:   View[BasicConfiguration],
   portDisposition: View[PortDisposition],
   survey:          View[ImageSurvey],
-  visSettings:     View[VisualizationSettings]
+  visSettings:     View[VisualizationSettings],
+  zoomDuration:    View[FiniteDuration]
 ) extends ReactFnProps[AladinControlsPanel](AladinControlsPanel.component)
 
 object AladinControlsPanel {
@@ -74,18 +76,14 @@ object AladinControlsPanel {
       scienceOffsetDialogVisible     <- useStateView(false)
       acquisitionOffsetDialogVisible <- useStateView(false)
     } yield
-      def saveOffsetToStorage(offset: Offset): Callback =
-        Callback {
-          dom.window.localStorage.setItem(
-            "aladin-view-offset",
-            s"${Offset.P.signedDecimalArcseconds.get(offset.p)},${Offset.Q.signedDecimalArcseconds.get(offset.q)}"
-          )
-        }
 
       val viewOffset =
-        props.viewOffset.withOnMod(saveOffsetToStorage)
+        props.viewOffset.withOnMod(AladinStorage.saveOffset)
 
       val vizOffset = viewOffset.get
+
+      val viewFov =
+        props.fov.withOnMod(AladinStorage.saveFov)
 
       val lsMode = props.configuration.zoom(BasicConfiguration.gmosSouthLongSlit)
 
@@ -259,8 +257,9 @@ object AladinControlsPanel {
                 )
               ),
               Button(
-                label = "Reset Offset",
-                onClick = viewOffset.set(Offset.Zero) *> saveOffsetToStorage(Offset.Zero),
+                label = "Reset Offset & FOV",
+                onClick = viewOffset.set(Offset.Zero) *>
+                  viewFov.set(AladinStorage.DefaultFov),
                 severity = Button.Severity.Secondary,
                 size = Button.Size.Small
               )
@@ -323,6 +322,23 @@ object AladinControlsPanel {
                   ),
                   label = "Probe Visible"
                 )
+              )
+            ),
+            <.div(
+              Css("input-group"),
+              <.label(^.htmlFor := "zoom-duration-input", "Zoom Duration (ms)"),
+              InputNumber(
+                id = "zoom-duration-input",
+                value = props.zoomDuration.get.toMillis.toDouble,
+                min = 50.0,
+                max = 2000.0,
+                onValueChange = e =>
+                  if (e.value != null) {
+                    val doubleValue = e.value.asInstanceOf[Double]
+                    props.zoomDuration.set(doubleValue.toLong.millis)
+                  } else {
+                    Callback.empty
+                  }
               )
             )
           )

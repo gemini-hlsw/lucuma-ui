@@ -33,7 +33,8 @@ import lucuma.ui.aladin.*
 import lucuma.ui.reusability
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
-import org.scalajs.dom
+
+import scala.concurrent.duration.*
 
 case class AladinContainer(
   fov:             View[Fov],
@@ -45,7 +46,8 @@ case class AladinContainer(
   configuration:   View[BasicConfiguration],
   portDisposition: View[PortDisposition],
   survey:          View[ImageSurvey],
-  visSettings:     View[VisualizationSettings]
+  visSettings:     View[VisualizationSettings],
+  zoomDuration:    FiniteDuration = 200.millis
 ) extends ReactFnProps[AladinContainer](AladinContainer.component) {
   val aladinCoordsStr: String = Coordinates.fromHmsDms.reverseGet(coordinates)
 }
@@ -132,21 +134,12 @@ object AladinContainer {
                                  )
                                )
     } yield
-      // Save offsets like explore
-      def saveOffsetToStorage(offset: Offset): Callback =
-        Callback {
-          dom.window.localStorage.setItem(
-            "aladin-view-offset",
-            s"${Offset.P.signedDecimalArcseconds.get(offset.p)},${Offset.Q.signedDecimalArcseconds.get(offset.q)}"
-          )
-        }
-
       def isRelevantChange(prevOffset: Offset, newOffset: Offset): Boolean =
-        prevOffset.distance(newOffset).toMicroarcseconds > (1e6 / 50)
+        prevOffset.distance(newOffset).toMicroarcseconds > (1e6 / 120)
 
       val viewOffset = props.viewOffset.withOnMod((prevOffset, newOffset) =>
         val relevantChange = isRelevantChange(prevOffset, newOffset)
-        saveOffsetToStorage(newOffset).when_(relevantChange)
+        AladinStorage.saveOffset(newOffset).when_(relevantChange)
       )
 
       val vizOffset = viewOffset.get
@@ -167,11 +160,13 @@ object AladinContainer {
       val aladinCoordsStr: String =
         Coordinates.fromHmsDms.reverseGet(props.coordinates) // Use stable initial coordinates
 
-      def onZoom = (v: Fov) => props.fov.set(v)
+      def onZoom(a: Aladin) = (v: Fov) =>
+        props.fov.set(v) *>
+          AladinStorage.saveFov(v).unless_(a.isZooming)
 
       def customizeAladin(v: Aladin): Callback =
         aladinRef.setState(Some(v)) *>
-          v.onZoomCB(onZoom) *> // re render on zoom
+          v.onZoomCB(onZoom(v)) *> // re render on zoom
           v.onPositionChangedCB(onPositionChanged)
 
       val gs = props.coordinates
@@ -286,7 +281,12 @@ object AladinContainer {
 
       <.div(
         Css("react-aladin-container"),
-        aladinRef.value.map(AladinZoomControl(_)),
+        aladinRef.value.map(
+          AladinZoomControl(
+            _,
+            duration = props.zoomDuration.toMillis.toInt
+          )
+        ),
         AladinFullScreenControl(fullScreen),
         // This happens during a second render. If we let the height to be zero, aladin
         // will take it as 1. This height ends up being a denominator, which, if low,
