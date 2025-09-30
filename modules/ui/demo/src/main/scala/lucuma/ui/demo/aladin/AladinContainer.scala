@@ -32,9 +32,12 @@ import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
 import lucuma.ui.reusability
 import lucuma.ui.visualization.*
+import lucuma.ui.syntax.console.*
 import monocle.macros.GenLens
 
 import scala.concurrent.duration.*
+
+import lucuma.ui.aladin.facade.ViewMode
 
 case class AladinContainer(
   fov:             View[Fov],
@@ -47,7 +50,9 @@ case class AladinContainer(
   portDisposition: View[PortDisposition],
   survey:          View[ImageSurvey],
   visSettings:     View[VisualizationSettings],
-  zoomDuration:    FiniteDuration = 200.millis
+  zoomDuration:    FiniteDuration = 200.millis,
+  panningEnabled:  View[Boolean],
+  mousePosition:   View[Option[Coordinates]]
 ) extends ReactFnProps[AladinContainer](AladinContainer.component) {
   val aladinCoordsStr: String = Coordinates.fromHmsDms.reverseGet(coordinates)
 }
@@ -154,7 +159,7 @@ object AladinContainer {
         val relevantChange = isRelevantChange(viewOffset.get, newOffset) && viewCoords
           .angularDistance(currentPos.get)
           .toMicroarcseconds > (1e6 / 50)
-        currentPos.set(viewCoords) *>
+        Callback.log(s"$u") *> currentPos.set(viewCoords) *>
           viewOffset.set(newOffset).when_(relevantChange)
 
       val aladinCoordsStr: String =
@@ -167,7 +172,10 @@ object AladinContainer {
       def customizeAladin(v: Aladin): Callback =
         aladinRef.setState(Some(v)) *>
           v.onZoomCB(onZoom(v)) *> // re render on zoom
-          v.onPositionChangedCB(onPositionChanged)
+          v.onPositionChangedCB(onPositionChanged) *>
+          Callback.clog(v.aladinDiv) *>
+          v.onMouseMoveCB(s => props.mousePosition.set(Some(Coordinates(s.ra, s.dec)))) *>
+          v.setViewMode(ViewMode.Pan)
 
       val gs = props.coordinates
 
@@ -330,12 +338,17 @@ object AladinContainer {
                 fov = props.fov.get.x,
                 showGotoControl = false,
                 showZoomControl = false,
+                showCooGridControl = false,
+                showStatusBar = false,
+                showFov = false,
+                showFrame = false,
                 showCooLocation = false,
                 showFullscreenControl = false,
                 showProjectionControl = false,
                 survey = props.survey.get
               ),
-              customize = customizeAladin(_)
+              customize = customizeAladin(_),
+              panningEnabled = props.panningEnabled.get
             )
           )
         else EmptyVdom

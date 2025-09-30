@@ -91,6 +91,8 @@ object AladinTile {
         survey          <- useStateView(ImageSurvey.DSS)
         visSettings     <- useStateView(VisualizationSettings())
         zoomDuration    <- useStateView(200.millis)
+        panningEnabled  <- useStateView(true)
+        mousePosition   <- useStateView(none[Coordinates])
         _               <- useEffectWithDeps(instrument.get): instr =>
                              val newSurvey = instr match {
                                case InstrumentType.GMOS       => ImageSurvey.DSS
@@ -132,7 +134,9 @@ object AladinTile {
                             portDisposition,
                             survey,
                             visSettings,
-                            zoomDuration.get
+                            zoomDuration.get,
+                            panningEnabled,
+                            mousePosition
             )
           ),
           <.div(
@@ -150,7 +154,9 @@ object AladinTile {
                                 portDisposition,
                                 survey,
                                 visSettings,
-                                zoomDuration
+                                zoomDuration,
+                                panningEnabled,
+                                mousePosition.get
             )
           )
         )

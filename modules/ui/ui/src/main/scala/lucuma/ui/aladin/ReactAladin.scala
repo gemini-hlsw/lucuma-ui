@@ -11,8 +11,12 @@ import lucuma.core.math.*
 import lucuma.react.common.*
 import lucuma.ui.aladin.facade.*
 import org.scalajs.dom.html
+import cats.syntax.option.*
 
 import scala.scalajs.js
+import scala.scalajs.js.JSConverters.*
+import org.scalajs.dom.AbortController
+import org.scalajs.dom.MouseEvent
 
 extension (a: Aladin)
   def size: Size = Size(a.getSize()(0), a.getSize()(1))
@@ -81,11 +85,15 @@ extension (a: Aladin)
   def setFovCB(f: Fov): Callback =
     Callback(a.setFov(f.x.toDoubleDegrees))
 
+  def setViewMode(m: ViewMode): Callback =
+    Callback(a.view.setMode(m.value))
+
 case class ReactAladin(
-  clazz:     Css = Css.Empty,
-  options:   AladinOptions = AladinOptions.Default,
-  customize: js.UndefOr[Aladin => Callback] = js.undefined,
-  modifiers: Seq[TagMod] = Seq.empty
+  clazz:          Css = Css.Empty,
+  options:        AladinOptions = AladinOptions.Default,
+  customize:      js.UndefOr[Aladin => Callback] = js.undefined,
+  panningEnabled: Boolean = true,
+  modifiers:      Seq[TagMod] = Seq.empty
 )(using val R: Reusability[AladinOptions])
     extends ReactFnProps(ReactAladin):
   inline def addModifiers(modifiers: Seq[TagMod]) = copy(modifiers = this.modifiers ++ modifiers)
@@ -101,29 +109,70 @@ object ReactAladin
       }
 
       def resetAladin(
-        r:     CallbackTo[Option[html.Div]],
-        state: UseState[Boolean],
-        props: ReactAladin,
-        force: Boolean
+        r:         CallbackTo[Option[html.Div]],
+        state:     UseState[Boolean],
+        aladinRef: UseState[Option[Aladin]],
+        props:     ReactAladin,
+        force:     Boolean
       ): Callback =
         r.flatMap {
           case Some(e) if force || !state.value =>
             CallbackTo(A.aladin(e, props.options)).flatMap { a =>
               state.setState(true) *>
+                aladinRef.setState(Some(a)) *>
                 props.customize.fold(Callback.empty)(f => f(a))
             }
           case _                                => Callback.empty
         }
 
       for {
-        init <- useState(false)
-        r    <- useRefToVdom[html.Div]
-        _    <- useEffectWithDeps(props) { _ =>
-                  init.setState(true) *> resetAladin(r.get, init, props, true)
-                }
-        _    <- useLayoutEffectOnMount {
-                  AsyncCallback.fromCallbackToJsPromise(CallbackTo(A.init)).toCallback *>
-                    resetAladin(r.get, init, props, false)
-                }
+        init               <- useState(false)
+        aladinRef          <- useState(none[Aladin])
+        r                  <- useRefToVdom[html.Div]
+        abortControllerRef <- useRef(none[AbortController])
+        _                  <- useEffectWithDeps(props) { _ =>
+                                init.setState(true) *> resetAladin(r.get, init, aladinRef, props, true)
+                              }
+        _                  <- useLayoutEffectOnMount {
+                                AsyncCallback.fromCallbackToJsPromise(CallbackTo(A.init)).toCallback *>
+                                  resetAladin(r.get, init, aladinRef, props, false)
+                              }
+        _                  <- {
+                                given Reusability[Aladin] = Reusability.byRef
+                                useEffectWithDeps((props.panningEnabled, aladinRef.value)) {
+                                  case (enabled, Some(aladin)) =>
+                                    val catalogCanvas = aladin.view.catalogCanvas
+                                    abortControllerRef.get.flatMap { current =>
+                                      if (!enabled) {
+                                        // Disable panning - add event listener with AbortController
+                                        current match {
+                                          case None =>
+                                            val controller = new AbortController()
+                                            val listener: js.Function1[MouseEvent, Unit] =
+                                              (e: MouseEvent) => {
+                                                e.stopImmediatePropagation()
+                                                e.preventDefault()
+                                              }
+
+                                            val options = js.Dynamic.literal(
+                                              capture = true,
+                                              signal = controller.signal
+                                            ).asInstanceOf[org.scalajs.dom.EventListenerOptions]
+
+                                            Callback(catalogCanvas.addEventListener("mousedown", listener, options)) *>
+                                              abortControllerRef.set(Some(controller))
+                                          case Some(_) => Callback.empty
+                                        }
+                                      } else {
+                                        // Enable panning - abort the controller to remove the listener
+                                        current.fold(Callback.empty) { controller =>
+                                          Callback(controller.abort()) *>
+                                            abortControllerRef.set(none)
+                                        }
+                                      }
+                                    }
+                                  case _ => Callback.empty
+                                }
+                              }
       } yield <.div(props.clazz, ^.untypedRef := r)
     )
