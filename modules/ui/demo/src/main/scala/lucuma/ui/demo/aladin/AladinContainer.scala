@@ -32,7 +32,6 @@ import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
 import lucuma.ui.aladin.facade.ViewMode
 import lucuma.ui.reusability
-import lucuma.ui.syntax.console.*
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
 
@@ -158,7 +157,7 @@ object AladinContainer {
         val relevantChange = isRelevantChange(viewOffset.get, newOffset) && viewCoords
           .angularDistance(currentPos.get)
           .toMicroarcseconds > (1e6 / 50)
-        Callback.log(s"$u") *> currentPos.set(viewCoords) *>
+        currentPos.set(viewCoords) *>
           viewOffset.set(newOffset).when_(relevantChange)
 
       val aladinCoordsStr: String =
@@ -172,7 +171,6 @@ object AladinContainer {
         aladinRef.setState(Some(v)) *>
           v.onZoomCB(onZoom(v)) *> // re render on zoom
           v.onPositionChangedCB(onPositionChanged) *>
-          Callback.clog(v.aladinDiv) *>
           v.onMouseMoveCB(s => props.mousePosition.set(Some(Coordinates(s.ra, s.dec)))) *>
           v.setViewMode(ViewMode.Pan)
 
