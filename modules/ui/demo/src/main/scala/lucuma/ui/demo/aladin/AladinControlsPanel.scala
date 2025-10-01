@@ -41,7 +41,9 @@ case class AladinControlsPanel(
   portDisposition: View[PortDisposition],
   survey:          View[ImageSurvey],
   visSettings:     View[VisualizationSettings],
-  zoomDuration:    View[FiniteDuration]
+  zoomDuration:    View[FiniteDuration],
+  panningEnabled:  View[Boolean],
+  mousePosition:   Option[Coordinates]
 ) extends ReactFnProps[AladinControlsPanel](AladinControlsPanel.component)
 
 object AladinControlsPanel {
@@ -106,6 +108,13 @@ object AladinControlsPanel {
             <.span(Css("info-value"), vizOffset.toStringOffset),
             <.span(Css("info-label"), "PA: "),
             <.span(Css("info-value"), s"${props.posAngle.get.toDoubleDegrees}°")
+          ),
+          <.div(
+            Css("info-row"),
+            <.span(Css("info-label"), "Mouse pos: "),
+            <.span(Css("info-value"),
+                   props.mousePosition.fold("N/A")(c => Coordinates.fromHmsDms.reverseGet(c))
+            )
           )
         ),
         <.div(
@@ -321,6 +330,14 @@ object AladinControlsPanel {
                     (vs: VisualizationSettings) => vs.copy(probeVisible = f(vs.probeVisible))
                   ),
                   label = "Probe Visible"
+                )
+              ),
+              <.div(
+                Css("toggle-container"),
+                CheckboxView(
+                  id = NonEmptyString.unsafeFrom("panning-enabled"),
+                  value = props.panningEnabled,
+                  label = "Panning Enabled"
                 )
               )
             ),

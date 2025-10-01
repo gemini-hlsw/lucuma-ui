@@ -30,6 +30,7 @@ import lucuma.react.resizeDetector.hooks.*
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
+import lucuma.ui.aladin.facade.ViewMode
 import lucuma.ui.reusability
 import lucuma.ui.visualization.*
 import monocle.macros.GenLens
@@ -47,7 +48,9 @@ case class AladinContainer(
   portDisposition: View[PortDisposition],
   survey:          View[ImageSurvey],
   visSettings:     View[VisualizationSettings],
-  zoomDuration:    FiniteDuration = 200.millis
+  zoomDuration:    FiniteDuration = 200.millis,
+  panningEnabled:  View[Boolean],
+  mousePosition:   View[Option[Coordinates]]
 ) extends ReactFnProps[AladinContainer](AladinContainer.component) {
   val aladinCoordsStr: String = Coordinates.fromHmsDms.reverseGet(coordinates)
 }
@@ -167,7 +170,9 @@ object AladinContainer {
       def customizeAladin(v: Aladin): Callback =
         aladinRef.setState(Some(v)) *>
           v.onZoomCB(onZoom(v)) *> // re render on zoom
-          v.onPositionChangedCB(onPositionChanged)
+          v.onPositionChangedCB(onPositionChanged) *>
+          v.onMouseMoveCB(s => props.mousePosition.set(Some(Coordinates(s.ra, s.dec)))) *>
+          v.setViewMode(ViewMode.Pan)
 
       val gs = props.coordinates
 
@@ -330,12 +335,17 @@ object AladinContainer {
                 fov = props.fov.get.x,
                 showGotoControl = false,
                 showZoomControl = false,
+                showCooGridControl = false,
+                showStatusBar = false,
+                showFov = false,
+                showFrame = false,
                 showCooLocation = false,
                 showFullscreenControl = false,
                 showProjectionControl = false,
                 survey = props.survey.get
               ),
-              customize = customizeAladin(_)
+              customize = customizeAladin(_),
+              panningEnabled = props.panningEnabled.get
             )
           )
         else EmptyVdom

@@ -91,6 +91,8 @@ object AladinTile {
         survey          <- useStateView(ImageSurvey.DSS)
         visSettings     <- useStateView(VisualizationSettings())
         zoomDuration    <- useStateView(200.millis)
+        panningEnabled  <- useStateView(true)
+        mousePosition   <- useStateView(none[Coordinates])
         _               <- useEffectWithDeps(instrument.get): instr =>
                              val newSurvey = instr match {
                                case InstrumentType.GMOS       => ImageSurvey.DSS
@@ -122,17 +124,20 @@ object AladinTile {
             ^.width  := "100%",
             ^.key    := "target",
             ^.cls    := "tile",
-            AladinContainer(fov,
-                            props.c,
-                            viewOffset,
-                            scienceOffset,
-                            posAngle,
-                            instrument,
-                            configuration,
-                            portDisposition,
-                            survey,
-                            visSettings,
-                            zoomDuration.get
+            AladinContainer(
+              fov,
+              props.c,
+              viewOffset,
+              scienceOffset,
+              posAngle,
+              instrument,
+              configuration,
+              portDisposition,
+              survey,
+              visSettings,
+              zoomDuration.get,
+              panningEnabled,
+              mousePosition
             )
           ),
           <.div(
@@ -140,17 +145,20 @@ object AladinTile {
             ^.width  := "100%",
             ^.key    := "controls",
             ^.cls    := "tile",
-            AladinControlsPanel(fov,
-                                props.c,
-                                viewOffset,
-                                scienceOffset,
-                                posAngle,
-                                instrument,
-                                configuration,
-                                portDisposition,
-                                survey,
-                                visSettings,
-                                zoomDuration
+            AladinControlsPanel(
+              fov,
+              props.c,
+              viewOffset,
+              scienceOffset,
+              posAngle,
+              instrument,
+              configuration,
+              portDisposition,
+              survey,
+              visSettings,
+              zoomDuration,
+              panningEnabled,
+              mousePosition.get
             )
           )
         )
