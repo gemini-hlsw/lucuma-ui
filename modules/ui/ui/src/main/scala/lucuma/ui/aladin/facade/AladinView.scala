@@ -18,4 +18,6 @@ trait AladinView extends js.Object:
   val zoom: Zoom                        = js.native
   val realDragging: js.UndefOr[Boolean] = js.native
   val catalogCanvas: HTMLCanvasElement  = js.native
+  val aladin: JsAladin                  = js.native
   def setMode(mode: Int): Unit          = js.native
+  def requestRedraw(): Unit             = js.native

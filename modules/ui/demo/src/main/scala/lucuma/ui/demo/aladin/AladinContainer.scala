@@ -30,14 +30,13 @@ import lucuma.react.resizeDetector.hooks.*
 import lucuma.schemas.model.BasicConfiguration
 import lucuma.schemas.model.CentralWavelength
 import lucuma.ui.aladin.*
+import lucuma.ui.aladin.facade.ViewMode
 import lucuma.ui.reusability
-import lucuma.ui.visualization.*
 import lucuma.ui.syntax.console.*
+import lucuma.ui.visualization.*
 import monocle.macros.GenLens
 
 import scala.concurrent.duration.*
-
-import lucuma.ui.aladin.facade.ViewMode
 
 case class AladinContainer(
   fov:             View[Fov],

@@ -124,19 +124,20 @@ object AladinTile {
             ^.width  := "100%",
             ^.key    := "target",
             ^.cls    := "tile",
-            AladinContainer(fov,
-                            props.c,
-                            viewOffset,
-                            scienceOffset,
-                            posAngle,
-                            instrument,
-                            configuration,
-                            portDisposition,
-                            survey,
-                            visSettings,
-                            zoomDuration.get,
-                            panningEnabled,
-                            mousePosition
+            AladinContainer(
+              fov,
+              props.c,
+              viewOffset,
+              scienceOffset,
+              posAngle,
+              instrument,
+              configuration,
+              portDisposition,
+              survey,
+              visSettings,
+              zoomDuration.get,
+              panningEnabled,
+              mousePosition
             )
           ),
           <.div(
@@ -144,19 +145,20 @@ object AladinTile {
             ^.width  := "100%",
             ^.key    := "controls",
             ^.cls    := "tile",
-            AladinControlsPanel(fov,
-                                props.c,
-                                viewOffset,
-                                scienceOffset,
-                                posAngle,
-                                instrument,
-                                configuration,
-                                portDisposition,
-                                survey,
-                                visSettings,
-                                zoomDuration,
-                                panningEnabled,
-                                mousePosition.get
+            AladinControlsPanel(
+              fov,
+              props.c,
+              viewOffset,
+              scienceOffset,
+              posAngle,
+              instrument,
+              configuration,
+              portDisposition,
+              survey,
+              visSettings,
+              zoomDuration,
+              panningEnabled,
+              mousePosition.get
             )
           )
         )

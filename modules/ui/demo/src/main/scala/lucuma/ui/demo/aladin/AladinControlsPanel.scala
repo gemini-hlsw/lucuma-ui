@@ -113,7 +113,7 @@ object AladinControlsPanel {
             Css("info-row"),
             <.span(Css("info-label"), "Mouse pos: "),
             <.span(Css("info-value"),
-              props.mousePosition.fold("N/A")(c => Coordinates.fromHmsDms.reverseGet(c))
+                   props.mousePosition.fold("N/A")(c => Coordinates.fromHmsDms.reverseGet(c))
             )
           )
         ),
