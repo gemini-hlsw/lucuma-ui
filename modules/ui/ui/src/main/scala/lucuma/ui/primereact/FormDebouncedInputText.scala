@@ -74,9 +74,8 @@ object FormDebouncedInputText
       )
 
       React.Fragment(
-        props.label.map(l =>
-          FormLabel(htmlFor = props.id, size = props.size, clazz = props.labelClass)(l)
-        ),
+        props.label
+          .map(l => FormLabel(htmlFor = props.id, size = props.size, clazz = props.labelClass)(l)),
         input
       )
     )

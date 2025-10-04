@@ -83,6 +83,6 @@ extension [A](
     }
 
 extension (addons: List[TagMod])
-  private[primereact] def build(size: js.UndefOr[PlSize]): TagMod = addons.toTagMod(
-    using a => <.span(a, PrimeStyles.InputGroupAddon |+| size.toOption.map(_.cls).orEmpty)
+  private[primereact] def build(size: js.UndefOr[PlSize]): TagMod = addons.toTagMod(using
+    a => <.span(a, PrimeStyles.InputGroupAddon |+| size.toOption.map(_.cls).orEmpty)
   )

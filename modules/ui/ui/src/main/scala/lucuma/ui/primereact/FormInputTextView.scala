@@ -122,10 +122,10 @@ object FormInputTextView {
 
     ScalaFnComponent
       .withHooks[Props[V, A]]
-      .useStateBy(props => props.stringValue)        // displayValue
-      .useState(none[(Int, Int)])                    // cursor
-      .useRef(0)                                     // lastKeyCode
-      .useRef(none[html.Input])                      // inputElement
+      .useStateBy(props => props.stringValue) // displayValue
+      .useState(none[(Int, Int)]) // cursor
+      .useRef(0) // lastKeyCode
+      .useRef(none[html.Input]) // inputElement
       .useState(none[NonEmptyChain[NonEmptyString]]) // errors
       .useEffectWithDepsBy((props, _, _, _, _, _) => props.stringValue)(
         (_, displayValue, _, _, _, errors) =>
