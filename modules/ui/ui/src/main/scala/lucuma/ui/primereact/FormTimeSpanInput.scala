@@ -67,8 +67,7 @@ object FormTimeSpanInput:
             props.value.set(vs.toClampedTimeSpan(props.min.toOption, props.max.toOption))
           )
           .toListOfViews
-          .toVdomArray(
-            using
+          .toVdomArray(using
             (unit, valueView) =>
               val unitName = unit.shortName
               FormInputTextView(

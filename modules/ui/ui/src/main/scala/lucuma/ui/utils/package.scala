@@ -72,7 +72,7 @@ given [A: Enumerated, B: Enumerated]: Enumerated[(A, B)] =
     .withTag { case (a, b) => s"${Enumerated[A].tag(a)}, ${Enumerated[B].tag(b)} " }
 
 // Coulomb implicits
-extension [F[_], N, U](self:          ViewF[F, Quantity[N, U]])
+extension [F[_], N, U](self: ViewF[F, Quantity[N, U]])
   def stripQuantity: ViewF[F, N] = self.as(quantityIso[N, U])
 
 extension [F[_], N, U](self: ViewOptF[F, Quantity[N, U]])

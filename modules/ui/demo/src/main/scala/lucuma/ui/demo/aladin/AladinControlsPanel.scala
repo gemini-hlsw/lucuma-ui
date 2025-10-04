@@ -147,17 +147,15 @@ object AladinControlsPanel {
                     case _: BasicConfiguration.GmosSouthImaging  => GmosMode.Imaging
                     case _                                       => GmosMode.Imaging
                   }
-                )((f: GmosMode => GmosMode) =>
-                  (config: BasicConfiguration) => {
-                    val currentMode = config match {
-                      case _: BasicConfiguration.GmosSouthLongSlit => GmosMode.LongSlit
-                      case _: BasicConfiguration.GmosSouthImaging  => GmosMode.Imaging
-                      case _                                       => GmosMode.Imaging
-                    }
-                    val newMode     = f(currentMode)
-                    baseGmosConf(newMode)
+                ) { (f: GmosMode => GmosMode) => (config: BasicConfiguration) =>
+                  val currentMode = config match {
+                    case _: BasicConfiguration.GmosSouthLongSlit => GmosMode.LongSlit
+                    case _: BasicConfiguration.GmosSouthImaging  => GmosMode.Imaging
+                    case _                                       => GmosMode.Imaging
                   }
-                )
+                  val newMode     = f(currentMode)
+                  baseGmosConf(newMode)
+                }
                 <.div(
                   Css("input-group"),
                   FormEnumDropdownView(

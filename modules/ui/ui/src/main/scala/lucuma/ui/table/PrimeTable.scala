@@ -29,8 +29,7 @@ trait PrimeTableProps[T, TM, CM, TF] extends HTMLTableProps[T, TM, CM, TF]:
       compact.toOption
         .map(_ match
           case Compact.Very => Css("pl-very-compact")
-          case Compact      => Css("pl-compact")
-        )
+          case Compact      => Css("pl-compact"))
         .orEmpty
 
 case class PrimeTable[T, TM, CM, TF](
