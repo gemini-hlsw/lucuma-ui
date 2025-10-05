@@ -15,7 +15,7 @@
     "vite-plugin-env-compatible": "^2.0.1"
   },
   "dependencies": {
-    "@fortawesome/pro-light-svg-icons": "^6.7.2",
+    "@fortawesome/pro-light-svg-icons": "^7.1.0",
     "@fortawesome/pro-thin-svg-icons": "^6.7.2",
     "aladin-lite": "^3.7.2-beta"
   }
