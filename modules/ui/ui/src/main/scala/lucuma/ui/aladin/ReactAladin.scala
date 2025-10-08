@@ -184,6 +184,7 @@ object ReactAladin
                         EventListenerOptions(capture = true, signal = controller.signal)
 
                       Callback(catalogCanvas.addEventListener("mousedown", listener, options)) *>
+                        Callback(catalogCanvas.addEventListener("wheel", listener, options)) *>
                         abortRef.setState(Some(controller))
                   }
                 } else {
